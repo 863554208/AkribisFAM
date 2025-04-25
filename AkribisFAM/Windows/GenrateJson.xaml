@@ -1,0 +1,41 @@
+﻿<Window x:Class="WpfApp1.GenrateJson"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="GenrateJson" Height="420" Width="400">
+    <Grid>
+        <Label Content="PalletID:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="PalletIDtext" HorizontalAlignment="Left" Margin="80,14,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="85" Text="1" PreviewTextInput="IntText_PreviewTextInput" TextChanged="Inttext_TextChanged"/>
+        <Label Content="PalletW:" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="PalletWtext" HorizontalAlignment="Left" Margin="80,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="85" Text="1" PreviewTextInput="IntText_PreviewTextInput" TextChanged="Inttext_TextChanged"/>
+        <Label Content="PalletH:" HorizontalAlignment="Left" Margin="193,40,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="PalletHtext" HorizontalAlignment="Left" Margin="263,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="85" Text="1" PreviewTextInput="IntText_PreviewTextInput" TextChanged="Inttext_TextChanged"/>
+        <Label Content="X1:" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="X1text" HorizontalAlignment="Left" Margin="43,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Label Content="Y1:" HorizontalAlignment="Left" Margin="10,130,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ZR1" Content="Z1:" HorizontalAlignment="Left" Margin="10,160,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Y1text" HorizontalAlignment="Left" Margin="43,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <TextBox x:Name="Z1text" HorizontalAlignment="Left" Margin="43,164,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Label Content="XW:" HorizontalAlignment="Left" Margin="132,100,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="X2text" HorizontalAlignment="Left" Margin="170,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Label Content="YW:" HorizontalAlignment="Left" Margin="132,130,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ZRW" Content="ZW:" HorizontalAlignment="Left" Margin="132,160,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Y2text" HorizontalAlignment="Left" Margin="170,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <TextBox x:Name="Z2text" HorizontalAlignment="Left" Margin="170,164,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Label Content="XH:" HorizontalAlignment="Left" Margin="263,100,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="X3text" HorizontalAlignment="Left" Margin="296,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Label Content="YH:" HorizontalAlignment="Left" Margin="263,130,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="ZRH" Content="ZH:" HorizontalAlignment="Left" Margin="263,160,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Y3text" HorizontalAlignment="Left" Margin="296,134,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <TextBox x:Name="Z3text" HorizontalAlignment="Left" Margin="296,164,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="70" Text="0" TextChanged="Doubletext_TextChanged" PreviewTextInput="DoubleText_PreviewTextInput"/>
+        <Image x:Name="Palletimage" HorizontalAlignment="Left" Height="183" Margin="24,192,0,0" VerticalAlignment="Top" Width="283" Source="/Windows/palletmodel.png"/>
+        <Label Content="Points number per module:" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="Pointsnumtext" HorizontalAlignment="Left" Margin="182,74,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="85" Text="1" PreviewTextInput="IntText_PreviewTextInput" TextChanged="Inttext_TextChanged"/>
+        <Button x:Name="Addmodulepoints" Content="Add" HorizontalAlignment="Left" Margin="299,73,0,0" VerticalAlignment="Top" Width="32" Click="Addmodulepoints_Click"/>
+        <Button x:Name="Apply" Content="Apply" HorizontalAlignment="Left" Margin="319,343,0,0" VerticalAlignment="Top" Width="47" Click="Apply_Click"/>
+
+    </Grid>
+</Window>
