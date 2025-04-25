@@ -23,6 +23,7 @@ namespace AkribisFAM
     public partial class MainWindow : Window
     {
         private DispatcherTimer _timer;
+        int a = 0;
 
         public MainWindow()
         {
