@@ -21,7 +21,6 @@ namespace AkribisFAM.Windows
         private void ConnectAGM800_Click(object sender, RoutedEventArgs e)
         {
             string ipAddress = IpAddressTextBox.Text;
-            var b = GlobalManager.Current._text;
 
             if (AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, ipAddress))
             {

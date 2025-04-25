@@ -36,6 +36,8 @@ namespace AkribisFAM
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
+
+            MessageBox.Show("当前连接状态:" + GlobalManager.Current.AGM800Connection);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

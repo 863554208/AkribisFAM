@@ -31,7 +31,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35">
                 <!-- Button 1 -->
-                <Button Content="设备" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                <Button x:Name="AGMConnectionLabel" Content="AGM" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
                 Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
                 <!-- Button 2 -->
                 <Button Content="扫码枪" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 

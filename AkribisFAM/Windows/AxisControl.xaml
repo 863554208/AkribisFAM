@@ -25,8 +25,8 @@
                     <ColumnDefinition Width="60*"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
-                <Label Content="Axis Number" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="84"/>
-                <Label Content="{Binding SelectedItem.Content, ElementName=AxiscomboBox}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Width="88" HorizontalContentAlignment="Center" Height="10"/>
+                <Label Content ="Axis Number" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="84"/>
+                <Label x:Name="currentAxisLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Width="88" HorizontalContentAlignment="Center" Height="25"/>
                 <Label Content="Current Position" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" HorizontalContentAlignment="Center" Width="108" Height="25"/>
                 <Label Content="Target Position" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" HorizontalContentAlignment="Center" Height="25" Width="98"/>
                 <Label Grid.Column="1" Content="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="90" HorizontalContentAlignment="Center" Height="25"/>
@@ -55,8 +55,8 @@
                 <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="7" Grid.Column="2"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Motion Test" Margin="470,26,0,11" HorizontalAlignment="Left" Width="266">
-            <Grid Margin="0,0,-2,0" Height="342">
+        <GroupBox Header="Motion Test" Margin="470,26,0,11" HorizontalAlignment="Left" Width="256">
+            <Grid Margin="0,0,5,0" Height="342">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="182*"/>
                     <RowDefinition Height="149*"/>
@@ -94,19 +94,20 @@
                 <Label Content="Target Position:" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="Targetpos" HorizontalAlignment="Left" Margin="115,43,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20
                      " Text="0"/>
-                <Label Content="mm" HorizontalAlignment="Left" Margin="188,40,0,0" VerticalAlignment="Top"/>
+                <Label Content="mm" HorizontalAlignment="Left" Margin="188,40,0,0" VerticalAlignment="Top" FontSize="10"/>
                 <Label Content="Velocity:" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="Velocitytext" HorizontalAlignment="Left" Margin="115,73,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
-                <Label Content="mm/s" HorizontalAlignment="Left" Margin="188,70,0,0" VerticalAlignment="Top"/>
+                <Label Content="mm/s" HorizontalAlignment="Left" Margin="188,70,0,0" VerticalAlignment="Top" FontSize="10"/>
                 <Label Content="ACC/DEC:" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="ACCDECtext" HorizontalAlignment="Left" Margin="115,103,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
-                <Label Content="mm/s^2" HorizontalAlignment="Left" Margin="188,100,0,0" VerticalAlignment="Top"/>
-                <Button Content="Start" HorizontalAlignment="Left" Margin="22,8,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1"/>
+                <Label Content="mm/s^2" HorizontalAlignment="Left" Margin="188,100,0,0" VerticalAlignment="Top" FontSize="10"/>
+                <Button Content="Start" HorizontalAlignment="Left" Margin="22,8,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1" Click="Start_Click"/>
                 <Button Content="Stop" HorizontalAlignment="Left" Margin="22,68,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1"/>
-                <Label Content="Jog" HorizontalAlignment="Center" Margin="0,175,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.509,0.619" Grid.Row="1"/>
+                <Button x:Name="MotorOn" Content="使能" HorizontalAlignment="Left" Margin="22,135,0,0" VerticalAlignment="Top" Height="36" Width="71" Click="MotorOn_Click"/>
+                <Button x:Name="MotorOff" Content="下使能" HorizontalAlignment="Left" Height="36" Margin="128,135,0,0" VerticalAlignment="Top" Width="74" Click="MotorOff_Click"/>
             </Grid>
         </GroupBox>
-        <GroupBox Header="Array List" Margin="10,26,589,26">
+        <GroupBox Header="Axis List" Margin="10,26,589,26">
             <StackPanel Margin="0,0,-22,0" HorizontalAlignment="Right" Width="133" Height="334">
                 <ScrollViewer Width="106" Height="319">
                     <Grid Height="677" Width="100">

@@ -121,6 +121,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
     </Compile>
