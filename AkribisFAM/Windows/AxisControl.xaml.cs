@@ -25,19 +25,30 @@ namespace AkribisFAM.Windows
             InitializeComponent();
         }
 
-        private void Axis_1_ControlButton_Click(object sender, RoutedEventArgs e)
+        //private void Axis_1_ControlButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    AxisContorlDisplay.Content =  new Axis1ViewModel();
+        //}
+
+        //private void Axis_2_ControlButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    AxisContorlDisplay.Content = new Axis2ViewModel();
+        //}
+
+        //private void Axis_3_ControlButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    AxisContorlDisplay.Content = new Axis3ViewModel();
+        //}
+
+        private void Axis_Click(object sender, RoutedEventArgs e)
         {
-            AxisContorlDisplay.Content =  new Axis1ViewModel();
         }
 
-        private void Axis_2_ControlButton_Click(object sender, RoutedEventArgs e)
-        {
-            AxisContorlDisplay.Content = new Axis2ViewModel();
-        }
+        
 
-        private void Axis_3_ControlButton_Click(object sender, RoutedEventArgs e)
+        private void AxiscomboBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            AxisContorlDisplay.Content = new Axis3ViewModel();
+
         }
     }
 }

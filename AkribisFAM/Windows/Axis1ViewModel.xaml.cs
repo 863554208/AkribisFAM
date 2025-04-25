@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
+using AkribisFAM.AAmotionFAM;
+using AGM800 = AkribisFAM.AAmotionFAM.AGM800;
+using AAMotion;
+using System;
+using static AAComm.Extensions.AACommFwInfo;
 namespace AkribisFAM.Windows
 {
     /// <summary>
@@ -23,6 +15,91 @@ namespace AkribisFAM.Windows
         public Axis1ViewModel()
         {
             InitializeComponent();
+        }
+
+
+        private void ConnectAGM800_Click(object sender, RoutedEventArgs e)
+        {
+            string ipAddress = IpAddressTextBox.Text;
+            var b = GlobalManager.Current._text;
+
+            if (AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, ipAddress))
+            {
+                MessageBox.Show("连接成功");
+            }
+            else
+            {
+                MessageBox.Show("连接失败");
+            }
+        }
+
+        private void ReturnToZero_Click(object sender, RoutedEventArgs e)
+        {
+            string Axis = returnZeroAxisString.Text;
+
+            if (GlobalManager.Current._Agm800.controller.IsConnected)
+            {
+                // 使用Enum.Parse将字符串转换为AxisRef枚举值
+                if (Enum.TryParse<AxisRef>(Axis, out AxisRef axisRef))
+                {
+                    AAMotionAPI.SetPosition(GlobalManager.Current._Agm800.controller, axisRef, 0);
+                    //controller.GetAxis(axisRef).SetPosition(0);
+                }
+            }
+            else
+            {
+                MessageBox.Show("未连接");
+            }
+
+        }
+
+        private void AbsoulteMove_Click(object sender, RoutedEventArgs e)
+        {
+            string Axis = returnZeroAxisString.Text;
+            int targetPos = int.Parse(AbsoultePostion.Text);
+
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (Enum.TryParse<AxisRef>(Axis, out AxisRef axisRef))
+            {
+                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+        }
+
+        private void MotorOn_Click(object sender, RoutedEventArgs e)
+        {
+            string Axis = returnZeroAxisString.Text;
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(Axis, out AxisRef axisRef))
+            {
+                try
+                {
+                    AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("轴使能报错 :" +ex.Message);
+                }
+            }
+        }
+
+        private void MotorOff_Click(object sender, RoutedEventArgs e)
+        {
+            string Axis = returnZeroAxisString.Text;
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(Axis, out AxisRef axisRef))
+            {
+                try
+                {
+                    AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller, axisRef);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("轴使能报错 :" + ex.Message);
+                }
+            }
         }
     }
 }

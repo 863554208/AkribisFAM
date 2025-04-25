@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using AkribisFAM.Windows;
 
 namespace AkribisFAM
@@ -21,9 +22,32 @@ namespace AkribisFAM
     /// </summary>
     public partial class MainWindow : Window
     {
+        private DispatcherTimer _timer;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // 创建定时器
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+
+            // 订阅 Loaded 事件
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 页面加载时立即更新一次时间
+            Timer_Tick(this, null);
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            // 更新 TextBlock 显示当前日期和时间
+            currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
