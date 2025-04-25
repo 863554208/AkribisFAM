@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AkribisFAM"
+        xmlns:kl="clr-namespace:AkribisFAM.Lang"
         mc:Ignorable="d"
         Title="MainWindow" Height="768" Width="1024">
     <Grid Margin="0,10,0,0">
@@ -51,15 +51,15 @@
             </StackPanel>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="56" Margin="795,0,0,0" VerticalAlignment="Top" Width="229">
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="2025-4-18 14：58" FontSize="20"/>
+            <TextBlock  Name="currentTimeTextBlock"  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="20"/>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="389" Margin="0,141,0,0" VerticalAlignment="Top" Width="207">
             <StackPanel Orientation="Vertical">
-                <Button Content="主界面" HorizontalAlignment="Stretch" Height="82" FontSize="15"  FontWeight="Bold" Click="MainWindowButton_Click"/>
-                <Button Content="手动调试" HorizontalAlignment="Stretch" Height="77" FontSize="15"  FontWeight="Bold" Click="ManualControlButton_Click"/>
-                <Button Content="参数调试" HorizontalAlignment="Stretch" Height="76" FontSize="15"  FontWeight="Bold" Click="ParameterConfigButton_Click"/>
-                <Button Content="网络配置" HorizontalAlignment="Stretch" Height="76" FontSize="15"  FontWeight="Bold" Click="InternetConfigButton_Click"/>
-                <Button Content="报警记录" HorizontalAlignment="Stretch" Height="75" FontSize="15"  FontWeight="Bold" Click="DebugLogButton_Click"/>
+                <Button Content="{x:Static kl:UI.mainPageLabel}" HorizontalAlignment="Stretch" Height="82" FontSize="15" FontWeight="Bold" Click="MainWindowButton_Click"/>
+                <Button Content="{x:Static kl:UI.manualConfig}" HorizontalAlignment="Stretch" Height="77" FontSize="15" FontWeight="Bold" Click="ManualControlButton_Click"/>
+                <Button Content="{x:Static kl:UI.parameterConfigure}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="ParameterConfigButton_Click"/>
+                <Button Content="{x:Static kl:UI.internetConfig}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="InternetConfigButton_Click"/>
+                <Button Content="{x:Static kl:UI.debugLog}" HorizontalAlignment="Stretch" Height="75" FontSize="15" FontWeight="Bold" Click="DebugLogButton_Click"/>
 
             </StackPanel>
         </Border>

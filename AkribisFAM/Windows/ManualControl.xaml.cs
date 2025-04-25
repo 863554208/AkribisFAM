@@ -36,5 +36,17 @@ namespace AkribisFAM.Windows
             // 将 ContentControl 显示的内容更改为 "主界面" 内容
             ManualControlDisplay.Content = new AirControl();  // MainScreen 是你定义的一个用户控件或界面
         }
+
+        private void CameraControl_Click(object sender, RoutedEventArgs e)
+        {
+            // 将 ContentControl 显示的内容更改为 "主界面" 内容
+            ManualControlDisplay.Content = new CameraControl();  // MainScreen 是你定义的一个用户控件或界面
+        }
+
+        private void IOConfigure_Click(object sender, RoutedEventArgs e)
+        {
+            // 将 ContentControl 显示的内容更改为 "主界面" 内容
+            ManualControlDisplay.Content = new IOConfigure();  // MainScreen 是你定义的一个用户控件或界面
+        }
     }
 }

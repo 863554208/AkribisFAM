@@ -7,7 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="154,182,0,0" VerticalAlignment="Top" Height="115" Width="148"/>
+        <Image Name="cameraDisplay1" HorizontalAlignment="Left" Height="297" Margin="48,93,0,0" VerticalAlignment="Top" Width="307"/>
+        <Image Name="cameraDisplay2" HorizontalAlignment="Left" Height="297" Margin="400,93,0,0" VerticalAlignment="Top" Width="307"/>
+        <Button Content="选择图片" HorizontalAlignment="Left" Margin="491,413,0,0" VerticalAlignment="Top" Height="27" Width="120" Click="OnSelectImageClick"/>
 
     </Grid>
 </UserControl>

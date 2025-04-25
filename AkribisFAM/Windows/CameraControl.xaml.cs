@@ -17,15 +17,16 @@ using Microsoft.Win32;
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// MainContent.xaml 的交互逻辑
+    /// CameraControl.xaml 的交互逻辑
     /// </summary>
-    public partial class MainContent : UserControl
+    public partial class CameraControl : UserControl
     {
-        public MainContent()
+        public CameraControl()
         {
             InitializeComponent();
         }
 
+        // 按钮点击事件处理
         private void OnSelectImageClick(object sender, RoutedEventArgs e)
         {
             // 创建文件选择对话框实例
@@ -44,8 +45,7 @@ namespace AkribisFAM.Windows
                 string filePath = openFileDialog.FileName;
 
                 // 将选中的文件显示到 Image 控件中
-                cameraDisplay1.Source = new BitmapImage(new Uri(filePath));
-                cameraDisplay2.Source = new BitmapImage(new Uri(filePath));
+                imageDisplay.Source = new BitmapImage(new Uri(filePath));
             }
         }
 

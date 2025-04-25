@@ -5,9 +5,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="0,0,189,84">
-        <Button Content="Axis1" HorizontalAlignment="Left" Margin="124,88,0,0" VerticalAlignment="Top" Height="82" Width="113"/>
+             d:DesignHeight="267
+             " d:DesignWidth="461">
+    <Grid Margin="0,0,10,31">
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Center" Height="49" Margin="0,37,0,0" VerticalAlignment="Top" Width="373"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,37,0,0" Width="373" Height="48">
+            <TextBox x:Name="IpAddressTextBox" TextWrapping="Wrap" Text="172.1.1.101" Width="120"/>
+            <Button Content="Connect" Click="ConnectAGM800_Click"/>
+        </StackPanel>
+        <Label Content="回原" HorizontalAlignment="Left" Margin="310,111,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.462,0.615"/>
+        <Button Content="Return" HorizontalAlignment="Left" Margin="370,111,0,0" VerticalAlignment="Top" Click="ReturnToZero_Click" RenderTransformOrigin="4.265,0.943"/>
+        <TextBox x:Name="returnZeroAxisString" HorizontalAlignment="Left" Margin="130,0,0,0" TextWrapping="Wrap" Text="A" VerticalAlignment="Center" Width="27" RenderTransformOrigin="-0.886,0.578"/>
+        <Label Content="轴号" HorizontalAlignment="Left" Margin="91,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.462,0.615"/>
+        <Label Content="要移动到的绝对位置" HorizontalAlignment="Left" Margin="10,136,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.462,0.615"/>
+        <TextBox x:Name="AbsoultePostion" HorizontalAlignment="Left" Margin="133,140,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="27" RenderTransformOrigin="-0.886,0.578"/>
+        <Label Content="移动" HorizontalAlignment="Left" Margin="310,136,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.462,0.615"/>
+        <Button Content="Move" HorizontalAlignment="Left" Margin="370,138,0,0" VerticalAlignment="Top" Click="AbsoulteMove_Click" RenderTransformOrigin="4.265,0.943"/>
+        <Button x:Name="MotorOn"  Content="Motor On" HorizontalAlignment="Left" Margin="226,112,0,0" VerticalAlignment="Top" Click="MotorOn_Click"/>
+        <Button x:Name="MotorOff" Content="Motor Off" HorizontalAlignment="Left" Margin="226,147,0,0" VerticalAlignment="Top" Click="MotorOff_Click"/>
 
     </Grid>
 </UserControl>

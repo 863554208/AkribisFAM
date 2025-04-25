@@ -5,19 +5,152 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="0,0,32,0">
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="251" Margin="30,115,0,0" VerticalAlignment="Top" Width="146">
-            <StackPanel Orientation="Vertical" Margin="-1,-1,0,1" HorizontalAlignment="Left" Width="144" >
-                <Button Content="轴1" Height="51" Click="Axis_1_ControlButton_Click"/>
-                <Button Content="轴2" Height="54" Click="Axis_2_ControlButton_Click"/>
-                <Button Content="轴3" Height="45" Click="Axis_3_ControlButton_Click"/>
+             d:DesignHeight="390" d:DesignWidth="768">
+    <Grid Margin="0,0,32,0" Background="Yellow">
+        <GroupBox Header="Axis Status" Margin="152,0,271,0" Height="338" VerticalAlignment="Center">
+            <Grid ShowGridLines="True" HorizontalAlignment="Left" Width="320">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="41*"/>
+                    <ColumnDefinition Width="57*"/>
+                    <ColumnDefinition Width="60*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Axis Number" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="84"/>
+                <Label Content="{Binding SelectedItem.Content, ElementName=AxiscomboBox}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Width="88" HorizontalContentAlignment="Center" Height="10"/>
+                <Label Content="Current Position" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" HorizontalContentAlignment="Center" Width="108" Height="25"/>
+                <Label Content="Target Position" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" HorizontalContentAlignment="Center" Height="25" Width="98"/>
+                <Label Grid.Column="1" Content="0" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Center" Width="90" HorizontalContentAlignment="Center" Height="25"/>
+                <Label Content="{Binding Text, ElementName=Targetpos}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Width="98" HorizontalContentAlignment="Center" Height="25"/>
+                <Label Content="Velocity" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="56"/>
+                <Label Grid.Column="1" Content="Enable" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="48"/>
+                <Label Grid.Column="2" Content="In Position" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="70"/>
+                <Ellipse x:Name="Enablelight" HorizontalAlignment="Center" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="3" Grid.Column="1">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="#FF898989"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="3" Grid.Column="2"/>
+                <Label Content="0" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="88" HorizontalContentAlignment="Center" Height="25"/>
+                <Label Content="Original Point" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="90"/>
+                <Label Grid.Column="1" Content="Positive Hard Limit" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="112"/>
+                <Label Grid.Column="2" Content="Negative Hard Limit" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="106"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="5"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="5" Grid.Column="1"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="5" Grid.Column="2"/>
+                <Label Content="Alarm" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="44"/>
+                <Label Grid.Column="1" Content="Positive Soft Limit" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="112"/>
+                <Label Grid.Column="2" Content="Positive Soft Limit" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" HorizontalContentAlignment="Center" Height="25" Width="106"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="7"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="7" Grid.Column="1"/>
+                <Ellipse HorizontalAlignment="Center" Fill="#FF898989" Height="20" Stroke="Black" VerticalAlignment="Center" Width="20" Grid.Row="7" Grid.Column="2"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Motion Test" Margin="470,26,0,11" HorizontalAlignment="Left" Width="266">
+            <Grid Margin="0,0,-2,0" Height="342">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="182*"/>
+                    <RowDefinition Height="149*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Axis Number:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                <ComboBox x:Name="AxiscomboBox" HorizontalAlignment="Left" Margin="115,12,0,0" VerticalAlignment="Top" Width="87" SelectionChanged="AxiscomboBox_SelectionChanged">
+                    <ComboBoxItem Content="Axis 1"/>
+                    <ComboBoxItem Content="Axis 2"/>
+                    <ComboBoxItem Content="Axis 3"/>
+                    <ComboBoxItem Content="Axis 4"/>
+                    <ComboBoxItem Content="Axis 5"/>
+                    <ComboBoxItem Content="Axis 6"/>
+                    <ComboBoxItem Content="Axis 7"/>
+                    <ComboBoxItem Content="Axis 8"/>
+                    <ComboBoxItem Content="Axis 9"/>
+                    <ComboBoxItem Content="Axis 10"/>
+                    <ComboBoxItem Content="Axis 11"/>
+                    <ComboBoxItem Content="Axis 12"/>
+                    <ComboBoxItem Content="Axis 13"/>
+                    <ComboBoxItem Content="Axis 14"/>
+                    <ComboBoxItem Content="Axis 15"/>
+                    <ComboBoxItem Content="Axis 16"/>
+                    <ComboBoxItem Content="Axis 17"/>
+                    <ComboBoxItem Content="Axis 18"/>
+                    <ComboBoxItem Content="Axis 19"/>
+                    <ComboBoxItem Content="Axis 20"/>
+                    <ComboBoxItem Content="Axis 21"/>
+                    <ComboBoxItem Content="Axis 22"/>
+                    <ComboBoxItem Content="Axis 23"/>
+                    <ComboBoxItem Content="Axis 24"/>
+                    <ComboBoxItem Content="Axis 25"/>
+                    <ComboBoxItem Content="Axis 26"/>
+                    <ComboBoxItem Content="Axis 27"/>
+                </ComboBox>
+                <Label Content="Target Position:" HorizontalAlignment="Left" Margin="10,40,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="Targetpos" HorizontalAlignment="Left" Margin="115,43,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20
+                     " Text="0"/>
+                <Label Content="mm" HorizontalAlignment="Left" Margin="188,40,0,0" VerticalAlignment="Top"/>
+                <Label Content="Velocity:" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="Velocitytext" HorizontalAlignment="Left" Margin="115,73,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
+                <Label Content="mm/s" HorizontalAlignment="Left" Margin="188,70,0,0" VerticalAlignment="Top"/>
+                <Label Content="ACC/DEC:" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="ACCDECtext" HorizontalAlignment="Left" Margin="115,103,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
+                <Label Content="mm/s^2" HorizontalAlignment="Left" Margin="188,100,0,0" VerticalAlignment="Top"/>
+                <Button Content="Start" HorizontalAlignment="Left" Margin="22,8,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1"/>
+                <Button Content="Stop" HorizontalAlignment="Left" Margin="22,68,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1"/>
+                <Label Content="Jog" HorizontalAlignment="Center" Margin="0,175,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.509,0.619" Grid.Row="1"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Array List" Margin="10,26,589,26">
+            <StackPanel Margin="0,0,-22,0" HorizontalAlignment="Right" Width="133" Height="334">
+                <ScrollViewer Width="106" Height="319">
+                    <Grid Height="677" Width="100">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="160*"/>
+                            <RowDefinition Height="517*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="9*"/>
+                            <ColumnDefinition Width="29*"/>
+                            <ColumnDefinition Width="62*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="Axis1" Content="Axis 1" HorizontalAlignment="Left" Margin="1,10,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis2" Content="Axis 2" HorizontalAlignment="Left" Margin="1,34,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis3" Content="Axis 3" HorizontalAlignment="Left" Margin="1,58,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis4" Content="Axis 4" HorizontalAlignment="Left" Margin="1,82,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis5" Content="Axis 5" HorizontalAlignment="Left" Margin="1,106,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis6" Content="Axis 6" HorizontalAlignment="Left" Margin="1,130,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1"/>
+                        <Button x:Name="Axis7" Content="Axis 7" HorizontalAlignment="Left" Margin="1,154,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.RowSpan="2"/>
+                        <Button x:Name="Axis8" Content="Axis 8" HorizontalAlignment="Left" Margin="1,18,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis9" Content="Axis 9" HorizontalAlignment="Left" Margin="1,42,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis10" Content="Axis 10" HorizontalAlignment="Left" Margin="1,66,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis11" Content="Axis 11" HorizontalAlignment="Left" Margin="1,90,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis12" Content="Axis 12" HorizontalAlignment="Left" Margin="1,114,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis13" Content="Axis 13" HorizontalAlignment="Left" Margin="1,138,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis14" Content="Axis 14" HorizontalAlignment="Left" Margin="1,162,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis15" Content="Axis 15" HorizontalAlignment="Left" Margin="1,186,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis16" Content="Axis 16" HorizontalAlignment="Left" Margin="1,210,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis17" Content="Axis 17" HorizontalAlignment="Left" Margin="1,234,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis18" Content="Axis 18" HorizontalAlignment="Left" Margin="1,258,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis19" Content="Axis 19" HorizontalAlignment="Left" Margin="1,282,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis20" Content="Axis 20" HorizontalAlignment="Left" Margin="1,306,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis21" Content="Axis 21" HorizontalAlignment="Left" Margin="1,330,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis22" Content="Axis 22" HorizontalAlignment="Left" Margin="1,354,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis23" Content="Axis 23" HorizontalAlignment="Left" Margin="1,378,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis24" Content="Axis 24" HorizontalAlignment="Left" Margin="1,402,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis25" Content="Axis 25" HorizontalAlignment="Left" Margin="1,426,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis26" Content="Axis 26" HorizontalAlignment="Left" Margin="1,450,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Button x:Name="Axis27" Content="Axis 27" HorizontalAlignment="Left" Margin="1,474,0,0" VerticalAlignment="Top" Width="56" Click="Axis_Click" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                        <Border Margin="-305,34,214,-34" Grid.RowSpan="2"/>
+                    </Grid>
+                </ScrollViewer>
             </StackPanel>
-        </Border>
-        <Label Content="轴列表" HorizontalAlignment="Left" Margin="30,75,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="20" />
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="268" Margin="207,98,0,0" VerticalAlignment="Top" Width="440">
-            <ContentControl Name="AxisContorlDisplay" />
-        </Border>
+        </GroupBox>
     </Grid>
 
 

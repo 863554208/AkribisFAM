@@ -12,24 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using Xceed.Wpf.Toolkit;
 
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// AirControl.xaml 的交互逻辑
+    /// IOConfigure.xaml 的交互逻辑
     /// </summary>
-    public partial class AirControl : UserControl
+    public partial class IOConfigure : UserControl
     {
-        private DispatcherTimer _timer;
-
-
-        public AirControl()
+        public IOConfigure()
         {
             InitializeComponent();
-
         }
-
     }
 }
