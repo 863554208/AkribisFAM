@@ -128,6 +128,7 @@
     </Compile>
     <Compile Include="ShareValues.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
+    <Compile Include="Util\Logger.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
     </Compile>
@@ -172,6 +173,7 @@
     <Compile Include="Windows\SetPoint.xaml.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\TestStation1.cs" />
+    <Compile Include="WorkStation\TestStation2.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

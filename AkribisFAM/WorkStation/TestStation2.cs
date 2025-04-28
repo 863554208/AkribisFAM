@@ -4,24 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AAMotion;
-using static AAComm.Extensions.AACommFwInfo;
-
 namespace AkribisFAM.WorkStation
 {
-    public class TestStation1 :WorkStationBase
+    internal class TestStation2 :WorkStationBase
     {
-        private static TestStation1 _instance;
+        private static TestStation2 _instance;
 
-        public static TestStation1 Current
+        public static TestStation2 Current
         {
             get
             {
                 if (_instance == null)
                 {
-                        if (_instance == null)
-                        {
-                            _instance = new TestStation1();
-                        }
+                    if (_instance == null)
+                    {
+                        _instance = new TestStation2();
+                    }
                 }
                 return _instance;
             }
@@ -45,15 +43,7 @@ namespace AkribisFAM.WorkStation
 
         public override void AutoRun()
         {
-            //string axisName = "A";
-            //int targetPos = -200000;
 
-            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
-
-            //if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
-            //{
-            //    AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
-            //}
             int WorkState = 11;
             try
             {
@@ -100,22 +90,44 @@ namespace AkribisFAM.WorkStation
 
         private void UnloadMaterial()
         {
-            Console.WriteLine("UnloadMaterial");
+            string axisName = "B";
+            int targetPos = -200000;
+
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            {
+                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+
+            Console.WriteLine("MoveFirst 2");
         }
 
         private void InspectPart()
         {
-            Console.WriteLine("InspectPart");
+            string axisName = "B";
+            int targetPos = -30000;
+
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            {
+                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+
+            Console.WriteLine("MoveSecond 2");
         }
 
         private void AttachPart()
         {
-            Console.WriteLine("AttachPart");
+            Console.WriteLine("AttachPart 2");
         }
 
         private void LoadMaterial()
         {
-            Console.WriteLine("LoadMaterial");
+            Console.WriteLine("LoadMaterial 2");
         }
+
+        
     }
 }
