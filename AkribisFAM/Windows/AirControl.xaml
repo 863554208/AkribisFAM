@@ -7,29 +7,110 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit" 
              mc:Ignorable="d" 
              d:DesignHeight="390" d:DesignWidth="768">
-    <Grid >
-        <Label Content="气缸控制" HorizontalAlignment="Left" Margin="73,34,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold"/>
-        <Label Content="气缸1" HorizontalAlignment="Left" Margin="89,97,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <xctk:IntegerUpDown FormatString="N0" Value="1564" Increment="1" Maximum="200000" Margin="145,100,554,271"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="237,100,0,0" VerticalAlignment="Top"/>
-        <Label Content="气缸2" HorizontalAlignment="Left" Margin="89,140,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <xctk:IntegerUpDown FormatString="N0" Value="1564" Increment="1" Maximum="200000" Margin="145,143,554,228"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="237,143,0,0" VerticalAlignment="Top"/>
-        <Label Content="气缸3" HorizontalAlignment="Center" Margin="0,102,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <xctk:IntegerUpDown FormatString="N0" Value="1564" Increment="1" Maximum="200000" Margin="420,103,279,268"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="521,103,0,0" VerticalAlignment="Top"/>
-        <Label Content="气缸4" HorizontalAlignment="Center" Margin="0,140,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <xctk:IntegerUpDown FormatString="N0" Value="1564" Increment="1" Maximum="200000" Margin="420,143,279,228"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="521,146,0,0" VerticalAlignment="Top"/>
-        <Label Content="负压控制" HorizontalAlignment="Left" Margin="73,195,0,0" VerticalAlignment="Top" FontSize="16" FontWeight="Bold"/>
-        <Label Content="吸嘴1" HorizontalAlignment="Left" Margin="89,247,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <Label Content="吸嘴2" HorizontalAlignment="Center" Margin="0,247,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <Label Content="吸嘴3" HorizontalAlignment="Left" Margin="89,294,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <Label Content="吸嘴4" HorizontalAlignment="Center" Margin="0,294,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="152,250,0,0" VerticalAlignment="Top"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="440,253,0,0" VerticalAlignment="Top"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="152,297,0,0" VerticalAlignment="Top"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="440,297,0,0" VerticalAlignment="Top"/>
-
+    <Grid Background="#FFE5E5E5">
+        <GroupBox Header="Cylinder Control" Margin="10,0,10,157">
+            <Grid ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="Cylinder1" Grid.Column="1" Content="Cylinder 1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70"/>
+                <Ellipse x:Name="C1pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C1pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder2" Content="Cylinder 2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Column="1" Grid.Row="1"/>
+                <Ellipse x:Name="C2pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="1"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C2pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="1"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder3" Grid.Column="1" Content="Cylinder 3" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="2"/>
+                <Ellipse x:Name="C3pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="2"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C3pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="2"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder4" Grid.Column="1" Content="Cylinder 4" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="3"/>
+                <Ellipse x:Name="C4pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Row="3"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="3"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C4pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="3"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="3"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder5" Grid.Column="1" Content="Cylinder 5" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="4"/>
+                <Ellipse x:Name="C5pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Row="4"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="4"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C5pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="4"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="4"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder6" Grid.Column="1" Content="Cylinder 6" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="5"/>
+                <Ellipse x:Name="C6pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Row="5"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="5"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C6pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="5"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="5"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder7" Grid.Column="4" Content="Cylinder 7" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70"/>
+                <Ellipse x:Name="C7pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="3"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="3"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C7pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5" />
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" ><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder8" Grid.Column="4" Content="Cylinder 8" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="1"/>
+                <Ellipse x:Name="C8pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="3" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="3" Grid.Row="1"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C8pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" Grid.Row="1"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <Button x:Name="Cylinder9" Grid.Column="4" Content="Cylinder 9" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="70" Grid.Row="2"/>
+                <Ellipse x:Name="C9pos1" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="3" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="3" Grid.Row="2"><Run Language="zh-cn" Text="Pos"/><Run Text="1"/></TextBlock>
+                <Ellipse x:Name="C9pos2" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" Grid.Row="2"><Run Text="Pos"/><Run Language="zh-cn" Text="2"/></TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Negative Pressure Control" Margin="10,238,10,10">
+            <Grid ShowGridLines="False">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button x:Name="Suctionnozzle1" Content="Suction Nozzle 1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="1" />
+                <Ellipse x:Name="SN1negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Text="NP"/>
+                <Button x:Name="Suctionnozzle2" Content="Suction Nozzle 2" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="1" Grid.Row="1" />
+                <Ellipse x:Name="SN2negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="1" Text="NP"/>
+                <Button x:Name="Suctionnozzle3" Content="Suction Nozzle 3" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="1" Grid.Row="2" />
+                <Ellipse x:Name="SN3negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="2" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="2" Grid.Row="2" Text="NP"/>
+                <Button x:Name="Suctionnozzle4" Content="Suction Nozzle 4" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="4" />
+                <Ellipse x:Name="SN4negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" Text="NP"/>
+                <Button x:Name="Suctionnozzle5" Content="Suction Nozzle 5" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="4" Grid.Row="1" />
+                <Ellipse x:Name="SN5negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5" Grid.Row="1"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" Grid.Row="1" Text="NP"/>
+                <Button x:Name="Suctionnozzle6" Content="Suction Nozzle 6" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="4" Grid.Row="2" />
+                <Ellipse x:Name="SN6negativepressure" HorizontalAlignment="Center" Height="32" Stroke="Black" VerticalAlignment="Center" Width="32" Fill="#FFC6C6C6" Grid.Column="5" Grid.Row="2"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Grid.Column="5" Grid.Row="2" Text="NP"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>

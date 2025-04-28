@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
+using AkribisFAM.Util;
 
 namespace AkribisFAM
 {
@@ -90,6 +91,7 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("123");
             try
             {
                 StartAutoRunButton.IsEnabled = false;

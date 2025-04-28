@@ -6,8 +6,34 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="390" d:DesignWidth="768">
-    <Grid>
-        <Image Name="imageDisplay" HorizontalAlignment="Left" Height="249" Margin="86,75,0,0" VerticalAlignment="Top" Width="294"/>
-        <Button Content="选择图片" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="533,101,0,0" Width="100" Height="30" Click="OnSelectImageClick" RenderTransformOrigin="6.057,1.556"/>
+    <Grid Background="#FFE5E5E5">
+        <GroupBox Header="Camera View" Margin="0,0,200,0">
+            <Grid>
+                <Image x:Name="Imageview" Margin="0,0,2,3"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Parameters" Margin="573,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Label Content="Camera Number:" HorizontalAlignment="Center" VerticalAlignment="Center" Width="163" HorizontalContentAlignment="Center"/>
+                <ComboBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="120" Grid.Row="1">
+                    <ComboBoxItem Content="Cam 1"/>
+                    <ComboBoxItem Content="Cam 2"/>
+                    <ComboBoxItem Content="Cam 3"/>
+                </ComboBox>
+                <Button x:Name="Capturebtn" Content="Capture" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Width="78" Click="Capturebtn_Click"/>
+                <Button x:Name="Loadbtn" Content="Load" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="78" Click="Loadbtn_Click"/>
+                <Button x:Name="Savebtn" Content="Save" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" Width="78" Click="Savebtn_Click"/>
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>

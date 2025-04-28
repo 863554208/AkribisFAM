@@ -59,25 +59,39 @@ namespace AkribisFAM
 
             try
             {
-                while (!_loopWorker.WaitStopSignal(300))
-                {
-                    if (!IsSafe())
-                    {
-                        continue;
-                    }
+                //while (!_loopWorker.WaitStopSignal(300))
+                //{
+                //    if (!IsSafe())
+                //    {
+                //        continue;
+                //    }
 
-                    if (!isRunning) 
-                    {
-                        Console.WriteLine("退出自动运行");
-                        break;
-                    }
+                //    if (!isRunning) 
+                //    {
+                //        Console.WriteLine("退出自动运行");
+                //        break;
+                //    }
 
 
                     Trace.WriteLine("Autorun Process");
 
-                    TestStation1.Current.AutoRun();
+                    try
+                    {
+                        
+                        List<Task> tasks = new List<Task>();
 
-                }
+                        tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
+                        tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
+                        //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
+
+                        // 等待所有任务完成
+                        Task.WhenAll(tasks).Wait();
+                    }
+                    catch (Exception ex) { }
+
+                    //TestStation1.Current.AutoRun();
+
+                //}
 
             }
             catch (Exception ex) 
@@ -97,10 +111,31 @@ namespace AkribisFAM
             return true;
         }
 
+        private void RunAutoStation(WorkStationBase station)
+        {
+            try
+            {
+                while (isRunning)
+                {
+                    if (!IsSafe())
+                    {
+                        continue;
+                    }
+
+                    station.AutoRun(); 
+
+                    Thread.Sleep(100);
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
         // 退出AutoRun
         public void StopAutoRun()
         {
-            isRunning = false;  // 设为 false，停止 AutoRunMain 循环
+            isRunning = false;
         }
 
     }
