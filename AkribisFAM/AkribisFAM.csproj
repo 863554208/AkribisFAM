@@ -62,6 +62,10 @@
     <Reference Include="AAComm, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAComm.dll</HintPath>
     </Reference>
+    <Reference Include="AACommServerAPI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\AACommServerAPI.dll</HintPath>
+    </Reference>
     <Reference Include="AAMotion, Version=7.3.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAMotion.dll</HintPath>
     </Reference>
@@ -71,7 +75,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Text.Json, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -110,6 +113,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AAmotionFAM\AGM800.cs" />
+    <Compile Include="AutorunManager.cs" />
+    <Compile Include="DebugParams.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -121,6 +126,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="ShareValues.cs" />
+    <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
     </Compile>
@@ -142,6 +149,7 @@
     <Compile Include="Windows\DebugLog.xaml.cs">
       <DependentUpon>DebugLog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\GenrateJson.xaml.cs" />
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
     </Compile>
@@ -157,9 +165,14 @@
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\PalletPointsWindow.xaml.cs" />
     <Compile Include="Windows\ParameterConfig.xaml.cs">
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\SetPoint.xaml.cs" />
+    <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\TestStation1.cs" />
+    <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -200,6 +213,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\GenrateJson.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
     <Page Include="Windows\InternetConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -220,9 +237,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\PalletPointsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
     <Page Include="Windows\ParameterConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SetPoint.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -246,7 +271,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Windows\palletmodel.png" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Lang\UI.en-US.resx" />
     <EmbeddedResource Include="Lang\UI.resx">

@@ -5,11 +5,13 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using AAMotion;
 using AkribisFAM.Windows;
-
+using AkribisFAM.WorkStation;
 namespace AkribisFAM
 {
     /// <summary>
@@ -22,9 +24,14 @@ namespace AkribisFAM
         {
             base.OnStartup(e);
             var _globalManager = GlobalManager.Current;
+            var _testStation1 = TestStation1.Current;
             SetLanguage("zh-CHS");
 
-            if(new LoginViewModel().ShowDialog() == true)
+            //在启动程序时就开始跟AGM800的通信
+            StartConnectAGM800();
+
+
+            if (new LoginViewModel().ShowDialog() == true)
             {
                 new MainWindow().ShowDialog();
             }
@@ -43,6 +50,11 @@ namespace AkribisFAM
             Thread.CurrentThread.CurrentCulture = cultureInfo;
         }
 
+        private void StartConnectAGM800()
+        {
+            string agm800_IP = "172.1.1.101";            
+            GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP);
+        }
         private void CloseAACommServer()
         {
             try

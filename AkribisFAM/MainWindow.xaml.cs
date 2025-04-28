@@ -36,6 +36,7 @@ namespace AkribisFAM
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
+
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -79,6 +80,10 @@ namespace AkribisFAM
             ContentDisplay.Content = new DebugLog(); // ManualDebugScreen 是你定义的用户控件或界面
         }
 
+        private void StartAutoRun_Click(object sender, RoutedEventArgs e)
+        {
+            AutorunManager.Current.AutoRun();
+        }
 
 
     }
