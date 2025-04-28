@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -13,6 +14,7 @@ namespace AkribisFAM
     public class AutorunManager
     {
         private static AutorunManager _current;
+        private bool isRunning;
 
         public static AutorunManager Current
         {
@@ -26,9 +28,9 @@ namespace AkribisFAM
             }
         }
 
-        public AutorunManager() 
+        public AutorunManager()
         {
-            _loopWorker = new Worker(AutoRun);
+            _loopWorker = new Worker(() => AutoRunMain());
         }
 
         Worker _loopWorker;
@@ -45,7 +47,7 @@ namespace AkribisFAM
             return true;
         }
 
-        public void AutoRun()
+        public void AutoRunMain()
         {
             if (!CheckTaskReady())
             {
@@ -53,6 +55,7 @@ namespace AkribisFAM
                 return;
             }
 
+            isRunning = true;
 
             try
             {
@@ -63,7 +66,16 @@ namespace AkribisFAM
                         continue;
                     }
 
+                    if (!isRunning) 
+                    {
+                        Console.WriteLine("退出自动运行");
+                        break;
+                    }
+
+
                     Trace.WriteLine("Autorun Process");
+
+                    TestStation1.Current.AutoRun();
 
                 }
 
@@ -85,6 +97,11 @@ namespace AkribisFAM
             return true;
         }
 
+        // 退出AutoRun
+        public void StopAutoRun()
+        {
+            isRunning = false;  // 设为 false，停止 AutoRunMain 循环
+        }
 
     }
 }

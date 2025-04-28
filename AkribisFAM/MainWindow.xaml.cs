@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +25,7 @@ namespace AkribisFAM
     public partial class MainWindow : Window
     {
         private DispatcherTimer _timer;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public MainWindow()
         {
@@ -80,11 +83,36 @@ namespace AkribisFAM
             ContentDisplay.Content = new DebugLog(); // ManualDebugScreen 是你定义的用户控件或界面
         }
 
-        private void StartAutoRun_Click(object sender, RoutedEventArgs e)
+        //private void StartAutoRun_Click(object sender, RoutedEventArgs e)
+        //{
+        //    AutorunManager.Current.AutoRunMain();
+        //}
+
+        private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            AutorunManager.Current.AutoRun();
+            try
+            {
+                StartAutoRunButton.IsEnabled = false;
+                // 使用 Task.Run 来异步运行 AutoRunMain
+
+                _cancellationTokenSource = new CancellationTokenSource();
+                CancellationToken token = _cancellationTokenSource.Token;
+
+                await Task.Run(() => AutorunManager.Current.AutoRunMain());
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Error running AutoRunMain: {ex.Message}");
+            }
         }
 
+
+        private void StopAutoRun_Click(object sender, RoutedEventArgs e)
+        {
+            AutorunManager.Current.StopAutoRun();
+
+            StartAutoRunButton.IsEnabled = true;
+        }
 
     }
 }
