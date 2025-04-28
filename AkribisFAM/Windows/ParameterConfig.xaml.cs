@@ -17,7 +17,6 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using WpfApp1;
 
 namespace AkribisFAM.Windows
 {

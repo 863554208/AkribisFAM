@@ -150,7 +150,9 @@
     <Compile Include="Windows\DebugLog.xaml.cs">
       <DependentUpon>DebugLog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\GenrateJson.xaml.cs" />
+    <Compile Include="Windows\GenrateJson.xaml.cs">
+	  <DependentUpon>GenrateJson.xaml</DependentUpon>
+	</Compile>
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
     </Compile>
@@ -166,15 +168,19 @@
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\PalletPointsWindow.xaml.cs" />
-    <Compile Include="Windows\ParameterConfig.xaml.cs">
-      <DependentUpon>ParameterConfig.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\SetPoint.xaml.cs" />
-    <Compile Include="Worker.cs" />
-    <Compile Include="WorkStation\TestStation1.cs" />
-    <Compile Include="WorkStation\TestStation2.cs" />
-    <Compile Include="WorkStation\WorkStationBase.cs" />
+    <Compile Include="Windows\PalletPointsWindow.xaml.cs">
+	  <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
+	</Compile>
+	  <Compile Include="Windows\ParameterConfig.xaml.cs">
+		  <DependentUpon>ParameterConfig.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Include="Windows\SetPoint.xaml.cs">
+		  <DependentUpon>SetPoint.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Include="Worker.cs" />
+	  <Compile Include="WorkStation\TestStation1.cs" />
+	  <Compile Include="WorkStation\TestStation2.cs" />
+	  <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -216,8 +222,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\GenrateJson.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Windows\InternetConfig.xaml">
       <SubType>Designer</SubType>
@@ -240,16 +246,16 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\PalletPointsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="Windows\ParameterConfig.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\SetPoint.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Newtonsoft.Json.Linq;
 
-namespace WpfApp1
+namespace AkribisFAM.Windows
 {
     public enum PointsType
     {
