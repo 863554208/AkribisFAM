@@ -59,18 +59,18 @@ namespace AkribisFAM
 
             try
             {
-                while (!_loopWorker.WaitStopSignal(300))
-                {
-                    if (!IsSafe())
-                    {
-                        continue;
-                    }
+                //while (!_loopWorker.WaitStopSignal(300))
+                //{
+                //    if (!IsSafe())
+                //    {
+                //        continue;
+                //    }
 
-                    if (!isRunning) 
-                    {
-                        Console.WriteLine("退出自动运行");
-                        break;
-                    }
+                //    if (!isRunning) 
+                //    {
+                //        Console.WriteLine("退出自动运行");
+                //        break;
+                //    }
 
 
                     Trace.WriteLine("Autorun Process");
@@ -91,7 +91,7 @@ namespace AkribisFAM
 
                     //TestStation1.Current.AutoRun();
 
-                }
+                //}
 
             }
             catch (Exception ex) 

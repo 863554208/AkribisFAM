@@ -45,15 +45,7 @@ namespace AkribisFAM.WorkStation
 
         public override void AutoRun()
         {
-            //string axisName = "A";
-            //int targetPos = -200000;
 
-            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
-
-            //if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
-            //{
-            //    AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
-            //}
             int WorkState = 11;
             try
             {
@@ -100,12 +92,43 @@ namespace AkribisFAM.WorkStation
 
         private void UnloadMaterial()
         {
-            Console.WriteLine("UnloadMaterial");
+            string axisName = "A";
+            int targetPos = -200000;
+
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+            
+
+            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            {
+                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
+                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+
+            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
+            {
+                Console.WriteLine("WAITING 1");
+                System.Threading.Thread.Sleep(300);
+            }
+            
         }
 
         private void InspectPart()
         {
-            Console.WriteLine("InspectPart");
+            string axisName = "A";
+            int targetPos = -30000;
+
+            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            {
+                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
+                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+
+            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
+            {
+                System.Threading.Thread.Sleep(300);
+            }
         }
 
         private void AttachPart()

@@ -72,7 +72,7 @@ namespace AkribisFAM.WorkStation
                         case 40: // 下料
                             UnloadMaterial();
                             WorkState = 11; // 切回上料，表示一个完整流程结束
-                            processCompleted = true; // 标记流程完成，退出 while
+                            //processCompleted = true; // 标记流程完成，退出 while
                             break;
 
                         default:
@@ -97,7 +97,12 @@ namespace AkribisFAM.WorkStation
 
             if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
             {
+                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
+            {
+                System.Threading.Thread.Sleep(300);
             }
 
             Console.WriteLine("MoveFirst 2");
@@ -112,7 +117,12 @@ namespace AkribisFAM.WorkStation
 
             if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
             {
+                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            }
+            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
+            {
+                System.Threading.Thread.Sleep(300);
             }
 
             Console.WriteLine("MoveSecond 2");
