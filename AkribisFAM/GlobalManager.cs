@@ -46,9 +46,9 @@ namespace AkribisFAM
 
 
             // 初始化心跳定时器
-            heartbeatTimer = new Timer(300); // 每300ms触发一次
+            heartbeatTimer = new Timer(1000); // 每300ms触发一次
             heartbeatTimer.Elapsed += HeartbeatTimer_Elapsed;
-            heartbeatTimer.AutoReset = true; // 自动重复触发
+            //heartbeatTimer.AutoReset = true; // 自动重复触发
             heartbeatTimer.Enabled = true;   // 启动定时器
 
         }
@@ -76,7 +76,8 @@ namespace AkribisFAM
                 {
                     Console.WriteLine("监测到的状态是:" + false.ToString());
                 }
-                Console.WriteLine("连接状态:" +_Agm800.controller.IsConnected.ToString());
+
+                //Console.WriteLine("连接状态:" + _Agm800.controller.IsConnected.ToString());
                 AGM800Connection = _Agm800.controller.IsConnected;
             }
             catch(Exception ex)
