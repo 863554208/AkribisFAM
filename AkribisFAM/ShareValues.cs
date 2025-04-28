@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfApp1
+namespace AkribisFAM
 {
     public static class ShareValues
     {
@@ -61,4 +61,9 @@ namespace WpfApp1
         public static double STATION3_AXISZMAX = 300.0;
     }
 
+    public static class IOState
+    {
+        public static bool INPUT_IO_1 = false;
+        public static bool INPUT_IO_2 = false;
+    }
 }
