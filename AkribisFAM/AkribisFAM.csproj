@@ -62,6 +62,10 @@
     <Reference Include="AAComm, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAComm.dll</HintPath>
     </Reference>
+    <Reference Include="AACommServerAPI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\AACommServerAPI.dll</HintPath>
+    </Reference>
     <Reference Include="AAMotion, Version=7.3.4.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAMotion.dll</HintPath>
     </Reference>
@@ -71,7 +75,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Text.Json, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -110,6 +113,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AAmotionFAM\AGM800.cs" />
+    <Compile Include="AutorunManager.cs" />
     <Compile Include="DebugParams.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Lang\UI.Designer.cs">
@@ -166,6 +170,9 @@
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\SetPoint.xaml.cs" />
+    <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\TestStation1.cs" />
+    <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

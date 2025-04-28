@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
 using AkribisFAM.Windows;
-
+using AkribisFAM.WorkStation;
 namespace AkribisFAM
 {
     /// <summary>
@@ -24,6 +24,7 @@ namespace AkribisFAM
         {
             base.OnStartup(e);
             var _globalManager = GlobalManager.Current;
+            var _testStation1 = TestStation1.Current;
             SetLanguage("zh-CHS");
 
             //在启动程序时就开始跟AGM800的通信

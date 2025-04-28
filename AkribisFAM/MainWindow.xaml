@@ -68,7 +68,7 @@
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="113" Margin="593,602,0,0" VerticalAlignment="Top" Width="361">
             <StackPanel Orientation="Horizontal">
-                <Button Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" />
+                <Button Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0"/>
                 <Button Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" />
             </StackPanel>
