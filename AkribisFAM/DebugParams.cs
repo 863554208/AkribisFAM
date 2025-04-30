@@ -4,8 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WpfApp1
+namespace AkribisFAM
 {
+    public struct AxisParam
+    {
+        public double Speed;
+        public double Acc;
+        public double Dec;
+    }
+    public static class AxisParams
+    {
+        public static AxisParam Axis1;
+        public static AxisParam Axis2;
+
+    }
     public class ScanningAreaParams
     {
         public double Beltspeed;
