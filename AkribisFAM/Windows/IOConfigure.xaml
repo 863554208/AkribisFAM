@@ -5,10 +5,272 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="yellow">
-        <Label Content="Input" HorizontalAlignment="Left" Margin="44,26,0,0" VerticalAlignment="Top" Height="31" Width="43"/>
-        <Label Content="Output" HorizontalAlignment="Left" Margin="36,0,0,0" VerticalAlignment="Center" Height="30" Width="60"/>
-        <Rectangle HorizontalAlignment="Left" Height="30" Margin="116,74,0,0" Stroke="Black" VerticalAlignment="Top" Width="61"/>
+             d:DesignHeight="390" Width="755">
+    <UserControl.Resources>
+        <Style x:Key="RoundCornerButton" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="5" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="SkyBlue"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="DarkBlue"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Background="#FFE5E5E5">
+        <GroupBox Header="INPUT" Margin="10,10,10,198">
+            <Grid ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="5" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="6" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="7" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="1" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="2" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="3" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="4" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="5" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="6" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="7" Grid.Row="1" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="1" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="2" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="3" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="4" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="5" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="6" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="7" Grid.Row="2" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="1" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="2" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="3" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="4" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="5" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="6" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="7" Grid.Row="3" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="1" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="2" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="3" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="4" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="5" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="6" Grid.Row="4" StrokeThickness="0"/>
+                <Rectangle HorizontalAlignment="Center"  Fill="LightGreen" Height="25" Stroke="Black" VerticalAlignment="Center" Width="70" Grid.Column="7" Grid.Row="4" StrokeThickness="0"/>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="0"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="1"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="3"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="4"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="5" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="5"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="6" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="6"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="7" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X0"/><Run Language="zh-cn" Text="7"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="11"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="12"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="13"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="4" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="14"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="5" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="15"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="6" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="16"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="7" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="17"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="1" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="10"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="21"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="2" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="22"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="3" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="23"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="4" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="24"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="5" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="25"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="6" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="26"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="7" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="27"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="2" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="20"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="31"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="32"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="3" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="33"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="4" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="34"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="5" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="35"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="6" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="36"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="7" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="37"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="3" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="30"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="1" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="41"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="2" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="42"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="3" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="43"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="4" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="44"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="5" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="45"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="6" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="46"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Column="7" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="47"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Grid.Row="4" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="X"/><Run Language="zh-cn" Text="40"/></TextBlock>
+                <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="Black" IsHitTestVisible="False"><Run Text="S"/><Run Language="zh-cn" Text="tart"/></TextBlock>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="OUTPUT" Margin="10,197,10,10">
+            <Grid ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="00"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="10"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="20"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="30"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="40"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="1" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="01"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="1">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="11"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="1">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="21"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="1">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="31"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="1">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="41"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="2" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="02"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="2">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="12"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="2">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="22"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="2">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="32"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="2">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="42"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="3" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="03"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="3">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="13"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="3">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="23"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="3">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="33"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="3">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="43"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="4" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="04"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="4">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="14"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="4">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="24"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="4">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="34"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="4">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="44"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="5" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="05"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="5">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="15"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="5">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="25"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="5">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="35"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="5">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="45"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="6" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="06"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="6">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="16"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="6">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="26"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="6">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="36"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="6">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="46"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="7" >
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="07"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="1" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="7">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="17"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="2" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="7">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Center" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="27"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="3" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="7">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="37"/></TextBlock>
+                </Button>
+                <Button HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="70" Grid.Row="4" BorderThickness="0,0,0,0" FontSize="20" FontWeight="Heavy" Foreground="White" Background="LightGreen"  Grid.Column="7">
+                    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Opacity="0.5" Foreground="White" FontSize="20" FontWeight="Heavy"><Run Text="Y"/><Run Language="zh-cn" Text="47"/></TextBlock>
+                </Button>
+                <TextBlock HorizontalAlignment="Right" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="Black" Margin="0,0,26,0" IsHitTestVisible="False"><Run Language="zh-cn" Text="Buzzer"/></TextBlock>
+            </Grid>
+        </GroupBox>
     </Grid>
 </UserControl>
