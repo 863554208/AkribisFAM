@@ -60,14 +60,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AAComm, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAComm.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\AAComm.dll</HintPath>
     </Reference>
     <Reference Include="AACommServerAPI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\AACommServerAPI.dll</HintPath>
     </Reference>
-    <Reference Include="AAMotion, Version=7.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAMotion.dll</HintPath>
+    <Reference Include="AAMotion, Version=7.3.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\AAMotion.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -126,6 +128,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="ShareValues.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
@@ -151,8 +155,8 @@
       <DependentUpon>DebugLog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\GenrateJson.xaml.cs">
-	  <DependentUpon>GenrateJson.xaml</DependentUpon>
-	</Compile>
+      <DependentUpon>GenrateJson.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
     </Compile>
@@ -169,19 +173,27 @@
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\PalletPointsWindow.xaml.cs">
-	  <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
-	</Compile>
-	  <Compile Include="Windows\ParameterConfig.xaml.cs">
-		  <DependentUpon>ParameterConfig.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Include="Windows\SetPoint.xaml.cs">
-		  <DependentUpon>SetPoint.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Include="Worker.cs" />
-	  <Compile Include="WorkStation\TestStation1.cs" />
-	  <Compile Include="WorkStation\TestStation2.cs" />
-	  <Compile Include="WorkStation\WorkStationBase.cs" />
-    <Page Include="MainWindow.xaml">
+      <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ParameterConfig.xaml.cs">
+      <DependentUpon>ParameterConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SetPoint.xaml.cs">
+      <DependentUpon>SetPoint.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\PalletPointsWindow.xaml.cs" />
+    <Compile Include="Windows\ParameterConfig.xaml.cs">
+      <DependentUpon>ParameterConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SetPoint.xaml.cs" />
+    <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\FuJian.cs" />
+    <Compile Include="WorkStation\JianCe.cs" />
+    <Compile Include="WorkStation\LaiLiao.cs" />
+    <Compile Include="WorkStation\TestStation1.cs" />
+    <Compile Include="WorkStation\TestStation2.cs" />
+    <Compile Include="WorkStation\WorkStationBase.cs" />
+    <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -189,7 +201,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

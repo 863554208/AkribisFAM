@@ -8,7 +8,7 @@ namespace AkribisFAM.WorkStation
 {
     public abstract class WorkStationBase
     {
-
+        public abstract string Name { get; }
         public abstract void Initialize();
         public abstract void AutoRun();
         public abstract void ReturnZero();

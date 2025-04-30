@@ -108,11 +108,26 @@ namespace AkribisFAM
             }
         }
 
+        private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
+        {
+            if (GlobalManager.Current.IsPause == false)
+            {
+                GlobalManager.Current.IsPause = true;
+                //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
+                PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
+            }
+            else
+            {
+                GlobalManager.Current.IsPause = false;
+                //AutorunManager.Current.ResumeAutoRun();
+                PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+            }
+        }
+
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
             AutorunManager.Current.StopAutoRun();
-
             StartAutoRunButton.IsEnabled = true;
         }
 
