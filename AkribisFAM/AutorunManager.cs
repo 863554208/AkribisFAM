@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using AAMotion;
 using AkribisFAM.WorkStation;
 
 namespace AkribisFAM
@@ -59,18 +60,6 @@ namespace AkribisFAM
 
             try
             {
-                //while (!_loopWorker.WaitStopSignal(300))
-                //{
-                //    if (!IsSafe())
-                //    {
-                //        continue;
-                //    }
-
-                //    if (!isRunning) 
-                //    {
-                //        Console.WriteLine("退出自动运行");
-                //        break;
-                //    }
 
 
                     Trace.WriteLine("Autorun Process");
@@ -124,7 +113,7 @@ namespace AkribisFAM
 
                     station.AutoRun(); 
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                 }
             }
             catch (Exception ex)
@@ -138,5 +127,19 @@ namespace AkribisFAM
             isRunning = false;
         }
 
+        public void PauseAutoRun()
+        {
+            //GlobalManager.Current._Agm800.axisRefs.TryGetValue("A", out AxisRef axisRef);
+            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Pause();
+            Thread.Sleep(100);
+
+        }
+
+        public void ResumeAutoRun()
+        {
+            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Resume();
+            Thread.Sleep(100);
+            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.B).Resume();
+        }
     }
 }

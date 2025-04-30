@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -111,12 +112,24 @@ namespace AkribisFAM.Windows
             string axisName = _axisDic.GetAxisName(CurrentAxis);
             int targetPos = int.Parse(Targetpos.Text);
 
+            //20250429 
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).ClearBuffer();
+
             if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
             if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
             {
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
             }
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Begin();
+            Thread.Sleep(200);
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Stop();
+            //AAMotionAPI.Pause(GlobalManager.Current._Agm800.controller);
+            Thread.Sleep(5000);
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Begin();
+
         }
 
         private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)

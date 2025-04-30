@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="390" d:DesignWidth="768">
-    <Grid>
+    <Grid >
         <Image Name="imageDisplay" HorizontalAlignment="Left" Height="249" Margin="86,75,0,0" VerticalAlignment="Top" Width="294"/>
-        <Button Content="选择图片" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="533,101,0,0" Width="100" Height="30" Click="OnSelectImageClick" RenderTransformOrigin="6.057,1.556"/>
+        <Button Content="选择图片" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Blue"  Margin="533,101,0,0" Width="100" Height="30" Click="OnSelectImageClick" RenderTransformOrigin="6.057,1.556"/>
     </Grid>
 </UserControl>

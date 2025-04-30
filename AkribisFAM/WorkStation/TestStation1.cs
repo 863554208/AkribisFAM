@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AAMotion;
 using static AAComm.Extensions.AACommFwInfo;
@@ -51,31 +52,32 @@ namespace AkribisFAM.WorkStation
             {
                 // 开始一个工序流程
                 bool processCompleted = false;
-
+                bool start = true;
                 while (!processCompleted)
                 {
                     switch (WorkState)
                     {
                         case 11: // 上料
-                            LoadMaterial();
-                            WorkState = 20; // 切到贴装
+                            if (GlobalManager.Current.IsBInTarget || start)
+                            {
+                                if (start)
+                                {
+                                    start = false;
+                                    Console.WriteLine("A轴开始执行的一次");
+                                }
+                                LoadMaterial();
+                                WorkState = 20; // 切到贴装
+                            }
                             break;
 
                         case 20: // 贴装
-                            AttachPart();
-                            WorkState = 30; // 切到检测
+                            if (GlobalManager.Current.IsBInTarget)
+                            {                                
+                                AttachPart();
+                                WorkState = 11; // 切到检测
+                            }
                             break;
 
-                        case 30: // 检测
-                            InspectPart();
-                            WorkState = 40; // 切到下料
-                            break;
-
-                        case 40: // 下料
-                            UnloadMaterial();
-                            WorkState = 11; // 切回上料，表示一个完整流程结束
-                            processCompleted = true; // 标记流程完成，退出 while
-                            break;
 
                         default:
                             Console.WriteLine($"Unknown WorkState: {WorkState}. Reset to 11.");
@@ -83,20 +85,20 @@ namespace AkribisFAM.WorkStation
                             processCompleted = true; // 出错也退出
                             break;
                     }
+                    System.Threading.Thread.Sleep(300);
                 }
             }
             catch (Exception ex) { }
-
-
         }
 
-        private void UnloadMaterial()
+        private void LoadMaterial()
         {
+            GlobalManager.Current.IsBInTarget = false;
             string axisName = "A";
-            int targetPos = -200000;
+            int targetPos = 200000;
 
             if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
-            
+
 
             if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
             {
@@ -104,16 +106,21 @@ namespace AkribisFAM.WorkStation
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
             }
 
+
+            Console.WriteLine("loadMaterial 1");
+
             while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
             {
-                Console.WriteLine("WAITING 1");
+                Console.WriteLine("当前轴A运动状态1 " + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
                 System.Threading.Thread.Sleep(300);
             }
-            
+
+            GlobalManager.Current.IsAInTarget = true;
         }
 
-        private void InspectPart()
+        private void AttachPart()
         {
+            GlobalManager.Current.IsBInTarget = false;
             string axisName = "A";
             int targetPos = -30000;
 
@@ -127,18 +134,14 @@ namespace AkribisFAM.WorkStation
 
             while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
             {
+                Console.WriteLine("当前轴A运动状态2 " + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
                 System.Threading.Thread.Sleep(300);
             }
+            GlobalManager.Current.IsAInTarget = true;
+            Console.WriteLine("AttachPart 1");
         }
 
-        private void AttachPart()
-        {
-            Console.WriteLine("AttachPart");
-        }
 
-        private void LoadMaterial()
-        {
-            Console.WriteLine("LoadMaterial");
-        }
+
     }
 }
