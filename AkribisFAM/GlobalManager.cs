@@ -10,6 +10,7 @@ using System.Timers;
 using AAMotion;
 using AGM800 = AkribisFAM.AAmotionFAM.AGM800;
 using System.Diagnostics;
+using AkribisFAM.Manager;
 
 namespace AkribisFAM
 {
@@ -21,6 +22,10 @@ namespace AkribisFAM
 
         //全局心跳包
         private Timer heartbeatTimer;
+
+        //错误队列
+        private DispatcherTimer _errorCheckTimer;
+
 
         // 记录 A 轴和 B 轴的是否到位的状态
         public bool IsAInTarget { get; set; }
@@ -55,6 +60,9 @@ namespace AkribisFAM
             heartbeatTimer.Elapsed += HeartbeatTimer_Elapsed;
             //heartbeatTimer.AutoReset = true; // 自动重复触发
             heartbeatTimer.Enabled = true;   // 启动定时器
+
+            StartErrorMonitor();
+
 
             IsAInTarget = false;
             IsBInTarget = false;
@@ -111,5 +119,23 @@ namespace AkribisFAM
             IsBInTarget = GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat == 4;
         }
         #endregion
+
+        private void StartErrorMonitor()
+        {
+            Console.WriteLine("开启全局错误监视器");
+            _errorCheckTimer = new DispatcherTimer();
+            _errorCheckTimer.Interval = TimeSpan.FromSeconds(1);
+            _errorCheckTimer.Tick += (s, e) =>
+            {
+                while (ErrorReportManager.ErrorQueue.TryDequeue(out var ex))
+                {
+                    MessageBox.Show(ex.Message, "线程异常", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                    // 可选：终止运行
+                    AutorunManager.Current.isRunning = false;
+                }
+            };
+            _errorCheckTimer.Start();
+        }
     }
 }

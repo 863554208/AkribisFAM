@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AAMotion;
+using AkribisFAM.Manager;
 namespace AkribisFAM.WorkStation
 {
     internal class TestStation2 :WorkStationBase
     {
         private static TestStation2 _instance;
-
+        public override string Name => nameof(TestStation2);
         public static TestStation2 Current
         {
             get
@@ -25,6 +26,8 @@ namespace AkribisFAM.WorkStation
                 return _instance;
             }
         }
+
+
 
         public override void ReturnZero()
         {
@@ -48,6 +51,14 @@ namespace AkribisFAM.WorkStation
             int WorkState = 11;
             try
             {
+                TaskContextManager.SetContext(new TaskContext
+                {
+                    StationName = Name,
+                    StartTime = DateTime.Now,
+                    TaskId = "AutoRun_Task_2"  // 给任务一个唯一标识
+                });
+
+
                 // 开始一个工序流程
                 bool processCompleted = false;
 
@@ -60,7 +71,6 @@ namespace AkribisFAM.WorkStation
                             {
                                 LoadMaterial();
                                 WorkState = 20; // 切到贴装
-                                
                             }
                             break;
 
@@ -90,47 +100,56 @@ namespace AkribisFAM.WorkStation
         private void LoadMaterial()
         {
             GlobalManager.Current.IsAInTarget = false;
-            string axisName = "B";
-            int targetPos = 200000;
 
-            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).LinearAbsolute(null, null, 50000, -300000, null, null, 100000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Begin();
 
-            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).InTargetStat != 4 && GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).InTargetStat != 4)
             {
-                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
-                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+                if (GlobalManager.Current.IsPause)
+                {
+                    GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Pause();
+                    Thread.Sleep(10);
+                }
+                else
+                {
+                    GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Resume();
+                    Thread.Sleep(10);
+                }
+                //Console.WriteLine("当前轴B运动状态1 " + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
+                System.Threading.Thread.Sleep(10);
             }
 
-            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
-            {
-                Console.WriteLine("当前轴B运动状态" + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
-                System.Threading.Thread.Sleep(300);
-            }
             GlobalManager.Current.IsBInTarget = true;
-            Console.WriteLine("LoadMaterial 2");
+            //Console.WriteLine("LoadMaterial 2");
         }
 
         private void AttachPart()
         {
             GlobalManager.Current.IsAInTarget = false;
-            string axisName = "B";
-            int targetPos = -30000;
 
-            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).LinearAbsolute(null, null, -50000, 50000, null, null, 100000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Begin();
 
-            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).InTargetStat != 4 && GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).InTargetStat != 4)
             {
-                AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
-                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
-            }
-
-            while (GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat != 4)
-            {
-                Console.WriteLine("当前轴B运动状态" + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
-                System.Threading.Thread.Sleep(300);
+                if (GlobalManager.Current.IsPause)
+                {
+                    GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Pause();
+                    Thread.Sleep(10);
+                }
+                else
+                {
+                    GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).Resume();
+                    Thread.Sleep(10);
+                }
+                //Console.WriteLine("当前轴B运动状态2 " + GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat);
+                System.Threading.Thread.Sleep(10);
             }
             GlobalManager.Current.IsBInTarget = true;
-            Console.WriteLine("AttachPart 2");
+            //Console.WriteLine("AttachPart 2");
         }
 
     }

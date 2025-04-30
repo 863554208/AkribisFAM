@@ -26,10 +26,14 @@ namespace AkribisFAM
             var _globalManager = GlobalManager.Current;
             var _testStation1 = TestStation1.Current;
             var _testStation2 = TestStation2.Current;
+
             SetLanguage("zh-CHS");
 
             //在启动程序时就开始跟AGM800的通信
             StartConnectAGM800();
+
+            //对轴初始化使能
+            InitializeAxis();
 
 
             if (new LoginViewModel().ShowDialog() == true)
@@ -75,6 +79,22 @@ namespace AkribisFAM
             }
         }
 
+        private void InitializeAxis()
+        {
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotorOn = 1;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotorOn = 1;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotorOn = 1;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotorOn = 1;
+
+
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotionMode = 11;
+
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
+        }
 
     }
 }

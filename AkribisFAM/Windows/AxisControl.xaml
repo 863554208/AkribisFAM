@@ -96,7 +96,7 @@
                      " Text="200000" />
                 <Label Content="mm" HorizontalAlignment="Left" Margin="188,40,0,0" VerticalAlignment="Top" FontSize="10"/>
                 <Label Content="Velocity:" HorizontalAlignment="Left" Margin="10,70,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="Velocitytext" HorizontalAlignment="Left" Margin="115,73,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="150000"/>
+                <TextBox x:Name="Velocitytext" HorizontalAlignment="Left" Margin="115,73,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="100000"/>
                 <Label Content="mm/s" HorizontalAlignment="Left" Margin="188,70,0,0" VerticalAlignment="Top" FontSize="10"/>
                 <Label Content="ACC/DEC:" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top"/>
                 <TextBox x:Name="ACCDECtext" HorizontalAlignment="Left" Margin="115,103,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
