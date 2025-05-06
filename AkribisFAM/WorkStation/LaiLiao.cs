@@ -52,10 +52,17 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-
+                    //
+                    if (GlobalManager.Current.IO_test1)
+                    {
+                        //TODO
+                    }
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            { 
+            
+            }
         }
     }
 }
