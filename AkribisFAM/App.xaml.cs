@@ -47,7 +47,7 @@ namespace AkribisFAM
             Application.Current.Shutdown();
         }
 
-        private void SetLanguage(string culture)
+        private static void SetLanguage(string culture)
         {
             // 设置当前线程的文化信息
             CultureInfo cultureInfo = new CultureInfo(culture);
@@ -97,9 +97,11 @@ namespace AkribisFAM
                 GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
                 GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
             }
-            catch { 
-
+            catch(Exception ex)
+            {
+                Trace.WriteLine(ex.ToString());
             }
+
         }
 
     }

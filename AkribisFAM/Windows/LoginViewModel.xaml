@@ -15,7 +15,6 @@
             <Label Content="Password" HorizontalAlignment="Left" Margin="230,253,0,0" VerticalAlignment="Top"/>
             <Label Content="用户登录" HorizontalAlignment="Center" Margin="0,105,0,0" VerticalAlignment="Top"/>
             <Label Content="2025-4-21 16：26：51" HorizontalAlignment="Left" Margin="620,25,0,0" VerticalAlignment="Top" Height="27" Width="141"/>
-            <Button Content="系统日志" HorizontalAlignment="Left" Margin="43,27,0,0" VerticalAlignment="Top" Height="40" Width="56"/>
             <Label Content="用户身份" HorizontalAlignment="Left" Margin="230,149,0,0" VerticalAlignment="Top"/>
             <TextBox HorizontalAlignment="Center" Margin="0,149,0,0" Text="Engineer" VerticalAlignment="Top" Height="25" Width="200" Background="LightGray" VerticalContentAlignment="Center"/>
         </Grid>
