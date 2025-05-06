@@ -336,35 +336,35 @@ namespace AkribisFAM.Windows
                 {
                     if (textBox.Name.Substring(7, 1) == "X")
                     {
-                        if (result < ShareValues.STATION1_AXISXMIN)
+                        if (result < ShareValues.AxisMin[2])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISXMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[2].ToString();
                         }
-                        else if (result > ShareValues.STATION1_AXISXMAX)
+                        else if (result > ShareValues.AxisMax[2])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISXMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[2].ToString();
                         }
                     }
                     else if(textBox.Name.Substring(7, 1) == "Y")
                     {
-                        if (result < ShareValues.STATION1_AXISYMIN)
+                        if (result < ShareValues.AxisMin[3])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISYMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[3].ToString();
                         }
-                        else if (result > ShareValues.STATION1_AXISYMAX)
+                        else if (result > ShareValues.AxisMax[3])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISYMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[3].ToString();
                         }
                     }
                     else if (textBox.Name.Substring(7, 1) == "Z")
                     {
-                        if (result < ShareValues.STATION1_AXISZMIN)
+                        if (result < ShareValues.AxisMin[4])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISZMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[4].ToString();
                         }
-                        else if (result > ShareValues.STATION1_AXISZMAX)
+                        else if (result > ShareValues.AxisMax[4])
                         {
-                            textBox.Text = ShareValues.STATION1_AXISZMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[4].ToString();
                         }
                     }
                 }
@@ -372,39 +372,38 @@ namespace AkribisFAM.Windows
                 {
                     if (textBox.Name.Substring(7, 1) == "X")
                     {
-                        if (result < ShareValues.STATION2_AXISXMIN)
+                        if (result < ShareValues.AxisMin[7])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISXMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[7].ToString();
                         }
-                        else if (result > ShareValues.STATION2_AXISXMAX)
+                        else if (result > ShareValues.AxisMax[7])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISXMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[7].ToString();
                         }
                     }
                     else if (textBox.Name.Substring(7, 1) == "Y")
                     {
-                        if (result < ShareValues.STATION2_AXISYMIN)
+                        if (result < ShareValues.AxisMin[8])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISYMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[8].ToString();
                         }
-                        else if (result > ShareValues.STATION2_AXISYMAX)
+                        else if (result > ShareValues.AxisMax[8])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISYMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[8].ToString();
                         }
                     }
                     else if (textBox.Name.Substring(7, 1) == "R")
                     {
-                        if (result < ShareValues.STATION2_AXISRMIN)
+                        if (result < ShareValues.AxisMin[9])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISRMIN.ToString();
+                            textBox.Text = ShareValues.AxisMin[9].ToString();
                         }
-                        else if (result > ShareValues.STATION2_AXISRMAX)
+                        else if (result > ShareValues.AxisMax[9])
                         {
-                            textBox.Text = ShareValues.STATION2_AXISRMAX.ToString();
+                            textBox.Text = ShareValues.AxisMax[9].ToString();
                         }
                     }
                 }
-
 
                 for (int i = 0; i < pointsnum; i++)
                 {
