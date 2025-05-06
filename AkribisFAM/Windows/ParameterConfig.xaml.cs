@@ -18,6 +18,11 @@ using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
+using LiveCharts;
+using System.Threading;
+using System.Windows.Markup;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Media3D;
 
 namespace AkribisFAM.Windows
 {
@@ -1370,6 +1375,63 @@ namespace AkribisFAM.Windows
 
             string strSrc = Convert.ToString(LimitJsonObject);//将json装换为string
             File.WriteAllText(Directory.GetCurrentDirectory() + "\\Limit.json", strSrc, System.Text.Encoding.UTF8);
+        }
+
+        private void rect1action()
+        {
+            //int mleft = (int)rect1.Margin.Left;
+            //while (true)
+            //{
+            //    mleft += 2;
+            //    updateMargin(mleft);
+            //    Thread.Sleep(100);
+            //    if (mleft > 96)
+            //        break;
+            //}
+            this.Dispatcher.Invoke(() =>
+            {
+                Thickness rect1Thickness = new Thickness();
+                rect1Thickness.Left = this.rect1.Margin.Left;
+                rect1Thickness.Top = this.rect1.Margin.Top;
+                rect1Thickness.Right = 0;
+                rect1Thickness.Bottom = 0;
+                while (true)
+                {
+                    rect1Thickness.Left = rect1Thickness.Left + 1;
+                    rect1.Margin = rect1Thickness;
+                    Thread.Sleep(100);
+                    if (rect1Thickness.Left > 96)
+                        break;
+                }
+            });
+        }
+        private void updateMargin(int x)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                rect1.Margin = new Thickness(x, rect1.Margin.Top, 0, 0);
+            });
+        }
+        private void start_Click(object sender, RoutedEventArgs e)
+        {
+            rect1action();
+            //this.Dispatcher.Invoke(() =>
+            //{
+            //    Thickness rect1Thickness = new Thickness();
+            //    rect1Thickness.Left = this.rect1.Margin.Left;
+            //    rect1Thickness.Top = this.rect1.Margin.Top;
+            //    rect1Thickness.Right = 0;
+            //    rect1Thickness.Bottom = 0;
+            //    while (true)
+            //    {
+            //        rect1Thickness.Left = rect1Thickness.Left + 1;
+            //        rect1.Margin = rect1Thickness;
+            //        Thread.Sleep(100);
+            //        if (rect1Thickness.Left > 96)
+            //            break;
+            //    }
+            //});
+
         }
     }
 }
