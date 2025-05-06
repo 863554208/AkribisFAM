@@ -31,10 +31,28 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+
+        #region 全局用来判断机器状态的标志位
+
         //模拟进板位置有料和无料IO信号
         public bool IO_test1 { get; set; }
 
+        public bool IO_test2 { get; set; }
+
+        public bool IO_test3 { get; set; }
+
+        public bool hive_Result { get; set; }
+
         public bool IsPause { get; set; }
+        public bool has_XueWeiXinXi { get; set; }
+
+        public int current_Assembled { get; set; }
+        public int current_FOAM_Count { get; set; }
+        public int total_Assemble_Count { get; set; }
+        
+        #endregion
+
+
         public static GlobalManager Current
         {
             get

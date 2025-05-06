@@ -188,7 +188,7 @@
     <Compile Include="Windows\SetPoint.xaml.cs" />
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
-    <Compile Include="WorkStation\JianCe.cs" />
+    <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\TestStation2.cs" />
