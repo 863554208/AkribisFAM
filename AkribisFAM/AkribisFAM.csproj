@@ -60,14 +60,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AAComm, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAComm.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\AAComm.dll</HintPath>
     </Reference>
     <Reference Include="AACommServerAPI, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\AACommServerAPI.dll</HintPath>
     </Reference>
-    <Reference Include="AAMotion, Version=7.3.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Agito.AAMotion.7.3.4\lib\net40\AAMotion.dll</HintPath>
+    <Reference Include="AAMotion, Version=7.3.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\x64\Debug\AAMotion.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -75,6 +83,9 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -129,6 +140,7 @@
     <Compile Include="ShareValues.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
     </Compile>
@@ -151,8 +163,8 @@
       <DependentUpon>DebugLog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\GenrateJson.xaml.cs">
-	  <DependentUpon>GenrateJson.xaml</DependentUpon>
-	</Compile>
+      <DependentUpon>GenrateJson.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
     </Compile>
@@ -169,18 +181,18 @@
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\PalletPointsWindow.xaml.cs">
-	  <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
-	</Compile>
-	  <Compile Include="Windows\ParameterConfig.xaml.cs">
-		  <DependentUpon>ParameterConfig.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Include="Windows\SetPoint.xaml.cs">
-		  <DependentUpon>SetPoint.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Include="Worker.cs" />
-	  <Compile Include="WorkStation\TestStation1.cs" />
-	  <Compile Include="WorkStation\TestStation2.cs" />
-	  <Compile Include="WorkStation\WorkStationBase.cs" />
+      <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ParameterConfig.xaml.cs">
+      <DependentUpon>ParameterConfig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SetPoint.xaml.cs">
+      <DependentUpon>SetPoint.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\TestStation1.cs" />
+    <Compile Include="WorkStation\TestStation2.cs" />
+    <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
