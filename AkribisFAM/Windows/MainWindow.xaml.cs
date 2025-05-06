@@ -17,6 +17,8 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
 using AkribisFAM.Util;
+using System.Globalization;
+using System.Windows.Markup;
 
 namespace AkribisFAM
 {
@@ -131,5 +133,25 @@ namespace AkribisFAM
             StartAutoRunButton.IsEnabled = true;
         }
 
+        private void ChangeLanguage_Click(object sender, RoutedEventArgs e)
+        {
+            SetLanguage("en-US");
+
+            // 刷新窗口，重新加载资源
+            RefreshUI();
+        }
+
+        private void SetLanguage(string culture)
+        {
+            // 设置当前线程的文化信息
+            CultureInfo cultureInfo = new CultureInfo(culture);
+            Thread.CurrentThread.CurrentUICulture = cultureInfo;
+            Thread.CurrentThread.CurrentCulture = cultureInfo;
+        }
+
+        private void RefreshUI()
+        {
+            this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+        }
     }
 }

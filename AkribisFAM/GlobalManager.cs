@@ -31,6 +31,9 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+        //模拟进板位置有料和无料IO信号
+        public int IO_test1 { get; set; }
+
         public bool IsPause { get; set; }
         public static GlobalManager Current
         {
