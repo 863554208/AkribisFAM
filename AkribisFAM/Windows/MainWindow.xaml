@@ -80,6 +80,7 @@
                 <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
             </StackPanel>
         </Border>
+        <Button Content="Change_Language" HorizontalAlignment="Left" Margin="82,628,0,0" VerticalAlignment="Top" Height="34" Width="105" Click="ChangeLanguage_Click"/>
 
 
     </Grid>

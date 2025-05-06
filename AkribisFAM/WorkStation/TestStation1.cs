@@ -65,7 +65,7 @@ namespace AkribisFAM.WorkStation
                 bool processCompleted = false;
                 bool start = true;
 
-                bool test = true;
+                //bool test = true;
 
                 while (!processCompleted)
                 {
@@ -93,7 +93,7 @@ namespace AkribisFAM.WorkStation
                         case 20: // 贴装
                             if (GlobalManager.Current.IsBInTarget)
                             {
-                                throw new NotImplementedException();
+                                //throw new NotImplementedException();
 
                                 AttachPart();
                                 WorkState = 11; // 切到检测
