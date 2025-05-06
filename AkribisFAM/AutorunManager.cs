@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using AAMotion;
+using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 
 namespace AkribisFAM
@@ -14,7 +16,7 @@ namespace AkribisFAM
     public class AutorunManager
     {
         private static AutorunManager _current;
-        private bool isRunning;
+        public bool isRunning;
 
         public static AutorunManager Current
         {
@@ -47,7 +49,7 @@ namespace AkribisFAM
             return true;
         }
 
-        public void AutoRunMain()
+        public async void AutoRunMain()
         {
             if (!CheckTaskReady())
             {
@@ -59,39 +61,23 @@ namespace AkribisFAM
 
             try
             {
-                //while (!_loopWorker.WaitStopSignal(300))
-                //{
-                //    if (!IsSafe())
-                //    {
-                //        continue;
-                //    }
+                Trace.WriteLine("Autorun Process");
 
-                //    if (!isRunning) 
-                //    {
-                //        Console.WriteLine("退出自动运行");
-                //        break;
-                //    }
-
-
-                    Trace.WriteLine("Autorun Process");
-
-                    try
-                    {
+                try
+                {
                         
-                        List<Task> tasks = new List<Task>();
+                    List<Task> tasks = new List<Task>();
 
-                        tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
-                        tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
-                        //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
+                    tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
 
-                        // 等待所有任务完成
-                        Task.WhenAll(tasks).Wait();
-                    }
-                    catch (Exception ex) { }
-
-                    //TestStation1.Current.AutoRun();
-
-                //}
+                    await Task.WhenAll(tasks);
+                }
+                catch (Exception ex) 
+                { 
+                
+                }
 
             }
             catch (Exception ex) 
@@ -115,6 +101,7 @@ namespace AkribisFAM
         {
             try
             {
+
                 while (isRunning)
                 {
                     if (!IsSafe())
@@ -124,11 +111,12 @@ namespace AkribisFAM
 
                     station.AutoRun(); 
 
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                 }
             }
             catch (Exception ex)
             {
+                ErrorReportManager.Report(ex);
             }
         }
 

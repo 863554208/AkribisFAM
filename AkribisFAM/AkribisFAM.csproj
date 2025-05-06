@@ -137,6 +137,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="ShareValues.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
@@ -190,10 +192,13 @@
       <DependentUpon>SetPoint.xaml</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\FuJian.cs" />
+    <Compile Include="WorkStation\JianCe.cs" />
+    <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\TestStation2.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -201,7 +206,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
