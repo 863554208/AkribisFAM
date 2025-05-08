@@ -55,11 +55,11 @@
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="389" Margin="0,141,0,0" VerticalAlignment="Top" Width="207">
             <StackPanel Orientation="Vertical">
-                <Button Content="{x:Static kl:UI.mainPageLabel}" HorizontalAlignment="Stretch" Height="82" FontSize="15" FontWeight="Bold" Click="MainWindowButton_Click"/>
-                <Button Content="{x:Static kl:UI.manualConfig}" HorizontalAlignment="Stretch" Height="77" FontSize="15" FontWeight="Bold" Click="ManualControlButton_Click"/>
-                <Button Content="{x:Static kl:UI.parameterConfigure}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="ParameterConfigButton_Click"/>
-                <Button Content="{x:Static kl:UI.internetConfig}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="InternetConfigButton_Click"/>
-                <Button Content="{x:Static kl:UI.debugLog}" HorizontalAlignment="Stretch" Height="75" FontSize="15" FontWeight="Bold" Click="DebugLogButton_Click"/>
+                <Button Content="{DynamicResource Main Page}" HorizontalAlignment="Stretch" Height="82" FontSize="15" FontWeight="Bold" Click="MainWindowButton_Click"/>
+                <Button Content="{DynamicResource Manual Control}" HorizontalAlignment="Stretch" Height="77" FontSize="15" FontWeight="Bold" Click="ManualControlButton_Click"/>
+                <Button Content="{DynamicResource Parameter Setting}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="ParameterConfigButton_Click"/>
+                <Button Content="{DynamicResource Internet Config}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="InternetConfigButton_Click"/>
+                <Button Content="{DynamicResource Log}" HorizontalAlignment="Stretch" Height="75" FontSize="15" FontWeight="Bold" Click="DebugLogButton_Click"/>
 
             </StackPanel>
         </Border>

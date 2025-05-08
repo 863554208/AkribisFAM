@@ -99,6 +99,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WpfExtensions.Xaml, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WpfExtensions.Xaml.1.2.0\lib\net45\WpfExtensions.Xaml.dll</HintPath>
+    </Reference>
     <Reference Include="Xceed.Wpf.AvalonDock, Version=4.7.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.4.7.25104.5739\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
     </Reference>
@@ -201,6 +204,12 @@
     <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\TestStation2.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
+    <Page Include="Dict\AppResource_en_US.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dict\AppResource_zh_CN.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
