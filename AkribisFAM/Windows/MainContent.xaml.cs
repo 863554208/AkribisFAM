@@ -241,7 +241,23 @@ namespace AkribisFAM.Windows
         }
         private void StopZuZhuang_Click(object sender, RoutedEventArgs e)
         {
-            GlobalManager.Current.IO_test1 = true;
+            if(GlobalManager.Current.current_ZuZhuang_step1_state == true)
+            {
+                GlobalManager.Current.current_ZuZhuang_step1_state = false;
+                GlobalManager.Current.current_ZuZhuang_step2_state = false;
+                GlobalManager.Current.current_ZuZhuang_step3_state = false;
+                GlobalManager.Current.current_ZuZhuang_step4_state = false;
+                Stop_ZuZhuang.Background = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                GlobalManager.Current.current_ZuZhuang_step1_state = true;
+                GlobalManager.Current.current_ZuZhuang_step2_state = true;
+                GlobalManager.Current.current_ZuZhuang_step3_state = true;
+                GlobalManager.Current.current_ZuZhuang_step4_state = true;
+                Stop_ZuZhuang.Background = new SolidColorBrush(Colors.Green);
+            }
+
         }
 
 
