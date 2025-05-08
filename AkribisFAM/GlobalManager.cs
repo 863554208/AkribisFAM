@@ -31,10 +31,70 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+
+        #region 全局用来判断机器状态的标志位
+
         //模拟进板位置有料和无料IO信号
-        public int IO_test1 { get; set; }
+        public bool IO_test1 { get; set; }
+
+        public bool IO_test2 { get; set; }
+
+        public bool IO_test3 { get; set; }
+
+        public bool hive_Result { get; set; }
 
         public bool IsPause { get; set; }
+        public bool has_XueWeiXinXi { get; set; }
+
+        public int current_Assembled { get; set; }
+        public int current_FOAM_Count { get; set; }
+        public int total_Assemble_Count { get; set; }
+        public bool lailiao_ChuFaJinBan { get; set; }
+        public bool lailiao_JinBanWanCheng { get; set; }
+        public bool lailiao_SaoMa { get; set; }
+        public bool lailiao_JiGuangCeJu { get; set; }
+        public bool CCD1InPosition { get; set; }
+        public bool Feedar1Captured { get; set; }
+        public bool CCD2Captured { get; set; } 
+        public bool MoveToLiaopan { get; set; }
+        public bool GrabLiaoPan { get; set; }
+
+        public bool Pause1 { get; set; }
+
+        //给每个step设置一个全局标志
+        public int step1_time = 10;
+        public int step2_time = 20;
+        public int step3_time = 30;
+        public int step4_time = 10;
+
+        public int current_Lailiao_step = 0;
+        public int current_Zuzhuang_step = 0;
+        public int current_FuJian_step = 0;
+
+        public bool current_Lailiao_step1_state = true;
+        public bool current_Lailiao_step2_state = true;
+        public bool current_Lailiao_step3_state = true;
+        public bool current_Lailiao_step4_state = true;
+
+        public bool current_ZuZhuang_step1_state = true;
+        public bool current_ZuZhuang_step2_state = true;
+        public bool current_ZuZhuang_step3_state = true;
+        public bool current_ZuZhuang_step4_state = true;
+
+        public bool current_FuJian_step1_state = true;
+        public bool current_FuJian_step2_state = true;
+        public bool current_FuJian_step3_state = true;
+        public bool current_FuJian_step4_state = true;
+
+        public int[] temp = new int[] { 1, 2, 3, 4, };
+
+        public bool step1_enabled;
+        public bool step2_enabled;
+        public bool step3_enabled;
+        public bool IsPass { get; set; }
+
+        #endregion
+
         public static GlobalManager Current
         {
             get
@@ -88,14 +148,14 @@ namespace AkribisFAM
         }
         #endregion
         //第一次连接成功后再连心跳包，在297ms - 305 ms内，阻塞的处理
-        #region 1·
+        #region 12
         private void HeartbeatTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
             {
                 if(_Agm800.controller.IsConnected == false)
                 {
-                    Console.WriteLine("监测到的状态是:" + false.ToString());
+                    //Console.WriteLine("监测到的状态是:" + false.ToString());
                 }
 
                 //Console.WriteLine("连接状态:" + _Agm800.controller.IsConnected.ToString());

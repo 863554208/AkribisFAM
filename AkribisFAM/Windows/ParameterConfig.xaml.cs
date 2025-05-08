@@ -44,6 +44,7 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
             ReadLimitJson();
+
         }
 
         private void ReadLimitJson() {
@@ -1377,8 +1378,6 @@ namespace AkribisFAM.Windows
             string strSrc = Convert.ToString(LimitJsonObject);//将json装换为string
             File.WriteAllText(Directory.GetCurrentDirectory() + "\\Limit.json", strSrc, System.Text.Encoding.UTF8);
         }
-
-
         private void workstation1(Rectangle rect1)
         {
             Task task1;
@@ -2128,5 +2127,6 @@ namespace AkribisFAM.Windows
             Task task3 = new Task(Station3Act);
             task3.Start();
         }
+
     }
 }

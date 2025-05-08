@@ -131,12 +131,12 @@ namespace AkribisFAM
             }
         }
 
-
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
             AutorunManager.Current.StopAutoRun();
             StartAutoRunButton.IsEnabled = true;
         }
+
 
         private void ChangeLanguage_Click(object sender, RoutedEventArgs e)
         {
@@ -157,43 +157,6 @@ namespace AkribisFAM
         private void RefreshUI()
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
-        }
-
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox comboBox = sender as ComboBox;
-            string Culture = "/Dict/AppResource_{0}.xaml";
-            int selectedItem = comboBox.SelectedIndex;
-            if (selectedItem == 0)
-            {
-                Culture = string.Format(Culture, "zh_CN");
-                List<string> ll = new List<string>();
-                foreach (ResourceDictionary dictionary in Application.Current.Resources.MergedDictionaries)
-                {
-                    if (dictionary.Source != null && dictionary.Source.OriginalString.Contains("AppResource"))
-                    {
-                        bool b = Application.Current.Resources.MergedDictionaries.Remove(dictionary);
-                        dictionary.Source = new Uri(Culture, UriKind.RelativeOrAbsolute);
-                        Application.Current.Resources.MergedDictionaries.Add(dictionary);
-                        break;
-                    }
-                }
-            }
-            else if (selectedItem == 1)
-            {
-                Culture = string.Format(Culture, "en_US");
-                List<string> ll = new List<string>();
-                foreach (ResourceDictionary dictionary in Application.Current.Resources.MergedDictionaries)
-                {
-                    if (dictionary.Source != null && dictionary.Source.OriginalString.Contains("AppResource"))
-                    {
-                        bool b = Application.Current.Resources.MergedDictionaries.Remove(dictionary);
-                        dictionary.Source = new Uri(Culture, UriKind.RelativeOrAbsolute);
-                        Application.Current.Resources.MergedDictionaries.Add(dictionary);
-                        break;
-                    }
-                }
-            }
         }
     }
 }

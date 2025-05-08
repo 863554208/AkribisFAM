@@ -142,9 +142,12 @@
     </Compile>
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
+    <Compile Include="Manager\WarningManager.cs" />
     <Compile Include="ShareValues.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="ViewModel\ColorChangeViewModel.cs" />
+    <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
@@ -196,7 +199,7 @@
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
-    <Compile Include="WorkStation\JianCe.cs" />
+    <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\TestStation2.cs" />
