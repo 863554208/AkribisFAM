@@ -6,10 +6,29 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+
     <Grid>
-        <Image Name="cameraDisplay1" HorizontalAlignment="Left" Height="297" Margin="48,93,0,0" VerticalAlignment="Top" Width="307"/>
-        <Image Name="cameraDisplay2" HorizontalAlignment="Left" Height="297" Margin="400,93,0,0" VerticalAlignment="Top" Width="307"/>
-        <Button Content="选择图片" HorizontalAlignment="Left" Margin="491,413,0,0" VerticalAlignment="Top" Height="27" Width="120" Click="OnSelectImageClick"/>
+        <Button Content="选择图片" HorizontalAlignment="Left" Margin="491,413,0,0" VerticalAlignment="Top" Height="27" Width="120" />
+        <Button x:Name="zuzhuang1" Background="{Binding Color1}" Content="Step1" HorizontalAlignment="Left" Margin="114,107,0,0" VerticalAlignment="Top" Height="52" Width="93"/>
+        <Button x:Name="zuzhuang2" Background="{Binding Color2}" Content="Step2" HorizontalAlignment="Left" Height="52" Margin="266,107,0,0" VerticalAlignment="Top" Width="95"/>
+        <Button x:Name="zuzhuang3" Background="{Binding Color3}"  Content="Step3" HorizontalAlignment="Left" Height="52" Margin="430,107,0,0" VerticalAlignment="Top" Width="96"/>
+        <Button x:Name="zuzhuang4" Background="{Binding Color4}" Content="Step4" HorizontalAlignment="Left" Height="52" Margin="590,107,0,0" VerticalAlignment="Top" Width="108"/>
+        <Button x:Name="Change_Block" Content="Change" HorizontalAlignment="Left" Margin="125,270,0,0" VerticalAlignment="Top" Height="33" Width="236" Click="Change_Click"/>
+        <Label Content="test3 持续时间" HorizontalAlignment="Left" Margin="395,270,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name ="test3_time" HorizontalAlignment="Left" Margin="499,274,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="67" RenderTransformOrigin="-0.325,2.049"/>
+        <Button x:Name="asd" Content="Set" HorizontalAlignment="Left" Margin="581,270,0,0" VerticalAlignment="Top" Click="Time3Set_Click"/>
+        <Button x:Name="lailaio1" Content="Step1" Background="{Binding Color_lailiao_1}" HorizontalAlignment="Left" Margin="114,30,0,0" VerticalAlignment="Top" Height="44" Width="93"/>
+        <Button x:Name="lailaio2" Content="Step2" Background="{Binding Color_lailiao_2}" HorizontalAlignment="Left" Margin="266,30,0,0" VerticalAlignment="Top" Height="44" Width="95"/>
+        <Button x:Name="lailaio3" Content="Step3" Background="{Binding Color_lailiao_3}" HorizontalAlignment="Left" Margin="430,30,0,0" VerticalAlignment="Top" Height="41" Width="96"/>
+        <Label Content="来料" HorizontalAlignment="Left" Margin="37,38,0,0" VerticalAlignment="Top" Width="52"/>
+        <Label Content="组装" HorizontalAlignment="Left" Margin="37,120,0,0" VerticalAlignment="Top" Width="52"/>
+        <Label Content="复检" HorizontalAlignment="Left" Margin="37,200,0,0" VerticalAlignment="Top" Width="52"/>
+        <Button x:Name="fujian1" Content="Step1"  Background="{Binding Color_FuJian_1}" HorizontalAlignment="Left" Height="36" Margin="114,200,0,0" VerticalAlignment="Top" Width="93"/>
+        <Button x:Name="fujian2" Content="Step2" Background="{Binding Color_FuJian_2}" HorizontalAlignment="Left" Margin="266,200,0,0" VerticalAlignment="Top" Height="36" Width="95"/>
+        <Button x:Name="fujian3" Content="Step3" Background="{Binding Color_FuJian_3}" HorizontalAlignment="Left" Margin="430,200,0,0" VerticalAlignment="Top" Height="36" Width="96"/>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="616,236,0,0" VerticalAlignment="Top" Click="SendIO_Click"/>
+        <Button Content="Stop_ZuZhuang" HorizontalAlignment="Left" Margin="206,350,0,0" VerticalAlignment="Top" Click="StopZuZhuang_Click"/>
+
 
     </Grid>
 </UserControl>

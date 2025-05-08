@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
+using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 namespace AkribisFAM
@@ -26,13 +27,14 @@ namespace AkribisFAM
             var _globalManager = GlobalManager.Current;
             var _testStation1 = TestStation1.Current;
             var _testStation2 = TestStation2.Current;
+            var _warningManager = WarningManager.Current;
 
-            SetLanguage("zh-CHS");
+            SetLanguage("en-US");
 
             //在启动程序时就开始跟AGM800的通信
             StartConnectAGM800();
 
-            //对轴初始化使能
+            //对轴初始化使能 改到登录之后
             InitializeAxis();
 
 

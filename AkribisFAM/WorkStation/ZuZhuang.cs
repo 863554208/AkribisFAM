@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using AkribisFAM.Manager;
 
@@ -11,6 +13,16 @@ namespace AkribisFAM.WorkStation
     {
         private static ZuZhuang _instance;
         public override string Name => nameof(ZuZhuang);
+
+        public event Action OnTriggerStep1;
+        public event Action OnStopStep1;
+        public event Action OnTriggerStep2;
+        public event Action OnStopStep2;
+        public event Action OnTriggerStep3;
+        public event Action OnStopStep3;
+        public event Action OnTriggerStep4;
+        public event Action OnStopStep4;
+
 
         public static ZuZhuang Current
         {
@@ -45,79 +57,207 @@ namespace AkribisFAM.WorkStation
 
         public override void AutoRun()
         {
+            int delta = 0;
             bool has_board = false;
-            bool has_error = false;
-            int WorkState = 0;
             try
             {
+
                 while (true)
                 {
-                    if (GlobalManager.Current.IO_test2 && !has_board)
-                    {
-                        WorkState = 1;
-                        has_board = true;
-                        Console.WriteLine("板已进");
-                    }
+                    goto step1;
 
-                    // 处理板
-                    if (has_board && WorkState == 1)
-                    {
-                        try
+                    step1:
+                        if(GlobalManager.Current.IO_test2 == true &&  has_board == false)
                         {
-                            WorkState = 2;
-                            GlobalManager.Current.current_Assembled = 0;
-                            GlobalManager.Current.current_FOAM_Count = 0;
-                            while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
-                            {
-
-                                if(GlobalManager.Current.current_FOAM_Count == 0)
-                                {
-                                    //TODO 相机拍飞达上的料
-
-                                    //TODO 吸嘴吸取飞达上的4个料
-
-                                    //现在吸嘴上实际吸了4个料
-                                    GlobalManager.Current.current_FOAM_Count += 4; 
-                                }
-
-                                //TODO 相机到CCD2拍照精定位
-
-                                if (!GlobalManager.Current.has_XueWeiXinXi)
-                                {
-                                    //TODO 对料盘拍照获取穴位信息
-                                }
-
-                                //TODO 组装
-
-                                //目前料盘上组装了多少料
-                                GlobalManager.Current.current_Assembled += 4;
-
-                                //吸嘴上现在有多少foam（减去实际贴上去的料的数量） ： 如果没有foam，下一片板子走正常流程 ；如果有foam , 不再拍feeder上的料的图片
-                                GlobalManager.Current.current_FOAM_Count -= 4;
-                            }
-
-                            WorkState = 3; // 更新状态为出板
+                            GlobalManager.Current.IO_test2 = false;
+                            has_board = true;
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            has_error = true; // 标记为出错
+                            Thread.Sleep(100);
+                            continue;
                         }
-                    }
+                        Console.WriteLine("step1");
+                        OnTriggerStep1?.Invoke();
 
-                    // 出板
-                    if (WorkState == 3 || has_error)
-                    {
-                        if (has_error)
+                        System.Threading.Thread.Sleep(1000);
+
+                        GlobalManager.Current.current_FuJian_step = 1;
+                        if (GlobalManager.Current.current_Lailiao_step1_state == true)
                         {
-                            AutorunManager.Current.isRunning = false;
+                            delta = 0;
+                        }
+                        else
+                        {
+                            delta = 99999;
+                        }
+                        WarningManager.Current.WaitZuZhuang(delta);
+                        OnStopStep1?.Invoke();
+
+                    step2:
+                        Console.WriteLine("step2");
+                        OnTriggerStep2?.Invoke();
+                        System.Threading.Thread.Sleep(2000);
+
+                        GlobalManager.Current.current_FuJian_step = 2;
+                        if (GlobalManager.Current.current_Lailiao_step2_state == true)
+                        {
+                            delta = 0;
+                        }
+                        else
+                        {
+                            delta = 99999;
+                        }
+                        WarningManager.Current.WaitZuZhuang(delta);
+
+                        OnStopStep2?.Invoke();
+
+                    step3:
+                        Console.WriteLine("step3");
+                        OnTriggerStep3?.Invoke();
+                        System.Threading.Thread.Sleep(1000);
+
+                        GlobalManager.Current.current_FuJian_step = 3;
+                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
+                        {
+                            delta = 0;
+                        }
+                        else
+                        {
+                            delta = 99999;
+                        }
+                        WarningManager.Current.WaitZuZhuang(delta);
+                        OnStopStep3?.Invoke();
+
+                    step4:
+                        Console.WriteLine("step4");
+                        OnTriggerStep4?.Invoke();
+                        System.Threading.Thread.Sleep(1000);
+
+                        GlobalManager.Current.current_FuJian_step = 3;
+                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
+                        {
+                            delta = 0;
+                        }
+                        else
+                        {
+                            delta = 99999;
+                        }
+                        WarningManager.Current.WaitZuZhuang(delta);
+
+                        OnStopStep4?.Invoke();
+                        if (GlobalManager.Current.IsPass)
+                        {
+                            goto step2;
+                        }
+                        else
+                        {
+                            has_board = false;
+                            GlobalManager.Current.IO_test3 = true;
                         }
 
-                        WorkState = 0;
-                        has_board = false;
-                        Console.WriteLine("板已出");
-                    }
-                    System.Threading.Thread.Sleep(100);
                 }
+
+
+                #region 老代码
+                //if (GlobalManager.Current.IO_test2 && !has_board)
+                //{
+                //    WorkState = 1;
+                //    has_board = true;
+                //    GlobalManager.Current.IO_test2 = false;
+                //    Console.WriteLine("贴膜工位板已进");
+                //}
+
+                //// 处理板
+                //if (has_board && WorkState == 1)
+                //{
+                //    try
+                //    {
+                //        WorkState = 2;
+                //        GlobalManager.Current.total_Assemble_Count = 12;
+                //        GlobalManager.Current.current_Assembled = 0;
+                //        GlobalManager.Current.current_FOAM_Count = 0;
+                //        while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
+                //        {
+                //            if (GlobalManager.Current.current_FOAM_Count == 0)
+                //            {
+                //                //TODO 相机拍飞达上的料
+                //                OnZuZhuangExecuted_2?.Invoke();
+                //                while (!GlobalManager.Current.CCD1InPosition)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                OnZuZhuangExecuted_1?.Invoke();
+                //                while (!GlobalManager.Current.Feedar1Captured)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                Console.WriteLine("已拍飞达上的料");
+                //                //TODO 吸嘴吸取飞达上的4个料
+
+                //                //现在吸嘴上实际吸了4个料
+                //                GlobalManager.Current.current_FOAM_Count += 4; 
+                //            }
+
+                //            //TODO 相机到CCD2拍照精定位
+
+                //            OnZuZhuangExecuted_3?.Invoke();
+                //            while (!GlobalManager.Current.CCD2Captured)
+                //            {
+                //                Thread.Sleep(300);
+                //            }
+                //            Console.WriteLine("已拍CCD2上的料");
+
+                //            if (!GlobalManager.Current.has_XueWeiXinXi)
+                //            {
+                //                //TODO 对料盘拍照获取穴位信息
+
+                //                OnZuZhuangExecuted_4?.Invoke();
+                //                while (!GlobalManager.Current.MoveToLiaopan)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                OnZuZhuangExecuted_5?.Invoke();
+                //                while (!GlobalManager.Current.GrabLiaoPan)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //            }
+
+                //            //TODO 组装
+
+                //            //目前料盘上组装了多少料
+                //            GlobalManager.Current.current_Assembled += 4;
+
+                //            //吸嘴上现在有多少foam（减去实际贴上去的料的数量） ： 如果没有foam，下一片板子走正常流程 ；如果有foam , 不再拍feeder上的料的图片
+                //            GlobalManager.Current.current_FOAM_Count -= 4;
+
+                //            Thread.Sleep(300);
+
+                //        }
+
+                //        WorkState = 3; // 更新状态为出板
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        has_error = true; // 标记为出错
+                //    }
+                //}
+
+                //// 出板
+                //if (WorkState == 3 || has_error)
+                //{
+                //    if (has_error)
+                //    {
+                //        AutorunManager.Current.isRunning = false;
+                //    }
+
+                //    WorkState = 0;
+                //    has_board = false;
+                //    Console.WriteLine("组装工位板已出");
+                //}
+                //System.Threading.Thread.Sleep(100);
+                #endregion
             }
             catch (Exception ex)
             {

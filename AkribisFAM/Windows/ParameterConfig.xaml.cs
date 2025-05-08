@@ -23,6 +23,9 @@ using System.Threading;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
+using AkribisFAM.ViewModel;
+using AkribisFAM.WorkStation;
+using System.Diagnostics.Eventing.Reader;
 
 namespace AkribisFAM.Windows
 {
@@ -38,11 +41,63 @@ namespace AkribisFAM.Windows
         JObject LimitJsonObject;
         public Dictionary<string, double> AxisLimitList;
         bool init = false;
+        public ParameterConfigViewModel ViewModel { get; }
 
         public ParameterConfig()
         {
             InitializeComponent();
             ReadLimitJson();
+
+            ViewModel = new ParameterConfigViewModel();
+            this.DataContext = ViewModel;
+
+        }
+
+        private void Current_OnZuZhuangExecuted_4()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void UpdateRectangleColorToGreen()
+        {
+            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
+            Dispatcher.Invoke(() => ViewModel.UpdateRectangleColorToGreen());
+        }
+
+        private void UpdateLaserRectangleColorToGreen()
+        {
+            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
+            Dispatcher.Invoke(() => ViewModel.UpdateLaserRectangleColorToGreen());
+        }
+
+        private async void UpdateRectanglePosition()
+        {
+            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
+            //Dispatcher.Invoke(() => ViewModel.UpdateRectanglePosition(378,700));
+
+            Thickness rect1Thickness = new Thickness();
+
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                rect1Thickness.Left = this.rect1.Margin.Left;
+                rect1Thickness.Top = this.rect1.Margin.Top;
+                rect1Thickness.Right = this.rect1.Margin.Right;
+                rect1Thickness.Bottom = this.rect1.Margin.Bottom;
+            });
+
+            while (rect1Thickness.Left <= 350)
+            {
+                // 更新 UI 元素时，需确保在 UI 线程上执行
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    rect1Thickness.Left += 5;
+                    this.rect1.Margin = rect1Thickness;
+                });
+
+                // 延时以缓解 UI 刷新压力
+                await Task.Delay(10);
+            }
         }
 
         private void ReadLimitJson() {
@@ -1377,34 +1432,297 @@ namespace AkribisFAM.Windows
             File.WriteAllText(Directory.GetCurrentDirectory() + "\\Limit.json", strSrc, System.Text.Encoding.UTF8);
         }
 
-        private void rect1action()
+        public async void UpdateMovement()
         {
-            //int mleft = (int)rect1.Margin.Left;
-            //while (true)
-            //{
-            //    mleft += 2;
-            //    updateMargin(mleft);
-            //    Thread.Sleep(100);
-            //    if (mleft > 96)
-            //        break;
-            //}
-            this.Dispatcher.Invoke(() =>
+            Thickness rect1Thickness = new Thickness();
+
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
             {
-                Thickness rect1Thickness = new Thickness();
                 rect1Thickness.Left = this.rect1.Margin.Left;
                 rect1Thickness.Top = this.rect1.Margin.Top;
-                rect1Thickness.Right = 0;
-                rect1Thickness.Bottom = 0;
-                while (true)
-                {
-                    rect1Thickness.Left = rect1Thickness.Left + 1;
-                    rect1.Margin = rect1Thickness;
-                    Thread.Sleep(100);
-                    if (rect1Thickness.Left > 96)
-                        break;
-                }
+                rect1Thickness.Right = this.rect1.Margin.Right;
+                rect1Thickness.Bottom = this.rect1.Margin.Bottom;
             });
+
+            // 在异步上下文中更新位置
+            while (rect1Thickness.Left <= 96)
+            {
+                // 更新 UI 元素时，需确保在 UI 线程上执行
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    rect1Thickness.Left += 5;
+                    this.rect1.Margin = rect1Thickness;
+                });
+
+                // 延时以缓解 UI 刷新压力
+                await Task.Delay(10);
+            }
         }
+
+        public async void UpdateCCDMovement_1()
+        {
+            GlobalManager.Current.Feedar1Captured = false;
+            Thickness CCD1Thickness = new Thickness();
+            double totalDistance = 0;
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                CCD1Thickness.Left = this.CCD1.Margin.Left;
+                CCD1Thickness.Top = this.CCD1.Margin.Top;
+                CCD1Thickness.Right = this.CCD1.Margin.Right;
+                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
+            });
+
+
+            // 在异步上下文中更新位置
+            while (true)
+            {
+                // 等待一段时间
+                await Task.Delay(10);
+
+                // 检查是否达到总平移距离大于50
+                if (totalDistance == 40)
+                {
+                    break;
+                }
+
+                // 更新 UI 元素时，需确保在 UI 线程上执行
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    // 平移CCD1
+                    CCD1Thickness.Left += 2;
+                    totalDistance += 2;
+                    this.CCD1.Margin = CCD1Thickness;
+                });
+            }
+
+            GlobalManager.Current.Feedar1Captured = true;
+        }
+
+        public async void UpdateCCDMovement_2()
+        {
+            GlobalManager.Current.CCD1InPosition = false;
+            Thickness CCD1Thickness = new Thickness();
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                CCD1Thickness.Left = this.CCD1.Margin.Left;
+                CCD1Thickness.Top = this.CCD1.Margin.Top;
+                CCD1Thickness.Right = this.CCD1.Margin.Right;
+                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
+            });
+
+            Console.WriteLine("sad: " + Math.Abs(CCD1Thickness.Left));
+            Console.WriteLine("sad_top: " + Math.Abs(CCD1Thickness.Top));
+            while (true)
+            {
+                await Task.Delay(10);
+
+                if ((CCD1Thickness.Left==290) && CCD1Thickness.Top==220) 
+                {
+                    break;
+                }
+
+                await this.Dispatcher.InvokeAsync(() =>
+                {                    
+                    if (CCD1Thickness.Left <= 287)
+                    {
+                        CCD1Thickness.Left += 2;
+                    }
+                    else if (CCD1Thickness.Left >= 293)
+                    {
+                        CCD1Thickness.Left -= 2;
+                    }
+                    else
+                    {
+                        CCD1Thickness.Left = 290;
+                    }
+
+                    if (CCD1Thickness.Top <= 217)
+                    {
+                        CCD1Thickness.Top += 2;
+
+                    }
+                    else if (CCD1Thickness.Top >= 223)
+                    {
+                        CCD1Thickness.Top -= 2;
+
+                    }
+                    else
+                    {
+                        CCD1Thickness.Top = 220;
+                    }
+                    this.CCD1.Margin = CCD1Thickness;
+                });
+            }
+
+                GlobalManager.Current.CCD1InPosition = true;
+        }
+
+
+        //把吸嘴移动到CCD2上方进行拍照
+        public async void UpdateCCDMovement_3()
+        {
+            GlobalManager.Current.CCD2Captured = false;
+            Thickness CCD1Thickness = new Thickness();
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                CCD1Thickness.Left = this.CCD1.Margin.Left;
+                CCD1Thickness.Top = this.CCD1.Margin.Top;
+                CCD1Thickness.Right = this.CCD1.Margin.Right;
+                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
+            });
+
+            while (true)
+            {
+                await Task.Delay(10);
+
+                if ((CCD1Thickness.Left == 375) && CCD1Thickness.Top == 180)
+                {
+                    break;
+                }
+
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    if (CCD1Thickness.Left <= 373)
+                    {
+                        CCD1Thickness.Left += 2;
+                    }
+                    else if (CCD1Thickness.Left >= 378)
+                    {
+                        CCD1Thickness.Left -= 2;
+                    }
+                    else
+                    {
+                        CCD1Thickness.Left = 375;
+                    }
+
+                    if (CCD1Thickness.Top <= 177)
+                    {
+                        CCD1Thickness.Top += 2;
+
+                    }
+                    else if (CCD1Thickness.Top >= 183)
+                    {
+                        CCD1Thickness.Top -= 2;
+
+                    }
+                    else
+                    {
+                        CCD1Thickness.Top = 180;
+                    }
+                    this.CCD1.Margin = CCD1Thickness;
+                });
+            }
+
+            GlobalManager.Current.CCD2Captured = true;
+        }
+
+        //把吸嘴移动到料盘上面
+        public async void UpdateCCDMovement_4()
+        {
+            GlobalManager.Current.MoveToLiaopan = false;
+            Thickness CCD1Thickness = new Thickness();
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                CCD1Thickness.Left = this.CCD1.Margin.Left;
+                CCD1Thickness.Top = this.CCD1.Margin.Top;
+                CCD1Thickness.Right = this.CCD1.Margin.Right;
+                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
+            });
+
+            while (true)
+            {
+                await Task.Delay(10);
+
+                if ((CCD1Thickness.Left == 360) && CCD1Thickness.Top == 120)
+                {
+                    break;
+                }
+
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    if (CCD1Thickness.Left <= 358)
+                    {
+                        CCD1Thickness.Left += 2;
+                    }
+                    else if (CCD1Thickness.Left >= 363)
+                    {
+                        CCD1Thickness.Left -= 2;
+                    }
+                    else
+                    {
+                        CCD1Thickness.Left = 360;
+                    }
+
+                    if (CCD1Thickness.Top <= 117)
+                    {
+                        CCD1Thickness.Top += 2;
+
+                    }
+                    else if (CCD1Thickness.Top >= 123)
+                    {
+                        CCD1Thickness.Top -= 2;
+
+                    }
+                    else
+                    {
+                        CCD1Thickness.Top = 120;
+                    }
+                    this.CCD1.Margin = CCD1Thickness;
+                });
+            }
+
+            GlobalManager.Current.MoveToLiaopan = true;
+        }
+
+        //对料盘进行飞拍
+        public async void UpdateCCDMovement_5()
+        {
+            GlobalManager.Current.GrabLiaoPan = false;
+            GlobalManager.Current.has_XueWeiXinXi = false;
+            Thickness CCD1Thickness = new Thickness();
+            double totalDistance = 0;
+            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
+            await this.Dispatcher.InvokeAsync(() =>
+            {
+                CCD1Thickness.Left = this.CCD1.Margin.Left;
+                CCD1Thickness.Top = this.CCD1.Margin.Top;
+                CCD1Thickness.Right = this.CCD1.Margin.Right;
+                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
+            });
+
+
+            // 在异步上下文中更新位置
+            while (true)
+            {
+                // 等待一段时间
+                await Task.Delay(10);
+
+                // 检查是否达到总平移距离大于50
+                if (totalDistance == 40)
+                {
+                    break;
+                }
+
+                // 更新 UI 元素时，需确保在 UI 线程上执行
+                await this.Dispatcher.InvokeAsync(() =>
+                {
+                    // 平移CCD1
+                    CCD1Thickness.Left += 2;
+                    totalDistance += 2;
+                    this.CCD1.Margin = CCD1Thickness;
+                });
+            }
+
+            GlobalManager.Current.has_XueWeiXinXi = true;
+            GlobalManager.Current.GrabLiaoPan = true;
+        }
+
+
         private void updateMargin(int x)
         {
             this.Dispatcher.Invoke(() =>
@@ -1414,24 +1732,10 @@ namespace AkribisFAM.Windows
         }
         private void start_Click(object sender, RoutedEventArgs e)
         {
-            rect1action();
-            //this.Dispatcher.Invoke(() =>
-            //{
-            //    Thickness rect1Thickness = new Thickness();
-            //    rect1Thickness.Left = this.rect1.Margin.Left;
-            //    rect1Thickness.Top = this.rect1.Margin.Top;
-            //    rect1Thickness.Right = 0;
-            //    rect1Thickness.Bottom = 0;
-            //    while (true)
-            //    {
-            //        rect1Thickness.Left = rect1Thickness.Left + 1;
-            //        rect1.Margin = rect1Thickness;
-            //        Thread.Sleep(100);
-            //        if (rect1Thickness.Left > 96)
-            //            break;
-            //    }
-            //});
+            GlobalManager.Current.lailiao_ChuFaJinBan = true;
+            UpdateMovement();
 
         }
+
     }
 }
