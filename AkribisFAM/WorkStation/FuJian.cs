@@ -23,6 +23,8 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
 
+        int delta = 0;
+        bool has_board = false;
 
         public static FuJian Current
         {
@@ -37,6 +39,11 @@ namespace AkribisFAM.WorkStation
                 }
                 return _instance;
             }
+        }
+
+        public void Wait(int delta)
+        {
+            WarningManager.Current.WaitFuJian(delta);
         }
 
         public override void ReturnZero()
@@ -54,79 +61,102 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public bool BoardIn()
+        {
+            if (GlobalManager.Current.IO_test3 == true && !has_board)
+            {
+                GlobalManager.Current.IO_test3 = false;
+                has_board = true;
+                return true;
+            }
+            else
+            {
+                Thread.Sleep(100);
+                return false;
+            }
+        }
+
+        public void BoardOut()
+        {
+            has_board = false;
+        }
+
+        public bool Step1()
+        {
+            if (!BoardIn()) return false;
+
+            Console.WriteLine("Fujian step1");
+            //触发 UI 动画
+            OnTriggerStep1?.Invoke();
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000);
+
+            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
+
+            Wait(delta);
+            //触发 UI 动画
+            OnStopStep1?.Invoke();
+
+            GlobalManager.Current.current_FuJian_step = 1;
+            return true;
+        }
+
+        public bool Step2()
+        {
+            Console.WriteLine("step2");
+
+            //触发 UI 动画
+            OnTriggerStep2?.Invoke();
+            
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000);
+
+            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
+
+            Wait(delta);
+            //触发 UI 动画
+            OnStopStep2?.Invoke();
+
+            GlobalManager.Current.current_FuJian_step = 2;
+
+            return true;
+        }
+        public bool Step3()
+        {
+            Console.WriteLine("step3");
+            //触发 UI 动画
+            OnTriggerStep3?.Invoke();
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000); 
+
+            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
+
+            Wait(delta);
+            //触发 UI 动画
+            OnStopStep3?.Invoke();
+
+            GlobalManager.Current.current_FuJian_step = 3;
+
+            BoardOut();
+
+            return true;
+        }
+
         public override void AutoRun()
         {
-            int delta = 0;
-            bool has_board = false;
-            GlobalManager.Current.IO_test3 = false;
+
             try
             {
                 while (true)
                 {
-                    goto step1;
-
                     step1:
-                        if (GlobalManager.Current.IO_test3 == true) 
-                        {
-                            GlobalManager.Current.IO_test3 = false;
-                        }
-                        else
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
-                        Console.WriteLine("Fujian step1");
-                        OnTriggerStep1?.Invoke();
-
-                        System.Threading.Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_FuJian_step = 1;
-                        if (GlobalManager.Current.current_FuJian_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-                        OnStopStep1?.Invoke();
+                        if (!Step1()) continue;
 
                     step2:
-                        Console.WriteLine("step2");
-                        OnTriggerStep2?.Invoke();
-                        System.Threading.Thread.Sleep(2000);
-
-                        GlobalManager.Current.current_FuJian_step = 2;
-                        if (GlobalManager.Current.current_FuJian_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-
-                        OnStopStep2?.Invoke();
+                        Step2();
 
                     step3:
-                        Console.WriteLine("step3");
-                        OnTriggerStep3?.Invoke();
-                        System.Threading.Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_FuJian_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-                        OnStopStep3?.Invoke();
-                        
+                        Step3();
 
                 }
             }

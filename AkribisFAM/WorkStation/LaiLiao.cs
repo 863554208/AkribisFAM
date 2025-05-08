@@ -30,6 +30,10 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
 
+        bool has_board = false;
+        int delta = 0;
+
+
         public static LaiLiao Current
         {
             get
@@ -62,87 +66,115 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public void Wait(int delta)
+        {
+            WarningManager.Current.WaitLaiLiao(delta);
+        }
+
+        public bool BoradIn()
+        {
+            if (GlobalManager.Current.IO_test1 == true && has_board == false)
+            {
+                GlobalManager.Current.IO_test1 = false;
+                has_board = true;
+                return true;
+            }
+            else
+            {
+                Thread.Sleep(100);
+                return false;
+            }
+        }
+
+        public void Boardout()
+        {
+            has_board = false;
+            GlobalManager.Current.IO_test2 = true;
+        }
+
+        public bool Step1()
+        {
+            Console.WriteLine("LaiLiao.Current.Step1()");
+
+            if(!BoradIn()) 
+                return false;
+
+            //触发 UI 动画
+            OnTriggerStep1?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            Thread.Sleep(1000);
+
+            delta = GlobalManager.Current.current_Lailiao_step1_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //触发 UI 动画
+            OnStopStep1?.Invoke();
+
+            GlobalManager.Current.current_Lailiao_step = 1;
+
+            return true;
+        }
+
+        public bool Step2()
+        {
+            Console.WriteLine("LaiLiao.Current.Step2()");
+
+            //触发 UI 动画
+            OnTriggerStep2?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            Thread.Sleep(1000);
+
+            GlobalManager.Current.current_Lailiao_step = 2;
+            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //触发 UI 动画
+            OnStopStep2?.Invoke();
+
+            return true;
+        }
+
+        public bool Step3()
+        {
+            Console.WriteLine("LaiLiao.Current.Step3()");
+
+            //触发 UI 动画
+            OnTriggerStep3?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            Thread.Sleep(1000);
+
+            delta = GlobalManager.Current.current_Lailiao_step3_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //触发 UI 动画
+            OnStopStep3?.Invoke();
+
+            Boardout();
+
+            GlobalManager.Current.current_Lailiao_step = 3;
+
+            return true;
+        }
+
         public override void AutoRun()
         {
-            bool has_board = false;
-            int delta = 0;
-            GlobalManager.Current.IO_test1 = true;
+
             try
             {
                 while (true)
                 {
-                    goto step1;
 
-                    step1:
-                        if(GlobalManager.Current.IO_test1 == true && has_board == false)
-                        {
-                            GlobalManager.Current.IO_test1 = false;
-                            has_board = true;
-                        }
-                        else
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
-                        OnTriggerStep1?.Invoke();
+                    step1: if (!Step1()) continue;
 
-                        Thread.Sleep(1000);
+                    step2: Step2();
 
-                        GlobalManager.Current.current_Lailiao_step = 1;
-                        if(GlobalManager.Current.current_Lailiao_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        Console.WriteLine("Lailiao_step1");
-
-                        WarningManager.Current.WaitLaiLiao(delta);
-                        OnStopStep1?.Invoke();
-
-                    step2:
-                        Console.WriteLine("Lailiao_step2");
-                        OnTriggerStep2?.Invoke();
-                        Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_Lailiao_step = 2;
-                        if (GlobalManager.Current.current_Lailiao_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        Console.WriteLine("Lailiao_step2");
-
-                        WarningManager.Current.WaitLaiLiao(delta);
-                        OnStopStep2?.Invoke();
-
-                    step3:
-                        Console.WriteLine("Lailiao_step3");
-                        OnTriggerStep3?.Invoke();
-                        Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_Lailiao_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        Console.WriteLine("Lailiao_step3");
-
-                        WarningManager.Current.WaitLaiLiao(delta);
-                        OnStopStep3?.Invoke();
-
-                        has_board = false;
-                        GlobalManager.Current.IO_test2 = true;
-
+                    step3: Step3();
 
                     #region 老代码
                     //if (GlobalManager.Current.lailiao_ChuFaJinBan)
@@ -211,6 +243,7 @@ namespace AkribisFAM.WorkStation
                     //}
 
                     #endregion
+
                     System.Threading.Thread.Sleep(100);
                 }
             }
