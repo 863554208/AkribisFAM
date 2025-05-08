@@ -31,7 +31,7 @@ namespace AkribisFAM.Manager
         public void WaitZuZhuang(int time)
         {
             DateTime startTime = DateTime.Now;
-
+            Console.WriteLine("执行 {0} 秒的暂停 ", time.ToString());
             if (GlobalManager.Current.IsPause) 
             {
                 Console.WriteLine("执行暂停");
@@ -40,10 +40,7 @@ namespace AkribisFAM.Manager
 
             while (true)
             {
-                if (!GlobalManager.Current.IsPause)
-                {
-                    break;
-                }                
+        
                 TimeSpan elapsed = DateTime.Now - startTime;
                 double remaining = time - elapsed.TotalMilliseconds;
 
@@ -54,6 +51,12 @@ namespace AkribisFAM.Manager
 
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
+
+                if (!GlobalManager.Current.IsPause && GlobalManager.Current.current_ZuZhuang_step1_state && GlobalManager.Current.current_ZuZhuang_step2_state 
+                    && GlobalManager.Current.current_ZuZhuang_step3_state && GlobalManager.Current.current_ZuZhuang_step4_state)
+                {
+                    break;
+                }
             }
 
         }

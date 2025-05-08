@@ -27,7 +27,7 @@
         <Button x:Name="fujian2" Content="Step2" Background="{Binding Color_FuJian_2}" HorizontalAlignment="Left" Margin="266,200,0,0" VerticalAlignment="Top" Height="36" Width="95"/>
         <Button x:Name="fujian3" Content="Step3" Background="{Binding Color_FuJian_3}" HorizontalAlignment="Left" Margin="430,200,0,0" VerticalAlignment="Top" Height="36" Width="96"/>
         <Button Content="Button" HorizontalAlignment="Left" Margin="616,236,0,0" VerticalAlignment="Top" Click="SendIO_Click"/>
-        <Button Content="Stop_ZuZhuang" HorizontalAlignment="Left" Margin="206,350,0,0" VerticalAlignment="Top" Click="StopZuZhuang_Click"/>
+        <Button x:Name="Stop_ZuZhuang" Content="Stop_ZuZhuang" HorizontalAlignment="Left" Margin="206,350,0,0" VerticalAlignment="Top" Click="StopZuZhuang_Click"/>
 
 
     </Grid>

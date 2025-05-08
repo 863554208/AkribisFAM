@@ -82,8 +82,8 @@ namespace AkribisFAM.WorkStation
 
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 1;
-                        if (GlobalManager.Current.current_Lailiao_step1_state == true)
+                        GlobalManager.Current.current_Zuzhuang_step = 1;
+                        if (GlobalManager.Current.current_ZuZhuang_step1_state == true)
                         {
                             delta = 0;
                         }
@@ -99,8 +99,8 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep2?.Invoke();
                         System.Threading.Thread.Sleep(2000);
 
-                        GlobalManager.Current.current_FuJian_step = 2;
-                        if (GlobalManager.Current.current_Lailiao_step2_state == true)
+                        GlobalManager.Current.current_Zuzhuang_step = 2;
+                        if (GlobalManager.Current.current_ZuZhuang_step2_state == true)
                         {
                             delta = 0;
                         }
@@ -117,8 +117,8 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep3?.Invoke();
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
+                        GlobalManager.Current.current_Zuzhuang_step = 3;
+                        if (GlobalManager.Current.current_ZuZhuang_step3_state == true)
                         {
                             delta = 0;
                         }
@@ -134,8 +134,8 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep4?.Invoke();
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
+                        GlobalManager.Current.current_Zuzhuang_step = 3;
+                        if (GlobalManager.Current.current_ZuZhuang_step4_state == true)
                         {
                             delta = 0;
                         }
