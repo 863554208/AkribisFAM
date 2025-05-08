@@ -1,0 +1,9 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Main Page">Main Page</sys:String>
+    <sys:String x:Key="Manual Control">Manual Control</sys:String>
+    <sys:String x:Key="Parameter Setting">Parameter Setting</sys:String>
+    <sys:String x:Key="Internet Config">Internet Config</sys:String>
+    <sys:String x:Key="Log">Log</sys:String>
+</ResourceDictionary>
