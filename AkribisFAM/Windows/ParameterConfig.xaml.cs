@@ -23,9 +23,7 @@ using System.Threading;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
-using AkribisFAM.ViewModel;
-using AkribisFAM.WorkStation;
-using System.Diagnostics.Eventing.Reader;
+using System.ComponentModel;
 
 namespace AkribisFAM.Windows
 {
@@ -41,63 +39,12 @@ namespace AkribisFAM.Windows
         JObject LimitJsonObject;
         public Dictionary<string, double> AxisLimitList;
         bool init = false;
-        public ParameterConfigViewModel ViewModel { get; }
 
         public ParameterConfig()
         {
             InitializeComponent();
             ReadLimitJson();
 
-            ViewModel = new ParameterConfigViewModel();
-            this.DataContext = ViewModel;
-
-        }
-
-        private void Current_OnZuZhuangExecuted_4()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void UpdateRectangleColorToGreen()
-        {
-            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
-            Dispatcher.Invoke(() => ViewModel.UpdateRectangleColorToGreen());
-        }
-
-        private void UpdateLaserRectangleColorToGreen()
-        {
-            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
-            Dispatcher.Invoke(() => ViewModel.UpdateLaserRectangleColorToGreen());
-        }
-
-        private async void UpdateRectanglePosition()
-        {
-            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
-            //Dispatcher.Invoke(() => ViewModel.UpdateRectanglePosition(378,700));
-
-            Thickness rect1Thickness = new Thickness();
-
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                rect1Thickness.Left = this.rect1.Margin.Left;
-                rect1Thickness.Top = this.rect1.Margin.Top;
-                rect1Thickness.Right = this.rect1.Margin.Right;
-                rect1Thickness.Bottom = this.rect1.Margin.Bottom;
-            });
-
-            while (rect1Thickness.Left <= 350)
-            {
-                // 更新 UI 元素时，需确保在 UI 线程上执行
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    rect1Thickness.Left += 5;
-                    this.rect1.Margin = rect1Thickness;
-                });
-
-                // 延时以缓解 UI 刷新压力
-                await Task.Delay(10);
-            }
         }
 
         private void ReadLimitJson() {
@@ -1431,310 +1378,754 @@ namespace AkribisFAM.Windows
             string strSrc = Convert.ToString(LimitJsonObject);//将json装换为string
             File.WriteAllText(Directory.GetCurrentDirectory() + "\\Limit.json", strSrc, System.Text.Encoding.UTF8);
         }
-
-        public async void UpdateMovement()
+        private void workstation1(Rectangle rect1)
         {
-            Thickness rect1Thickness = new Thickness();
+            Task task1;
+            task1 = new Task(() => moveforward(rect1, 47, 96, 20));
+            task1.Start();
+            task1.Wait();
 
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                rect1Thickness.Left = this.rect1.Margin.Left;
-                rect1Thickness.Top = this.rect1.Margin.Top;
-                rect1Thickness.Right = this.rect1.Margin.Right;
-                rect1Thickness.Bottom = this.rect1.Margin.Bottom;
-            });
+            task1 = new Task(() => returnOK(rect1));
+            task1.Start();
+            task1.Wait();
 
-            // 在异步上下文中更新位置
-            while (rect1Thickness.Left <= 96)
-            {
-                // 更新 UI 元素时，需确保在 UI 线程上执行
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    rect1Thickness.Left += 5;
-                    this.rect1.Margin = rect1Thickness;
-                });
+            task1 = new Task(() => returnOK(this.rect2));
+            task1.Start();
+            task1.Wait();
 
-                // 延时以缓解 UI 刷新压力
-                await Task.Delay(10);
-            }
+            task1 = new Task(() => movebackward(this.rect3, 170, 140, 20));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => movebackward(this.rect3, 140, 135, 50));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => movebackward(this.rect3, 135, 130, 50));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => movebackward(this.rect3, 130, 125, 50));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => moveforward(this.rect3, 125, 170, 20));
+            task1.Start();
+            task1.Wait();
         }
 
-        public async void UpdateCCDMovement_1()
+        private void workstation2(Rectangle rectangle)
         {
-            GlobalManager.Current.Feedar1Captured = false;
-            Thickness CCD1Thickness = new Thickness();
-            double totalDistance = 0;
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                CCD1Thickness.Left = this.CCD1.Margin.Left;
-                CCD1Thickness.Top = this.CCD1.Margin.Top;
-                CCD1Thickness.Right = this.CCD1.Margin.Right;
-                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
-            });
+            Task task1;
+            Task task2;
+            Task task3;
+            //station 2
+            task1 = new Task(() => moveforward(rectangle, 96, 270, 10));
+            task2 = new Task(() => moveforward(this.rect4, 283, 396, 20));
+            task2.Start();
+            task1.Start();
+            Task.WaitAll(task1, task2);
+            task1 = new Task(() => returnOK(this.rect1));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 396, 486, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 486, 441, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect5));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 441, 410, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 127, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 410, 339, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect6));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveup(this.rect4, 127, 74, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 339, 300, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 300, 240, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 240, 250, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 250, 260, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 260, 270, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 270, 280, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 280, 290, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 290, 300, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
 
+            task1 = new Task(() => moveup(this.rect4, 96, 74, 20));
+            task1.Start();
+            task1 = new Task(() => moveforward(this.rect4, 300, 396, 20));
+            task1.Start();
+            Task.WaitAll(task1, task2);
 
-            // 在异步上下文中更新位置
+            task1 = new Task(() => moveforward(this.rect4, 396, 486, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 486, 441, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect5));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 441, 410, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 127, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 410, 339, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect6));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveup(this.rect4, 127, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 339, 240, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 240, 250, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 250, 260, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 260, 270, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 270, 280, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 280, 290, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 290, 300, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveup(this.rect4, 96, 74, 20));
+            task2 = new Task(() => movebackward(this.rect4, 300, 283, 20));
+            task2.Start();
+            task1.Start();
+            Task.WaitAll(task1, task2);
+        }
+
+        private void workstation3(Rectangle rectangle)
+        {
+            Task task1;
+            Task task2;
+            Task task3;
+            //station 3
+            task1 = new Task(() => moveforward(rectangle, 270, 620, 10));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(rectangle));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect7, 74, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 584, 594, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 594, 604, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 604, 614, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 614, 624, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 624, 634, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 634, 644, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect7, 644, 584, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(rectangle, 620, 688, 10));
+            task2 = new Task(() => moveup(this.rect7, 96, 74, 20));
+            task2.Start();
+            task1.Start();
+            Task.WaitAll(task1, task2);
+        }
+
+        private int first = 1;
+        private int station1Init = 0;
+        private int station2Init = 0;
+        private int station3Init = 0;
+        private int station1Finished = 1;
+        private int station2Finished = 1;
+        private int station3Finished = 1;
+
+        private void Station1Act()
+        {
             while (true)
             {
-                // 等待一段时间
-                await Task.Delay(10);
-
-                // 检查是否达到总平移距离大于50
-                if (totalDistance == 40)
+                if (station1Init == 1)
                 {
-                    break;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.rect1.Visibility = Visibility.Visible;
+                    }));
+                    station1Finished = 0;
+                    workstation1(this.rect1);
+                    station1Finished = 1;
+                    if (station2Finished != 0)
+                    {
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this.rect1.Visibility = Visibility.Hidden;
+                        }));
+                        station2Init = 1;
+                        Thread.Sleep(10);
+                    }
+                    else
+                    {
+                        station2Init = 0;
+                        station1Init = 0;
+                    }
                 }
-
-                // 更新 UI 元素时，需确保在 UI 线程上执行
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    // 平移CCD1
-                    CCD1Thickness.Left += 2;
-                    totalDistance += 2;
-                    this.CCD1.Margin = CCD1Thickness;
-                });
             }
-
-            GlobalManager.Current.Feedar1Captured = true;
         }
 
-        public async void UpdateCCDMovement_2()
+        private void Station2Act()
         {
-            GlobalManager.Current.CCD1InPosition = false;
-            Thickness CCD1Thickness = new Thickness();
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                CCD1Thickness.Left = this.CCD1.Margin.Left;
-                CCD1Thickness.Top = this.CCD1.Margin.Top;
-                CCD1Thickness.Right = this.CCD1.Margin.Right;
-                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
-            });
-
-            Console.WriteLine("sad: " + Math.Abs(CCD1Thickness.Left));
-            Console.WriteLine("sad_top: " + Math.Abs(CCD1Thickness.Top));
             while (true)
             {
-                await Task.Delay(10);
-
-                if ((CCD1Thickness.Left==290) && CCD1Thickness.Top==220) 
+                if (station2Init == 1)
                 {
-                    break;
+                    station1Init = 1;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.rect11.Visibility = Visibility.Visible;
+                    }));
+                    station2Init = 0;
+                    station2Finished = 0;
+                    workstation2(this.rect11);
+                    station2Finished = 1;
+                    if (station3Finished != 0)
+                    {
+                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this.rect11.Visibility = Visibility.Hidden;
+                        }));
+                        station3Init = 1;
+                        Thread.Sleep(10);
+                    }
+                    else
+                    {
+                        station3Init = 0;
+                        station2Init = 0;
+                    }
                 }
-
-                await this.Dispatcher.InvokeAsync(() =>
-                {                    
-                    if (CCD1Thickness.Left <= 287)
-                    {
-                        CCD1Thickness.Left += 2;
-                    }
-                    else if (CCD1Thickness.Left >= 293)
-                    {
-                        CCD1Thickness.Left -= 2;
-                    }
-                    else
-                    {
-                        CCD1Thickness.Left = 290;
-                    }
-
-                    if (CCD1Thickness.Top <= 217)
-                    {
-                        CCD1Thickness.Top += 2;
-
-                    }
-                    else if (CCD1Thickness.Top >= 223)
-                    {
-                        CCD1Thickness.Top -= 2;
-
-                    }
-                    else
-                    {
-                        CCD1Thickness.Top = 220;
-                    }
-                    this.CCD1.Margin = CCD1Thickness;
-                });
             }
-
-                GlobalManager.Current.CCD1InPosition = true;
         }
 
-
-        //把吸嘴移动到CCD2上方进行拍照
-        public async void UpdateCCDMovement_3()
+        private void Station3Act()
         {
-            GlobalManager.Current.CCD2Captured = false;
-            Thickness CCD1Thickness = new Thickness();
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                CCD1Thickness.Left = this.CCD1.Margin.Left;
-                CCD1Thickness.Top = this.CCD1.Margin.Top;
-                CCD1Thickness.Right = this.CCD1.Margin.Right;
-                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
-            });
-
             while (true)
             {
-                await Task.Delay(10);
-
-                if ((CCD1Thickness.Left == 375) && CCD1Thickness.Top == 180)
+                if (station3Init == 1)
                 {
-                    break;
+                    station2Init = 1;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.rect12.Visibility = Visibility.Visible;
+                    }));
+                    station3Init = 0;
+                    station3Finished = 0;
+                    workstation3(this.rect12);
+                    station3Finished = 1;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.rect12.Visibility = Visibility.Hidden;
+                    }));
+                    if (station2Finished == 1)
+                    {
+                        station3Init = 1;
+                    }
                 }
-
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    if (CCD1Thickness.Left <= 373)
-                    {
-                        CCD1Thickness.Left += 2;
-                    }
-                    else if (CCD1Thickness.Left >= 378)
-                    {
-                        CCD1Thickness.Left -= 2;
-                    }
-                    else
-                    {
-                        CCD1Thickness.Left = 375;
-                    }
-
-                    if (CCD1Thickness.Top <= 177)
-                    {
-                        CCD1Thickness.Top += 2;
-
-                    }
-                    else if (CCD1Thickness.Top >= 183)
-                    {
-                        CCD1Thickness.Top -= 2;
-
-                    }
-                    else
-                    {
-                        CCD1Thickness.Top = 180;
-                    }
-                    this.CCD1.Margin = CCD1Thickness;
-                });
             }
-
-            GlobalManager.Current.CCD2Captured = true;
         }
 
-        //把吸嘴移动到料盘上面
-        public async void UpdateCCDMovement_4()
-        {
-            GlobalManager.Current.MoveToLiaopan = false;
-            Thickness CCD1Thickness = new Thickness();
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                CCD1Thickness.Left = this.CCD1.Margin.Left;
-                CCD1Thickness.Top = this.CCD1.Margin.Top;
-                CCD1Thickness.Right = this.CCD1.Margin.Right;
-                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
-            });
+        private void act() {
+            //station 1
+            Task task1;
+            Task task2;
+            Task task3;
+            task1 = new Task(() => moveforward(this.rect1, 47, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect1));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect2));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect3, 170, 140, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect3, 140, 135, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect3, 135, 130, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect3, 130, 125, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect3));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect3, 125, 170, 20));
+            task1.Start();
+            task1.Wait();
 
+            //station 2
+            task1 = new Task(() => moveforward(this.rect1, 96, 270, 10));
+            task2 = new Task(() => moveforward(this.rect4, 283, 396, 20));
+            task2.Start();
+            task1.Start();
+            Task.WaitAll(task1, task2);
+            task1 = new Task(() => returnOK(this.rect1));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 396, 486, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 486, 441, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect5));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 441, 410, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 127, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 410, 339, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect6));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveup(this.rect4, 127, 74, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 339, 300, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 300, 240, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 240, 250, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 250, 260, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 260, 270, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 270, 280, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 280, 290, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 290, 300, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+
+            task1 = new Task(() => moveup(this.rect4, 96, 74, 20));
+            task1.Start();
+            task1 = new Task(() => moveforward(this.rect4, 300, 396, 20));
+            task1.Start();
+            Task.WaitAll(task1, task2);
+
+            task1 = new Task(() => moveforward(this.rect4, 396, 486, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 486, 441, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect5));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 441, 410, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect4, 74, 127, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 410, 339, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect6));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveup(this.rect4, 127, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect4, 339, 240, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 240, 250, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 250, 260, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 260, 270, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 270, 280, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 280, 290, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect4, 290, 300, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect4));
+            task1.Start();
+            task1.Wait();
+
+            //station 3
+            task1 = new Task(() => moveforward(this.rect1, 270, 620, 10));
+            task2 = new Task(() => moveup(this.rect4, 96, 74, 20));
+            task3 = new Task(() => movebackward(this.rect4, 300, 283, 20));
+            task2.Start();
+            task1.Start();
+            task3.Start();
+            Task.WaitAll(task1, task2, task3);
+            task1 = new Task(() => returnOK(this.rect1));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movedown(this.rect7, 74, 96, 20));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 584, 594, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 594, 604, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 604, 614, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 614, 624, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 624, 634, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect7, 634, 644, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => movebackward(this.rect7, 644, 584, 50));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => returnOK(this.rect7));
+            task1.Start();
+            task1.Wait();
+            task1 = new Task(() => moveforward(this.rect1, 620, 688, 10));
+            task2 = new Task(() => moveup(this.rect7, 96, 74, 20));
+            task2.Start();
+            task1.Start();
+            Task.WaitAll(task1, task2);
+        }
+
+        private void moveforward(Rectangle rect, int startpos, int endpos, int interval)
+        {
+            int mleft = startpos;
             while (true)
             {
-                await Task.Delay(10);
-
-                if ((CCD1Thickness.Left == 360) && CCD1Thickness.Top == 120)
+                mleft += 1;
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    rect.Margin = new Thickness(mleft, rect.Margin.Top, rect.Margin.Right, rect.Margin.Bottom);
+                }));
+                Thread.Sleep(interval);
+                if (mleft > endpos)
                     break;
-                }
-
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    if (CCD1Thickness.Left <= 358)
-                    {
-                        CCD1Thickness.Left += 2;
-                    }
-                    else if (CCD1Thickness.Left >= 363)
-                    {
-                        CCD1Thickness.Left -= 2;
-                    }
-                    else
-                    {
-                        CCD1Thickness.Left = 360;
-                    }
-
-                    if (CCD1Thickness.Top <= 117)
-                    {
-                        CCD1Thickness.Top += 2;
-
-                    }
-                    else if (CCD1Thickness.Top >= 123)
-                    {
-                        CCD1Thickness.Top -= 2;
-
-                    }
-                    else
-                    {
-                        CCD1Thickness.Top = 120;
-                    }
-                    this.CCD1.Margin = CCD1Thickness;
-                });
             }
-
-            GlobalManager.Current.MoveToLiaopan = true;
         }
 
-        //对料盘进行飞拍
-        public async void UpdateCCDMovement_5()
+        private void movebackward(Rectangle rect, int startpos, int endpos, int interval)
         {
-            GlobalManager.Current.GrabLiaoPan = false;
-            GlobalManager.Current.has_XueWeiXinXi = false;
-            Thickness CCD1Thickness = new Thickness();
-            double totalDistance = 0;
-            // 使用 Dispatcher 确保在 UI 线程上获取初始 Margin
-            await this.Dispatcher.InvokeAsync(() =>
-            {
-                CCD1Thickness.Left = this.CCD1.Margin.Left;
-                CCD1Thickness.Top = this.CCD1.Margin.Top;
-                CCD1Thickness.Right = this.CCD1.Margin.Right;
-                CCD1Thickness.Bottom = this.CCD1.Margin.Bottom;
-            });
-
-
-            // 在异步上下文中更新位置
+            int mleft = startpos;
             while (true)
             {
-                // 等待一段时间
-                await Task.Delay(10);
-
-                // 检查是否达到总平移距离大于50
-                if (totalDistance == 40)
+                mleft -= 1;
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
+                    rect.Margin = new Thickness(mleft, rect.Margin.Top, rect.Margin.Right, rect.Margin.Bottom);
+                }));
+                Thread.Sleep(interval);
+                if (mleft < endpos)
                     break;
-                }
-
-                // 更新 UI 元素时，需确保在 UI 线程上执行
-                await this.Dispatcher.InvokeAsync(() =>
-                {
-                    // 平移CCD1
-                    CCD1Thickness.Left += 2;
-                    totalDistance += 2;
-                    this.CCD1.Margin = CCD1Thickness;
-                });
             }
-
-            GlobalManager.Current.has_XueWeiXinXi = true;
-            GlobalManager.Current.GrabLiaoPan = true;
         }
 
-
-        private void updateMargin(int x)
+        private void movedown(Rectangle rect, int startpos, int endpos, int interval)
         {
-            this.Dispatcher.Invoke(() =>
+            int mtop = startpos;
+            while (true)
             {
-                rect1.Margin = new Thickness(x, rect1.Margin.Top, 0, 0);
-            });
+                mtop += 1;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    rect.Margin = new Thickness(rect.Margin.Left, mtop, rect.Margin.Right, rect.Margin.Bottom);
+                }));
+                Thread.Sleep(interval);
+                if (mtop > endpos)
+                    break;
+            }
         }
+
+        private void moveup(Rectangle rect, int startpos, int endpos, int interval)
+        {
+            int mtop = startpos;
+            while (true)
+            {
+                mtop -= 1;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    rect.Margin = new Thickness(rect.Margin.Left, mtop, rect.Margin.Right, rect.Margin.Bottom);
+                }));
+                Thread.Sleep(interval);
+                if (mtop < endpos)
+                    break;
+            }
+        }
+
+        private void returnOK(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            Thread.Sleep(100);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private void returnNG(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Red);
+            }));
+            Thread.Sleep(100);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+
+
         private void start_Click(object sender, RoutedEventArgs e)
         {
-            GlobalManager.Current.lailiao_ChuFaJinBan = true;
-            UpdateMovement();
-
+            station1Init = 1;
+            Task task1 = new Task(Station1Act);
+            task1.Start();
+            Task task2 = new Task(Station2Act);
+            task2.Start();
+            Task task3 = new Task(Station3Act);
+            task3.Start();
         }
 
     }

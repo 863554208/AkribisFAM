@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:AkribisFAM.Windows" xmlns:viewmodel="clr-namespace:AkribisFAM.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:ParameterConfigViewModel}"
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -679,57 +679,28 @@
 
                     </TabItem>
                     <TabItem HorizontalAlignment="Center" Height="19" Header="TabItem" VerticalAlignment="Center" Width="59">
-                        <Grid Background="#FFE5E5E5" Margin="10,0,-10,0">
-                            <Rectangle HorizontalAlignment="Left" Fill="LightBlue" Height="15" Margin="47,191,0,0" Stroke="Black" VerticalAlignment="Top" Width="695"/>
-                            <Rectangle x:Name="rect1" HorizontalAlignment="Left" Height="10" Margin="34,0,0,587" Stroke="Black" VerticalAlignment="Bottom" Width="72"/>
-                            <Rectangle HorizontalAlignment="Left" Fill="Black" Height="299" Margin="190,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="20"/>
-                            <Rectangle x:Name ="barocodescan2" Fill="{Binding RectangleFill}" HorizontalAlignment="Left" Height="17" Margin="135,95,0,0" Stroke="Black" VerticalAlignment="Top" Width="46" RenderTransformOrigin="0.5,0.5">
-                                <Rectangle.RenderTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform/>
-                                        <SkewTransform/>
-                                        <RotateTransform Angle="-90.521"/>
-                                        <TranslateTransform/>
-                                    </TransformGroup>
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
-                            <Rectangle Stroke="Black" Fill="{Binding RectangleFillLaser}" Margin="156,69,1012,647" RenderTransformOrigin="2.018,1.383">
-                                <Rectangle.RenderTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform/>
-                                        <SkewTransform/>
-                                        <RotateTransform Angle="0.044"/>
-                                        <TranslateTransform X="-38.378" Y="3.48"/>
-                                    </TransformGroup>
-                                </Rectangle.RenderTransform>
-                            </Rectangle>
-                            <Rectangle HorizontalAlignment="Left" Fill="Black" Height="299" Margin="558,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="21"/>
-                            <Rectangle x:Name="CCD1"  HorizontalAlignment="Left" Height="59" Margin="215,74,0,0" Stroke="Black" VerticalAlignment="Top" Width="39"/>
-                            <Rectangle HorizontalAlignment="Left" Height="59" Margin="584,74,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-                            <Rectangle HorizontalAlignment="Left" Height="27" Margin="381,234,0,0" Stroke="Black" VerticalAlignment="Top" Width="26"/>
-                            <Button x:Name="start2" Content="Start" HorizontalAlignment="Left" Margin="370,386,0,0" VerticalAlignment="Top" Width="48" Click="start_Click"/>
-                            <Rectangle HorizontalAlignment="Left"  Height="57" Margin="281,295,0,0" Stroke="Black" VerticalAlignment="Top" Width="81"/>
-                            <Rectangle HorizontalAlignment="Left"  Height="57" Margin="418,295,0,0" Stroke="Black" VerticalAlignment="Top" Width="81"/>
-                            <Label Content="feeder1" HorizontalAlignment="Left" Margin="301,352,0,0" VerticalAlignment="Top"/>
-                            <Label Content="feeder2" HorizontalAlignment="Left" Margin="432,352,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.193,0.395"/>
-                            <Label Content="pallete" HorizontalAlignment="Left" Margin="47,151,0,0" VerticalAlignment="Top" Width="59"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="0" Margin="47,104,0,0" VerticalAlignment="Top" Width="143"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="6" Margin="23,74,0,0" VerticalAlignment="Top" Width="167"/>
-                            <Label Content="barcode" HorizontalAlignment="Left" Margin="142,123,0,0" VerticalAlignment="Top" Width="43" Height="18" FontSize="8"/>
-                            <Label Content="laser" HorizontalAlignment="Left" Margin="118,125,0,0" VerticalAlignment="Top" Width="36" Height="22" RenderTransformOrigin="0.565,0.55" FontSize="8"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="6" Margin="210,74,0,0" VerticalAlignment="Top" Width="348"/>
-                            <Label Content="CCD1 +抓手" HorizontalAlignment="Left" Margin="215,51,0,0" VerticalAlignment="Top" Width="59" Height="23" FontSize="8"/>
-                            <Rectangle x:Name="feedar1" HorizontalAlignment="Left" Height="12" Margin="292,283,0,0" Stroke="Black" VerticalAlignment="Top" Width="63"/>
-                            <Rectangle x:Name="ZhuaDaoDeLiao" HorizontalAlignment="Left" Height="12" Margin="292,283,0,0" Stroke="Black" VerticalAlignment="Top" Width="63"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="31" Margin="322,264,0,0" VerticalAlignment="Top" Width="0"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="308,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="339,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="324,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Rectangle x:Name="feedar2" HorizontalAlignment="Left" Height="12" Margin="427,283,0,0" Stroke="Black" VerticalAlignment="Top" Width="65"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="443,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="459,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="12" Margin="475,283,0,0" VerticalAlignment="Top" Width="1"/>
-                            <Label Content="CCD2" HorizontalAlignment="Left" Margin="379,261,0,0" VerticalAlignment="Top" Width="39" Height="18" FontSize="8"/>
+                        <Grid Background="#FFE5E5E5">
+                            <Rectangle HorizontalAlignment="Left" Height="15" Margin="47,191,0,0" Stroke="Black" VerticalAlignment="Top" Width="695"/>
+                            <Rectangle x:Name="rect1" HorizontalAlignment="Left" Height="29" Margin="47,157,0,0" Stroke="Black" VerticalAlignment="Top" Width="54" Visibility="Hidden"/>
+                            <Rectangle HorizontalAlignment="Left" Height="299" Margin="190,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="20"/>
+                            <Rectangle x:Name="rect2" HorizontalAlignment="Left" Height="53" Margin="155,133,0,0" Stroke="Black" VerticalAlignment="Top" Width="30"/>
+                            <Rectangle x:Name="rect3" HorizontalAlignment="Left" Height="50" Margin="170,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="15"/>
+                            <Rectangle HorizontalAlignment="Left" Height="299" Margin="558,53,0,0" Stroke="Black" VerticalAlignment="Top" Width="21"/>
+                            <Rectangle x:Name="rect4" HorizontalAlignment="Left" Height="59" Margin="283,74,0,0" Stroke="Black" VerticalAlignment="Top" Width="39"/>
+                            <Rectangle x:Name="rect7" HorizontalAlignment="Left" Height="59" Margin="584,74,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+                            <Rectangle x:Name="rect6" HorizontalAlignment="Left" Height="53" Margin="378,211,0,0" Stroke="Black" VerticalAlignment="Top" Width="32"/>
+                            <Button x:Name="start" Content="Start" HorizontalAlignment="Left" Margin="394,0,0,0" VerticalAlignment="Center" Width="48" Click="start_Click"/>
+                            <Rectangle x:Name="rect5" HorizontalAlignment="Left" Height="45" Margin="435,133,0,0" Stroke="Black" VerticalAlignment="Top" Width="51"/>
+                            <Rectangle HorizontalAlignment="Left" Height="45" Margin="491,133,0,0" Stroke="Black" VerticalAlignment="Top" Width="51"/>
+                            <TextBlock HorizontalAlignment="Left" Margin="10,163,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="zh-cn" Text="pallet"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="150,38,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="zh-cn" Text="laser"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="141,118,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="zh-cn" Text="scanner"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="312,53,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="zh-cn" Text="CCD1"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="378,269,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="CCD"/><Run Language="zh-cn" Text="2"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="592,53,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="CCD"/><Run Language="zh-cn" Text="3"/></TextBlock>
+                            <TextBlock HorizontalAlignment="Left" Margin="442,148,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="zh-cn" Text="feeder"/></TextBlock>
+                            <Rectangle x:Name="rect11" HorizontalAlignment="Left" Height="29" Margin="96,157,0,0" Stroke="Black" VerticalAlignment="Top" Width="54" Visibility="Hidden"/>
+                            <Rectangle x:Name="rect12" HorizontalAlignment="Left" Height="29" Margin="270,157,0,0" Stroke="Black" VerticalAlignment="Top" Width="54" Visibility="Hidden"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
