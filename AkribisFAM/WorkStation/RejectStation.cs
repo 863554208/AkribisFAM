@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace AkribisFAM.WorkStation
 {
-    internal class JianCe
+    internal class RejectStationWorkStationBase
     {
-
-
-
-        //
     }
 }

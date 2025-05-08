@@ -68,8 +68,12 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
+
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
                     //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
 
                     await Task.WhenAll(tasks);
