@@ -57,10 +57,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void Wait(int delta)
-        {
-            WarningManager.Current.WaitZuZhuang(delta);
-        }
 
         public bool BoradIn()
         {
@@ -96,10 +92,9 @@ namespace AkribisFAM.WorkStation
             System.Threading.Thread.Sleep(1000);
 
             GlobalManager.Current.current_Zuzhuang_step = 1;
-
-            delta = GlobalManager.Current.current_ZuZhuang_step1_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
@@ -117,14 +112,13 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(2000);
 
-            delta = GlobalManager.Current.current_ZuZhuang_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 2;
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
 
             //触发 UI 动画
             OnStopStep2?.Invoke();
-
-            GlobalManager.Current.current_Zuzhuang_step = 2;
 
             return true;
         }
@@ -139,13 +133,12 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            delta = GlobalManager.Current.current_ZuZhuang_step3_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 3;
+            //GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
             //触发 UI 动画
             OnStopStep3?.Invoke();
-
-            GlobalManager.Current.current_Zuzhuang_step = 3;
 
             return true;
         }
@@ -158,14 +151,13 @@ namespace AkribisFAM.WorkStation
 
             System.Threading.Thread.Sleep(1000);
 
-            
-            delta = GlobalManager.Current.current_ZuZhuang_step4_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 4;
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
             //触发 UI 动画
             OnStopStep4?.Invoke();
 
-            GlobalManager.Current.current_Zuzhuang_step = 4;
 
             return true;
         }

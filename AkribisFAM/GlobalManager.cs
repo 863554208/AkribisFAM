@@ -71,26 +71,39 @@ namespace AkribisFAM
         public int current_Zuzhuang_step = 0;
         public int current_FuJian_step = 0;
 
-        public bool current_Lailiao_step1_state = true;
-        public bool current_Lailiao_step2_state = true;
-        public bool current_Lailiao_step3_state = true;
-        public bool current_Lailiao_step4_state = true;
+        const int Lailiao_stepnum = 4;
+        const int Zuzhuang_stepnum = 5;
+        const int FuJian_stepnum = 4;
+        const int Pausetime = 999999;
 
-        public bool current_ZuZhuang_step1_state = true;
-        public bool current_ZuZhuang_step2_state = true;
-        public bool current_ZuZhuang_step3_state = true;
-        public bool current_ZuZhuang_step4_state = true;
+        public int[] Lailiao_state = new int[Lailiao_stepnum];
+        public int[] Zuzhuang_state = new int[Zuzhuang_stepnum];
+        public int[] FuJian_state = new int[FuJian_stepnum];
 
-        public bool current_FuJian_step1_state = true;
-        public bool current_FuJian_step2_state = true;
-        public bool current_FuJian_step3_state = true;
-        public bool current_FuJian_step4_state = true;
+        public int[] Lailiao_delta = new int[Lailiao_stepnum];
+        public int[] Zuzhuang_delta = new int[Zuzhuang_stepnum];
+        public int[] FuJian_delta = new int[FuJian_stepnum];
 
-        public int[] temp = new int[] { 1, 2, 3, 4, };
+        //public bool current_Lailiao_step1_state = true;
+        //public bool current_Lailiao_step2_state = true;
+        //public bool current_Lailiao_step3_state = true;
+        //public bool current_Lailiao_step4_state = true;
 
-        public bool step1_enabled;
-        public bool step2_enabled;
-        public bool step3_enabled;
+        //public bool current_ZuZhuang_step1_state = true;
+        //public bool current_ZuZhuang_step2_state = true;
+        //public bool current_ZuZhuang_step3_state = true;
+        //public bool current_ZuZhuang_step4_state = true;
+
+        //public bool current_FuJian_step1_state = true;
+        //public bool current_FuJian_step2_state = true;
+        //public bool current_FuJian_step3_state = true;
+        //public bool current_FuJian_step4_state = true;
+
+        //public int[] temp = new int[] { 1, 2, 3, 4, };
+
+        //public bool step1_enabled;
+        //public bool step2_enabled;
+        //public bool step3_enabled;
         public bool IsPass { get; set; }
 
         #endregion
@@ -107,7 +120,41 @@ namespace AkribisFAM
             }
         }
 
+        public void Lailiao_CheckState()
+        {
+            if (GlobalManager.Current.Lailiao_state[current_Lailiao_step] == 0)
+            {
+                GlobalManager.Current.Lailiao_delta[current_Lailiao_step] = 0;
+            }
+            else
+            {
+                GlobalManager.Current.Lailiao_delta[current_Lailiao_step] = Pausetime;
+            }
+        }
 
+        public void ZuZhuang_CheckState()
+        {
+            if (GlobalManager.Current.Zuzhuang_state[current_Zuzhuang_step] == 0)
+            {
+                GlobalManager.Current.Zuzhuang_delta[current_Zuzhuang_step] = 0;
+            }
+            else
+            {
+                GlobalManager.Current.Zuzhuang_delta[current_Zuzhuang_step] = Pausetime;
+            }
+        }
+
+        public void FuJian_CheckState()
+        {
+            if (GlobalManager.Current.FuJian_state[current_FuJian_step] == 0)
+            {
+                GlobalManager.Current.FuJian_delta[current_FuJian_step] = 0;
+            }
+            else
+            {
+                GlobalManager.Current.FuJian_delta[current_FuJian_step] = Pausetime;
+            }
+        }
         #region AGM800初始化以及状态显示
         // AGM800 控制器实例
         public AGM800 _Agm800 { get; private set; }

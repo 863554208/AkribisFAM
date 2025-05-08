@@ -66,10 +66,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void Wait(int delta)
-        {
-            WarningManager.Current.WaitLaiLiao(delta);
-        }
 
         public bool BoradIn()
         {
@@ -105,14 +101,16 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             Thread.Sleep(1000);
 
-            delta = GlobalManager.Current.current_Lailiao_step1_state == true ? 0 : 999999;
+            GlobalManager.Current.current_Lailiao_step = 1;
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            Console.WriteLine("Lailiao_step1");
 
-            Wait(delta);
+            WarningManager.Current.WaitLaiLiao();
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
 
-            GlobalManager.Current.current_Lailiao_step = 1;
 
             return true;
         }
@@ -126,12 +124,12 @@ namespace AkribisFAM.WorkStation
 
             //用thread.sleep模拟实际生成动作
             Thread.Sleep(1000);
-
             GlobalManager.Current.current_Lailiao_step = 2;
-            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            Console.WriteLine("Lailiao_step2");
 
-            Wait(delta);
-
+            WarningManager.Current.WaitLaiLiao();
             //触发 UI 动画
             OnStopStep2?.Invoke();
 
@@ -147,17 +145,17 @@ namespace AkribisFAM.WorkStation
 
             //用thread.sleep模拟实际生成动作
             Thread.Sleep(1000);
+            GlobalManager.Current.current_Lailiao_step = 3;
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            Console.WriteLine("Lailiao_step3");
 
-            delta = GlobalManager.Current.current_Lailiao_step3_state == true ? 0 : 999999;
-
-            Wait(delta);
+            WarningManager.Current.WaitLaiLiao();
 
             //触发 UI 动画
             OnStopStep3?.Invoke();
 
             Boardout();
-
-            GlobalManager.Current.current_Lailiao_step = 3;
 
             return true;
         }

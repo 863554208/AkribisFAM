@@ -126,6 +126,12 @@ namespace AkribisFAM
             else
             {
                 GlobalManager.Current.IsPause = false;
+                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
                 //AutorunManager.Current.ResumeAutoRun();
                 PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
             }

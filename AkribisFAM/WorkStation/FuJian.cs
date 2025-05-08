@@ -41,10 +41,6 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public void Wait(int delta)
-        {
-            WarningManager.Current.WaitFuJian(delta);
-        }
 
         public override void ReturnZero()
         {
@@ -91,13 +87,13 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_FuJian_step = 1;
+            GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+            GlobalManager.Current.FuJian_CheckState();
+            WarningManager.Current.WaiFuJian();
             //触发 UI 动画
             OnStopStep1?.Invoke();
 
-            GlobalManager.Current.current_FuJian_step = 1;
             return true;
         }
 
@@ -111,13 +107,13 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_FuJian_step = 2;
+            GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+            GlobalManager.Current.FuJian_CheckState();
+            WarningManager.Current.WaiFuJian();
             //触发 UI 动画
             OnStopStep2?.Invoke();
 
-            GlobalManager.Current.current_FuJian_step = 2;
 
             return true;
         }
@@ -127,15 +123,14 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnTriggerStep3?.Invoke();
             //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000); 
-
-            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
+            System.Threading.Thread.Sleep(1000);
 
             GlobalManager.Current.current_FuJian_step = 3;
+            GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+            GlobalManager.Current.FuJian_CheckState();
+            WarningManager.Current.WaiFuJian();
+            //触发 UI 动画
+            OnStopStep3?.Invoke();
 
             BoardOut();
 
