@@ -23,6 +23,8 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep4;
         public event Action OnStopStep4;
 
+        int delta = 0;
+        bool has_board = false;
 
         public static ZuZhuang Current
         {
@@ -55,109 +57,146 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public void Wait(int delta)
+        {
+            WarningManager.Current.WaitZuZhuang(delta);
+        }
+
+        public bool BoradIn()
+        {
+            if (GlobalManager.Current.IO_test2 == true && has_board == false)
+            {
+                GlobalManager.Current.IO_test2 = false;
+                has_board = true;
+                return true;
+            }
+            else
+            {
+                Thread.Sleep(100);
+                return false;
+            }
+        }
+        public void BoardOut()
+        {
+            has_board = false;
+            GlobalManager.Current.IO_test3 = true;
+        }
+
+        public bool Step1()
+        {
+            if (!BoradIn())
+                return false;
+
+            Console.WriteLine("ZuZhuang.Current.Step1()");
+
+            //触发 UI 动画
+            OnTriggerStep1?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000);
+
+            GlobalManager.Current.current_Zuzhuang_step = 1;
+
+            delta = GlobalManager.Current.current_ZuZhuang_step1_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //触发 UI 动画
+            OnStopStep1?.Invoke();
+
+            return true;
+        }
+
+        public bool Step2()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step2()");
+
+            //触发 UI 动画
+            OnTriggerStep2?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(2000);
+
+            delta = GlobalManager.Current.current_ZuZhuang_step2_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //触发 UI 动画
+            OnStopStep2?.Invoke();
+
+            GlobalManager.Current.current_Zuzhuang_step = 2;
+
+            return true;
+        }
+
+        public bool Step3()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step3()");
+
+            //触发 UI 动画
+            OnTriggerStep3?.Invoke();
+
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000);
+
+            delta = GlobalManager.Current.current_ZuZhuang_step3_state == true ? 0 : 999999;
+
+            Wait(delta);
+            //触发 UI 动画
+            OnStopStep3?.Invoke();
+
+            GlobalManager.Current.current_Zuzhuang_step = 3;
+
+            return true;
+        }
+
+        public bool Step4()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step4()");
+            //触发 UI 动画
+            OnTriggerStep4?.Invoke();
+
+            System.Threading.Thread.Sleep(1000);
+
+            
+            delta = GlobalManager.Current.current_ZuZhuang_step4_state == true ? 0 : 999999;
+
+            Wait(delta);
+            //触发 UI 动画
+            OnStopStep4?.Invoke();
+
+            GlobalManager.Current.current_Zuzhuang_step = 4;
+
+            return true;
+        }
+
         public override void AutoRun()
         {
-            int delta = 0;
-            bool has_board = false;
             try
             {
 
                 while (true)
                 {
-                    goto step1;
-
                     step1:
-                        if(GlobalManager.Current.IO_test2 == true &&  has_board == false)
-                        {
-                            GlobalManager.Current.IO_test2 = false;
-                            has_board = true;
-                        }
-                        else
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
-                        Console.WriteLine("step1");
-                        OnTriggerStep1?.Invoke();
-
-                        System.Threading.Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_Zuzhuang_step = 1;
-                        if (GlobalManager.Current.current_ZuZhuang_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-                        OnStopStep1?.Invoke();
+                        if (!Step1()) continue;
 
                     step2:
-                        Console.WriteLine("step2");
-                        OnTriggerStep2?.Invoke();
-                        System.Threading.Thread.Sleep(2000);
-
-                        GlobalManager.Current.current_Zuzhuang_step = 2;
-                        if (GlobalManager.Current.current_ZuZhuang_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-
-                        OnStopStep2?.Invoke();
+                        Step2();
 
                     step3:
-                        Console.WriteLine("step3");
-                        OnTriggerStep3?.Invoke();
-                        System.Threading.Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_Zuzhuang_step = 3;
-                        if (GlobalManager.Current.current_ZuZhuang_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-                        OnStopStep3?.Invoke();
+                        Step3();
 
                     step4:
-                        Console.WriteLine("step4");
-                        OnTriggerStep4?.Invoke();
-                        System.Threading.Thread.Sleep(1000);
-
-                        GlobalManager.Current.current_Zuzhuang_step = 3;
-                        if (GlobalManager.Current.current_ZuZhuang_step4_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
-
-                        OnStopStep4?.Invoke();
+                        Step4();
                         if (GlobalManager.Current.IsPass)
                         {
                             goto step2;
                         }
                         else
                         {
-                            has_board = false;
-                            GlobalManager.Current.IO_test3 = true;
+                            BoardOut();
                         }
-
                 }
-
 
                 #region 老代码
                 //if (GlobalManager.Current.IO_test2 && !has_board)

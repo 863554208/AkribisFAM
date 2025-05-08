@@ -40,7 +40,16 @@ namespace AkribisFAM.Manager
 
             while (true)
             {
-        
+                if (!GlobalManager.Current.IsPause && 
+                    GlobalManager.Current.current_ZuZhuang_step1_state 
+                    && GlobalManager.Current.current_ZuZhuang_step2_state
+                    && GlobalManager.Current.current_ZuZhuang_step3_state 
+                    && GlobalManager.Current.current_ZuZhuang_step4_state)
+                {
+                    break;
+                }
+
+
                 TimeSpan elapsed = DateTime.Now - startTime;
                 double remaining = time - elapsed.TotalMilliseconds;
 
@@ -52,11 +61,7 @@ namespace AkribisFAM.Manager
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
 
-                if (!GlobalManager.Current.IsPause && GlobalManager.Current.current_ZuZhuang_step1_state && GlobalManager.Current.current_ZuZhuang_step2_state 
-                    && GlobalManager.Current.current_ZuZhuang_step3_state && GlobalManager.Current.current_ZuZhuang_step4_state)
-                {
-                    break;
-                }
+
             }
 
         }
@@ -73,7 +78,11 @@ namespace AkribisFAM.Manager
 
             while (true)
             {
-                if (!GlobalManager.Current.IsPause)
+                if (!GlobalManager.Current.IsPause &&
+                    GlobalManager.Current.current_Lailiao_step1_state
+                    && GlobalManager.Current.current_Lailiao_step2_state
+                    && GlobalManager.Current.current_Lailiao_step3_state
+                    && GlobalManager.Current.current_Lailiao_step4_state)
                 {
                     break;
                 }
@@ -91,7 +100,7 @@ namespace AkribisFAM.Manager
 
         }
 
-        public void WaiFuJian(int time)
+        public void WaitFuJian(int time)
         {
             DateTime startTime = DateTime.Now;
 
@@ -103,7 +112,11 @@ namespace AkribisFAM.Manager
 
             while (true)
             {
-                if (!GlobalManager.Current.IsPause)
+                if (!GlobalManager.Current.IsPause &&
+                    GlobalManager.Current.current_FuJian_step1_state
+                    && GlobalManager.Current.current_FuJian_step2_state
+                    && GlobalManager.Current.current_FuJian_step3_state
+                    && GlobalManager.Current.current_FuJian_step4_state)
                 {
                     break;
                 }
