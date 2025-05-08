@@ -81,15 +81,9 @@ namespace AkribisFAM.WorkStation
                         System.Threading.Thread.Sleep(1000);
 
                         GlobalManager.Current.current_FuJian_step = 1;
-                        if (GlobalManager.Current.current_FuJian_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                        GlobalManager.Current.FuJian_CheckState();
+                        WarningManager.Current.WaiFuJian();
                         OnStopStep1?.Invoke();
 
                     step2:
@@ -98,15 +92,9 @@ namespace AkribisFAM.WorkStation
                         System.Threading.Thread.Sleep(2000);
 
                         GlobalManager.Current.current_FuJian_step = 2;
-                        if (GlobalManager.Current.current_FuJian_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                        GlobalManager.Current.FuJian_CheckState();
+                        WarningManager.Current.WaiFuJian();
 
                         OnStopStep2?.Invoke();
 
@@ -116,15 +104,9 @@ namespace AkribisFAM.WorkStation
                         System.Threading.Thread.Sleep(1000);
 
                         GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_FuJian_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                        GlobalManager.Current.FuJian_CheckState();
+                        WarningManager.Current.WaiFuJian();
                         OnStopStep3?.Invoke();
                         
 

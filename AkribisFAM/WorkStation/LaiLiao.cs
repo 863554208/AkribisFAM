@@ -89,17 +89,11 @@ namespace AkribisFAM.WorkStation
                         Thread.Sleep(1000);
 
                         GlobalManager.Current.current_Lailiao_step = 1;
-                        if(GlobalManager.Current.current_Lailiao_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
+                        GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                        GlobalManager.Current.Lailiao_CheckState();
                         Console.WriteLine("Lailiao_step1");
 
-                        WarningManager.Current.WaitLaiLiao(delta);
+                        WarningManager.Current.WaitLaiLiao();
                         OnStopStep1?.Invoke();
 
                     step2:
@@ -108,17 +102,11 @@ namespace AkribisFAM.WorkStation
                         Thread.Sleep(1000);
 
                         GlobalManager.Current.current_Lailiao_step = 2;
-                        if (GlobalManager.Current.current_Lailiao_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
+                        GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                        GlobalManager.Current.Lailiao_CheckState();
                         Console.WriteLine("Lailiao_step2");
 
-                        WarningManager.Current.WaitLaiLiao(delta);
+                        WarningManager.Current.WaitLaiLiao();
                         OnStopStep2?.Invoke();
 
                     step3:
@@ -127,17 +115,11 @@ namespace AkribisFAM.WorkStation
                         Thread.Sleep(1000);
 
                         GlobalManager.Current.current_Lailiao_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
+                        GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                        GlobalManager.Current.Lailiao_CheckState();
                         Console.WriteLine("Lailiao_step3");
 
-                        WarningManager.Current.WaitLaiLiao(delta);
+                        WarningManager.Current.WaitLaiLiao();
                         OnStopStep3?.Invoke();
 
                         has_board = false;

@@ -82,16 +82,10 @@ namespace AkribisFAM.WorkStation
 
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 1;
-                        if (GlobalManager.Current.current_Lailiao_step1_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.current_Zuzhuang_step = 1;
+                        GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                        GlobalManager.Current.ZuZhuang_CheckState();
+                        WarningManager.Current.WaitZuZhuang();
                         OnStopStep1?.Invoke();
 
                     step2:
@@ -99,16 +93,10 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep2?.Invoke();
                         System.Threading.Thread.Sleep(2000);
 
-                        GlobalManager.Current.current_FuJian_step = 2;
-                        if (GlobalManager.Current.current_Lailiao_step2_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.current_Zuzhuang_step = 2;
+                        GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                        GlobalManager.Current.ZuZhuang_CheckState();
+                        WarningManager.Current.WaitZuZhuang();
 
                         OnStopStep2?.Invoke();
 
@@ -117,16 +105,10 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep3?.Invoke();
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.current_Zuzhuang_step = 3;
+                        //GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                        GlobalManager.Current.ZuZhuang_CheckState();
+                        WarningManager.Current.WaitZuZhuang();
                         OnStopStep3?.Invoke();
 
                     step4:
@@ -134,16 +116,10 @@ namespace AkribisFAM.WorkStation
                         OnTriggerStep4?.Invoke();
                         System.Threading.Thread.Sleep(1000);
 
-                        GlobalManager.Current.current_FuJian_step = 3;
-                        if (GlobalManager.Current.current_Lailiao_step3_state == true)
-                        {
-                            delta = 0;
-                        }
-                        else
-                        {
-                            delta = 99999;
-                        }
-                        WarningManager.Current.WaitZuZhuang(delta);
+                        GlobalManager.Current.current_Zuzhuang_step = 4;
+                        GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                        GlobalManager.Current.ZuZhuang_CheckState();
+                        WarningManager.Current.WaitZuZhuang();
 
                         OnStopStep4?.Invoke();
                         if (GlobalManager.Current.IsPass)

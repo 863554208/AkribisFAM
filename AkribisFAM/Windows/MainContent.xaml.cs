@@ -241,9 +241,13 @@ namespace AkribisFAM.Windows
         }
         private void StopZuZhuang_Click(object sender, RoutedEventArgs e)
         {
-            GlobalManager.Current.IO_test1 = true;
+            GlobalManager.Current.Zuzhuang_state[3] = 1;
         }
 
-
+        private void Resume_Click(object sender, RoutedEventArgs e)
+        {
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
+        }
     }
 }
