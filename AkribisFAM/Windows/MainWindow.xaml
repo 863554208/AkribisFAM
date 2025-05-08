@@ -69,7 +69,7 @@
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="113" Margin="593,602,0,0" VerticalAlignment="Top" Width="361">
             <StackPanel Orientation="Horizontal" Margin="-58,0,0,0">
                 <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
-                <Button x:Name="StopAutoRunButton" Content="Exit" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
+                <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
                 <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
                 <Button Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" />
             </StackPanel>

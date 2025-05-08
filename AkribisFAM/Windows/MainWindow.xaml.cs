@@ -96,9 +96,13 @@ namespace AkribisFAM
         //    AutorunManager.Current.AutoRunMain();
         //}
 
+
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            Logger.WriteLog("123");
+            //对轴初始化使能 改到登录之后
+            GlobalManager.Current.InitializeAxis();
+
+            Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try
             {
                 StartAutoRunButton.IsEnabled = false;

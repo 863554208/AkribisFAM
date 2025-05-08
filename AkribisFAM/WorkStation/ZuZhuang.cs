@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AAMotion;
 using AkribisFAM.Manager;
 
 namespace AkribisFAM.WorkStation
@@ -117,6 +118,10 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(2000);
 
+            //测试用的轴运控
+            //AAMotionAPI.LinearAbsoluteXY(GlobalManager.Current._Agm800.controller, 100000, 100000, 50000, 20000);
+            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
+
             delta = GlobalManager.Current.current_ZuZhuang_step2_state == true ? 0 : 999999;
 
             Wait(delta);
@@ -138,6 +143,9 @@ namespace AkribisFAM.WorkStation
 
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
+
+            //AAMotionAPI.LinearAbsoluteXY(GlobalManager.Current._Agm800.controller, 200000, 200000, 50000, 20000);
+            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
 
             delta = GlobalManager.Current.current_ZuZhuang_step3_state == true ? 0 : 999999;
 
