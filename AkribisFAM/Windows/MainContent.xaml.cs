@@ -237,7 +237,10 @@ namespace AkribisFAM.Windows
 
         private void SendIO_Click(object sender, RoutedEventArgs e)
         {
-            GlobalManager.Current.IO_test1 = true;
+            if (AutorunManager.Current.isRunning == true)
+            {
+                GlobalManager.Current.IO_test1 = true;
+            }
         }
         private void StopZuZhuang_Click(object sender, RoutedEventArgs e)
         {

@@ -24,7 +24,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnStopStep3;
 
         int delta = 0;
-        bool has_board = false;
+        public bool has_board = false;
 
         public static FuJian Current
         {
@@ -93,7 +93,7 @@ namespace AkribisFAM.WorkStation
             WarningManager.Current.WaiFuJian();
             //触发 UI 动画
             OnStopStep1?.Invoke();
-
+            //ErrorManager.Current.Insert(ErrorCode.AGM800Disconnect);
             return true;
         }
 
@@ -132,8 +132,6 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnStopStep3?.Invoke();
 
-            BoardOut();
-
             return true;
         }
 
@@ -144,15 +142,26 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-                    step1:
-                        if (!Step1()) continue;
-
-                    step2:
-                        Step2();
-
-                    step3:
-                        Step3();
-
+                step1:
+                    bool ret = Step1();
+                    if (GlobalManager.Current.FuJian_exit)
+                    {
+                        break;
+                    }
+                    if (!ret) continue;
+                step2:
+                    Step2();
+                    if (GlobalManager.Current.FuJian_exit)
+                    {
+                        break;
+                    }
+                step3:
+                    Step3();
+                    if (GlobalManager.Current.FuJian_exit)
+                    {
+                        break;
+                    }
+                    BoardOut();
                 }
             }
             catch (Exception ex)

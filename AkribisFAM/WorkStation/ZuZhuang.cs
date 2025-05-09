@@ -24,7 +24,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnStopStep4;
 
         int delta = 0;
-        bool has_board = false;
+        public bool has_board = false;
 
         public static ZuZhuang Current
         {
@@ -170,16 +170,30 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
                     step1:
-                        if (!Step1()) continue;
-
+                        bool ret = Step1();
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
+                        if (!ret) continue;
                     step2:
                         Step2();
-
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                     step3:
                         Step3();
-
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                     step4:
                         Step4();
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                         if (GlobalManager.Current.IsPass)
                         {
                             goto step2;
