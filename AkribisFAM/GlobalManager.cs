@@ -95,19 +95,31 @@ namespace AkribisFAM
 
         #region 全局IO信号
 
-        public enum Input
+        public enum IO
         {
             None = 0,
             LaiLiao_BoardIn,
-            LaiLiao_QiGang,
             LaiLiao_JianSu,
+            LaiLiao_QiGang,
             LaiLiao_DingSheng,
             LaiLiao_BoardOut,
+
+            ZuZhuang_BoardIn,
+            ZuZhuang_JianSu,
+            ZuZhuang_QiGang,
+            ZuZhuang_DingSheng,
+            ZuZhuang_BoardOut,
+
+            FuJian_BoardIn,
+            FuJian_JianSu,
+            FuJian_QiGang,
+            FuJian_DingSheng,
+            FuJian_BoardOut,
 
             Total,
         }
 
-        public int[] lailiaoIO = new int[(int)Input.Total];
+        public bool[] laiLiaoIO = new bool[(int)IO.Total];
 
         #endregion
 

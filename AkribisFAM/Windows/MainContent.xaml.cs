@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using AkribisFAM.ViewModel;
 using AkribisFAM.WorkStation;
 using Microsoft.Win32;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.Windows
 {
@@ -239,7 +240,7 @@ namespace AkribisFAM.Windows
         {
             if (AutorunManager.Current.isRunning == true)
             {
-                GlobalManager.Current.IO_test1 = true;
+                GlobalManager.Current.laiLiaoIO[(int)IO.LaiLiao_BoardIn] = true;
             }
         }
         private void StopZuZhuang_Click(object sender, RoutedEventArgs e)
