@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="GB2312"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="Main Page">主界面</sys:String>
+    <sys:String x:Key="Manual Control">手动控制</sys:String>
+    <sys:String x:Key="Parameter Setting">参数配置</sys:String>
+    <sys:String x:Key="Internet Config">网络配置</sys:String>
+    <sys:String x:Key="Log">系统日志</sys:String>
+</ResourceDictionary>

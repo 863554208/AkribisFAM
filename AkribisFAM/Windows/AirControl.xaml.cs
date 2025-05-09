@@ -22,9 +22,7 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class AirControl : UserControl
     {
-        private DispatcherTimer _timer;
-
-
+       
         public AirControl()
         {
             InitializeComponent();
