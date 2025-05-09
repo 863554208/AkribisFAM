@@ -23,6 +23,10 @@ using WpfExtensions.Xaml;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using AkribisFAM.WorkStation;
+using System.ComponentModel;
+using AkribisFAM.Manager;
+using AkribisFAM.ViewModel;
 
 namespace AkribisFAM
 {
@@ -34,6 +38,7 @@ namespace AkribisFAM
     {
         private DispatcherTimer _timer;
         private CancellationTokenSource _cancellationTokenSource;
+        public ErrorIconViewModel ViewModel { get; }
 
         public MainWindow()
         {
@@ -48,6 +53,16 @@ namespace AkribisFAM
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
 
+            ViewModel = new ErrorIconViewModel();
+            this.DataContext = ViewModel;
+
+            ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
+        }
+
+        private void UpdateIcon()
+        {
+            // 使用 Dispatcher 来确保在 UI 线程上更新 UI
+            Dispatcher.Invoke(() => ViewModel.UpdateIcon());
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -101,13 +116,16 @@ namespace AkribisFAM
             Logger.WriteLog("123");
             try
             {
-                StartAutoRunButton.IsEnabled = false;
                 // 使用 Task.Run 来异步运行 AutoRunMain
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 CancellationToken token = _cancellationTokenSource.Token;
 
                 await Task.Run(() => AutorunManager.Current.AutoRunMain());
+                if (AutorunManager.Current.isRunning)
+                {
+                    StartAutoRunButton.IsEnabled = false;
+                }
             }
             catch (Exception ex)
             {
@@ -164,5 +182,133 @@ namespace AkribisFAM
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
         }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            GlobalManager.Current.current_Lailiao_step = 0;
+            GlobalManager.Current.current_Zuzhuang_step = 0;
+            GlobalManager.Current.current_FuJian_step = 0;
+            LaiLiao.Current.has_board = false;
+            ZuZhuang.Current.has_board = false;
+            FuJian.Current.has_board = false;
+            GlobalManager.Current.Lailiao_exit = false;
+            GlobalManager.Current.Zuzhuang_exit = false;
+            GlobalManager.Current.FuJian_exit = false;
+            AutorunManager.Current.hasReseted = true;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
+            layer.Add(new PromptAdorner(button));
+        }
+    }
+
+    internal class PromptableButton : Button
+    {
+
+        public ImageSource CoverImageSource
+        {
+            get { return (ImageSource)GetValue(CoverImageSourceProperty); }
+            set { SetValue(CoverImageSourceProperty, value); }
+        }
+
+        public static readonly DependencyProperty CoverImageSourceProperty =
+            DependencyProperty.Register("CoverImageSource", typeof(ImageSource), typeof(PromptableButton), new UIPropertyMetadata(null));
+
+
+        public int PromptCount
+        {
+            get { return (int)GetValue(PromptCountProperty); }
+            set { SetValue(PromptCountProperty, value); }
+        }
+
+        public static readonly DependencyProperty PromptCountProperty =
+            DependencyProperty.Register("PromptCount", typeof(int), typeof(PromptableButton),
+            new FrameworkPropertyMetadata(0, new PropertyChangedCallback(PromptCountChangedCallBack), new CoerceValueCallback(CoercePromptCountCallback)));
+
+
+        public PromptableButton()
+        {
+
+        }
+
+        static PromptableButton()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptableButton), new FrameworkPropertyMetadata(typeof(PromptableButton)));
+        }
+
+        private static object CoercePromptCountCallback(DependencyObject d, object value)
+        {
+            int promptCount = (int)value;
+            promptCount = Math.Max(0, promptCount);
+
+            return promptCount;
+        }
+
+        public static void PromptCountChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+
+        }
+
+    }
+
+    internal class PromptAdorner : Adorner
+    {
+
+        protected override int VisualChildrenCount
+        {
+            get { return 1; }
+        }
+
+        public PromptAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+
+            _chrome = new PromptChrome();
+            _chrome.DataContext = adornedElement;
+            this.AddVisualChild(_chrome);
+        }
+
+
+        protected override Visual GetVisualChild(int index)
+        {
+            return _chrome;
+        }
+
+        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+        {
+            _chrome.Arrange(new Rect(arrangeBounds));
+            return arrangeBounds;
+        }
+
+        PromptChrome _chrome;
+    }
+
+    internal class PromptChrome : Control
+    {
+        static PromptChrome()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptChrome), new FrameworkPropertyMetadata(typeof(PromptChrome)));
+        }
+
+        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+        {
+
+            this.Width = 34;
+            this.Height = 34;
+
+            this.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+            this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+            TranslateTransform tt = new TranslateTransform();
+            tt.X = 10;
+            tt.Y = -10;
+            this.RenderTransform = tt;
+
+            return base.ArrangeOverride(arrangeBounds);
+        }
+
+
     }
 }

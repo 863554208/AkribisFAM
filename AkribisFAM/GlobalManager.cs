@@ -11,6 +11,7 @@ using AAMotion;
 using AGM800 = AkribisFAM.AAmotionFAM.AGM800;
 using System.Diagnostics;
 using AkribisFAM.Manager;
+using System.Threading;
 
 namespace AkribisFAM
 {
@@ -21,7 +22,7 @@ namespace AkribisFAM
         private static GlobalManager _current;
 
         //全局心跳包
-        private Timer heartbeatTimer;
+        private System.Timers.Timer heartbeatTimer;
 
         //错误队列
         private DispatcherTimer _errorCheckTimer;
@@ -71,10 +72,14 @@ namespace AkribisFAM
         public int current_Zuzhuang_step = 0;
         public int current_FuJian_step = 0;
 
+        public bool Lailiao_exit = false;
+        public bool Zuzhuang_exit = false;
+        public bool FuJian_exit = false;
+
         const int Lailiao_stepnum = 4;
         const int Zuzhuang_stepnum = 5;
         const int FuJian_stepnum = 4;
-        const int Pausetime = 999999;
+        public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
         public int[] Zuzhuang_state = new int[Zuzhuang_stepnum];
@@ -83,6 +88,8 @@ namespace AkribisFAM
         public int[] Lailiao_delta = new int[Lailiao_stepnum];
         public int[] Zuzhuang_delta = new int[Zuzhuang_stepnum];
         public int[] FuJian_delta = new int[FuJian_stepnum];
+
+       
 
         //public bool current_Lailiao_step1_state = true;
         //public bool current_Lailiao_step2_state = true;
@@ -166,12 +173,12 @@ namespace AkribisFAM
 
 
             // 初始化心跳定时器
-            heartbeatTimer = new Timer(3000); // 每300ms触发一次
+            heartbeatTimer = new System.Timers.Timer(3000); // 每300ms触发一次
             heartbeatTimer.Elapsed += HeartbeatTimer_Elapsed;
             //heartbeatTimer.AutoReset = true; // 自动重复触发
             heartbeatTimer.Enabled = true;   // 启动定时器
 
-            StartErrorMonitor();
+            //StartErrorMonitor();
 
 
             IsAInTarget = false;
@@ -230,22 +237,22 @@ namespace AkribisFAM
         }
         #endregion
 
-        private void StartErrorMonitor()
-        {
-            Console.WriteLine("开启全局错误监视器");
-            _errorCheckTimer = new DispatcherTimer();
-            _errorCheckTimer.Interval = TimeSpan.FromSeconds(1);
-            _errorCheckTimer.Tick += (s, e) =>
-            {
-                while (ErrorReportManager.ErrorQueue.TryDequeue(out var ex))
-                {
-                    MessageBox.Show(ex.Message, "线程异常", MessageBoxButton.OK, MessageBoxImage.Error);
+        //private void StartErrorMonitor()
+        //{
+        //    Console.WriteLine("开启全局错误监视器");
+        //    _errorCheckTimer = new DispatcherTimer();
+        //    _errorCheckTimer.Interval = TimeSpan.FromSeconds(1);
+        //    _errorCheckTimer.Tick += (s, e) =>
+        //    {
+        //        while (ErrorReportManager.ErrorQueue.TryDequeue(out var ex))
+        //        {
+        //            MessageBox.Show(ex.Message, "线程异常", MessageBoxButton.OK, MessageBoxImage.Error);
 
-                    // 可选：终止运行
-                    AutorunManager.Current.isRunning = false;
-                }
-            };
-            _errorCheckTimer.Start();
-        }
+        //            // 可选：终止运行
+        //            AutorunManager.Current.isRunning = false;
+        //        }
+        //    };
+        //    _errorCheckTimer.Start();
+        //}
     }
 }
