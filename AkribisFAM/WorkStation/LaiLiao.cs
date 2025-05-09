@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Media;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
@@ -111,19 +112,32 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.IO_test2 = true;
         }
 
+        public void CheckState()
+        {
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
+        }
+
         public bool Step1()
         {            
             Console.WriteLine("LaiLiao.Current.Step1()");
 
+            //触发 UI 动画
+            OnTriggerStep1?.Invoke();
+
             //进板
-            if(!BoradIn()) 
+            if (!BoradIn()) 
                 return false;
 
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
+            Thread.Sleep(1000);
+
+            CheckState();
 
             GlobalManager.Current.current_Lailiao_step = 1;
+
+            //触发 UI 动画
+            OnStopStep1?.Invoke();
 
             return true;
         }
@@ -132,14 +146,18 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step2()");
 
-            //扫码
-            Thread.Sleep(100);
-
             GlobalManager.Current.current_Lailiao_step = 2;
 
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
+            //触发 UI 动画
+            OnTriggerStep2?.Invoke();
+
+            //扫码
+            Thread.Sleep(1000);
+
+            //触发 UI 动画
+            OnStopStep2?.Invoke();
+
+            CheckState();
 
             return true;
         }
@@ -148,14 +166,12 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
 
+            GlobalManager.Current.current_Lailiao_step = 3;
+
             //顶升
             GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = true;
 
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
-
-            GlobalManager.Current.current_Lailiao_step = 4;
+            CheckState();
 
             return true;
         }
@@ -164,27 +180,18 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step4()");
 
-            //激光测距
-            Thread.Sleep(100);
-
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
-
             GlobalManager.Current.current_Lailiao_step = 4;
 
-            return true;
-        }
+            //触发 UI 动画
+            OnTriggerStep3?.Invoke();
 
-        public bool Step5()
-        {
-            Console.WriteLine("LaiLiao.Current.Step5()");
+            //激光测距
+            Thread.Sleep(1000);
 
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
+            CheckState();
 
-            GlobalManager.Current.current_Lailiao_step = 5;
+            //触发 UI 动画
+            OnStopStep3?.Invoke();
 
             return true;
         }
@@ -221,13 +228,8 @@ namespace AkribisFAM.WorkStation
                             break;
                         }
 
-                    step5: Step5();
-                        if (GlobalManager.Current.Lailiao_exit)
-                        {
-                            break;
-                        }
-                        //出板
-                        Boardout();
+                    //出板
+                    Boardout();
                     #region 老代码
                     //if (GlobalManager.Current.lailiao_ChuFaJinBan)
                     //{
