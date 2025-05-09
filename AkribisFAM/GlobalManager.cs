@@ -75,6 +75,7 @@ namespace AkribisFAM
         public bool current_Lailiao_step2_state = true;
         public bool current_Lailiao_step3_state = true;
         public bool current_Lailiao_step4_state = true;
+        public bool current_Lailiao_step5_state = true;
 
         public bool current_ZuZhuang_step1_state = true;
         public bool current_ZuZhuang_step2_state = true;
@@ -92,6 +93,24 @@ namespace AkribisFAM
         public bool step2_enabled;
         public bool step3_enabled;
         public bool IsPass { get; set; }
+
+        #endregion
+
+        #region 全局IO信号
+
+        public enum Input
+        {
+            None = 0,
+            LaiLiao_BoardIn,
+            LaiLiao_QiGang,
+            LaiLiao_JianSu,
+            LaiLiao_DingSheng,
+            LaiLiao_BoardOut,
+
+            Total,
+        }
+
+        public bool[] lailiaoIO = new bool[(int)Input.Total];
 
         #endregion
 

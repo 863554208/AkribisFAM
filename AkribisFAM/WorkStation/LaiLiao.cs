@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
 {
@@ -30,7 +31,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
 
-        bool has_board = false;
+        int board_count = 0;
         int delta = 0;
 
 
@@ -71,12 +72,32 @@ namespace AkribisFAM.WorkStation
             WarningManager.Current.WaitLaiLiao(delta);
         }
 
+        public void WaitConveyor(int index)
+        {
+            bool IO_Signal = GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_BoardIn];
+
+            //让皮带动
+
+            while (IO_Signal)
+            {
+                Thread.Sleep(50);
+            }
+
+            //让皮带停止移动
+        }
+
         public bool BoradIn()
         {
-            if (GlobalManager.Current.IO_test1 == true && has_board == false)
+            if (GlobalManager.Current.IO_test1 == true && board_count == 0)
             {
+                GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_QiGang] = true;
+
+                //TODO 让皮带转直到到达板位
+                WaitConveyor((int)Input.LaiLiao_BoardIn);
+
                 GlobalManager.Current.IO_test1 = false;
-                has_board = true;
+                board_count += 1;
+
                 return true;
             }
             else
@@ -88,29 +109,23 @@ namespace AkribisFAM.WorkStation
 
         public void Boardout()
         {
-            has_board = false;
+            WaitConveyor((int)Input.LaiLiao_BoardOut);
+
+            board_count -= 1;
             GlobalManager.Current.IO_test2 = true;
         }
 
         public bool Step1()
-        {
+        {            
             Console.WriteLine("LaiLiao.Current.Step1()");
 
+            //进板
             if(!BoradIn()) 
                 return false;
-
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
 
             delta = GlobalManager.Current.current_Lailiao_step1_state == true ? 0 : 999999;
 
             Wait(delta);
-
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
 
             GlobalManager.Current.current_Lailiao_step = 1;
 
@@ -121,19 +136,14 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step2()");
 
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
-
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
+            //扫码
+            Thread.Sleep(100);
 
             GlobalManager.Current.current_Lailiao_step = 2;
+
             delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
 
             Wait(delta);
-
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
 
             return true;
         }
@@ -142,22 +152,48 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
 
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
+            //顶升
+            GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = true;
 
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
-
-            delta = GlobalManager.Current.current_Lailiao_step3_state == true ? 0 : 999999;
+            delta = GlobalManager.Current.current_Lailiao_step4_state == true ? 0 : 999999;
 
             Wait(delta);
 
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
-
             Boardout();
 
-            GlobalManager.Current.current_Lailiao_step = 3;
+            GlobalManager.Current.current_Lailiao_step = 4;
+
+            return true;
+        }
+
+        public bool Step4()
+        {
+            Console.WriteLine("LaiLiao.Current.Step4()");
+
+            //激光测距
+            Thread.Sleep(100);
+
+            delta = GlobalManager.Current.current_Lailiao_step4_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            GlobalManager.Current.current_Lailiao_step = 4;
+
+            return true;
+        }
+
+        public bool Step5()
+        {
+            Console.WriteLine("LaiLiao.Current.Step5()");
+
+            delta = GlobalManager.Current.current_Lailiao_step5_state == true ? 0 : 999999;
+
+            Wait(delta);
+
+            //出板
+            Boardout();
+
+            GlobalManager.Current.current_Lailiao_step = 5;
 
             return true;
         }
@@ -169,12 +205,15 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-
                     step1: if (!Step1()) continue;
 
                     step2: Step2();
 
                     step3: Step3();
+
+                    step4: Step4();
+
+                    step5: Step5();
 
                     #region 老代码
                     //if (GlobalManager.Current.lailiao_ChuFaJinBan)
@@ -183,8 +222,8 @@ namespace AkribisFAM.WorkStation
                     //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
 
 
-                    //    WorkState = 1; 
-                    //    has_board = true; 
+                    //    WorkState = 1;
+                    //    has_board = true;
                     //    Console.WriteLine("检测到进板信号，已进板");
                     //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
                     //}
@@ -229,14 +268,14 @@ namespace AkribisFAM.WorkStation
 
                     //// 出板
                     //if (WorkState == 3 || has_error)
-                    //{                       
+                    //{
                     //    if (has_error)
                     //    {
                     //        AutorunManager.Current.isRunning = false;
                     //    }
                     //    System.Threading.Thread.Sleep(1000);
                     //    OnMovePalleteExecuted.Invoke();
-                    //    WorkState = 0; 
+                    //    WorkState = 0;
                     //    has_board = false;
                     //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
                     //    GlobalManager.Current.IO_test2 = true;
