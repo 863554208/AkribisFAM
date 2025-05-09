@@ -107,7 +107,7 @@ namespace AkribisFAM.WorkStation
             return boolValues.Select(b => b ? 1 : 0).ToArray();
         }
 
-        public void WaitConveyor(int delta, int[] IOarr , int type)
+        public void WaitConveyor(int delta, IO[] IOarr , int type)
         {
             DateTime time = DateTime.Now;
 
@@ -116,9 +116,10 @@ namespace AkribisFAM.WorkStation
                 while ((DateTime.Now - time).TotalMilliseconds < delta)
                 {
                     int judge = 0;
-                    foreach (int item in IOarr)
+                    foreach (var item in IOarr)
                     {
-                        judge += item;
+                        var res = ReadIO(item) ? 1 : 0; // 如果 ReadIO 返回 true，则 res 为 1，否则为 0
+                        judge += res;
                     }
 
                     if (judge > 0) 
@@ -151,7 +152,7 @@ namespace AkribisFAM.WorkStation
                 //传送带高速移动
                 MoveConveyor(200);
 
-                var IOArray = ToIntegerArray(ReadIO(IO.LaiLiao_JianSu));
+                IO[] IOArray = new IO[]{IO.LaiLiao_JianSu };
                 WaitConveyor(9999, IOArray, 0);
 
                 //顶板气缸上气
@@ -164,7 +165,7 @@ namespace AkribisFAM.WorkStation
                 StopConveyor();
 
                 //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.LaiLiao_BoardIn ,false);
+                //SetIO(IO.LaiLiao_BoardIn ,false);
 
                 board_count += 1;
 
@@ -242,8 +243,7 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 3;
 
-            var IOArray = ToIntegerArray(ReadIO(IO.LaiLiao_DingSheng));
-
+            IO[] IOArray = new IO[] { IO.LaiLiao_DingSheng };
             //顶升
             WaitConveyor(9999, IOArray, GlobalManager.Current.current_Lailiao_step);
 
@@ -263,6 +263,11 @@ namespace AkribisFAM.WorkStation
 
             //激光测距
             WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
+
+            //气缸放气，降低顶升
+            SetIO(IO.LaiLiao_QiGang, true);
+
+            SetIO(IO.LaiLiao_DingSheng ,false);
 
             CheckState();
 
