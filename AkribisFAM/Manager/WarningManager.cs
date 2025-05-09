@@ -28,30 +28,20 @@ namespace AkribisFAM.Manager
             }
         }
 
-        public void WaitZuZhuang(int time)
+        public void WaitZuZhuang()
         {
             DateTime startTime = DateTime.Now;
-            Console.WriteLine("执行 {0} 秒的暂停 ", time.ToString());
+
             if (GlobalManager.Current.IsPause) 
             {
                 Console.WriteLine("执行暂停");
-                time = 999999;
+                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 999999;
             }
 
             while (true)
-            {
-                if (!GlobalManager.Current.IsPause && 
-                    GlobalManager.Current.current_ZuZhuang_step1_state 
-                    && GlobalManager.Current.current_ZuZhuang_step2_state
-                    && GlobalManager.Current.current_ZuZhuang_step3_state 
-                    && GlobalManager.Current.current_ZuZhuang_step4_state)
-                {
-                    break;
-                }
-
-
+            {              
                 TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = time - elapsed.TotalMilliseconds;
+                double remaining = GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] - elapsed.TotalMilliseconds;
 
                 if (remaining <= 0)
                 {
@@ -66,28 +56,20 @@ namespace AkribisFAM.Manager
 
         }
 
-        public void WaitLaiLiao(int time)
+        public void WaitLaiLiao()
         {
             DateTime startTime = DateTime.Now;
 
             if (GlobalManager.Current.IsPause)
             {
                 Console.WriteLine("执行暂停");
-                time = 999999;
+                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 999999;
             }
 
             while (true)
             {
-                if (!GlobalManager.Current.IsPause &&
-                    GlobalManager.Current.current_Lailiao_step1_state
-                    && GlobalManager.Current.current_Lailiao_step2_state
-                    && GlobalManager.Current.current_Lailiao_step3_state
-                    && GlobalManager.Current.current_Lailiao_step4_state)
-                {
-                    break;
-                }
                 TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = time - elapsed.TotalMilliseconds;
+                double remaining = GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] - elapsed.TotalMilliseconds;
 
                 if (remaining <= 0)
                 {
@@ -100,28 +82,20 @@ namespace AkribisFAM.Manager
 
         }
 
-        public void WaitFuJian(int time)
+        public void WaiFuJian()
         {
             DateTime startTime = DateTime.Now;
 
             if (GlobalManager.Current.IsPause)
             {
                 Console.WriteLine("执行暂停");
-                time = 999999;
+                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
             }
 
             while (true)
             {
-                if (!GlobalManager.Current.IsPause &&
-                    GlobalManager.Current.current_FuJian_step1_state
-                    && GlobalManager.Current.current_FuJian_step2_state
-                    && GlobalManager.Current.current_FuJian_step3_state
-                    && GlobalManager.Current.current_FuJian_step4_state)
-                {
-                    break;
-                }
                 TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = time - elapsed.TotalMilliseconds;
+                double remaining = GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] - elapsed.TotalMilliseconds;
 
                 if (remaining <= 0)
                 {

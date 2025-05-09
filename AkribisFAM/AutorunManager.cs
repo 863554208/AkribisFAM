@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -17,7 +18,7 @@ namespace AkribisFAM
     {
         private static AutorunManager _current;
         public bool isRunning;
-
+        public bool hasReseted;
         public static AutorunManager Current
         {
             get
@@ -33,6 +34,7 @@ namespace AkribisFAM
         public AutorunManager()
         {
             _loopWorker = new Worker(() => AutoRunMain());
+            hasReseted = false;
         }
 
         Worker _loopWorker;
@@ -56,7 +58,11 @@ namespace AkribisFAM
                 Console.WriteLine("Not Ready");
                 return;
             }
-
+            if (!hasReseted)
+            {
+                MessageBox.Show("Please Reset!"); ;
+                return;
+            }
             isRunning = true;
 
             try
@@ -127,7 +133,14 @@ namespace AkribisFAM
         // 退出AutoRun
         public void StopAutoRun()
         {
+            GlobalManager.Current.Lailiao_exit = true;
+            GlobalManager.Current.Zuzhuang_exit = true;
+            GlobalManager.Current.FuJian_exit = true;
             isRunning = false;
+            hasReseted = false;
+            GlobalManager.Current.IO_test1 = false;
+            GlobalManager.Current.IO_test2 = false;
+            GlobalManager.Current.IO_test3 = false;
         }
 
     }

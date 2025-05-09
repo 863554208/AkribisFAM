@@ -4,9 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kl="clr-namespace:AkribisFAM.Lang"
+        xmlns:local="clr-namespace:AkribisFAM"
         mc:Ignorable="d"
+        Loaded="Window_Loaded"
         Title="MainWindow" Height="768" Width="1024">
-    <Grid Margin="0,10,0,0">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Theme/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid x:Name="container" Margin="0,10,0,0">
         <Border BorderBrush="Black" BorderThickness="0" Margin="202,2,589,692" >
             <Label Content="当前用户:" FontSize="24" VerticalAlignment="Center" Margin="10,0,54,0" Height="38"/>
         </Border>
@@ -71,7 +80,7 @@
                 <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
                 <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" />
+                <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="ResetButton_Click" />
             </StackPanel>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="237,628,0,0" VerticalAlignment="Top" Width="275">
@@ -80,7 +89,6 @@
                 <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
             </StackPanel>
         </Border>
-
-
+        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="817,56,114,602"/>
     </Grid>
 </Window>

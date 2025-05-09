@@ -67,10 +67,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void Wait(int delta)
-        {
-            WarningManager.Current.WaitLaiLiao(delta);
-        }
 
         public void WaitConveyor(int index)
         {
@@ -125,7 +121,7 @@ namespace AkribisFAM.WorkStation
 
             delta = GlobalManager.Current.current_Lailiao_step1_state == true ? 0 : 999999;
 
-            Wait(delta);
+            WarningManager.Current.WaitLaiLiao();
 
             GlobalManager.Current.current_Lailiao_step = 1;
 
@@ -205,10 +201,20 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
+
+                    step1: bool ret = Step1();
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
+                        if (!ret) continue;
                     step1: if (!Step1()) continue;
 
                     step2: Step2();
-
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
                     step3: Step3();
 
                     step4: Step4();
@@ -228,43 +234,43 @@ namespace AkribisFAM.WorkStation
                     //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
                     //}
 
-                    //// 处理板
-                    //if (has_board && WorkState == 1)
-                    //{
-                    //    try
-                    //    {
-                    //        //执行完才能改变workstatiion
-                    //        WorkState = 2;
+                        //// 处理板
+                        //if (has_board && WorkState == 1)
+                        //{
+                        //    try
+                        //    {
+                        //        //执行完才能改变workstatiion
+                        //        WorkState = 2;
 
-                    //        //TODO 扫码枪扫码
-                    //        System.Threading.Thread.Sleep(1000);
-                    //        OnJinBanExecuted?.Invoke();
-                    //        GlobalManager.Current.lailiao_SaoMa = true;
-                    //        Console.WriteLine("扫码枪扫码已完成");
+                        //        //TODO 扫码枪扫码
+                        //        System.Threading.Thread.Sleep(1000);
+                        //        OnJinBanExecuted?.Invoke();
+                        //        GlobalManager.Current.lailiao_SaoMa = true;
+                        //        Console.WriteLine("扫码枪扫码已完成");
 
-                    //        bool asd = false;
-                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                    //        if (asd)
-                    //        {
-                    //            GlobalManager.Current.hive_Result = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            //TODO 基恩士激光测距
-                    //            System.Threading.Thread.Sleep(1000);
-                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                    //            OnLaserExecuted.Invoke();
-                    //            Console.WriteLine("激光测距已完成");
-                    //        }
+                        //        bool asd = false;
+                        //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
+                        //        if (asd)
+                        //        {
+                        //            GlobalManager.Current.hive_Result = false;
+                        //        }
+                        //        else
+                        //        {
+                        //            //TODO 基恩士激光测距
+                        //            System.Threading.Thread.Sleep(1000);
+                        //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
+                        //            OnLaserExecuted.Invoke();
+                        //            Console.WriteLine("激光测距已完成");
+                        //        }
 
-                    //        WorkState = 3; // 更新状态为出板
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        has_error = true; // 标记为出错
-                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                    //    }
-                    //}
+                        //        WorkState = 3; // 更新状态为出板
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+                        //        has_error = true; // 标记为出错
+                        //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
+                        //    }
+                        //}
 
                     //// 出板
                     //if (WorkState == 3 || has_error)
@@ -281,10 +287,10 @@ namespace AkribisFAM.WorkStation
                     //    GlobalManager.Current.IO_test2 = true;
                     //}
 
-                    #endregion
+                        #endregion
 
-                    System.Threading.Thread.Sleep(100);
-                }
+                        System.Threading.Thread.Sleep(100);
+                        }
             }
             catch (Exception ex)
             {

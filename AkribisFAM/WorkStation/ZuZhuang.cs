@@ -25,7 +25,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnStopStep4;
 
         int delta = 0;
-        bool has_board = false;
+        public bool has_board = false;
 
         public static ZuZhuang Current
         {
@@ -58,10 +58,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void Wait(int delta)
-        {
-            WarningManager.Current.WaitZuZhuang(delta);
-        }
 
         public bool BoradIn()
         {
@@ -97,10 +93,9 @@ namespace AkribisFAM.WorkStation
             System.Threading.Thread.Sleep(1000);
 
             GlobalManager.Current.current_Zuzhuang_step = 1;
-
-            delta = GlobalManager.Current.current_ZuZhuang_step1_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
@@ -118,18 +113,13 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(2000);
 
-            //测试用的轴运控
-            //AAMotionAPI.LinearAbsoluteXY(GlobalManager.Current._Agm800.controller, 100000, 100000, 50000, 20000);
-            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
-
-            delta = GlobalManager.Current.current_ZuZhuang_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 2;
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
 
             //触发 UI 动画
             OnStopStep2?.Invoke();
-
-            GlobalManager.Current.current_Zuzhuang_step = 2;
 
             return true;
         }
@@ -144,16 +134,12 @@ namespace AkribisFAM.WorkStation
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            AAMotionAPI.LinearAbsoluteXY(GlobalManager.Current._Agm800.controller, 200000, 200000, 50000, 20000);
-            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
-
-            delta = GlobalManager.Current.current_ZuZhuang_step3_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 3;
+            //GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
             //触发 UI 动画
             OnStopStep3?.Invoke();
-
-            GlobalManager.Current.current_Zuzhuang_step = 3;
 
             return true;
         }
@@ -165,14 +151,14 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep4?.Invoke();
 
             System.Threading.Thread.Sleep(1000);
-            
-            delta = GlobalManager.Current.current_ZuZhuang_step4_state == true ? 0 : 999999;
 
-            Wait(delta);
+            GlobalManager.Current.current_Zuzhuang_step = 4;
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
             //触发 UI 动画
             OnStopStep4?.Invoke();
 
-            GlobalManager.Current.current_Zuzhuang_step = 4;
 
             return true;
         }
@@ -185,16 +171,30 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
                     step1:
-                        if (!Step1()) continue;
-
+                        bool ret = Step1();
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
+                        if (!ret) continue;
                     step2:
                         Step2();
-
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                     step3:
                         Step3();
-
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                     step4:
                         Step4();
+                        if (GlobalManager.Current.Zuzhuang_exit)
+                        {
+                            break;
+                        }
                         if (GlobalManager.Current.IsPass)
                         {
                             goto step2;
