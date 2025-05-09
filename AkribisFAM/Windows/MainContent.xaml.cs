@@ -240,7 +240,7 @@ namespace AkribisFAM.Windows
         {
             if (AutorunManager.Current.isRunning == true)
             {
-                GlobalManager.Current.laiLiaoIO[(int)IO.LaiLiao_BoardIn] = true;
+                GlobalManager.Current.IOTable[(int)IO.LaiLiao_BoardIn] = true;
             }
         }
         private void StopZuZhuang_Click(object sender, RoutedEventArgs e)

@@ -70,12 +70,12 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO index)
         {
-            return GlobalManager.Current.laiLiaoIO[(int)index];
+            return GlobalManager.Current.IOTable[(int)index];
         }
 
         public void SetIO(IO index ,bool value)
         {
-            GlobalManager.Current.laiLiaoIO[(int)index] = value;
+            GlobalManager.Current.IOTable[(int)index] = value;
         }
 
         public int ScanBarcode()
@@ -134,7 +134,7 @@ namespace AkribisFAM.WorkStation
                 switch (type)
                 {
                     case 2: 
-                        while (ScanBarcode() == 1) ;
+                        while (ScanBarcode() == 1);
                         break;
 
                     case 4:
@@ -165,7 +165,7 @@ namespace AkribisFAM.WorkStation
                 StopConveyor();
 
                 //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                //SetIO(IO.LaiLiao_BoardIn ,false);
+                SetIO(IO.LaiLiao_BoardIn, false);
 
                 board_count += 1;
 
@@ -265,7 +265,7 @@ namespace AkribisFAM.WorkStation
             WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
 
             //气缸放气，降低顶升
-            SetIO(IO.LaiLiao_QiGang, true);
+            SetIO(IO.LaiLiao_QiGang, false);
 
             SetIO(IO.LaiLiao_DingSheng ,false);
 

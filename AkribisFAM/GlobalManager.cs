@@ -45,10 +45,19 @@ namespace AkribisFAM
         public bool hive_Result { get; set; }
 
         public bool IsPause { get; set; }
+
+        //是否已经拍了pallete拼盘
         public bool has_XueWeiXinXi { get; set; }
 
+        //当前有多少组装到pallete里面
         public int current_Assembled { get; set; }
+
+        //当前吸嘴上吸了多少foam
         public int current_FOAM_Count { get; set; }
+
+        public int BadFoamCount { get; set; }
+
+        //总共需要安装的穴位总数
         public int total_Assemble_Count { get; set; }
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
@@ -141,7 +150,7 @@ namespace AkribisFAM
             Total,
         }
 
-        public bool[] laiLiaoIO = new bool[(int)IO.Total];
+        public bool[] IOTable = new bool[(int)IO.Total];
 
         #endregion
 
