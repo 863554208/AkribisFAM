@@ -144,6 +144,7 @@
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
     <Compile Include="ShareValues.cs" />
+    <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="ViewModel\ColorChangeViewModel.cs" />
