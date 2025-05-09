@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AkribisFAM.WorkStation;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.Manager
 {
@@ -108,5 +109,70 @@ namespace AkribisFAM.Manager
 
         }
 
+        public int WaitIO(int[] IOarr, int size)
+        {
+            int timeout = 30000; //30s
+            DateTime startTime = DateTime.Now;
+
+            int cnt = 0;
+
+            while (true)
+            {
+                cnt++;
+                if (cnt == 300) {
+                    GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_JianSu] = 1;
+                }
+                int judge = 0;
+                for (int i = 0; i < size; ++i)
+                {
+                    judge += GlobalManager.Current.lailiaoIO[IOarr[i]];
+                }
+                if(judge == size)
+                {
+                    return 0;
+                }
+
+                TimeSpan elapsed = DateTime.Now - startTime;
+                double remaining = timeout - elapsed.TotalMilliseconds;
+
+                if (remaining <= 0)
+                {
+                    return 1;
+                }
+
+                Thread.Sleep(10);
+            }
+
+        }
+
+        public int WaitMessage(string sendmessage)
+        {
+            int timeout = 30000; //30s
+            DateTime startTime = DateTime.Now;
+
+            int cnt = 0;
+            while (true)
+            {
+                //if(sendMessage(sendmessage) == 1)
+                //{
+                //    return 0;
+                //}
+                cnt++;
+                if (cnt == 300)
+                {
+                    return 0;
+                }
+
+                TimeSpan elapsed = DateTime.Now - startTime;
+                double remaining = timeout - elapsed.TotalMilliseconds;
+
+                if (remaining <= 0)
+                {
+                    return 1;
+                }
+
+                Thread.Sleep(10);
+            }
+        }
     }
 }

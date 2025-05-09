@@ -71,11 +71,11 @@ namespace AkribisFAM.WorkStation
 
         public void WaitConveyor(int index)
         {
-            bool IO_Signal = GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_BoardIn];
+            int IO_Signal = GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_BoardIn];
 
             //让皮带动
 
-            while (IO_Signal)
+            while (IO_Signal == 1)
             {
                 Thread.Sleep(50);
             }
@@ -87,7 +87,7 @@ namespace AkribisFAM.WorkStation
         {
             if (GlobalManager.Current.IO_test1 == true && board_count == 0)
             {
-                GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_QiGang] = true;
+                GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_QiGang] = 1;
 
                 //TODO 让皮带转直到到达板位
                 WaitConveyor((int)Input.LaiLiao_BoardIn);
@@ -122,19 +122,23 @@ namespace AkribisFAM.WorkStation
         public bool Step1()
         {            
             Console.WriteLine("LaiLiao.Current.Step1()");
-
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-
+            GlobalManager.Current.current_Lailiao_step = 1;
+            GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_JianSu] = 0;
             //进板
             if (!BoradIn()) 
                 return false;
 
-            Thread.Sleep(1000);
+            //触发 UI 动画
+            OnTriggerStep1?.Invoke();
+            //Thread.Sleep(1000);
 
-            CheckState();
+            //int ret = move(200);
+            int[] IOarr = new int[1] { (int)Input.LaiLiao_JianSu };
+            int ret = WarningManager.Current.WaitIO(IOarr, 1);
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = ret;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
 
-            GlobalManager.Current.current_Lailiao_step = 1;
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
@@ -152,13 +156,16 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep2?.Invoke();
 
             //扫码
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
 
+            
+
+            int ret = WarningManager.Current.WaitMessage("saoma");
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = ret;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
             //触发 UI 动画
             OnStopStep2?.Invoke();
-
-            CheckState();
-
             return true;
         }
 
@@ -169,7 +176,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Lailiao_step = 3;
 
             //顶升
-            GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = true;
+            GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = 1;
 
             CheckState();
 

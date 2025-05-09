@@ -89,28 +89,6 @@ namespace AkribisFAM
         public int[] Zuzhuang_delta = new int[Zuzhuang_stepnum];
         public int[] FuJian_delta = new int[FuJian_stepnum];
 
-       
-
-        //public bool current_Lailiao_step1_state = true;
-        //public bool current_Lailiao_step2_state = true;
-        //public bool current_Lailiao_step3_state = true;
-        //public bool current_Lailiao_step4_state = true;
-
-        //public bool current_ZuZhuang_step1_state = true;
-        //public bool current_ZuZhuang_step2_state = true;
-        //public bool current_ZuZhuang_step3_state = true;
-        //public bool current_ZuZhuang_step4_state = true;
-
-        //public bool current_FuJian_step1_state = true;
-        //public bool current_FuJian_step2_state = true;
-        //public bool current_FuJian_step3_state = true;
-        //public bool current_FuJian_step4_state = true;
-
-        //public int[] temp = new int[] { 1, 2, 3, 4, };
-
-        //public bool step1_enabled;
-        //public bool step2_enabled;
-        //public bool step3_enabled;
         public bool IsPass { get; set; }
 
         #endregion
@@ -129,7 +107,7 @@ namespace AkribisFAM
             Total,
         }
 
-        public bool[] lailiaoIO = new bool[(int)Input.Total];
+        public int[] lailiaoIO = new int[(int)Input.Total];
 
         #endregion
 
