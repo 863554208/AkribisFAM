@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AAMotion;
 using AkribisFAM.Manager;
 
 namespace AkribisFAM.WorkStation
@@ -222,7 +223,7 @@ namespace AkribisFAM.WorkStation
                 //        GlobalManager.Current.total_Assemble_Count = 12;
                 //        GlobalManager.Current.current_Assembled = 0;
                 //        GlobalManager.Current.current_FOAM_Count = 0;
-                //        while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
+                //        while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count)
                 //        {
                 //            if (GlobalManager.Current.current_FOAM_Count == 0)
                 //            {
@@ -241,7 +242,7 @@ namespace AkribisFAM.WorkStation
                 //                //TODO 吸嘴吸取飞达上的4个料
 
                 //                //现在吸嘴上实际吸了4个料
-                //                GlobalManager.Current.current_FOAM_Count += 4; 
+                //                GlobalManager.Current.current_FOAM_Count += 4;
                 //            }
 
                 //            //TODO 相机到CCD2拍照精定位

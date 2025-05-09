@@ -111,9 +111,13 @@ namespace AkribisFAM
         //    AutorunManager.Current.AutoRunMain();
         //}
 
+
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            Logger.WriteLog("123");
+            //对轴初始化使能 改到登录之后
+            GlobalManager.Current.InitializeAxis();
+
+            Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try
             {
                 // 使用 Task.Run 来异步运行 AutoRunMain
@@ -188,7 +192,7 @@ namespace AkribisFAM
             GlobalManager.Current.current_Lailiao_step = 0;
             GlobalManager.Current.current_Zuzhuang_step = 0;
             GlobalManager.Current.current_FuJian_step = 0;
-            LaiLiao.Current.has_board = false;
+            LaiLiao.Current.board_count = 0;
             ZuZhuang.Current.has_board = false;
             FuJian.Current.has_board = false;
             GlobalManager.Current.Lailiao_exit = false;

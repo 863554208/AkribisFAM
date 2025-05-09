@@ -75,6 +75,11 @@ namespace AkribisFAM
         public bool Lailiao_exit = false;
         public bool Zuzhuang_exit = false;
         public bool FuJian_exit = false;
+        public bool current_Lailiao_step1_state = true;
+        public bool current_Lailiao_step2_state = true;
+        public bool current_Lailiao_step3_state = true;
+        public bool current_Lailiao_step4_state = true;
+        public bool current_Lailiao_step5_state = true;
 
         const int Lailiao_stepnum = 4;
         const int Zuzhuang_stepnum = 5;
@@ -112,6 +117,24 @@ namespace AkribisFAM
         //public bool step2_enabled;
         //public bool step3_enabled;
         public bool IsPass { get; set; }
+
+        #endregion
+
+        #region 全局IO信号
+
+        public enum Input
+        {
+            None = 0,
+            LaiLiao_BoardIn,
+            LaiLiao_QiGang,
+            LaiLiao_JianSu,
+            LaiLiao_DingSheng,
+            LaiLiao_BoardOut,
+
+            Total,
+        }
+
+        public bool[] lailiaoIO = new bool[(int)Input.Total];
 
         #endregion
 
@@ -254,5 +277,36 @@ namespace AkribisFAM
         //    };
         //    _errorCheckTimer.Start();
         //}
+        // 可选：终止运行
+        //            AutorunManager.Current.isRunning = false;
+        //        }
+        //    };
+        //    _errorCheckTimer.Start();
+        //}
+
+        public void InitializeAxis()
+        {
+            try
+            {
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotorOn = 1;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotorOn = 1;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotorOn = 1;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotorOn = 1;
+
+
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
+                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotionMode = 11;
+
+                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
+                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.ToString());
+            }
+
+        }
     }
 }

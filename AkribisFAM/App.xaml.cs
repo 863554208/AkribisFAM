@@ -34,9 +34,6 @@ namespace AkribisFAM
             //在启动程序时就开始跟AGM800的通信
             StartConnectAGM800();
 
-            //对轴初始化使能 改到登录之后
-            InitializeAxis();
-
 
             if (new LoginViewModel().ShowDialog() == true)
             {
@@ -81,30 +78,6 @@ namespace AkribisFAM
             }
         }
 
-        private void InitializeAxis()
-        {
-            try
-            {
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotorOn = 1;
-
-
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotionMode = 11;
-
-                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
-            }
-            catch(Exception ex)
-            {
-                Trace.WriteLine(ex.ToString());
-            }
-
-        }
 
     }
 }

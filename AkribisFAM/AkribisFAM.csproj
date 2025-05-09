@@ -327,9 +327,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Windows\001.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Windows\641.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
 {
@@ -30,7 +31,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
 
-        public bool has_board = false;
+        public int board_count = 0;
         int delta = 0;
 
 
@@ -67,12 +68,32 @@ namespace AkribisFAM.WorkStation
         }
 
 
+        public void WaitConveyor(int index)
+        {
+            bool IO_Signal = GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_BoardIn];
+
+            //让皮带动
+
+            while (IO_Signal)
+            {
+                Thread.Sleep(50);
+            }
+
+            //让皮带停止移动
+        }
+
         public bool BoradIn()
         {
-            if (GlobalManager.Current.IO_test1 == true && has_board == false)
+            if (GlobalManager.Current.IO_test1 == true && board_count == 0)
             {
+                GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_QiGang] = true;
+
+                //TODO 让皮带转直到到达板位
+                WaitConveyor((int)Input.LaiLiao_BoardIn);
+
                 GlobalManager.Current.IO_test1 = false;
-                has_board = true;
+                board_count += 1;
+
                 return true;
             }
             else
@@ -84,33 +105,25 @@ namespace AkribisFAM.WorkStation
 
         public void Boardout()
         {
-            has_board = false;
+            WaitConveyor((int)Input.LaiLiao_BoardOut);
+
+            board_count -= 1;
             GlobalManager.Current.IO_test2 = true;
         }
 
         public bool Step1()
-        {
+        {            
             Console.WriteLine("LaiLiao.Current.Step1()");
 
+            //进板
             if(!BoradIn()) 
                 return false;
 
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
-
-            GlobalManager.Current.current_Lailiao_step = 1;
             GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
             GlobalManager.Current.Lailiao_CheckState();
-            Console.WriteLine("Lailiao_step1");
-
             WarningManager.Current.WaitLaiLiao();
 
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
-
+            GlobalManager.Current.current_Lailiao_step = 1;
 
             return true;
         }
@@ -119,19 +132,14 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step2()");
 
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
+            //扫码
+            Thread.Sleep(100);
 
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
             GlobalManager.Current.current_Lailiao_step = 2;
+
             GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
             GlobalManager.Current.Lailiao_CheckState();
-            Console.WriteLine("Lailiao_step2");
-
             WarningManager.Current.WaitLaiLiao();
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
 
             return true;
         }
@@ -140,21 +148,43 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
 
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
+            //顶升
+            GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = true;
 
-            //用thread.sleep模拟实际生成动作
-            Thread.Sleep(1000);
-            GlobalManager.Current.current_Lailiao_step = 3;
             GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
             GlobalManager.Current.Lailiao_CheckState();
-            Console.WriteLine("Lailiao_step3");
-
             WarningManager.Current.WaitLaiLiao();
 
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
+            GlobalManager.Current.current_Lailiao_step = 4;
 
+            return true;
+        }
+
+        public bool Step4()
+        {
+            Console.WriteLine("LaiLiao.Current.Step4()");
+
+            //激光测距
+            Thread.Sleep(100);
+
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
+
+            GlobalManager.Current.current_Lailiao_step = 4;
+
+            return true;
+        }
+
+        public bool Step5()
+        {
+            Console.WriteLine("LaiLiao.Current.Step5()");
+
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
+
+            GlobalManager.Current.current_Lailiao_step = 5;
 
             return true;
         }
@@ -173,6 +203,7 @@ namespace AkribisFAM.WorkStation
                             break;
                         }
                         if (!ret) continue;
+
                     step2: Step2();
                         if (GlobalManager.Current.Lailiao_exit)
                         {
@@ -183,76 +214,89 @@ namespace AkribisFAM.WorkStation
                         {
                             break;
                         }
+
+                    step4: Step4();
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
+
+                    step5: Step5();
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
+                        //出板
                         Boardout();
-                        #region 老代码
-                        //if (GlobalManager.Current.lailiao_ChuFaJinBan)
-                        //{
-                        //    //TODO 执行进板
-                        //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
+                    #region 老代码
+                    //if (GlobalManager.Current.lailiao_ChuFaJinBan)
+                    //{
+                    //    //TODO 执行进板
+                    //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
 
 
-                        //    WorkState = 1; 
-                        //    has_board = true; 
-                        //    Console.WriteLine("检测到进板信号，已进板");
-                        //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
-                        //}
+                    //    WorkState = 1;
+                    //    has_board = true;
+                    //    Console.WriteLine("检测到进板信号，已进板");
+                    //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
+                    //}
 
-                        //// 处理板
-                        //if (has_board && WorkState == 1)
-                        //{
-                        //    try
-                        //    {
-                        //        //执行完才能改变workstatiion
-                        //        WorkState = 2;
+                    //// 处理板
+                    //if (has_board && WorkState == 1)
+                    //{
+                    //    try
+                    //    {
+                    //        //执行完才能改变workstatiion
+                    //        WorkState = 2;
 
-                        //        //TODO 扫码枪扫码
-                        //        System.Threading.Thread.Sleep(1000);
-                        //        OnJinBanExecuted?.Invoke();
-                        //        GlobalManager.Current.lailiao_SaoMa = true;
-                        //        Console.WriteLine("扫码枪扫码已完成");
+                    //        //TODO 扫码枪扫码
+                    //        System.Threading.Thread.Sleep(1000);
+                    //        OnJinBanExecuted?.Invoke();
+                    //        GlobalManager.Current.lailiao_SaoMa = true;
+                    //        Console.WriteLine("扫码枪扫码已完成");
 
-                        //        bool asd = false;
-                        //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                        //        if (asd)
-                        //        {
-                        //            GlobalManager.Current.hive_Result = false;
-                        //        }
-                        //        else
-                        //        {
-                        //            //TODO 基恩士激光测距
-                        //            System.Threading.Thread.Sleep(1000);
-                        //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                        //            OnLaserExecuted.Invoke();
-                        //            Console.WriteLine("激光测距已完成");
-                        //        }
+                    //        bool asd = false;
+                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
+                    //        if (asd)
+                    //        {
+                    //            GlobalManager.Current.hive_Result = false;
+                    //        }
+                    //        else
+                    //        {
+                    //            //TODO 基恩士激光测距
+                    //            System.Threading.Thread.Sleep(1000);
+                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
+                    //            OnLaserExecuted.Invoke();
+                    //            Console.WriteLine("激光测距已完成");
+                    //        }
 
-                        //        WorkState = 3; // 更新状态为出板
-                        //    }
-                        //    catch (Exception ex)
-                        //    {
-                        //        has_error = true; // 标记为出错
-                        //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                        //    }
-                        //}
+                    //        WorkState = 3; // 更新状态为出板
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        has_error = true; // 标记为出错
+                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
+                    //    }
+                    //}
 
-                        //// 出板
-                        //if (WorkState == 3 || has_error)
-                        //{                       
-                        //    if (has_error)
-                        //    {
-                        //        AutorunManager.Current.isRunning = false;
-                        //    }
-                        //    System.Threading.Thread.Sleep(1000);
-                        //    OnMovePalleteExecuted.Invoke();
-                        //    WorkState = 0; 
-                        //    has_board = false;
-                        //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
-                        //    GlobalManager.Current.IO_test2 = true;
-                        //}
+                    //// 出板
+                    //if (WorkState == 3 || has_error)
+                    //{
+                    //    if (has_error)
+                    //    {
+                    //        AutorunManager.Current.isRunning = false;
+                    //    }
+                    //    System.Threading.Thread.Sleep(1000);
+                    //    OnMovePalleteExecuted.Invoke();
+                    //    WorkState = 0;
+                    //    has_board = false;
+                    //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
+                    //    GlobalManager.Current.IO_test2 = true;
+                    //}
 
-                        #endregion
+                    #endregion
 
-                        System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(100);
                         }
             }
             catch (Exception ex)
