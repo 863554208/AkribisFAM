@@ -277,12 +277,12 @@ namespace AkribisFAM
         //    };
         //    _errorCheckTimer.Start();
         //}
-                    // 可选：终止运行
-                    AutorunManager.Current.isRunning = false;
-                }
-            };
-            _errorCheckTimer.Start();
-        }
+        // 可选：终止运行
+        //            AutorunManager.Current.isRunning = false;
+        //        }
+        //    };
+        //    _errorCheckTimer.Start();
+        //}
 
         public void InitializeAxis()
         {

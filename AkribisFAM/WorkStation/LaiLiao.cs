@@ -31,7 +31,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
 
-        int board_count = 0;
+        public int board_count = 0;
         int delta = 0;
 
 
@@ -119,8 +119,8 @@ namespace AkribisFAM.WorkStation
             if(!BoradIn()) 
                 return false;
 
-            delta = GlobalManager.Current.current_Lailiao_step1_state == true ? 0 : 999999;
-
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
             WarningManager.Current.WaitLaiLiao();
 
             GlobalManager.Current.current_Lailiao_step = 1;
@@ -137,9 +137,9 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 2;
 
-            delta = GlobalManager.Current.current_Lailiao_step2_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
 
             return true;
         }
@@ -151,11 +151,9 @@ namespace AkribisFAM.WorkStation
             //顶升
             GlobalManager.Current.lailiaoIO[(int)Input.LaiLiao_DingSheng] = true;
 
-            delta = GlobalManager.Current.current_Lailiao_step4_state == true ? 0 : 999999;
-
-            Wait(delta);
-
-            Boardout();
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
 
             GlobalManager.Current.current_Lailiao_step = 4;
 
@@ -169,9 +167,9 @@ namespace AkribisFAM.WorkStation
             //激光测距
             Thread.Sleep(100);
 
-            delta = GlobalManager.Current.current_Lailiao_step4_state == true ? 0 : 999999;
-
-            Wait(delta);
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
 
             GlobalManager.Current.current_Lailiao_step = 4;
 
@@ -182,12 +180,9 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("LaiLiao.Current.Step5()");
 
-            delta = GlobalManager.Current.current_Lailiao_step5_state == true ? 0 : 999999;
-
-            Wait(delta);
-
-            //出板
-            Boardout();
+            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
 
             GlobalManager.Current.current_Lailiao_step = 5;
 
@@ -208,7 +203,6 @@ namespace AkribisFAM.WorkStation
                             break;
                         }
                         if (!ret) continue;
-                    step1: if (!Step1()) continue;
 
                     step2: Step2();
                         if (GlobalManager.Current.Lailiao_exit)
@@ -216,11 +210,24 @@ namespace AkribisFAM.WorkStation
                             break;
                         }
                     step3: Step3();
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
 
                     step4: Step4();
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
 
                     step5: Step5();
-
+                        if (GlobalManager.Current.Lailiao_exit)
+                        {
+                            break;
+                        }
+                        //出板
+                        Boardout();
                     #region 老代码
                     //if (GlobalManager.Current.lailiao_ChuFaJinBan)
                     //{
@@ -234,43 +241,43 @@ namespace AkribisFAM.WorkStation
                     //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
                     //}
 
-                        //// 处理板
-                        //if (has_board && WorkState == 1)
-                        //{
-                        //    try
-                        //    {
-                        //        //执行完才能改变workstatiion
-                        //        WorkState = 2;
+                    //// 处理板
+                    //if (has_board && WorkState == 1)
+                    //{
+                    //    try
+                    //    {
+                    //        //执行完才能改变workstatiion
+                    //        WorkState = 2;
 
-                        //        //TODO 扫码枪扫码
-                        //        System.Threading.Thread.Sleep(1000);
-                        //        OnJinBanExecuted?.Invoke();
-                        //        GlobalManager.Current.lailiao_SaoMa = true;
-                        //        Console.WriteLine("扫码枪扫码已完成");
+                    //        //TODO 扫码枪扫码
+                    //        System.Threading.Thread.Sleep(1000);
+                    //        OnJinBanExecuted?.Invoke();
+                    //        GlobalManager.Current.lailiao_SaoMa = true;
+                    //        Console.WriteLine("扫码枪扫码已完成");
 
-                        //        bool asd = false;
-                        //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                        //        if (asd)
-                        //        {
-                        //            GlobalManager.Current.hive_Result = false;
-                        //        }
-                        //        else
-                        //        {
-                        //            //TODO 基恩士激光测距
-                        //            System.Threading.Thread.Sleep(1000);
-                        //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                        //            OnLaserExecuted.Invoke();
-                        //            Console.WriteLine("激光测距已完成");
-                        //        }
+                    //        bool asd = false;
+                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
+                    //        if (asd)
+                    //        {
+                    //            GlobalManager.Current.hive_Result = false;
+                    //        }
+                    //        else
+                    //        {
+                    //            //TODO 基恩士激光测距
+                    //            System.Threading.Thread.Sleep(1000);
+                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
+                    //            OnLaserExecuted.Invoke();
+                    //            Console.WriteLine("激光测距已完成");
+                    //        }
 
-                        //        WorkState = 3; // 更新状态为出板
-                        //    }
-                        //    catch (Exception ex)
-                        //    {
-                        //        has_error = true; // 标记为出错
-                        //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                        //    }
-                        //}
+                    //        WorkState = 3; // 更新状态为出板
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        has_error = true; // 标记为出错
+                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
+                    //    }
+                    //}
 
                     //// 出板
                     //if (WorkState == 3 || has_error)
@@ -287,9 +294,9 @@ namespace AkribisFAM.WorkStation
                     //    GlobalManager.Current.IO_test2 = true;
                     //}
 
-                        #endregion
+                    #endregion
 
-                        System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(100);
                         }
             }
             catch (Exception ex)

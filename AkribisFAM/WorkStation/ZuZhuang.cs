@@ -206,103 +206,103 @@ namespace AkribisFAM.WorkStation
                 }
 
                 #region 老代码
-                if (GlobalManager.Current.IO_test2 && !has_board)
-                {
-                    WorkState = 1;
-                    has_board = true;
-                    GlobalManager.Current.IO_test2 = false;
-                    Console.WriteLine("贴膜工位板已进");
-                }
+                //if (GlobalManager.Current.IO_test2 && !has_board)
+                //{
+                //    WorkState = 1;
+                //    has_board = true;
+                //    GlobalManager.Current.IO_test2 = false;
+                //    Console.WriteLine("贴膜工位板已进");
+                //}
 
-                // 处理板
-                if (has_board && WorkState == 1)
-                {
-                    try
-                    {
-                        WorkState = 2;
-                        GlobalManager.Current.total_Assemble_Count = 12;
-                        GlobalManager.Current.current_Assembled = 0;
-                        GlobalManager.Current.current_FOAM_Count = 0;
-                        while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count)
-                        {
-                            if (GlobalManager.Current.current_FOAM_Count == 0)
-                            {
-                                //TODO 相机拍飞达上的料
-                                OnZuZhuangExecuted_2?.Invoke();
-                                while (!GlobalManager.Current.CCD1InPosition)
-                                {
-                                    Thread.Sleep(300);
-                                }
-                                OnZuZhuangExecuted_1?.Invoke();
-                                while (!GlobalManager.Current.Feedar1Captured)
-                                {
-                                    Thread.Sleep(300);
-                                }
-                                Console.WriteLine("已拍飞达上的料");
-                                //TODO 吸嘴吸取飞达上的4个料
+                //// 处理板
+                //if (has_board && WorkState == 1)
+                //{
+                //    try
+                //    {
+                //        WorkState = 2;
+                //        GlobalManager.Current.total_Assemble_Count = 12;
+                //        GlobalManager.Current.current_Assembled = 0;
+                //        GlobalManager.Current.current_FOAM_Count = 0;
+                //        while (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count)
+                //        {
+                //            if (GlobalManager.Current.current_FOAM_Count == 0)
+                //            {
+                //                //TODO 相机拍飞达上的料
+                //                OnZuZhuangExecuted_2?.Invoke();
+                //                while (!GlobalManager.Current.CCD1InPosition)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                OnZuZhuangExecuted_1?.Invoke();
+                //                while (!GlobalManager.Current.Feedar1Captured)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                Console.WriteLine("已拍飞达上的料");
+                //                //TODO 吸嘴吸取飞达上的4个料
 
-                                //现在吸嘴上实际吸了4个料
-                                GlobalManager.Current.current_FOAM_Count += 4;
-                            }
+                //                //现在吸嘴上实际吸了4个料
+                //                GlobalManager.Current.current_FOAM_Count += 4;
+                //            }
 
-                            //TODO 相机到CCD2拍照精定位
+                //            //TODO 相机到CCD2拍照精定位
 
-                            OnZuZhuangExecuted_3?.Invoke();
-                            while (!GlobalManager.Current.CCD2Captured)
-                            {
-                                Thread.Sleep(300);
-                            }
-                            Console.WriteLine("已拍CCD2上的料");
+                //            OnZuZhuangExecuted_3?.Invoke();
+                //            while (!GlobalManager.Current.CCD2Captured)
+                //            {
+                //                Thread.Sleep(300);
+                //            }
+                //            Console.WriteLine("已拍CCD2上的料");
 
-                            if (!GlobalManager.Current.has_XueWeiXinXi)
-                            {
-                                //TODO 对料盘拍照获取穴位信息
+                //            if (!GlobalManager.Current.has_XueWeiXinXi)
+                //            {
+                //                //TODO 对料盘拍照获取穴位信息
 
-                                OnZuZhuangExecuted_4?.Invoke();
-                                while (!GlobalManager.Current.MoveToLiaopan)
-                                {
-                                    Thread.Sleep(300);
-                                }
-                                OnZuZhuangExecuted_5?.Invoke();
-                                while (!GlobalManager.Current.GrabLiaoPan)
-                                {
-                                    Thread.Sleep(300);
-                                }
-                            }
+                //                OnZuZhuangExecuted_4?.Invoke();
+                //                while (!GlobalManager.Current.MoveToLiaopan)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //                OnZuZhuangExecuted_5?.Invoke();
+                //                while (!GlobalManager.Current.GrabLiaoPan)
+                //                {
+                //                    Thread.Sleep(300);
+                //                }
+                //            }
 
-                            //TODO 组装
+                //            //TODO 组装
 
-                            //目前料盘上组装了多少料
-                            GlobalManager.Current.current_Assembled += 4;
+                //            //目前料盘上组装了多少料
+                //            GlobalManager.Current.current_Assembled += 4;
 
-                            //吸嘴上现在有多少foam（减去实际贴上去的料的数量） ： 如果没有foam，下一片板子走正常流程 ；如果有foam , 不再拍feeder上的料的图片
-                            GlobalManager.Current.current_FOAM_Count -= 4;
+                //            //吸嘴上现在有多少foam（减去实际贴上去的料的数量） ： 如果没有foam，下一片板子走正常流程 ；如果有foam , 不再拍feeder上的料的图片
+                //            GlobalManager.Current.current_FOAM_Count -= 4;
 
-                            Thread.Sleep(300);
+                //            Thread.Sleep(300);
 
-                        }
+                //        }
 
-                        WorkState = 3; // 更新状态为出板
-                    }
-                    catch (Exception ex)
-                    {
-                        has_error = true; // 标记为出错
-                    }
-                }
+                //        WorkState = 3; // 更新状态为出板
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        has_error = true; // 标记为出错
+                //    }
+                //}
 
-                // 出板
-                if (WorkState == 3 || has_error)
-                {
-                    if (has_error)
-                    {
-                        AutorunManager.Current.isRunning = false;
-                    }
+                //// 出板
+                //if (WorkState == 3 || has_error)
+                //{
+                //    if (has_error)
+                //    {
+                //        AutorunManager.Current.isRunning = false;
+                //    }
 
-                    WorkState = 0;
-                    has_board = false;
-                    Console.WriteLine("组装工位板已出");
-                }
-                System.Threading.Thread.Sleep(100);
+                //    WorkState = 0;
+                //    has_board = false;
+                //    Console.WriteLine("组装工位板已出");
+                //}
+                //System.Threading.Thread.Sleep(100);
                 #endregion
             }
             catch (Exception ex)
