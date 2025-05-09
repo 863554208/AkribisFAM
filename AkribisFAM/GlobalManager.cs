@@ -75,13 +75,8 @@ namespace AkribisFAM
         public bool Lailiao_exit = false;
         public bool Zuzhuang_exit = false;
         public bool FuJian_exit = false;
-        public bool current_Lailiao_step1_state = true;
-        public bool current_Lailiao_step2_state = true;
-        public bool current_Lailiao_step3_state = true;
-        public bool current_Lailiao_step4_state = true;
-        public bool current_Lailiao_step5_state = true;
 
-        const int Lailiao_stepnum = 4;
+        const int Lailiao_stepnum = 5;
         const int Zuzhuang_stepnum = 5;
         const int FuJian_stepnum = 4;
         public int Pausetime = 999999;
