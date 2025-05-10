@@ -294,9 +294,13 @@ namespace AkribisFAM.WorkStation
 
                     step3: Step3();
                         if (GlobalManager.Current.Lailiao_exit) break;
+                        GlobalManager.Current.currentLasered = 0;
 
                     step4: Step4();
+                        //
                         if (GlobalManager.Current.Lailiao_exit) break;
+                        if (GlobalManager.Current.currentLasered < 48)   goto step4;
+                        
 
                     //出板
                     Boardout();

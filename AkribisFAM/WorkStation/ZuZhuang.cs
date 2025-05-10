@@ -99,6 +99,8 @@ namespace AkribisFAM.WorkStation
         }
         public void BoardOut()
         {
+            SetIO(IO.ZuZhuang_BoardOut, true);
+
             //出板时将穴位信息清空
             GlobalManager.Current.has_XueWeiXinXi = false;
 
@@ -136,7 +138,6 @@ namespace AkribisFAM.WorkStation
         {
             //这里要改成实际吸取了多少料
             GlobalManager.Current.current_FOAM_Count += 4;
-            
             return 0;
         }
 

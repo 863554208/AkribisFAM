@@ -194,7 +194,7 @@ namespace AkribisFAM
             GlobalManager.Current.current_FuJian_step = 0;
             LaiLiao.Current.board_count = 0;
             //ZuZhuang.Current.has_board = false;
-            FuJian.Current.has_board = false;
+            //FuJian.Current.has_board = false;
             GlobalManager.Current.Lailiao_exit = false;
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
