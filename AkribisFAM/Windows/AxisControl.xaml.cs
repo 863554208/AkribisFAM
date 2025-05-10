@@ -40,6 +40,7 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
             _axisDic = new AxisIntegerToStringDic();
+            _currentAxis = 1;
         }
 
         private void Axis_Click(object sender, RoutedEventArgs e)
@@ -88,6 +89,7 @@ namespace AkribisFAM.Windows
                 }
             }
 
+            //设置脉冲触发的位置
             AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 70000, 1, null, null);
         }
 
@@ -108,6 +110,8 @@ namespace AkribisFAM.Windows
                 }
             }
         }
+
+
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
@@ -203,7 +207,9 @@ namespace AkribisFAM.Windows
                     GlobalManager.Current._Agm800.controller.GetAxis(axisRef).Stop();
                 }
             }
+
         }
+        
 
         private void ReturnToZero_Click(object sender, RoutedEventArgs e)
         {
@@ -221,15 +227,12 @@ namespace AkribisFAM.Windows
                     MessageBox.Show("轴使能报错 :" + ex.Message);
                 }
             }
-        }
-      
+        }      
 
         private void AxiscomboBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
 
         }
-
-
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
