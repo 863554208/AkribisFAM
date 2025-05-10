@@ -73,7 +73,7 @@ namespace AkribisFAM.WorkStation
             return GlobalManager.Current.laiLiaoIO[(int)index];
         }
 
-        public void SetIO(IO index ,bool value)
+        public void SetIO(IO index, bool value)
         {
             GlobalManager.Current.laiLiaoIO[(int)index] = value;
         }
@@ -107,7 +107,7 @@ namespace AkribisFAM.WorkStation
             return boolValues.Select(b => b ? 1 : 0).ToArray();
         }
 
-        public void WaitConveyor(int delta, IO[] IOarr , int type)
+        public void WaitConveyor(int delta, IO[] IOarr, int type)
         {
             DateTime time = DateTime.Now;
 
@@ -122,7 +122,7 @@ namespace AkribisFAM.WorkStation
                         judge += res;
                     }
 
-                    if (judge > 0) 
+                    if (judge > 0)
                     {
                         break;
                     }
@@ -133,12 +133,12 @@ namespace AkribisFAM.WorkStation
             {
                 switch (type)
                 {
-                    case 2: 
+                    case 2:
                         while (ScanBarcode() == 1) ;
                         break;
 
                     case 4:
-                        while(LaserHeight() ==1); 
+                        while (LaserHeight() == 1) ;
                         break;
                 }
             }
@@ -148,15 +148,15 @@ namespace AkribisFAM.WorkStation
         public bool BoradIn()
         {
             if (ReadIO(IO.LaiLiao_BoardIn) && board_count == 0)
-            {                
+            {
                 //传送带高速移动
                 MoveConveyor(200);
 
-                IO[] IOArray = new IO[]{IO.LaiLiao_JianSu };
+                IO[] IOArray = new IO[] { IO.LaiLiao_JianSu };
                 WaitConveyor(9999, IOArray, 0);
 
                 //顶板气缸上气
-                SetIO(IO.LaiLiao_QiGang ,true);
+                SetIO(IO.LaiLiao_QiGang, true);
 
                 //传送带减速
                 MoveConveyor(100);
@@ -165,7 +165,7 @@ namespace AkribisFAM.WorkStation
                 StopConveyor();
 
                 //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                //SetIO(IO.LaiLiao_BoardIn ,false);
+                SetIO(IO.LaiLiao_BoardIn, false);
 
                 board_count += 1;
 
@@ -181,7 +181,7 @@ namespace AkribisFAM.WorkStation
         public void Boardout()
         {
             //WaitConveyor((int)Input.LaiLiao_BoardOut);
-            SetIO(IO.LaiLiao_BoardOut ,true);
+            SetIO(IO.LaiLiao_BoardOut, true);
             board_count -= 1;
             //模拟给下一个工位发进板信号
             GlobalManager.Current.IO_test2 = true;
@@ -195,11 +195,11 @@ namespace AkribisFAM.WorkStation
         }
 
         public bool Step1()
-        {            
+        {
             Console.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
-            if (!BoradIn()) 
+            if (!BoradIn())
                 return false;
 
             //触发 UI 动画
@@ -207,13 +207,9 @@ namespace AkribisFAM.WorkStation
 
             Thread.Sleep(1000);
 
-            //int ret = move(200);
-            int[] IOarr = new int[1] { (int)Input.LaiLiao_JianSu };
-            int ret = WarningManager.Current.WaitIO(IOarr, 1);
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = ret;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
+            CheckState();
 
+            GlobalManager.Current.current_Lailiao_step = 1;
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
@@ -231,14 +227,13 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep2?.Invoke();
 
             //扫码
-            WaitConveyor( 0,null, GlobalManager.Current.current_Lailiao_step);
+            WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
 
-            int ret = WarningManager.Current.WaitMessage("saoma");
-            GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = ret;
-            GlobalManager.Current.Lailiao_CheckState();
-            WarningManager.Current.WaitLaiLiao();
             //触发 UI 动画
             OnStopStep2?.Invoke();
+
+            CheckState();
+
             return true;
         }
 
@@ -270,9 +265,9 @@ namespace AkribisFAM.WorkStation
             WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
 
             //气缸放气，降低顶升
-            SetIO(IO.LaiLiao_QiGang, true);
+            SetIO(IO.LaiLiao_QiGang, false);
 
-            SetIO(IO.LaiLiao_DingSheng ,false);
+            SetIO(IO.LaiLiao_DingSheng, false);
 
             CheckState();
 
@@ -290,18 +285,18 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
 
-                    step1: bool ret = Step1();
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (!ret) continue;
+                step1: bool ret = Step1();
+                    if (GlobalManager.Current.Lailiao_exit) break;
+                    if (!ret) continue;
 
                     step2: Step2();
-                        if (GlobalManager.Current.Lailiao_exit) break;
+                    if (GlobalManager.Current.Lailiao_exit) break;
 
                     step3: Step3();
-                        if (GlobalManager.Current.Lailiao_exit) break;
+                    if (GlobalManager.Current.Lailiao_exit) break;
 
                     step4: Step4();
-                        if (GlobalManager.Current.Lailiao_exit) break;
+                    if (GlobalManager.Current.Lailiao_exit) break;
 
                     //出板
                     Boardout();
@@ -375,7 +370,7 @@ namespace AkribisFAM.WorkStation
                     #endregion
 
                     System.Threading.Thread.Sleep(100);
-                        }
+                }
             }
             catch (Exception ex)
             {
