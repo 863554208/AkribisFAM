@@ -70,12 +70,12 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO index)
         {
-            return GlobalManager.Current.laiLiaoIO[(int)index];
+            return GlobalManager.Current.IOTable[(int)index];
         }
 
-        public void SetIO(IO index, bool value)
+        public void SetIO(IO index ,bool value)
         {
-            GlobalManager.Current.laiLiaoIO[(int)index] = value;
+            GlobalManager.Current.IOTable[(int)index] = value;
         }
 
         public int ScanBarcode()
@@ -107,7 +107,7 @@ namespace AkribisFAM.WorkStation
             return boolValues.Select(b => b ? 1 : 0).ToArray();
         }
 
-        public void WaitConveyor(int delta, IO[] IOarr, int type)
+        public void WaitConveyor(int delta, IO[] IOarr , int type)
         {
             DateTime time = DateTime.Now;
 
@@ -122,7 +122,7 @@ namespace AkribisFAM.WorkStation
                         judge += res;
                     }
 
-                    if (judge > 0)
+                    if (judge > 0) 
                     {
                         break;
                     }
@@ -133,12 +133,12 @@ namespace AkribisFAM.WorkStation
             {
                 switch (type)
                 {
-                    case 2:
-                        while (ScanBarcode() == 1) ;
+                    case 2: 
+                        while (ScanBarcode() == 1);
                         break;
 
                     case 4:
-                        while (LaserHeight() == 1) ;
+                        while(LaserHeight() ==1); 
                         break;
                 }
             }
@@ -148,15 +148,15 @@ namespace AkribisFAM.WorkStation
         public bool BoradIn()
         {
             if (ReadIO(IO.LaiLiao_BoardIn) && board_count == 0)
-            {
+            {                
                 //传送带高速移动
                 MoveConveyor(200);
 
-                IO[] IOArray = new IO[] { IO.LaiLiao_JianSu };
+                IO[] IOArray = new IO[]{IO.LaiLiao_JianSu };
                 WaitConveyor(9999, IOArray, 0);
 
                 //顶板气缸上气
-                SetIO(IO.LaiLiao_QiGang, true);
+                SetIO(IO.LaiLiao_QiGang ,true);
 
                 //传送带减速
                 MoveConveyor(100);
@@ -181,7 +181,7 @@ namespace AkribisFAM.WorkStation
         public void Boardout()
         {
             //WaitConveyor((int)Input.LaiLiao_BoardOut);
-            SetIO(IO.LaiLiao_BoardOut, true);
+            SetIO(IO.LaiLiao_BoardOut ,true);
             board_count -= 1;
             //模拟给下一个工位发进板信号
             GlobalManager.Current.IO_test2 = true;
@@ -195,11 +195,11 @@ namespace AkribisFAM.WorkStation
         }
 
         public bool Step1()
-        {
+        {            
             Console.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
-            if (!BoradIn())
+            if (!BoradIn()) 
                 return false;
 
             //触发 UI 动画
@@ -227,7 +227,7 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep2?.Invoke();
 
             //扫码
-            WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
+            WaitConveyor( 0,null, GlobalManager.Current.current_Lailiao_step);
 
             //触发 UI 动画
             OnStopStep2?.Invoke();
@@ -267,7 +267,7 @@ namespace AkribisFAM.WorkStation
             //气缸放气，降低顶升
             SetIO(IO.LaiLiao_QiGang, false);
 
-            SetIO(IO.LaiLiao_DingSheng, false);
+            SetIO(IO.LaiLiao_DingSheng ,false);
 
             CheckState();
 
@@ -285,18 +285,22 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
 
-                step1: bool ret = Step1();
-                    if (GlobalManager.Current.Lailiao_exit) break;
-                    if (!ret) continue;
+                    step1: bool ret = Step1();
+                        if (GlobalManager.Current.Lailiao_exit) break;
+                        if (!ret) continue;
 
                     step2: Step2();
-                    if (GlobalManager.Current.Lailiao_exit) break;
+                        if (GlobalManager.Current.Lailiao_exit) break;
 
                     step3: Step3();
-                    if (GlobalManager.Current.Lailiao_exit) break;
+                        if (GlobalManager.Current.Lailiao_exit) break;
+                        GlobalManager.Current.currentLasered = 0;
 
                     step4: Step4();
-                    if (GlobalManager.Current.Lailiao_exit) break;
+                        //
+                        if (GlobalManager.Current.Lailiao_exit) break;
+                        if (GlobalManager.Current.currentLasered < 48)   goto step4;
+                        
 
                     //出板
                     Boardout();
@@ -370,7 +374,7 @@ namespace AkribisFAM.WorkStation
                     #endregion
 
                     System.Threading.Thread.Sleep(100);
-                }
+                        }
             }
             catch (Exception ex)
             {

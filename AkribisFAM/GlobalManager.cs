@@ -42,13 +42,25 @@ namespace AkribisFAM
 
         public bool IO_test3 { get; set; }
 
+        public bool IO_test4 { get; set; }
+
         public bool hive_Result { get; set; }
 
         public bool IsPause { get; set; }
+
+        //是否已经拍了pallete拼盘
         public bool has_XueWeiXinXi { get; set; }
 
+        //当前有多少组装到pallete里面
         public int current_Assembled { get; set; }
+
+        //当前吸嘴上吸了多少foam
         public int current_FOAM_Count { get; set; }
+
+        public int currentLasered = 0;
+        public int BadFoamCount { get; set; }
+
+        //总共需要安装的穴位总数
         public int total_Assemble_Count { get; set; }
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
@@ -71,24 +83,51 @@ namespace AkribisFAM
         public int current_Lailiao_step = 0;
         public int current_Zuzhuang_step = 0;
         public int current_FuJian_step = 0;
+        public int current_Reject_step = 0;
 
         public bool Lailiao_exit = false;
         public bool Zuzhuang_exit = false;
         public bool FuJian_exit = false;
+        public bool Reject_exit = false;
 
         const int Lailiao_stepnum = 5;
         const int Zuzhuang_stepnum = 5;
         const int FuJian_stepnum = 4;
+        const int Reject_stepnum = 3;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
         public int[] Zuzhuang_state = new int[Zuzhuang_stepnum];
         public int[] FuJian_state = new int[FuJian_stepnum];
+        public int[] Reject_state = new int[Reject_stepnum];
 
         public int[] Lailiao_delta = new int[Lailiao_stepnum];
         public int[] Zuzhuang_delta = new int[Zuzhuang_stepnum];
         public int[] FuJian_delta = new int[FuJian_stepnum];
+        public int[] Reject_delta = new int[Reject_stepnum];
 
+
+
+        //public bool current_Lailiao_step1_state = true;
+        //public bool current_Lailiao_step2_state = true;
+        //public bool current_Lailiao_step3_state = true;
+        //public bool current_Lailiao_step4_state = true;
+
+        //public bool current_ZuZhuang_step1_state = true;
+        //public bool current_ZuZhuang_step2_state = true;
+        //public bool current_ZuZhuang_step3_state = true;
+        //public bool current_ZuZhuang_step4_state = true;
+
+        //public bool current_FuJian_step1_state = true;
+        //public bool current_FuJian_step2_state = true;
+        //public bool current_FuJian_step3_state = true;
+        //public bool current_FuJian_step4_state = true;
+
+        //public int[] temp = new int[] { 1, 2, 3, 4, };
+
+        //public bool step1_enabled;
+        //public bool step2_enabled;
+        //public bool step3_enabled;
         public bool IsPass { get; set; }
 
         #endregion
@@ -116,10 +155,16 @@ namespace AkribisFAM
             FuJian_DingSheng,
             FuJian_BoardOut,
 
+            Reject_BoardIn,
+            Reject_JianSu,
+            Reject_QiGang,
+            Reject_DingSheng,
+            Reject_BoardOut,
+
             Total,
         }
 
-        public bool[] laiLiaoIO = new bool[(int)IO.Total];
+        public bool[] IOTable = new bool[(int)IO.Total];
 
         #endregion
 
@@ -168,6 +213,18 @@ namespace AkribisFAM
             else
             {
                 GlobalManager.Current.FuJian_delta[current_FuJian_step] = Pausetime;
+            }
+        }
+
+        public void Reject_CheckState()
+        {
+            if (GlobalManager.Current.Reject_state[current_Reject_step] == 0)
+            {
+                GlobalManager.Current.Reject_delta[current_Reject_step] = 0;
+            }
+            else
+            {
+                GlobalManager.Current.Reject_delta[current_Reject_step] = Pausetime;
             }
         }
         #region AGM800初始化以及状态显示
