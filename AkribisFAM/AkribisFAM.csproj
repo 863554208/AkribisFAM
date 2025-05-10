@@ -149,6 +149,18 @@
     </ApplicationDefinition>
     <Compile Include="AAmotionFAM\AGM800.cs" />
     <Compile Include="AutorunManager.cs" />
+    <Compile Include="CommunicationProtocol\IOManager.cs" />
+    <Compile Include="CommunicationProtocol\ModbusTCPWorker.cs" />
+    <Compile Include="CommunicationProtocol\StrClass1.cs" />
+    <Compile Include="CommunicationProtocol\Task_AssUpCameraFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_FeedupCameraFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_ITESTCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_MoveImageCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_PrecisionDownCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_RecheckCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_ResetCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
+    <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DB\dbAccess.cs" />
     <Compile Include="DebugParams.cs" />
     <Compile Include="GlobalManager.cs" />
@@ -327,6 +339,9 @@
     <None Include="devices.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="IOPoint.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -353,6 +368,7 @@
   <ItemGroup>
     <Resource Include="Windows\641.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
