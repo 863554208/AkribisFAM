@@ -12,11 +12,11 @@ using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
 {
-    internal class FuJian : WorkStationBase
+    internal class Reject : WorkStationBase
     {
 
-        private static FuJian _instance;
-        public override string Name => nameof(FuJian);
+        private static Reject _instance;
+        public override string Name => nameof(Reject);
 
         public event Action OnTriggerStep1;
         public event Action OnStopStep1;
@@ -28,7 +28,7 @@ namespace AkribisFAM.WorkStation
         int delta = 0;
         public int board_count = 0;
 
-        public static FuJian Current
+        public static Reject Current
         {
             get
             {
@@ -36,7 +36,7 @@ namespace AkribisFAM.WorkStation
                 {
                     if (_instance == null)
                     {
-                        _instance = new FuJian();
+                        _instance = new Reject();
                     }
                 }
                 return _instance;
@@ -59,15 +59,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public bool ReadIO(IO index)
-        {
-            return GlobalManager.Current.IOTable[(int)index];
-        }
-
-        public void SetIO(IO index, bool value)
-        {
-            GlobalManager.Current.IOTable[(int)index] = value;
-        }
 
         public void MoveConveyor(int vel)
         {
@@ -79,58 +70,17 @@ namespace AkribisFAM.WorkStation
             //TODO 停止传送带
         }
 
-        public bool BoardIn()
+        public bool ReadIO(IO index)
         {
-            if (ReadIO(IO.ZuZhuang_BoardIn) && board_count == 0)
-            {
-                //传送带高速移动
-                MoveConveyor(200);
-
-                IO[] IOArray = new IO[] { IO.FuJian_JianSu };
-                WaitConveyor(9999, IOArray, 0);
-
-                //顶板气缸上气
-                SetIO(IO.FuJian_QiGang,true);
-
-                //传送带减速
-                MoveConveyor(100);
-
-                //TODO 这边有没有告诉已经到位的IO信号？
-                StopConveyor();
-
-                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.FuJian_BoardIn, false);
-
-                GlobalManager.Current.IO_test3 = false;
-                board_count += 1;
-                return true;
-            }
-            else
-            {
-                Thread.Sleep(100);
-                return false;
-            }
+            return GlobalManager.Current.IOTable[(int)index];
         }
 
-        public void BoardOut()
+        public void SetIO(IO index, bool value)
         {
-            SetIO(IO.FuJian_BoardOut, true);
-            board_count--;
-            GlobalManager.Current.IO_test4 = true;
+            GlobalManager.Current.IOTable[(int)index] = value;
         }
 
-        public void CheckState()
-        {
-            GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
-            GlobalManager.Current.FuJian_CheckState();
-            WarningManager.Current.WaiFuJian();
-        }
-
-        public int RemoveFilm()
-        {
-            return 0;
-        }
-        public int CCD3ReCheck()
+        public int DropNGPallete()
         {
             return 0;
         }
@@ -162,91 +112,137 @@ namespace AkribisFAM.WorkStation
                 switch (type)
                 {
                     case 2:
-                        while (RemoveFilm() == 1);
+                        while (DropNGPallete() == 1) ;
                         break;
-                    case 3:
-                        while (CCD3ReCheck() == 1) ;
-                        break;
-
 
                 }
             }
         }
 
+        public bool BoardIn()
+        {
+            if (ReadIO(IO.Reject_BoardIn) && board_count == 0)
+            {
+                //传送带高速移动
+                MoveConveyor(200);
+
+                IO[] IOArray = new IO[] { IO.Reject_JianSu };
+                WaitConveyor(9999, IOArray, 0);
+
+                //顶板气缸上气
+                SetIO(IO.Reject_QiGang ,true);
+
+                //传送带减速
+                MoveConveyor(100);
+
+                //TODO 这边有没有告诉已经到位的IO信号？
+                StopConveyor();
+
+                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
+                SetIO(IO.ZuZhuang_BoardIn, false);
+
+                board_count +=1 ;
+                return true;
+            }
+            else
+            {
+                Thread.Sleep(100);
+                return false;
+            }
+        }
+
+        public void BoardOut()
+        {
+            SetIO(IO.Reject_BoardOut, true);
+            board_count--;
+        }
+
+        public void CheckState()
+        {
+            GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 0;
+            GlobalManager.Current.Reject_CheckState();
+            WarningManager.Current.WaiReject();
+        }
+
+
         public bool Step1()
         {
             if (!BoardIn()) return false;
 
-            Console.WriteLine("Fujian step1");
+            Console.WriteLine("Reject step1");
+
+            GlobalManager.Current.current_Reject_step = 1;
             //触发 UI 动画
             OnTriggerStep1?.Invoke();
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            GlobalManager.Current.current_FuJian_step = 1;
-
             CheckState();
             //触发 UI 动画
             OnStopStep1?.Invoke();
+            //ErrorManager.Current.Insert(ErrorCode.AGM800Disconnect);
             return true;
         }
+
         public bool Step2()
         {
             Console.WriteLine("step2");
 
+            //触发 UI 动画
+            OnTriggerStep2?.Invoke();
+
             GlobalManager.Current.current_FuJian_step = 2;
+
+            //NG顶升
+            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
+
+            CheckState();
+            //触发 UI 动画
+            OnStopStep2?.Invoke();
+
+            return true;
+        }
+
+        public bool Step3()
+        {
+            Console.WriteLine("step3");
 
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            //撕膜
-            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
+            GlobalManager.Current.current_FuJian_step = 3;
+
+            //用thread.sleep模拟实际生成动作
+            System.Threading.Thread.Sleep(1000);
 
             CheckState();
-
             //触发 UI 动画
             OnStopStep2?.Invoke();
-
-
-            return true;
-        }
-        public bool Step3()
-        {
-            Console.WriteLine("step3");
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
-
-            GlobalManager.Current.current_FuJian_step = 3;
-            //CCD3复检
-            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
-
-            CheckState();
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
 
             return true;
         }
 
         public override void AutoRun()
         {
+
             try
             {
                 while (true)
                 {
-                step1:
-                    bool ret = Step1();
-                    if (GlobalManager.Current.FuJian_exit) break;
-                    if (!ret) continue;
+                    step1:
+                        bool ret = Step1();
+                        if (GlobalManager.Current.Reject_exit) break;
+                        if (!ret) continue;
 
-                step2:
-                    Step2();
-                    if (GlobalManager.Current.FuJian_exit)break;
+                    step2:
+                        Step2();
+                        if (GlobalManager.Current.Reject_exit) break;
 
-                step3:
-                    Step3();
-                    if (GlobalManager.Current.FuJian_exit) break;
+                    step3:
+                        Step3();
+                        if (GlobalManager.Current.Reject_exit) break;
 
-                BoardOut();
+                    BoardOut();
                 }
             }
             catch (Exception ex)

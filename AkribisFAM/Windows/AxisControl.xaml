@@ -108,7 +108,7 @@
                 <Button x:Name="Jog_Move_Forword" Content="Jog_Forword" HorizontalAlignment="Left" Margin="149,43,0,0" Grid.Row="1" VerticalAlignment="Top" Height="34" Width="77"  PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp"/>
                 <Button x:Name="Jog_Move_Backword" Content="Jog_Move" HorizontalAlignment="Left" Margin="149,94,0,0" Grid.Row="1" VerticalAlignment="Top" Height="28" Width="77"  PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp"/>
                 <Button Content="Zero" HorizontalAlignment="Left" Margin="149,188,0,0" VerticalAlignment="Top" Height="28" Width="77" Grid.RowSpan="2" Click="ReturnToZero_Click"/>
-                <Button Content="Arc_Move" HorizontalAlignment="Center" Margin="0,113,0,0" Grid.Row="1" VerticalAlignment="Top" Click="Button_Click"/>
+                <Button Content="Arc_Move" HorizontalAlignment="Left" Margin="10,125,0,0" Grid.Row="1" VerticalAlignment="Top" Click="Button_Click"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Axis List" Margin="10,26,589,26">
