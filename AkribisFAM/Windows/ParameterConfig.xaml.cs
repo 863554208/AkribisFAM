@@ -1897,6 +1897,24 @@ namespace AkribisFAM.Windows
             }));
         }
 
+        private int flag4 = 1;
+
+        private void returnOK4(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag4 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
         private void returnNG(Rectangle rect)
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -1909,8 +1927,6 @@ namespace AkribisFAM.Windows
                 rect.Fill = null;
             }));
         }
-
-
 
         private void start_Click(object sender, RoutedEventArgs e)
         {
@@ -1950,10 +1966,6 @@ namespace AkribisFAM.Windows
 
         private void LailiaoAct()
         {
-            flag = 0;
-            flag1 = 0;
-            flag2 = 0;
-            flag3 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = " ";
@@ -1979,7 +1991,7 @@ namespace AkribisFAM.Windows
             wait();
             //trigger jiansu IO
             flag = 1;
-            GlobalManager.Current.laiLiaoIO[(int)GlobalManager.IO.LaiLiao_JianSu] = true;
+            GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] = true;
             Task task1 = new Task(() => returnOK(rect20));
             task1.Start();
             wait();
@@ -2069,6 +2081,27 @@ namespace AkribisFAM.Windows
             }));
             Thread.Sleep(1000);
             wait();
+
+        }
+
+        public int GenerateRandomNumber(int min, int max)
+        {
+            Random random = new Random();
+            return random.Next(min, max);
+        }
+
+        private int current_FOAM_Count = 0;
+        private int current_Assembled = 0;
+        private int Picker_FOAM_Count = 0;
+        private int BadFoamCount = 0;
+        private int has_XueWeiXinXi = 0;
+        private int NG_Foam_Count = 0;
+        public int currentx, currenty;
+
+        private void  ZuzhuangAct()
+        {
+            Task task1, task2, task3, task4, task5, task6, task7, task8;
+            double xpos, ypos;
             //move to assembly
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2076,7 +2109,7 @@ namespace AkribisFAM.Windows
             }));
             moveforward(rect10, 94, 112, 20);
             flag = 0;
-            GlobalManager.Current.laiLiaoIO[(int)GlobalManager.IO.LaiLiao_JianSu] = false;
+            GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] = false;
             wait();
             moveforward(rect10, 112, 230, 20);
             wait();
@@ -2100,20 +2133,216 @@ namespace AkribisFAM.Windows
             }));
             wait();
             //pallet lift up
-            flag3 = 1;
+            flag4 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet lift up";
             }));
-            task4 = new Task(() => returnOK3(rect10));
+            task4 = new Task(() => returnOK4(rect10));
             task4.Start();
             wait();
+            has_XueWeiXinXi = 0;
+            current_Assembled = 0;
+            //如果吸嘴上有料，直接跳去CCD2精定位
+            if (current_FOAM_Count > 0)//current_FOAM_Count
+            {
+                goto step4;
+            }
+        step2:
+            //飞达上拍料
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "robot move to feeder";
+            }));
+            xpos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Left));
+            ypos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Top));
+            task3 = new Task(() => moveup(rect26, (int)ypos, 57, 20));
+            task3.Start();
+            task5 = new Task(() => movebackward(rect26, (int)xpos, 229, 20));
+            task5.Start();
+            Task.WaitAll(task3, task5);
+            wait();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "flying photography";
+            }));
+            Thread.Sleep(3000);
+            wait();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "get result of flying photography";
+            }));
+            Thread.Sleep(1000);
+            wait();
+        step3:
+            //吸嘴取料
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action5.Content = "pick foams";
+            }));
+            flag3 = 1;
+            task3 = new Task(() => returnOK3(rect26));
+            task3.Start();
+            Thread.Sleep(1000);
+            wait();
+        step4:
+            //CCD2 精定位
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "robot move to CCD2";
+            }));
+            xpos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Left));
+            ypos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Top));
+            task6 = new Task(() => movedown(rect26, (int)ypos, 116, 20));
+            task6.Start();
+            task5 = new Task(() => moveforward(rect26, (int)xpos, 239, 20));
+            task5.Start();
+            Task.WaitAll(task6, task5);
+            wait();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "flying photography";
+            }));
+            Thread.Sleep(3000);
+            wait();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "get result of flying photography";
+            }));
+            Thread.Sleep(1000);
+            wait();
+            BadFoamCount = GenerateRandomNumber(0, 2);
+            Picker_FOAM_Count = 4 - BadFoamCount;
+            if (BadFoamCount > 0) {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action4.Content = $"{BadFoamCount} foam(s) is NG";
+                }));
+                goto step5;
+            }
+            else {
+                goto step6;
+            }
+        step5:
+            //如果有坏料，放到坏料盒里
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "robot move to CCD2";
+            }));
+            task5 = new Task(() => movebackward(rect26, 239, 182, 20));
+            task5.Start();
+            Task.WaitAll(task5);
+            wait();
+            for (int i = 0; i < BadFoamCount; ++i)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action4.Content = $"throw NG faom {i+1}";
+                }));
+                Thread.Sleep(1000);
+                wait();
+                NG_Foam_Count++;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    NGnum.Content = $"{NG_Foam_Count}";
+                }));
+            }
+        step6:
+            //拍料盘
+            if (has_XueWeiXinXi == 1) {
+                goto step7;
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "robot move to pallet";
+            }));
+            task6 = new Task(() => movedown(rect26, 116, 198, 20));
+            task6.Start();
+            task5 = new Task(() => moveforward(rect26, 239, 276, 20));
+            task5.Start();
+            Task.WaitAll(task6, task5);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "flying photography";
+            }));
+            Thread.Sleep(3000);
+            wait();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "get result of flying photography";
+            }));
+            has_XueWeiXinXi = 1;
+            Thread.Sleep(1000);
+            wait();
+        step7:
+            //放料
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "robot move to pallet";
+            }));
+            xpos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Left));
+            ypos = (double)rect26.Dispatcher.Invoke(new Func<double>(() => rect26.Margin.Top));
+            task6 = new Task(() => movedown(rect26, (int)ypos, 198, 20));
+            task6.Start();
+            task5 = new Task(() => moveforward(rect26, (int)xpos, 276, 20));
+            task5.Start();
+            Task.WaitAll(task6, task5);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                action4.Content = "place faoms";
+            }));
+            int cnt = 1;
+            while (Picker_FOAM_Count > 0)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action4.Content = $"place faom {cnt}";
+                }));
+                Thread.Sleep(1000);
+                wait();
+                cnt++;
+                Picker_FOAM_Count--;
+                current_Assembled++;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    palletfaomnum.Content = $"{current_Assembled} ";
+                }));
+                if (current_Assembled >= 12)
+                {
+                    break;
+                }
+            }
+            if(current_Assembled < 12)
+            {
+                flag3 = 0;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action5.Content = "picker has no foams ";
+                }));
+                Thread.Sleep(1000);
+                wait();
+                goto step2;
+            }
+            flag4 = 0;
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                palletfaomnum.Content = " ";
+            }));
         }
 
         private void start1_Click(object sender, RoutedEventArgs e)
         {
-            Task task1 = new Task(LailiaoAct);
-            task1.Start();
+            flag = 0;
+            flag1 = 0;
+            flag2 = 0;
+            flag3 = 0;
+            flag4 = 0;
+            NG_Foam_Count = 0;
+            //Task task1 = new Task(LailiaoAct);
+            //task1.Start();
+            //task1.Wait();
+            Task task2 = new Task(ZuzhuangAct);
+            task2.Start();
         }
 
         private void pause_Click(object sender, RoutedEventArgs e)

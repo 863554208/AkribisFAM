@@ -710,7 +710,7 @@
                             <Rectangle x:Name="rect20" HorizontalAlignment="Left" Height="39" Margin="100,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="13"/>
                             <Rectangle x:Name="rect21" HorizontalAlignment="Left" Height="50" Margin="152,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16"/>
                             <Rectangle x:Name="rect22" HorizontalAlignment="Left" Height="63" Margin="121,228,0,0" Stroke="Black" VerticalAlignment="Top" Width="26"/>
-                            <Button x:Name="start1" Content="start" HorizontalAlignment="Left" Margin="134,39,0,0" VerticalAlignment="Top" Width="57" Click="start1_Click"/>
+                            <Button x:Name="start1" Content="start" HorizontalAlignment="Left" Margin="706,316,0,0" VerticalAlignment="Top" Width="57" Click="start1_Click"/>
                             <Rectangle x:Name="rect23" HorizontalAlignment="Left" Height="39" Margin="288,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
                             <Rectangle x:Name="rect24" HorizontalAlignment="Left" Height="50" Margin="324,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16"/>
                             <Rectangle x:Name="rect25" HorizontalAlignment="Left" Height="14" Margin="91,212,0,0" Stroke="Black" VerticalAlignment="Top" Width="61"/>
@@ -718,8 +718,15 @@
                             <Label x:Name="action2" Content="action" HorizontalAlignment="Left" Margin="53,354,0,0" VerticalAlignment="Top" Width="257"/>
                             <Label x:Name="action5" Content="action" HorizontalAlignment="Left" Margin="315,314,0,0" VerticalAlignment="Top" Width="382"/>
                             <Label x:Name="action4" Content="action" HorizontalAlignment="Left" Margin="315,354,0,0" VerticalAlignment="Top" Width="382"/>
-                            <Button x:Name="pause" Content="pause" HorizontalAlignment="Left" Margin="282,39,0,0" VerticalAlignment="Top" Width="50" Click="pause_Click"/>
-                            <Button x:Name="resume" Content="resume" HorizontalAlignment="Left" Margin="404,39,0,0" VerticalAlignment="Top" Width="60" Click="resume_Click"/>
+                            <Button x:Name="pause" Content="pause" HorizontalAlignment="Left" Margin="710,340,0,0" VerticalAlignment="Top" Width="50" Click="pause_Click"/>
+                            <Button x:Name="resume" Content="resume" HorizontalAlignment="Left" Margin="705,364,0,0" VerticalAlignment="Top" Width="60" Click="resume_Click"/>
+                            <Rectangle HorizontalAlignment="Left" Height="60" Margin="230,27,0,0" Stroke="Black" VerticalAlignment="Top" Width="37"/>
+                            <Rectangle HorizontalAlignment="Left" Height="60" Margin="276,27,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
+                            <Rectangle x:Name="rect26" HorizontalAlignment="Left" Height="42" Margin="248,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
+                            <Rectangle HorizontalAlignment="Left" Height="54" Margin="230,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="56"/>
+                            <Rectangle HorizontalAlignment="Left" Height="46" Margin="177,114,0,0" Stroke="Black" VerticalAlignment="Top" Width="48"/>
+                            <Label x:Name="palletfaomnum" Content="" HorizontalAlignment="Left" Margin="247,206,0,0" VerticalAlignment="Top" Width="39"/>
+                            <Label x:Name="NGnum" Content="" HorizontalAlignment="Left" Margin="181,124,0,0" VerticalAlignment="Top" Width="44"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
