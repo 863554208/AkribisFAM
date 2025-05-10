@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AAMotion;
 using AkribisFAM.Manager;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
 {
@@ -25,7 +26,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnStopStep4;
 
         int delta = 0;
-        public bool has_board = false;
+        public int board_count = 0;
 
         public static ZuZhuang Current
         {
@@ -58,13 +59,36 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public void CheckState()
+        {
+            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            GlobalManager.Current.ZuZhuang_CheckState();
+            WarningManager.Current.WaitZuZhuang();
+        }
 
         public bool BoradIn()
         {
-            if (GlobalManager.Current.IO_test2 == true && has_board == false)
+            if (ReadIO(IO.ZuZhuang_BoardIn) && board_count==0)
             {
-                GlobalManager.Current.IO_test2 = false;
-                has_board = true;
+                //传送带高速移动
+                MoveConveyor(200);
+
+                IO[] IOArray = new IO[] { IO.ZuZhuang_JianSu };
+                WaitConveyor(9999, IOArray, 0);
+
+                //顶板气缸上气
+                SetIO(IO.ZuZhuang_QiGang , true);
+
+                //传送带减速
+                MoveConveyor(100);
+
+                //TODO 这边有没有告诉已经到位的IO信号？
+                StopConveyor();
+
+                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
+                SetIO(IO.ZuZhuang_BoardIn , false);
+
+                board_count += 1;
                 return true;
             }
             else
@@ -75,9 +99,127 @@ namespace AkribisFAM.WorkStation
         }
         public void BoardOut()
         {
-            has_board = false;
+            SetIO(IO.ZuZhuang_BoardOut, true);
+
+            //出板时将穴位信息清空
+            GlobalManager.Current.has_XueWeiXinXi = false;
+
+            board_count--;
             GlobalManager.Current.IO_test3 = true;
         }
+
+        public void MoveConveyor(int vel)
+        {
+            //TODO 移动传送带
+        }
+
+        public void StopConveyor()
+        {
+            //TODO 停止传送带
+        }
+
+        public bool ReadIO(IO index)
+        {
+            return GlobalManager.Current.IOTable[(int)index];
+        }
+
+        public void SetIO(IO index, bool value)
+        {
+            GlobalManager.Current.IOTable[(int)index] = value;
+        }
+
+        public int SnapFeedar()
+        {
+            GlobalManager.Current.BadFoamCount = 0;
+            return 0;
+        }
+
+        public int PickFoam()
+        {
+            //这里要改成实际吸取了多少料
+            GlobalManager.Current.current_FOAM_Count += 4;
+            return 0;
+        }
+
+        public int DropBadFoam()
+        {
+            return 0;
+        }
+
+        public int LowerCCD()
+        {
+            return 0;
+        }
+
+        public int SnapPallete()
+        {
+            GlobalManager.Current.has_XueWeiXinXi = true;
+            return 0;
+        }
+
+        public int PlaceFoam()
+        {
+            //这里要改成实际吸取了多少料
+            GlobalManager.Current.current_FOAM_Count -= 4;
+
+            GlobalManager.Current.current_Assembled += 4;
+
+            return 0;
+        }
+
+        public void WaitConveyor(int delta, IO[] IOarr, int type)
+        {
+            DateTime time = DateTime.Now;
+
+            if (delta != 0 && IOarr != null)
+            {
+                while ((DateTime.Now - time).TotalMilliseconds < delta)
+                {
+                    int judge = 0;
+                    foreach (var item in IOarr)
+                    {
+                        var res = ReadIO(item) ? 1 : 0;
+                        judge += res;
+                    }
+
+                    if (judge > 0)
+                    {
+                        break;
+                    }
+                    Thread.Sleep(50);
+                }
+            }
+            else
+            {
+                switch (type)
+                {
+                    case 2:
+                        while (SnapFeedar() == 1);
+                        break;
+
+                    case 3:
+                        while (PickFoam() == 1) ;
+                        break;
+
+                    case 4:
+                        while (LowerCCD() == 1) ;
+                        break;
+
+                    case 5:
+                        while (DropBadFoam() == 1);
+                        break;
+
+                    case 6:
+                        while (SnapPallete() == 1) ;
+                        break;
+
+                    case 7:
+                        while (PlaceFoam() == 1) ;
+                        break;
+                }
+            }
+        }
+
 
         public bool Step1()
         {
@@ -86,16 +228,18 @@ namespace AkribisFAM.WorkStation
 
             Console.WriteLine("ZuZhuang.Current.Step1()");
 
+            GlobalManager.Current.current_Zuzhuang_step = 1;
+
+            //将当前穴位信息清空
+            GlobalManager.Current.has_XueWeiXinXi = false;
+
             //触发 UI 动画
             OnTriggerStep1?.Invoke();
 
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
-            GlobalManager.Current.current_Zuzhuang_step = 1;
-            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-            GlobalManager.Current.ZuZhuang_CheckState();
-            WarningManager.Current.WaitZuZhuang();
+            CheckState();
 
             //触发 UI 动画
             OnStopStep1?.Invoke();
@@ -107,16 +251,14 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("ZuZhuang.Current.Step2()");
 
+            GlobalManager.Current.current_Zuzhuang_step = 2;
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(2000);
+            //到feedar上拍照
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);     
 
-            GlobalManager.Current.current_Zuzhuang_step = 2;
-            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-            GlobalManager.Current.ZuZhuang_CheckState();
-            WarningManager.Current.WaitZuZhuang();
+            CheckState();
 
             //触发 UI 动画
             OnStopStep2?.Invoke();
@@ -128,16 +270,15 @@ namespace AkribisFAM.WorkStation
         {
             Console.WriteLine("ZuZhuang.Current.Step3()");
 
+            GlobalManager.Current.current_Zuzhuang_step = 3;
+
             //触发 UI 动画
             OnTriggerStep3?.Invoke();
 
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000);
+            //吸嘴取料
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
-            GlobalManager.Current.current_Zuzhuang_step = 3;
-            //GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-            GlobalManager.Current.ZuZhuang_CheckState();
-            WarningManager.Current.WaitZuZhuang();
+            CheckState();
             //触发 UI 动画
             OnStopStep3?.Invoke();
 
@@ -147,18 +288,62 @@ namespace AkribisFAM.WorkStation
         public bool Step4()
         {
             Console.WriteLine("ZuZhuang.Current.Step4()");
+
+            GlobalManager.Current.current_Zuzhuang_step = 4;
+
             //触发 UI 动画
             OnTriggerStep4?.Invoke();
 
-            System.Threading.Thread.Sleep(1000);
+            //CCD2精定位
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
-            GlobalManager.Current.current_Zuzhuang_step = 4;
-            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-            GlobalManager.Current.ZuZhuang_CheckState();
-            WarningManager.Current.WaitZuZhuang();
+
+            CheckState();
+
             //触发 UI 动画
             OnStopStep4?.Invoke();
 
+            return true;
+        }
+
+        public bool Step5()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step5()");
+
+            GlobalManager.Current.current_Zuzhuang_step = 5;
+
+            //拍Pallete料盘
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+
+            CheckState();
+
+            return true;
+        }
+
+        public bool Step6()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step5()");
+
+            GlobalManager.Current.current_Zuzhuang_step = 6;
+
+            //拍Pallete料盘
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+
+            CheckState();
+
+            return true;
+        }
+
+        public bool Step7()
+        {
+            Console.WriteLine("ZuZhuang.Current.Step5()");
+
+            GlobalManager.Current.current_Zuzhuang_step = 7;
+
+            //拍Pallete料盘
+            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+
+            CheckState();
 
             return true;
         }
@@ -172,37 +357,65 @@ namespace AkribisFAM.WorkStation
                 {
                     step1:
                         bool ret = Step1();
-                        if (GlobalManager.Current.Zuzhuang_exit)
-                        {
-                            break;
-                        }
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
                         if (!ret) continue;
+                        //如果吸嘴上有料，直接跳去CCD2精定位
+                        if (GlobalManager.Current.current_FOAM_Count > 0) goto step4;
+
                     step2:
+                        //飞达上拍料
                         Step2();
-                        if (GlobalManager.Current.Zuzhuang_exit)
-                        {
-                            break;
-                        }
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
+
                     step3:
+                        //吸嘴取料
                         Step3();
-                        if (GlobalManager.Current.Zuzhuang_exit)
-                        {
-                            break;
-                        }
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
+
                     step4:
+                        //CCD2精定位
                         Step4();
-                        if (GlobalManager.Current.Zuzhuang_exit)
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
+                        if (GlobalManager.Current.BadFoamCount > 0)
                         {
-                            break;
-                        }
-                        if (GlobalManager.Current.IsPass)
-                        {
-                            goto step2;
+                            goto step5;
                         }
                         else
                         {
-                            BoardOut();
+                            goto step6;
                         }
+
+                    step5:
+                        //如果有坏料，放到坏料盒里
+                        Step5();
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
+
+                    step6:
+                        //拍料盘
+                        if(!GlobalManager.Current.has_XueWeiXinXi) goto step7; 
+                        Step6();
+                        if (GlobalManager.Current.Zuzhuang_exit) break;                        
+
+                    step7:
+                        //放料
+                        Step7();
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
+                        //当前组装的料小于穴位数时，要一直取料
+                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
+                        {
+                            goto step2; 
+                        }
+
+                    if (GlobalManager.Current.IsPass)
+                    {
+                        goto step2;
+                    }
+                    else
+                    {
+                        BoardOut();
+                    }
+
+
                 }
 
                 #region 老代码

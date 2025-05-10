@@ -108,5 +108,31 @@ namespace AkribisFAM.Manager
 
         }
 
+        public void WaiReject()
+        {
+            DateTime startTime = DateTime.Now;
+
+            if (GlobalManager.Current.IsPause)
+            {
+                Console.WriteLine("执行暂停");
+                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
+            }
+
+            while (true)
+            {
+                TimeSpan elapsed = DateTime.Now - startTime;
+                double remaining = GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] - elapsed.TotalMilliseconds;
+
+                if (remaining <= 0)
+                {
+                    break;
+                }
+
+                int sleepTime = (int)Math.Min(remaining, 50);
+                Thread.Sleep(sleepTime);
+            }
+
+        }
+
     }
 }
