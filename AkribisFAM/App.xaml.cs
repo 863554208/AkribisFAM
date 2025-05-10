@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
+using AkribisFAM.DB;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
@@ -29,10 +30,31 @@ namespace AkribisFAM
             var _testStation2 = TestStation2.Current;
             var _warningManager = WarningManager.Current;
 
+            //TODO
+            try
+            {
+                // 初始化数据库连接
+                DatabaseManager.Initialize();
+
+                // 插入数据
+                DatabaseManager.Insert("MyDatabase.db");
+
+                Console.WriteLine("数据插入成功！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"操作失败: {ex.Message}");
+            }
+            finally
+            {
+                // 关闭数据库连接
+                DatabaseManager.Shutdown();
+            }
+
+
+
             SetLanguage("en-US");
 
-            //在启动程序时就开始跟AGM800的通信
-            StartConnectAGM800();
 
 
             if (new LoginViewModel().ShowDialog() == true)
