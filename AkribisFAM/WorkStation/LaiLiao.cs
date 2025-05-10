@@ -374,7 +374,7 @@ namespace AkribisFAM.WorkStation
                     #endregion
 
                     System.Threading.Thread.Sleep(100);
-                        }
+                }
             }
             catch (Exception ex)
             {
