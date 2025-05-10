@@ -72,7 +72,7 @@ namespace AkribisFAM.Windows
         }
 
         private void MotorOn_Click(object sender, RoutedEventArgs e)
-        {
+        {        
             string axisName = _axisDic.GetAxisName(CurrentAxis);
             if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
@@ -87,6 +87,8 @@ namespace AkribisFAM.Windows
                     MessageBox.Show("轴使能报错 :" + ex.Message);
                 }
             }
+
+            AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 70000, 1, null, null);
         }
 
         private void MotorOff_Click(object sender, RoutedEventArgs e)
