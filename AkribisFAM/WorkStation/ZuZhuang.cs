@@ -220,7 +220,6 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-
         public bool Step1()
         {
             if (!BoradIn())
