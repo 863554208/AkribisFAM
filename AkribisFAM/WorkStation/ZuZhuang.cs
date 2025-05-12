@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AAMotion;
+using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using static AkribisFAM.GlobalManager;
 
@@ -254,6 +255,10 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
+            Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
+
+            //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, "ASD");
+
             //到feedar上拍照
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);     
 
@@ -295,7 +300,6 @@ namespace AkribisFAM.WorkStation
 
             //CCD2精定位
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
-
 
             CheckState();
 

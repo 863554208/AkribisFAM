@@ -14,6 +14,7 @@ using AkribisFAM.DB;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
+using AkribisFAM.CommunicationProtocol;
 namespace AkribisFAM
 {
     /// <summary>
@@ -29,6 +30,8 @@ namespace AkribisFAM
             var _testStation1 = TestStation1.Current;
             var _testStation2 = TestStation2.Current;
             var _warningManager = WarningManager.Current;
+
+            TCPNetworkManage.TCPInitialize();
 
             //TODO
             try
@@ -51,11 +54,7 @@ namespace AkribisFAM
                 DatabaseManager.Shutdown();
             }
 
-
-
             SetLanguage("en-US");
-
-
 
             if (new LoginViewModel().ShowDialog() == true)
             {
