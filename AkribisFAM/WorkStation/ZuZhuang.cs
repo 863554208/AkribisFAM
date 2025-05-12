@@ -255,7 +255,7 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
+            //Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
 
             //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, "ASD");
 
