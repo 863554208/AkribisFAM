@@ -199,6 +199,7 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
             AutorunManager.Current.hasReseted = true;
+            //button.PromptCount += 1;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

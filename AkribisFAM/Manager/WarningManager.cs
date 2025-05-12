@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AkribisFAM.WorkStation;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.Manager
 {
