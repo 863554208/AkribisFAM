@@ -1851,7 +1851,7 @@ namespace AkribisFAM.Windows
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                rect.Fill = new SolidColorBrush(Colors.Green);
+                rect.Fill = new SolidColorBrush(Colors.Red);
             }));
             while (flag1 == 1)
             {
@@ -1859,7 +1859,7 @@ namespace AkribisFAM.Windows
             }
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                rect.Fill = null;
+                rect.Fill = new SolidColorBrush(Colors.Green);
             }));
         }
 
@@ -1887,7 +1887,7 @@ namespace AkribisFAM.Windows
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                rect.Fill = new SolidColorBrush(Colors.Green);
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
             }));
             while (flag3 == 1)
             {
@@ -1895,7 +1895,7 @@ namespace AkribisFAM.Windows
             }
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                rect.Fill = null;
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
             }));
         }
 
@@ -1935,6 +1935,185 @@ namespace AkribisFAM.Windows
             }));
         }
 
+        private int flag6 = 1;
+
+        private void returnOK6(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Red);
+            }));
+            while (flag6 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+        }
+
+        private int flag7 = 1;
+
+        private void returnOK7(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+            while (flag7 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+        }
+
+        private int flag8 = 1;
+
+        private void returnOK8(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag8 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private int flag9 = 1;
+
+        private void returnOK9(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag9 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private int flag10 = 1;
+
+        private void returnOK10(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Red);
+            }));
+            while (flag10 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+        }
+
+        private int flag11 = 1;
+
+        private void returnOK11(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+            while (flag11 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+        }
+
+        private int flag12 = 1;
+
+        private void returnOK12(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag12 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private int flag13 = 1;
+
+        private void returnOK13(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag13 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private int flag14 = 1;
+
+        private void returnOK14(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Red);
+            }));
+            while (flag14 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+        }
+
+        private int flag15 = 1;
+
+        private void returnOK15(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+            while (flag15 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
+        }
         private void returnNG(Rectangle rect)
         {
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -1985,15 +2164,23 @@ namespace AkribisFAM.Windows
         }
 
         private int module_Num = 12;
-
+        const int numberofstation = 4;
+        private int[] By_pass = new int[numberofstation] { 0, 0, 0, 0 };
+        private int[] By_pass_index = new int[numberofstation] { 0, 0, 0, 0};
+        private int current_index = 0;
         private void LailiaoAct(Rectangle rect)
         {
+            current_index++;
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Yellow);
+            }));
             //pallet in
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet in";
             }));
-            moveforward(rect, 10, 43, 20);
+            moveforward(rect, 10, 58, 20);
             wait();
             //trigger jiansu IO
             flag = 1;
@@ -2010,13 +2197,14 @@ namespace AkribisFAM.Windows
             Task task2 = new Task(() => returnOK1(rect21));
             task2.Start();
             wait();
-            moveforward(rect, 43, 94, 20);
+            moveforward(rect, 58, 94, 20);
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet in place";
             }));
             wait();
-            //scan
+        step2:
+            //scan扫码
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "start scan pallet";
@@ -2029,9 +2217,20 @@ namespace AkribisFAM.Windows
             flag2 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                action1.Content = "scan pallet finished";
+                action1.Content = "get scan result";
             }));
             Thread.Sleep(1000);
+            By_pass_index[0] = current_index;
+            By_pass[0] = GenerateRandomNumber(0, 2);
+            if (By_pass[0] == 1) {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action1.Content = "pallet ByPass";
+                }));
+                Thread.Sleep(1000);
+                goto step5;
+            }
+        step3:
             //pallet lift up
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2042,7 +2241,8 @@ namespace AkribisFAM.Windows
             task4.Start();
             Thread.Sleep(1000);
             wait();
-            //laser measure
+        step4:
+            //laser measure激光
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action4.Content = "start laser measure";
@@ -2055,12 +2255,12 @@ namespace AkribisFAM.Windows
                     {
                         action5.Content = $"laser go to module{i+1} position{j+1} and trigger laser";
                     }));
-                    flag2 = 1;
-                    task3 = new Task(() => returnOK2(rect25));
+                    flag4 = 1;
+                    task3 = new Task(() => returnOK4(rect25));
                     task3.Start();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(200);
                     wait();
-                    flag2 = 0;
+                    flag4 = 0;
                 }
             }
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -2080,6 +2280,7 @@ namespace AkribisFAM.Windows
             }));
             Thread.Sleep(1000);
             wait();
+        step5:
             flag1 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2101,10 +2302,11 @@ namespace AkribisFAM.Windows
         private int BadFoamCount = 0;
         private int has_XueWeiXinXi = 0;
         private int NG_Foam_Count = 0;
-        public int currentx, currenty;
 
         private void  ZuzhuangAct(Rectangle rect)
         {
+            By_pass_index[1] = By_pass_index[0];
+            By_pass[1] = By_pass[0];
             Task task1, task2, task3, task4, task5, task6, task7, task8;
             double xpos, ypos;
             //move to assembly
@@ -2119,16 +2321,26 @@ namespace AkribisFAM.Windows
             moveforward(rect, 112, 230, 20);
             wait();
             //trigger jiansu IO
-            flag = 1;
-            task1 = new Task(() => returnOK(rect23));
+            flag5 = 1;
+            task1 = new Task(() => returnOK5(rect23));
             task1.Start();
+            if (By_pass[1] == 1) {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action1.Content = "pallet ByPass";
+                }));
+                moveforward(rect, 230, 266, 20);
+                Thread.Sleep(1000);
+                wait();
+                return;
+            }
             //send dingqi IO
-            flag1 = 1;
+            flag6 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action2.Content = "send cylinder IO on";
             }));
-            task2 = new Task(() => returnOK1(rect24));
+            task2 = new Task(() => returnOK6(rect24));
             task2.Start();
             wait();
             moveforward(rect, 230, 266, 20);
@@ -2138,12 +2350,12 @@ namespace AkribisFAM.Windows
             }));
             wait();
             //pallet lift up
-            flag4 = 1;
+            flag7 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet lift up";
             }));
-            task4 = new Task(() => returnOK4(rect));
+            task4 = new Task(() => returnOK7(rect));
             task4.Start();
             wait();
             current_Assembled = 0;
@@ -2184,8 +2396,8 @@ namespace AkribisFAM.Windows
             {
                 action5.Content = "pick foams";
             }));
-            flag5 = 1;
-            task3 = new Task(() => returnOK5(rect26));
+            flag8 = 1;
+            task3 = new Task(() => returnOK8(rect26));
             task3.Start();
             Thread.Sleep(1000);
             wait();
@@ -2343,7 +2555,7 @@ namespace AkribisFAM.Windows
             }
             if(current_Assembled < module_Num)
             {
-                flag5 = 0;
+                flag8 = 0;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     action5.Content = "picker has no foams ";
@@ -2353,7 +2565,7 @@ namespace AkribisFAM.Windows
                 goto step2;
             }
             if (Picker_FOAM_Count == 0) {
-                flag5 = 0;
+                flag8 = 0;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     action5.Content = "picker has no foams ";
@@ -2367,14 +2579,14 @@ namespace AkribisFAM.Windows
             {
                 palletfaomnum.Content = " ";
             }));
-            flag4 = 0;
+            flag7 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet lift down";
             }));
             Thread.Sleep(1000);
             wait();
-            flag1 = 0;
+            flag6 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action2.Content = "send cylinder IO off";
@@ -2387,6 +2599,8 @@ namespace AkribisFAM.Windows
         private int Fujian_OK = 0;
         private void FujianAct(Rectangle rect)
         {
+            By_pass_index[2] = By_pass_index[1];
+            By_pass[2] = By_pass[1];
             Task task1, task2, task3, task4, task5, task6, task7, task8;
             double xpos, ypos;
             //move to next
@@ -2395,22 +2609,33 @@ namespace AkribisFAM.Windows
                 action1.Content = "pallet go to next station";
             }));
             moveforward(rect, 266, 303, 20);
-            flag = 0;
+            flag5 = 0;
             GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] = false;
             wait();
             moveforward(rect, 303, 410, 20);
             wait();
             //trigger jiansu IO
-            flag = 1;
-            task1 = new Task(() => returnOK(rect28));
+            flag9 = 1;
+            task1 = new Task(() => returnOK9(rect28));
             task1.Start();
+            if (By_pass[2] == 1)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action1.Content = "pallet ByPass";
+                }));
+                moveforward(rect, 410, 448, 20);
+                Thread.Sleep(1000);
+                wait();
+                return;
+            }
             //send dingqi IO
-            flag1 = 1;
+            flag10 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action2.Content = "send cylinder IO on";
             }));
-            task2 = new Task(() => returnOK1(rect27));
+            task2 = new Task(() => returnOK10(rect27));
             task2.Start();
             wait();
             moveforward(rect, 410, 448, 20);
@@ -2420,12 +2645,12 @@ namespace AkribisFAM.Windows
             }));
             wait();
             //pallet lift up
-            flag4 = 1;
+            flag11 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet lift up";
             }));
-            task4 = new Task(() => returnOK4(rect));
+            task4 = new Task(() => returnOK11(rect));
             task4.Start();
             wait();
             Left_Foam_Count = module_Num;
@@ -2441,8 +2666,8 @@ namespace AkribisFAM.Windows
                 {
                     action5.Content = $"robot go to module{i + 1} and tear film";
                 }));
-                flag2 = 1;
-                task3 = new Task(() => returnOK2(rect29));
+                flag12 = 1;
+                task3 = new Task(() => returnOK12(rect29));
                 task3.Start();
                 Thread.Sleep(1000);
                 wait();
@@ -2451,7 +2676,7 @@ namespace AkribisFAM.Windows
                 {
                     Leftfoam.Content = $"{Left_Foam_Count}";
                 }));
-                flag2 = 0;
+                flag12 = 0;
             }
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2475,20 +2700,21 @@ namespace AkribisFAM.Windows
             {
                 action4.Content = "get result of flying photography";
             }));
-            Fujian_OK = GenerateRandomNumber(0, 1);
+            Fujian_OK = GenerateRandomNumber(0, 2);
             Thread.Sleep(1000);
             wait();
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 Leftfoam.Content = " ";
             }));
+            flag11 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action1.Content = "pallet lift down";
             }));
             Thread.Sleep(1000);
             wait();
-            flag1 = 0;
+            flag10 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action2.Content = "send cylinder IO off";
@@ -2499,6 +2725,8 @@ namespace AkribisFAM.Windows
 
         private void RejectAct(Rectangle rect)
         {
+            By_pass_index[3] = By_pass_index[2];
+            By_pass[3] = By_pass[2];
             Task task1, task2, task3, task4, task5, task6, task7, task8;
             double xpos, ypos;
             //move to next
@@ -2507,22 +2735,35 @@ namespace AkribisFAM.Windows
                 action1.Content = "pallet go to next station";
             }));
             moveforward(rect, 448, 480, 20);
-            flag = 0;
+            flag9 = 0;
             GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] = false;
             wait();
             moveforward(rect, 480, 620, 20);
             wait();
             //trigger jiansu IO
-            flag = 1;
-            task1 = new Task(() => returnOK(rect31));
+            flag13 = 1;
+            task1 = new Task(() => returnOK13(rect31));
             task1.Start();
+            if (By_pass[3] == 1)
+            {
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    action1.Content = "pallet ByPass";
+                }));                
+                moveforward(rect, 620, 689, 20);
+                flag13 = 0;
+                moveforward(rect, 689, 702, 20);
+                Thread.Sleep(1000);
+                wait();
+                return;
+            }
             //send dingqi IO
-            flag1 = 1;
+            flag14 = 1;
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 action2.Content = "send cylinder IO on";
             }));
-            task2 = new Task(() => returnOK1(rect30));
+            task2 = new Task(() => returnOK14(rect30));
             task2.Start();
             wait();
             moveforward(rect, 620, 653, 20);
@@ -2535,12 +2776,12 @@ namespace AkribisFAM.Windows
             if(Fujian_OK == 0)
             {
                 //NG顶升
-                flag4 = 1;
+                flag15 = 1;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     action1.Content = "NG pallet lift up";
                 }));
-                task4 = new Task(() => returnOK4(rect));
+                task4 = new Task(() => returnOK15(rect));
                 task4.Start();
                 Thread.Sleep(1000);
                 wait();
@@ -2549,12 +2790,12 @@ namespace AkribisFAM.Windows
                     action1.Content = "NG pallet remove";
                 }));
                 Thread.Sleep(3000);
-                flag1 = 0;
-                flag = 0;
+                flag14 = 0;
+                flag13 = 0;
             }
             else
             {
-                flag1 = 0;
+                flag14 = 0;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     action2.Content = "send cylinder IO off";
@@ -2566,12 +2807,13 @@ namespace AkribisFAM.Windows
                     action1.Content = "pallet go out";
                 }));
                 moveforward(rect, 653, 689, 20);
-                flag = 0;
+                flag13 = 0;
                 GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
                 wait();
                 moveforward(rect, 689, 702, 20);
                 wait();
             }
+            flag15 = 0;
 
         }
         public static void CopyProperties(object source, object destination)
@@ -2591,28 +2833,41 @@ namespace AkribisFAM.Windows
             {
                 if (station1Init == 1)
                 {
+                    Thread.Sleep(500);
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         this.rect10.Visibility = Visibility.Visible;
                     }));
                     station1Finished = 0;
                     LailiaoAct(this.rect10);
-                    station1Finished = 1;
-                    if (station2Finished != 0)
+                    while (station2Finished == 0)
                     {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            //this.rect10.Visibility = Visibility.Hidden;
-                            CopyProperties(rect10, rect32);
-                        }));
-                        station2Init = 1;
+                        station1Init = 0;
                         Thread.Sleep(10);
                     }
-                    else
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        station2Init = 0;
-                        station1Init = 0;
-                    }
+                        CopyProperties(rect10, rect32);
+                        this.rect10.Visibility = Visibility.Hidden;
+                    }));
+                    station1Finished = 1;
+                    station2Init = 1;
+                    Thread.Sleep(10);
+                    //if (station2Finished != 0)
+                    //{
+                    //    this.Dispatcher.BeginInvoke(new Action(() =>
+                    //    {
+                    //        //this.rect10.Visibility = Visibility.Hidden;
+                    //        CopyProperties(rect10, rect32);
+                    //    }));
+                    //    station2Init = 1;
+                    //    Thread.Sleep(10);
+                    //}
+                    //else
+                    //{
+                    //    station2Init = 0;
+                    //    station1Init = 0;
+                    //}
                 }
             }
         }
@@ -2624,29 +2879,40 @@ namespace AkribisFAM.Windows
                 if (station2Init == 1)
                 {
                     station1Init = 1;
-                    //this.Dispatcher.BeginInvoke(new Action(() =>
-                    //{
-                    //    this.rect32.Visibility = Visibility.Visible;
-                    //}));
                     station2Init = 0;
                     station2Finished = 0;
-                    ZuzhuangAct(this.rect32);
-                    station2Finished = 1;
-                    if (station3Finished != 0)
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            //this.rect32.Visibility = Visibility.Hidden;
-                            CopyProperties(rect32, rect33);
-                        }));
-                        station3Init = 1;
+                        this.rect32.Visibility = Visibility.Visible;
+                    }));
+                    ZuzhuangAct(this.rect32);
+                    while (station3Finished == 0) {
+                        station2Init = 0;
                         Thread.Sleep(10);
                     }
-                    else
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        station3Init = 0;
-                        station2Init = 0;
-                    }
+                        CopyProperties(rect32, rect33);
+                        this.rect32.Visibility = Visibility.Hidden;
+                    }));
+                    station2Finished = 1;
+                    station3Init = 1;
+                    Thread.Sleep(10);
+                    //if (station3Finished != 0)
+                    //{
+                    //    this.Dispatcher.BeginInvoke(new Action(() =>
+                    //    {
+                    //        //this.rect32.Visibility = Visibility.Hidden;
+                    //        CopyProperties(rect32, rect33);
+                    //    }));
+                    //    station3Init = 1;
+                    //    Thread.Sleep(10);
+                    //}
+                    //else
+                    //{
+                    //    station3Init = 0;
+                    //    station2Init = 0;
+                    //}
                 }
             }
         }
@@ -2657,37 +2923,53 @@ namespace AkribisFAM.Windows
             {
                 if (station3Init == 1)
                 {
-                    station2Init = 1;
+                    //station2Init = 1;
                     //this.Dispatcher.BeginInvoke(new Action(() =>
                     //{
                     //    this.rect33.Visibility = Visibility.Visible;
                     //}));
                     station3Init = 0;
                     station3Finished = 0;
-                    FujianAct(this.rect33);
-                    station3Finished = 1;
-                    if (station4Finished != 0)
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            if (station2Finished == 0)
-                            {
-                                CopyProperties(rect33, rect34);
-                                this.rect33.Visibility = Visibility.Hidden;
-                            }
-                            else {
-                                this.rect33.Visibility = Visibility.Visible;
-                                CopyProperties(rect33, rect34);
-                            }
-                        }));
-                        station4Init = 1;
+                        this.rect33.Visibility = Visibility.Visible;
+                    }));
+                    FujianAct(this.rect33);
+                    while (station4Finished == 0)
+                    {
+                        station3Init = 0;
                         Thread.Sleep(10);
                     }
-                    else
+                    station3Finished = 1;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        station4Init = 0;
-                        station3Init = 0;
-                    }
+                        CopyProperties(rect33, rect34);
+                        this.rect33.Visibility = Visibility.Hidden;
+                    }));
+                    station4Init = 1;
+                    Thread.Sleep(10);
+                    //if (station4Finished != 0)
+                    //{
+                    //    this.Dispatcher.BeginInvoke(new Action(() =>
+                    //    {
+                    //        if (station2Finished == 0)
+                    //        {
+                    //            CopyProperties(rect33, rect34);
+                    //            this.rect33.Visibility = Visibility.Hidden;
+                    //        }
+                    //        else {
+                    //            this.rect33.Visibility = Visibility.Visible;
+                    //            CopyProperties(rect33, rect34);
+                    //        }
+                    //    }));
+                    //    station4Init = 1;
+                    //    Thread.Sleep(10);
+                    //}
+                    //else
+                    //{
+                    //    station4Init = 0;
+                    //    station3Init = 0;
+                    //}
                 }
             }
         }
@@ -2699,10 +2981,10 @@ namespace AkribisFAM.Windows
                 if (station4Init == 1)
                 {
                     //station3Init = 1;
-                    //this.Dispatcher.BeginInvoke(new Action(() =>
-                    //{
-                    //    this.rect34.Visibility = Visibility.Visible;
-                    //}));
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        this.rect34.Visibility = Visibility.Visible;
+                    }));
                     station4Init = 0;
                     station4Finished = 0;
                     RejectAct(this.rect34);
@@ -2755,6 +3037,12 @@ namespace AkribisFAM.Windows
             flag4 = 0;
             NG_Foam_Count = 0;
             station1Init = 1;
+            current_index = 0;
+            rect21.Fill = new SolidColorBrush(Colors.Green);
+            rect24.Fill = new SolidColorBrush(Colors.Green);
+            rect27.Fill = new SolidColorBrush(Colors.Green);
+            rect30.Fill = new SolidColorBrush(Colors.Green);
+
             Task task1 = new Task(Station1Act);
             task1.Start();
             Task task2 = new Task(Station2Act);
@@ -2776,6 +3064,88 @@ namespace AkribisFAM.Windows
         private void resume_Click(object sender, RoutedEventArgs e)
         {
             deltatime = 0;
+        }
+
+        private int flag16 = 1;
+        private void returnOK16(Rectangle rect)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            while (flag16 == 1)
+            {
+                Thread.Sleep(100);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect.Fill = null;
+            }));
+        }
+
+        private void machinetest() {
+            Thread.Sleep(100);
+            moveforward(rect40, 86, 246, 10);
+            Task task1 = new Task(() => returnOK16(rect41));
+            task1.Start();
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect42.Fill = null;
+            }));
+            Task task2 = new Task(() => moveup(rect40, 188, 173, 20));
+            Task task3 = new Task(() => moveup(rect42, 202, 187, 20));
+            task2.Start();
+            task3.Start();
+            Task.WaitAll(task2, task3);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect42.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            //飞拍
+            int pointnum = 4;
+            int startpos = 265;
+            int endpos = 365;
+            int step = 0;
+            if (pointnum > 0)
+            {
+                step = (endpos - startpos) / (pointnum - 1);
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect43.Fill = new SolidColorBrush(Colors.Green);
+            }));
+            Thread.Sleep(50);
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect43.Fill = null;
+            }));
+            for (int i = 0; i < pointnum-1; i++) {
+                moveforward(rect43, startpos + i * step, startpos + (i+1) * step, 20);
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    rect43.Fill = new SolidColorBrush(Colors.Green);
+                }));
+                Thread.Sleep(50);
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    rect43.Fill = null;
+                }));
+            }
+        }
+
+        private void teststart_Click(object sender, RoutedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                rect40.Fill = new SolidColorBrush(Colors.Yellow);
+                rect41.Fill = null;
+                rect42.Fill = new SolidColorBrush(Colors.Red);
+                rect40.Margin = new Thickness(86, 188, 0, 0);
+                rect42.Margin = new Thickness(320, 202, 0, 0);
+                rect43.Margin = new Thickness(265, 98, 0, 0);
+            }));
+            Task task1 = new Task(machinetest);
+            task1.Start();
         }
     }
 }
