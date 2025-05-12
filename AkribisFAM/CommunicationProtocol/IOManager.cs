@@ -130,7 +130,7 @@ namespace AkribisFAM.CommunicationProtocol
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
-                        OutIO_status[(int)IOnamekey] = ModbusTCPWorker.Instance.Read_Coil(IOname.Value);
+                        INIO_status[(int)IOnamekey] = ModbusTCPWorker.Instance.Read_Coil(IOname.Value);
                     }
                     Thread.Sleep(50);
                 }
@@ -139,14 +139,34 @@ namespace AkribisFAM.CommunicationProtocol
 
         public bool WriteIO_Truestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为True
         {
-
-            return ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+            if (!OutIO_status[(int)iO_OutFunction_Table])
+            {
+                bool Sucessstatus = ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+                if (!Sucessstatus)
+                {
+                   return false;
+                }
+                
+                OutIO_status[(int)iO_OutFunction_Table] = true;
+                return true;  
+            }
+            return true;
             //Console.WriteLine(  
         }
 
         public bool WriteIO_Falsestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为False
         {
-            return ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+            if (OutIO_status[(int)iO_OutFunction_Table])
+            {
+                bool Sucessstatus = ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+                if (!Sucessstatus)
+                {
+                    return false;
+                }
+                OutIO_status[(int)iO_OutFunction_Table] = false;
+                return true;
+            }
+            return true;
             //Console.WriteLine(  
         }
     }

@@ -78,7 +78,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
        
-        public static bool TriggDownCamreaSendData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand) //下相机拍照与相机交互自动触发流程
+        public static bool TriggDownCamreaSendData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand, List<object> list_positions) //下相机拍照与相机交互自动触发流程
         {
             try
             {
@@ -93,61 +93,61 @@ namespace AkribisFAM.CommunicationProtocol
                             sendTLNCommandTop1.CamreaCount = "4";
                             InstructionHeader = $"{sendTLNCommandTop1.TLN},{sendTLNCommandTop1.CmdID},{sendTLNCommandTop1.CamreaCount},";
 
-                            //SN1+物料名称+视野编号+X+Y+R
-                            List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> sendTLNCamreapositions = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
-                            PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition1 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+                            ////SN1+物料名称+视野编号+X+Y+R
+                            //List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> sendTLNCamreapositions = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
+                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition1 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
 
-                            sendTLNCamreaposition1.SN = "LocateNozzle_1_20250418152027";
-                            sendTLNCamreaposition1.NozzleID= "1";//吸嘴编号
-                            sendTLNCamreaposition1.RawMaterialName = "Foam";
-                            sendTLNCamreaposition1.CaveID = "0";
-                            sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
-                            sendTLNCamreaposition1.Photo_X1 = "256.890";
-                            sendTLNCamreaposition1.Photo_Y1 = "345.445";
-                            sendTLNCamreaposition1.Photo_R1 = "67.456";
-                            sendTLNCamreapositions.Add(sendTLNCamreaposition1);
+                            //sendTLNCamreaposition1.SN = "LocateNozzle_1_20250418152027";
+                            //sendTLNCamreaposition1.NozzleID= "1";//吸嘴编号
+                            //sendTLNCamreaposition1.RawMaterialName = "Foam";
+                            //sendTLNCamreaposition1.CaveID = "0";
+                            //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
+                            //sendTLNCamreaposition1.Photo_X1 = "256.890";
+                            //sendTLNCamreaposition1.Photo_Y1 = "345.445";
+                            //sendTLNCamreaposition1.Photo_R1 = "67.456";
+                            //sendTLNCamreapositions.Add(sendTLNCamreaposition1);
 
-                            //SN2+物料名称+视野编号+X+Y+R
-                            PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition2 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+                            ////SN2+物料名称+视野编号+X+Y+R
+                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition2 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
 
-                            sendTLNCamreaposition2.SN = "LocateNozzle_2_20250418152027";
-                            sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
-                            sendTLNCamreaposition2.RawMaterialName = "Foam";
-                            sendTLNCamreaposition2.CaveID = "0";
-                            sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
-                            sendTLNCamreaposition2.Photo_X1 = "256.890";
-                            sendTLNCamreaposition2.Photo_Y1 = "345.445";
-                            sendTLNCamreaposition2.Photo_R1 = "67.456";
-                            sendTLNCamreapositions.Add(sendTLNCamreaposition2);
+                            //sendTLNCamreaposition2.SN = "LocateNozzle_2_20250418152027";
+                            //sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
+                            //sendTLNCamreaposition2.RawMaterialName = "Foam";
+                            //sendTLNCamreaposition2.CaveID = "0";
+                            //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
+                            //sendTLNCamreaposition2.Photo_X1 = "256.890";
+                            //sendTLNCamreaposition2.Photo_Y1 = "345.445";
+                            //sendTLNCamreaposition2.Photo_R1 = "67.456";
+                            //sendTLNCamreapositions.Add(sendTLNCamreaposition2);
 
-                            //SN3+物料名称+视野编号+X+Y+R
-                            PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition3 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+                            ////SN3+物料名称+视野编号+X+Y+R
+                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition3 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
 
-                            sendTLNCamreaposition3.SN = "LocateNozzle_3_20250418152027";
-                            sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
-                            sendTLNCamreaposition3.RawMaterialName = "Foam";
-                            sendTLNCamreaposition3.CaveID = "0";
-                            sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
-                            sendTLNCamreaposition3.Photo_X1 = "256.890";
-                            sendTLNCamreaposition3.Photo_Y1 = "345.445";
-                            sendTLNCamreaposition3.Photo_R1 = "67.456";
-                            sendTLNCamreapositions.Add(sendTLNCamreaposition3);
+                            //sendTLNCamreaposition3.SN = "LocateNozzle_3_20250418152027";
+                            //sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
+                            //sendTLNCamreaposition3.RawMaterialName = "Foam";
+                            //sendTLNCamreaposition3.CaveID = "0";
+                            //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
+                            //sendTLNCamreaposition3.Photo_X1 = "256.890";
+                            //sendTLNCamreaposition3.Photo_Y1 = "345.445";
+                            //sendTLNCamreaposition3.Photo_R1 = "67.456";
+                            //sendTLNCamreapositions.Add(sendTLNCamreaposition3);
 
-                            //SN4+物料名称+视野编号+X+Y+R
-                            PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition4 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+                            ////SN4+物料名称+视野编号+X+Y+R
+                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition4 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
 
-                            sendTLNCamreaposition4.SN = "LocateNozzle_4_20250418152027";
-                            sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
-                            sendTLNCamreaposition4.RawMaterialName = "Foam";
-                            sendTLNCamreaposition4.CaveID = "0";
-                            sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
-                            sendTLNCamreaposition4.Photo_X1 = "256.890";
-                            sendTLNCamreaposition4.Photo_Y1 = "345.445";
-                            sendTLNCamreaposition4.Photo_R1 = "67.456";
-                            sendTLNCamreapositions.Add(sendTLNCamreaposition4);
+                            //sendTLNCamreaposition4.SN = "LocateNozzle_4_20250418152027";
+                            //sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
+                            //sendTLNCamreaposition4.RawMaterialName = "Foam";
+                            //sendTLNCamreaposition4.CaveID = "0";
+                            //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
+                            //sendTLNCamreaposition4.Photo_X1 = "256.890";
+                            //sendTLNCamreaposition4.Photo_Y1 = "345.445";
+                            //sendTLNCamreaposition4.Photo_R1 = "67.456";
+                            //sendTLNCamreapositions.Add(sendTLNCamreaposition4);
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTLNCommandTop1, sendTLNCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendTLNCommandTop1, list_positions.Cast<object>().ToList());
                            
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -386,7 +386,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera2, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera2, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

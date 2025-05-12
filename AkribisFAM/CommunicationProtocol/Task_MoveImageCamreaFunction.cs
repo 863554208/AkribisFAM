@@ -67,7 +67,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggMoveImageCamreaSendData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand) //移动图片与相机交互自动触发流程
+        public static bool TriggMoveImageCamreaSendData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand, List<object> list_positions) //移动图片与相机交互自动触发流程
         {
             try
             {
@@ -90,17 +90,17 @@ namespace AkribisFAM.CommunicationProtocol
                             List<MoveImage.Pushcommand.SendGroupCamreaposition> sendGroupCamreapositions = new List<MoveImage.Pushcommand.SendGroupCamreaposition>();
                             MoveImage.Pushcommand.SendGroupCamreaposition sendGroupCamreaposition1 = new MoveImage.Pushcommand.SendGroupCamreaposition();
 
-                            sendGroupCamreaposition1.Folders_Number = "1";
-                            sendGroupCamreaposition1.Folders_SNOK= "542PAMC311100183_TestSN20250418152024 + 2_2_OK";
-                            sendGroupCamreaposition1.ImageNum = "4";
-                            sendGroupCamreaposition1.PhotoSN1 = "Pick_0_20250418152023_1";
-                            sendGroupCamreaposition1.PhotoSN2 = "LocateNozzle_1_20250418152027";
-                            sendGroupCamreaposition1.PhotoSN3 = "TLTTestSN20250418152024 + 2";
-                            sendGroupCamreaposition1.PhotoSN4 = "TFCTestSN20250418152024 + 2";
-                            sendGroupCamreapositions.Add(sendGroupCamreaposition1);
+                            //sendGroupCamreaposition1.Folders_Number = "1";
+                            //sendGroupCamreaposition1.Folders_SNOK= "542PAMC311100183_TestSN20250418152024 + 2_2_OK";
+                            //sendGroupCamreaposition1.ImageNum = "4";
+                            //sendGroupCamreaposition1.PhotoSN1 = "Pick_0_20250418152023_1";
+                            //sendGroupCamreaposition1.PhotoSN2 = "LocateNozzle_1_20250418152027";
+                            //sendGroupCamreaposition1.PhotoSN3 = "TLTTestSN20250418152024 + 2";
+                            //sendGroupCamreaposition1.PhotoSN4 = "TFCTestSN20250418152024 + 2";
+                            //sendGroupCamreapositions.Add(sendGroupCamreaposition1);
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendGroupCommandTop1, sendGroupCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendGroupCommandTop1, list_positions.Cast<object>().ToList());
 
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -289,7 +289,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

@@ -56,7 +56,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggResetCamreaSendData(ResetCamreaProcessCommand resetCamreaProcessCommand) //机台复位时与相机交互自动触发流程
+        public static bool TriggResetCamreaSendData(ResetCamreaProcessCommand resetCamreaProcessCommand, List<object> list_positions) //机台复位时与相机交互自动触发流程
         {
             try
             {
@@ -70,16 +70,16 @@ namespace AkribisFAM.CommunicationProtocol
                             sendSetStatCommandTop1.SetStation = "SetStation";
                             InstructionHeader = $"{sendSetStatCommandTop1.SetStation},";
 
-                            //AE-PDCA站点+项目名称
-                            List<ResetCamrea.Pushcommand.SendSetStatCamreaposition> sendSetStatCamreapositions = new List<ResetCamrea.Pushcommand.SendSetStatCamreaposition>();
-                            ResetCamrea.Pushcommand.SendSetStatCamreaposition sendSetStatCamreaposition1= new ResetCamrea.Pushcommand.SendSetStatCamreaposition();
+                            ////AE-PDCA站点+项目名称
+                            //List<ResetCamrea.Pushcommand.SendSetStatCamreaposition> sendSetStatCamreapositions = new List<ResetCamrea.Pushcommand.SendSetStatCamreaposition>();
+                            //ResetCamrea.Pushcommand.SendSetStatCamreaposition sendSetStatCamreaposition1= new ResetCamrea.Pushcommand.SendSetStatCamreaposition();
                             
-                            sendSetStatCamreaposition1.AE_Station = "LXSZ_B01-4FPAM-02_4_AE-40";
-                            sendSetStatCamreaposition1.ProjectName = "FAM1-BZ";
-                            sendSetStatCamreapositions.Add(sendSetStatCamreaposition1);
+                            //sendSetStatCamreaposition1.AE_Station = "LXSZ_B01-4FPAM-02_4_AE-40";
+                            //sendSetStatCamreaposition1.ProjectName = "FAM1-BZ";
+                            //sendSetStatCamreapositions.Add(sendSetStatCamreaposition1);
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendSetStatCommandTop1, sendSetStatCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendSetStatCommandTop1, list_positions.Cast<object>().ToList());
 
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -243,7 +243,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }
