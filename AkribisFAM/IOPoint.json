@@ -1,0 +1,38 @@
+{
+    "Out": {
+        "Left_1_lift_cylinder_extend": "512",
+        "Left_1_lift_cylinder_retract": "513",
+        "Right_1_lift_cylinder_extend": "514",
+        "Right_1_lift_cylinder_retract": "515",
+        "Left_2_lift_cylinder_extend": "516",
+        "Left_2_lift_cylinder_retract": "517",
+        "Right_2_lift_cylinder_extend": "518",
+        "Right_2_lift_cylinder_retract": "519",
+        "Left_3_lift_cylinder_extend": "520",
+        "Left_3_lift_cylinder_retract": "521",
+        "Right_3_lift_cylinder_extend": "522",
+        "Right_3_lift_cylinder_retract": "523",
+        "C4_lift_cylinder_extend": "524",
+        "C4_lift_cylinder_retract": "525"
+    },
+"IN":
+{
+"Acceleration_Sign1":"0",
+"Stop_Sign1":"4",
+"Stop_Sign2":"5",
+"Stop_Sign3":"6",
+"Stop_Sign4":"7",
+"NG_cover_plate1":"8",
+"NG_cover_plate2":"9",
+"plate_has_left_Behind_the_stopping_cylinder1":"10",
+"plate_has_left_Behind_the_stopping_cylinder2":"11",
+"bord_lift_in_position1":"12",
+"bord_lift_in_position2":"13",
+"bord_lift_in_position3":"14",
+"bord_lift_in_position4":"15"
+}
+}
+
+
+
+
