@@ -29,6 +29,7 @@ namespace AkribisFAM.Windows
 
         private Dictionary<string, int> OutputIOPairs { get; set; }
         private Dictionary<int, Rectangle> InputIOPairs { get; set; }
+
         public IOConfigure()
         {
             InitializeComponent();
