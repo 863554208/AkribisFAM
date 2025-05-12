@@ -12,7 +12,7 @@ namespace AkribisFAM.CommunicationProtocol
         private static ModbusTCPWorker _instance;
         private bool connect_state = false;
         private string m_ip = "172.1.1.13";
-        private int port = 502;
+        private int port;
         private ModbusTcpNet modbus = null;
         private ModbusTCPWorker()
         {
@@ -30,8 +30,12 @@ namespace AkribisFAM.CommunicationProtocol
                 return _instance;
             }
         }
+        public bool Initializate()
+        {
+            return Connect(m_ip= "172.1.1.13", port=502);
+        }
 
-        public bool Connect(string ip = null, int port = 502, int timeout = 1000)
+        private bool Connect(string ip = null, int port = 502, int timeout = 1000)
         {
             if (connect_state) return true;
 
@@ -80,6 +84,10 @@ namespace AkribisFAM.CommunicationProtocol
         {
             Disconnect();
         }
+
+
+
+
 
         // 读取保持寄存器
         public short Read_Holding_Register(int index)
