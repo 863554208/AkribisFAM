@@ -17,6 +17,7 @@ using AAMotion;
 using AkribisFAM.Util;
 using AkribisFAM.ViewModel;
 using System.Diagnostics;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM.Windows
 {
@@ -43,7 +44,7 @@ namespace AkribisFAM.Windows
             InitializeComponent();
             _axisDic = new AxisIntegerToStringDic();
             _currentAxis = 1;
-            this.DataContext = new AxisControlViewModel();
+            this.DataContext = AxisControlViewModel.Current;
         }
 
         private void Axis_Click(object sender, RoutedEventArgs e)
@@ -74,6 +75,12 @@ namespace AkribisFAM.Windows
                 AxiscomboBox.SelectedIndex = -1;
             }
         }
+        private void Test_Click(object sender, RoutedEventArgs e)
+        {
+            //20250512
+            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+        }
+
 
         private void MotorOn_Click(object sender, RoutedEventArgs e)
         {        
@@ -112,6 +119,9 @@ namespace AkribisFAM.Windows
                     MessageBox.Show("轴下使能报错 :" + ex.Message);
                 }
             }
+
+            //20250512
+            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
         }
 
 
@@ -134,6 +144,7 @@ namespace AkribisFAM.Windows
             {
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
             }
+
 
             GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
             GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;

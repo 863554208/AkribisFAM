@@ -27,6 +27,7 @@ using AkribisFAM.WorkStation;
 using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
+using AAMotion;
 
 namespace AkribisFAM
 {
@@ -201,6 +202,26 @@ namespace AkribisFAM
             GlobalManager.Current.FuJian_exit = false;
             AutorunManager.Current.hasReseted = true;
             //button.PromptCount += 1;
+
+            //20250512
+
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            {
+                Thread.Sleep(50);
+            }
+
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            {
+                Thread.Sleep(50);
+            }
+
+            //20250512
+
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AAMotion;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace AkribisFAM.ViewModel
 {
@@ -21,17 +25,17 @@ namespace AkribisFAM.ViewModel
             }
         }
 
-        private static AxisControlViewModel _instance;
+        private static AxisControlViewModel _current;
 
-        public static AxisControlViewModel Instance
+        public static AxisControlViewModel Current
         {
             get
             {
-                if (_instance == null)
+                if (_current == null)
                 {
-                    _instance = new AxisControlViewModel();
+                    _current = new AxisControlViewModel();
                 }
-                return _instance;
+                return _current;
             }
         }
 
@@ -40,6 +44,16 @@ namespace AkribisFAM.ViewModel
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void UpdateAxisPostion()
+        {
+            var temp = GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Pos.ToString();
+            Debug.WriteLine("temp:" + temp);
+            if (AxisPosition != temp) // 避免不必要的更新
+            {
+                AxisPosition = temp;
+            }
         }
     }
 }

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             xmlns:local="clr-namespace:AkribisFAM.Windows" xmlns:viewmodel="clr-namespace:AkribisFAM.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:AxisControlViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="390" d:DesignWidth="768">
     <Grid Margin="0,0,32,0" Background="Yellow">
@@ -102,7 +102,7 @@
                 <TextBox x:Name="ACCDECtext" HorizontalAlignment="Left" Margin="115,103,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="68" Height="20" Text="0"/>
                 <Label Content="mm/s^2" HorizontalAlignment="Left" Margin="188,100,0,0" VerticalAlignment="Top" FontSize="10"/>
                 <Button Content="Start" HorizontalAlignment="Left" Margin="22,8,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1" Click="Start_Click"/>
-                <Button Content="Stop" HorizontalAlignment="Left" Margin="22,68,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1"/>
+                <Button Content="Exc" HorizontalAlignment="Left" Margin="22,68,0,0" VerticalAlignment="Top" Width="75" Height="40" Grid.Row="1" Click="Test_Click"/>
                 <Button x:Name="MotorOn" Content="使能" HorizontalAlignment="Left" Margin="22,135,0,0" VerticalAlignment="Top" Height="36" Width="71" Click="MotorOn_Click"/>
                 <Button x:Name="MotorOff" Content="下使能" HorizontalAlignment="Left" Height="36" Margin="128,135,0,0" VerticalAlignment="Top" Width="74" Click="MotorOff_Click"/>
                 <Button x:Name="Jog_Move_Forword" Content="Jog_Forword" HorizontalAlignment="Left" Margin="149,43,0,0" Grid.Row="1" VerticalAlignment="Top" Height="34" Width="77"  PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp"/>
