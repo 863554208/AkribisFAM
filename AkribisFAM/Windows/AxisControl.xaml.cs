@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using AAMotion;
 using AkribisFAM.Util;
+using AkribisFAM.ViewModel;
 
 namespace AkribisFAM.Windows
 {
@@ -41,6 +42,7 @@ namespace AkribisFAM.Windows
             InitializeComponent();
             _axisDic = new AxisIntegerToStringDic();
             _currentAxis = 1;
+            this.DataContext = new AxisControlViewModel();
         }
 
         private void Axis_Click(object sender, RoutedEventArgs e)
@@ -208,6 +210,15 @@ namespace AkribisFAM.Windows
                 }
             }
 
+        }
+
+        public void Test()
+        {
+            string axisName = _axisDic.GetAxisName(CurrentAxis);
+            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
+            {
+                var a = GlobalManager.Current._Agm800.controller.GetAxis(axisRef).Pos;
+            }
         }
         
 

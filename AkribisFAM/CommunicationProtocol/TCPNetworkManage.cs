@@ -40,7 +40,6 @@ namespace AkribisFAM.CommunicationProtocol
         public static void TCPInitialize()
         {
             ConnectAllClients();//连接所有客户端
-
         }
 
         /// <summary>
