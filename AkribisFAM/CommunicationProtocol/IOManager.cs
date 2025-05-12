@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using HslCommunication.ModBus;
 using Newtonsoft.Json.Linq;
 
@@ -51,14 +53,14 @@ namespace AkribisFAM.CommunicationProtocol
     {
         private Dictionary<IO_OutFunction_Table, int> IO_OutFunctionnames = new Dictionary<IO_OutFunction_Table, int>();
         private Dictionary<IO_INFunction_Table, int> IO_INFunctionnames = new Dictionary<IO_INFunction_Table, int>();
-        public static List<bool> OutIO_status = new List<bool>();
-        public static List<bool> INIO_status = new List<bool>();
+        public bool[] OutIO_status = new bool[100];
+        public bool[] INIO_status = new bool[100];
 
         private static IOManager _instance;
         private IOManager()
         {
             LoadIOPoint();
-            ReadIO_status();
+            //ReadIO_status();
         }
 
         public static IOManager Instance
@@ -105,18 +107,28 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        private void ReadIO_status()
+        public void ReadIO_status()
         {
+            //foreach (var IOname in IO_OutFunctionnames)
+            //{
+            //    var IOnamekey = IOname.Key;
+            //    var IOnamevalue = IOname.Value;
+            //    bool results = ModbusTCPWorker.GetInstance().Read_Coil(520);
+
+            //    //OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
+            //}
             //循环读取输出IO
             Task.Run(new Action(() =>
             {
+                Thread.CurrentThread.Name = "OutIO_statusThread";
+
                 while (true)
                 {
                     foreach (var IOname in IO_OutFunctionnames)
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
-                        OutIO_status[(int)IOnamekey] = ModbusTCPWorker.Instance.Read_Coil(IOname.Value);
+                        OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
                     }
                     Thread.Sleep(50);
                 }
@@ -130,7 +142,7 @@ namespace AkribisFAM.CommunicationProtocol
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
-                        OutIO_status[(int)IOnamekey] = ModbusTCPWorker.Instance.Read_Coil(IOname.Value);
+                        INIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
                     }
                     Thread.Sleep(50);
                 }
@@ -139,14 +151,34 @@ namespace AkribisFAM.CommunicationProtocol
 
         public bool WriteIO_Truestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为True
         {
+            if (!OutIO_status[(int)iO_OutFunction_Table])
+            {
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+                if (!Sucessstatus)
+                {
+                    return false;
+                }
 
-            return ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+                OutIO_status[(int)iO_OutFunction_Table] = true;
+                return true;
+            }
+            return true;
             //Console.WriteLine(  
         }
 
         public bool WriteIO_Falsestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为False
         {
-            return ModbusTCPWorker.Instance.Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+            if (OutIO_status[(int)iO_OutFunction_Table])
+            {
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+                if (!Sucessstatus)
+                {
+                    return false;
+                }
+                OutIO_status[(int)iO_OutFunction_Table] = false;
+                return true;
+            }
+            return true;
             //Console.WriteLine(  
         }
     }

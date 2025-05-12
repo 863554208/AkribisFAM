@@ -2,6 +2,7 @@
 using HslCommunication;
 using HslCommunication.ModBus;
 using System;
+using System.Net.Sockets;
 using System.Timers;
 
 
@@ -12,23 +13,32 @@ namespace AkribisFAM.CommunicationProtocol
         private static ModbusTCPWorker _instance;
         private bool connect_state = false;
         private string m_ip = "172.1.1.13";
-        private int port = 502;
+        private int port;
         private ModbusTcpNet modbus = null;
+        //private object locker = new object();
+        private static readonly object locker = new object();
         private ModbusTCPWorker()
         {
 
         }
 
-        public static ModbusTCPWorker Instance
+        public static ModbusTCPWorker GetInstance()
         {
-            get
+            lock (locker)
             {
+
                 if (_instance == null)
                 {
                     _instance = new ModbusTCPWorker();
                 }
-                return _instance;
             }
+            Console.WriteLine(_instance);
+            return _instance;
+
+        }
+        public bool Initializate()
+        {
+            return Connect(m_ip = "172.1.1.13", port = 502);
         }
 
         public bool Connect(string ip = null, int port = 502, int timeout = 1000)
@@ -46,23 +56,23 @@ namespace AkribisFAM.CommunicationProtocol
             return connect_state;
         }
 
-        private void CheckConnection(object sender, ElapsedEventArgs e)
-        {
-            // 检查连接是否仍然有效
-            if (!modbus.ConnectServer().IsSuccess)
-            {
-                Console.WriteLine("连接已断开，尝试重新连接...");
-                connect_state = modbus.ConnectServer().IsSuccess;
-                if (connect_state)
-                {
-                    Console.WriteLine("重新连接成功！");
-                }
-                else
-                {
-                    Console.WriteLine($"重新连接失败：{modbus.ConnectServer().Message}");
-                }
-            }
-        }
+        //private void CheckConnection(object sender, ElapsedEventArgs e)
+        //{
+        //    // 检查连接是否仍然有效
+        //    if (!modbus.ConnectServer().IsSuccess)
+        //    {
+        //        Console.WriteLine("连接已断开，尝试重新连接...");
+        //        connect_state = modbus.ConnectServer().IsSuccess;
+        //        if (connect_state)
+        //        {
+        //            Console.WriteLine("重新连接成功！");
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine($"重新连接失败：{modbus.ConnectServer().Message}");
+        //        }
+        //    }
+        //}
 
         public bool Disconnect()
         {
@@ -80,6 +90,10 @@ namespace AkribisFAM.CommunicationProtocol
         {
             Disconnect();
         }
+
+
+
+
 
         // 读取保持寄存器
         public short Read_Holding_Register(int index)

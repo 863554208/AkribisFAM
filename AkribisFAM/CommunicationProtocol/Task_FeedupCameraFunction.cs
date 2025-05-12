@@ -16,9 +16,9 @@ namespace AkribisFAM.CommunicationProtocol
             //定义拍照发送头部指令(定位飞达)
             public class SendTLMCommandTop
             {
-                public static string TLM; // 模块头
-                public static string CmdID;  // 指令编号
-                public static string CamreaCount; // 拍照次数  
+                public string TLM; // 模块头
+                public string CmdID;  // 指令编号
+                public string CamreaCount; // 拍照次数  
             }
             //定义拍照位置(定位飞达)
             public class SendTLMCamreaposition
@@ -108,96 +108,163 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggFeedUpCamreaSendData(FeedupCameraProcessCommand feedupCameraProcessCommand) //飞达拍照与相机交互自动触发流程
+        //public static bool TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand feedupCameraProcessCommand,List<object> list_positions) //飞达拍照与相机交互自动触发流程
+        //{
+        //    try
+        //    {
+        //        switch ((int)feedupCameraProcessCommand)
+        //        {
+        //            case (int)FeedupCameraProcessCommand.TLM://TLM触发指令
+        //                {
+        //                    //TLM触发指令头
+        //                    //FeedUpCamrea.Pushcommand.SendTLMCommandTop sendTLMCommandTop1 = new FeedUpCamrea.Pushcommand.SendTLMCommandTop();
+        //                    //sendTLMCommandTop1.TLM = "TLM";
+        //                    //sendTLMCommandTop1.CmdID = "Cmd_100";
+        //                    //sendTLMCommandTop1.CamreaCount = "2";
+        //                    //InstructionHeader = $"{sendTLMCommandTop1.TLM},{sendTLMCommandTop1.CmdID},{sendTLMCommandTop1.CamreaCount},";
+
+        //                    FeedUpCamrea.Pushcommand.SendTLMCommandTop sendTLMCommandTop1 = new FeedUpCamrea.Pushcommand.SendTLMCommandTop();
+        //                    FeedUpCamrea.Pushcommand.SendTLMCommandTop.TLM = "TLM";
+        //                    FeedUpCamrea.Pushcommand.SendTLMCommandTop.CmdID = "Cmd_100";
+        //                    FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount = "2";
+        //                    InstructionHeader = $"{FeedUpCamrea.Pushcommand.SendTLMCommandTop.TLM},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CmdID},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount},";
+
+        //                    ////SN1+物料名称+视野编号+X+Y+R
+        //                    //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+        //                    //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+        //                    //sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
+        //                    //sendTLMCamreaposition1.RawMaterialName1 = "Foam";
+        //                    //sendTLMCamreaposition1.FOV = "1";
+        //                    //sendTLMCamreaposition1.Photo_X1 = "256.890";
+        //                    //sendTLMCamreaposition1.Photo_Y1 = "345.445";
+        //                    //sendTLMCamreaposition1.Photo_R1 = "67.456";
+        //                    //sendTLMCamreapositions.Add(sendTLMCamreaposition1);
+        //                    ////SN2+物料名称+视野编号+X+Y+R
+        //                    //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+        //                    //sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
+        //                    //sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
+        //                    //sendTLMCamreaposition2.FOV = "2";
+        //                    //sendTLMCamreaposition2.Photo_X1 = "256.8902";
+        //                    //sendTLMCamreaposition2.Photo_Y1 = "345.4452";
+        //                    //sendTLMCamreaposition2.Photo_R1 = "67.4562";
+        //                    //sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+        //                    //组合字符串
+        //                   // string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendTLMCamreaposition2.Cast<object>().ToList());
+
+        //                    //组合字符串
+        //                    string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, list_positions.Cast<object>().ToList());
+
+        //                    //发送字符串到Socket
+        //                    bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+        //                    RecordLog("触发飞达定位: " + sendcommandData);
+        //                    if (!sendcommand_status)
+        //                    {
+        //                        return false;
+        //                    }
+        //                }
+        //                break;
+        //            case (int)FeedupCameraProcessCommand.GM://GM触发指令
+        //                {
+        //                    //GM触发指令头
+        //                    FeedUpCamrea.Pushcommand.SendGMCommandTop sendGMCommandTop1 = new FeedUpCamrea.Pushcommand.SendGMCommandTop();
+        //                    sendGMCommandTop1.GM = "GM";
+        //                    sendGMCommandTop1.PickNumber = "1";
+        //                    InstructionHeader = $"{sendGMCommandTop1.GM},{sendGMCommandTop1.PickNumber},";
+        //                    ////吸嘴编号+物料名称+视野编号+子区域编号
+        //                    //List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> sendGMCommandAppends = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
+        //                    //FeedUpCamrea.Pushcommand.SendGMCommandAppend sendGMCommandAppend = new FeedUpCamrea.Pushcommand.SendGMCommandAppend();
+        //                    //sendGMCommandAppend.NozzlelD1 = "4";
+        //                    //sendGMCommandAppend.RawMaterialName1 = "Foam";
+        //                    //sendGMCommandAppend.FOV1 = "1";
+        //                    //sendGMCommandAppend.SubRegionID1 = "3";
+        //                    //sendGMCommandAppends.Add(sendGMCommandAppend);
+        //                    //组合字符串
+        //                    // string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendGMCommandAppend.Cast<object>().ToList());
+
+
+        //                    //组合字符串
+        //                    string sendcommandData = StrClass1.BuildPacket(sendGMCommandTop1, list_positions.Cast<object>().ToList());
+
+        //                    //发送字符串到Socket
+        //                    bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+        //                    RecordLog("触发飞达取料: " + sendcommandData);
+        //                    if (!sendcommand_status)
+        //                    {
+        //                        return false;
+        //                    }
+        //                }
+        //                break;
+        //            default:
+        //                {
+        //                    //发送字符串到Socket
+        //                    bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
+        //                    if (!sendcommand_status)
+        //                    {
+        //                        return false;
+        //                    }
+        //                }
+        //                break;
+        //        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ex.ToString();
+        //        //bool sendcommand_status = this.VisionpositionfeedPushcommand("信息报错:"+ex.ToString());
+        //        return false;
+        //    }
+        //}
+
+        public static bool TriggFeedUpCamreaGMSendData(FeedupCameraProcessCommand feedupCameraProcessCommand, List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> list_positions) //飞达拍照与相机交互GM自动触发流程
         {
             try
             {
-                switch ((int)feedupCameraProcessCommand)
+                //GM触发指令头
+                FeedUpCamrea.Pushcommand.SendGMCommandTop sendGMCommandTop1 = new FeedUpCamrea.Pushcommand.SendGMCommandTop();
+                sendGMCommandTop1.GM = "GM";
+                sendGMCommandTop1.PickNumber = "1";
+                InstructionHeader = $"{sendGMCommandTop1.GM},{sendGMCommandTop1.PickNumber},";
+
+                //组合字符串
+                string sendcommandData = StrClass1.BuildPacket(sendGMCommandTop1, list_positions.Cast<object>().ToList());
+
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发飞达取料: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)FeedupCameraProcessCommand.TLM://TLM触发指令
-                        {
-                            //TLM触发指令头
-                            //FeedUpCamrea.Pushcommand.SendTLMCommandTop sendTLMCommandTop1 = new FeedUpCamrea.Pushcommand.SendTLMCommandTop();
-                            //sendTLMCommandTop1.TLM = "TLM";
-                            //sendTLMCommandTop1.CmdID = "Cmd_100";
-                            //sendTLMCommandTop1.CamreaCount = "2";
-                            //InstructionHeader = $"{sendTLMCommandTop1.TLM},{sendTLMCommandTop1.CmdID},{sendTLMCommandTop1.CamreaCount},";
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ex.ToString();
+                //bool sendcommand_status = this.VisionpositionfeedPushcommand("信息报错:"+ex.ToString());
+                return false;
+            }
+        }
 
-                            FeedUpCamrea.Pushcommand.SendTLMCommandTop sendTLMCommandTop1 = new FeedUpCamrea.Pushcommand.SendTLMCommandTop();
-                            FeedUpCamrea.Pushcommand.SendTLMCommandTop.TLM = "TLM";
-                            FeedUpCamrea.Pushcommand.SendTLMCommandTop.CmdID = "Cmd_100";
-                            FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount = "2";
-                            InstructionHeader = $"{FeedUpCamrea.Pushcommand.SendTLMCommandTop.TLM},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CmdID},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount},";
+        public static bool TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand feedupCameraProcessCommand, List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> list_positions) //飞达拍照与相机交互TLM自动触发流程
+        {
+            try
+            {
+                //TLM触发指令头
+                FeedUpCamrea.Pushcommand.SendTLMCommandTop sendTLMCommandTop1 = new FeedUpCamrea.Pushcommand.SendTLMCommandTop();
+                sendTLMCommandTop1.TLM = "TLM";
+                sendTLMCommandTop1.CmdID = "Cmd_100";
+                sendTLMCommandTop1.CamreaCount = "2";
+                InstructionHeader = $"{sendTLMCommandTop1.TLM},{sendTLMCommandTop1.CmdID},{sendTLMCommandTop1.CamreaCount},";
 
-                            //SN1+物料名称+视野编号+X+Y+R
-                            List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
-                            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-                            sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
-                            sendTLMCamreaposition1.RawMaterialName1 = "Foam";
-                            sendTLMCamreaposition1.FOV = "1";
-                            sendTLMCamreaposition1.Photo_X1 = "256.890";
-                            sendTLMCamreaposition1.Photo_Y1 = "345.445";
-                            sendTLMCamreaposition1.Photo_R1 = "67.456";
-                            sendTLMCamreapositions.Add(sendTLMCamreaposition1);
-                            //SN2+物料名称+视野编号+X+Y+R
-                            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-                            sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
-                            sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
-                            sendTLMCamreaposition2.FOV = "2";
-                            sendTLMCamreaposition2.Photo_X1 = "256.8902";
-                            sendTLMCamreaposition2.Photo_Y1 = "345.4452";
-                            sendTLMCamreaposition2.Photo_R1 = "67.4562";
-                            sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+                //组合字符串
+                string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, list_positions.Cast<object>().ToList());
 
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendTLMCamreapositions.Cast<object>().ToList());
-                           
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发飞达定位: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)FeedupCameraProcessCommand.GM://GM触发指令
-                        {
-                            //GM触发指令头
-                            FeedUpCamrea.Pushcommand.SendGMCommandTop sendGMCommandTop1 = new FeedUpCamrea.Pushcommand.SendGMCommandTop();
-                            sendGMCommandTop1.GM = "GM";
-                            sendGMCommandTop1.PickNumber = "1";
-                            InstructionHeader = $"{sendGMCommandTop1.GM},{sendGMCommandTop1.PickNumber},";
-                            //吸嘴编号+物料名称+视野编号+子区域编号
-                            List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> sendGMCommandAppends = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
-                            FeedUpCamrea.Pushcommand.SendGMCommandAppend sendGMCommandAppend = new FeedUpCamrea.Pushcommand.SendGMCommandAppend();
-                            sendGMCommandAppend.NozzlelD1 = "4";
-                            sendGMCommandAppend.RawMaterialName1 = "Foam";
-                            sendGMCommandAppend.FOV1 = "1";
-                            sendGMCommandAppend.SubRegionID1 = "3";
-                            sendGMCommandAppends.Add(sendGMCommandAppend);
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendGMCommandTop1, sendGMCommandAppends.Cast<object>().ToList());
-                            
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发飞达取料: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发飞达定位: " + sendcommandData);
+                if (!sendcommand_status)
+                {
+                    return false;
                 }
                 return true;
             }
@@ -227,7 +294,7 @@ namespace AkribisFAM.CommunicationProtocol
                 return null;
             }
             //需要输出list_position
-            return((FeedUpCamrea.Acceptcommand.TLMCamreaready)list_position[0]).CamreaReadyFlag;
+            return ((FeedUpCamrea.Acceptcommand.TLMCamreaready)list_position[0]).CamreaReadyFlag;
         }
 
         public static bool TriggFeedUpCamreaAcceptData(FeedupCameraProcessCommand feedupCameraProcessCommand, out List<object> list_position)//飞达拍照与相机交互接收流程
@@ -336,7 +403,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }
