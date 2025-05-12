@@ -722,11 +722,28 @@
                             <Button x:Name="resume" Content="resume" HorizontalAlignment="Left" Margin="705,364,0,0" VerticalAlignment="Top" Width="60" Click="resume_Click"/>
                             <Rectangle HorizontalAlignment="Left" Height="60" Margin="230,27,0,0" Stroke="Black" VerticalAlignment="Top" Width="37"/>
                             <Rectangle HorizontalAlignment="Left" Height="60" Margin="276,27,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
-                            <Rectangle x:Name="rect26" HorizontalAlignment="Left" Height="42" Margin="248,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
                             <Rectangle HorizontalAlignment="Left" Height="54" Margin="230,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="56"/>
                             <Rectangle HorizontalAlignment="Left" Height="46" Margin="177,114,0,0" Stroke="Black" VerticalAlignment="Top" Width="48"/>
                             <Label x:Name="palletfaomnum" Content="" HorizontalAlignment="Left" Margin="247,206,0,0" VerticalAlignment="Top" Width="39"/>
                             <Label x:Name="NGnum" Content="" HorizontalAlignment="Left" Margin="181,124,0,0" VerticalAlignment="Top" Width="44"/>
+                            <Rectangle x:Name="rect27" HorizontalAlignment="Left" Height="50" Margin="506,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16"/>
+                            <Rectangle x:Name="rect28" HorizontalAlignment="Left" Height="39" Margin="466,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
+                            <Label x:Name="Leftfoam" Content="" HorizontalAlignment="Left" Margin="416,206,0,0" VerticalAlignment="Top" Width="33"/>
+                            <Rectangle x:Name="rect30" HorizontalAlignment="Left" Height="50" Margin="710,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16"/>
+                            <Rectangle x:Name="rect31" HorizontalAlignment="Left" Height="39" Margin="675,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="14"/>
+                            <Rectangle x:Name="rect32" HorizontalAlignment="Left" Height="34" Margin="94,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
+                            <Rectangle x:Name="rect33" HorizontalAlignment="Left" Height="34" Margin="266,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
+                            <Rectangle x:Name="rect34" HorizontalAlignment="Left" Height="34" Margin="448,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
+                            <Rectangle x:Name="rect26" HorizontalAlignment="Left" Height="42" Margin="248,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
+                            <Rectangle x:Name="rect29" HorizontalAlignment="Left" Height="42" Margin="454,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
+                            <Label Content="Feeder" HorizontalAlignment="Left" Margin="175,32,0,0" VerticalAlignment="Top"/>
+                            <Label Content="CCD2" HorizontalAlignment="Left" Margin="238,124,0,0" VerticalAlignment="Top"/>
+                            <Label Content="NG bin" HorizontalAlignment="Left" Margin="163,89,0,0" VerticalAlignment="Top"/>
+                            <Label Content="scanner" HorizontalAlignment="Left" Margin="148,274,0,0" VerticalAlignment="Top"/>
+                            <Label Content="CCD1 and picker" HorizontalAlignment="Left" Margin="238,274,0,0" VerticalAlignment="Top"/>
+                            <Label Content="CCD3 and tearer" HorizontalAlignment="Left" Margin="425,274,0,0" VerticalAlignment="Top"/>
+                            <Label Content="Reject" HorizontalAlignment="Left" Margin="662,274,0,0" VerticalAlignment="Top"/>
+                            <Label Content="laser" HorizontalAlignment="Left" Margin="101,185,0,0" VerticalAlignment="Top"/>
                         </Grid>
                     </TabItem>
                 </TabControl>
