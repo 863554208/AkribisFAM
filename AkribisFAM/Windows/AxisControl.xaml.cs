@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using AAMotion;
 using AkribisFAM.Util;
 using AkribisFAM.ViewModel;
+using System.Diagnostics;
 
 namespace AkribisFAM.Windows
 {
@@ -120,10 +121,12 @@ namespace AkribisFAM.Windows
             string axisName = _axisDic.GetAxisName(CurrentAxis);
             int targetPos = int.Parse(Targetpos.Text);
 
+            Debug.WriteLine("start_click");
             //20250429 
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).ClearBuffer();
+
+            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).ClearBuffer();
 
             if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
@@ -131,12 +134,15 @@ namespace AkribisFAM.Windows
             {
                 AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
             }
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Begin();
-            Thread.Sleep(100);
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Stop();
-            //AAMotionAPI.Pause(GlobalManager.Current._Agm800.controller);
-            Thread.Sleep(5000);
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Begin();
+
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(100000, 0, null, 100000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
+
+
 
         }
 
@@ -247,17 +253,13 @@ namespace AkribisFAM.Windows
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            axisName = "A";
-            GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef);
-            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).ClearBuffer();
+
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
             GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
             GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotionMode = 11;
 
-            AAMotionAPI.LinearAbsoluteXYZ(GlobalManager.Current._Agm800.controller, 500000, 400000, 300000, 120000, 20000);
-            GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(250000, 50000, null, 100000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
             //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
         }
 

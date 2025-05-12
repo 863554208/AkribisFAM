@@ -114,8 +114,9 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            //对轴初始化使能 改到登录之后
-            GlobalManager.Current.InitializeAxis();
+            //对轴初始化使能 改到登录之后            
+            AkrAction.Current.axisAllEnable(true);
+            GlobalManager.Current.InitializeAxisMode();
 
             Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try

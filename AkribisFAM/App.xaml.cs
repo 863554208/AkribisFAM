@@ -32,6 +32,8 @@ namespace AkribisFAM
             var _warningManager = WarningManager.Current;
 
             TCPNetworkManage.TCPInitialize();
+            //启动与AGM800的连接
+            StartConnectAGM800();
 
             //TODO
             try

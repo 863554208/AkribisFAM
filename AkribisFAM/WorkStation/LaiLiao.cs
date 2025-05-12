@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Media;
+using AAMotion;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
+using static AAComm.Extensions.AACommFwInfo;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
@@ -196,11 +199,18 @@ namespace AkribisFAM.WorkStation
 
         public bool Step1()
         {            
-            Console.WriteLine("LaiLiao.Current.Step1()");
+            Debug.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
-            if (!BoradIn()) 
-                return false;
+            //if (!BoradIn()) 
+            //    return false;
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(80000);
+
+            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(250000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
 
             //触发 UI 动画
             OnTriggerStep1?.Invoke();

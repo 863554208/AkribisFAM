@@ -326,16 +326,10 @@ namespace AkribisFAM
         //    _errorCheckTimer.Start();
         //}
 
-        public void InitializeAxis()
+        public void InitializeAxisMode()
         {
             try
             {
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotorOn = 1;
-
-
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
