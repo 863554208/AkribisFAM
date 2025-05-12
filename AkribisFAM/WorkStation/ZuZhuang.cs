@@ -255,7 +255,30 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            //Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
+            ////SN1+物料名称+视野编号+X+Y+R
+            List < object > sendTLMCamreapositions = new List<object>();
+            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
+            sendTLMCamreaposition1.RawMaterialName1 = "Foam";
+            sendTLMCamreaposition1.FOV = "1";
+            sendTLMCamreaposition1.Photo_X1 = "256.890";
+            sendTLMCamreaposition1.Photo_Y1 = "345.445";
+            sendTLMCamreaposition1.Photo_R1 = "67.456";
+            sendTLMCamreapositions.Add(sendTLMCamreaposition1);
+            ////SN2+物料名称+视野编号+X+Y+R
+            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
+            sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
+            sendTLMCamreaposition2.FOV = "2";
+            sendTLMCamreaposition2.Photo_X1 = "256.8902";
+            sendTLMCamreaposition2.Photo_Y1 = "345.4452";
+            sendTLMCamreaposition2.Photo_R1 = "67.4562";
+            sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+            //组合字符串
+            
+
+            Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM , sendTLMCamreapositions);
 
             //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, "ASD");
 
