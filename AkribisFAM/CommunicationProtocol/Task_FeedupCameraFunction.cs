@@ -108,7 +108,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggFeedUpCamreaSendData(FeedupCameraProcessCommand feedupCameraProcessCommand) //飞达拍照与相机交互自动触发流程
+        public static bool TriggFeedUpCamreaSendData(FeedupCameraProcessCommand feedupCameraProcessCommand,List<object> list_positions) //飞达拍照与相机交互自动触发流程
         {
             try
             {
@@ -129,28 +129,30 @@ namespace AkribisFAM.CommunicationProtocol
                             FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount = "2";
                             InstructionHeader = $"{FeedUpCamrea.Pushcommand.SendTLMCommandTop.TLM},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CmdID},{FeedUpCamrea.Pushcommand.SendTLMCommandTop.CamreaCount},";
 
-                            //SN1+物料名称+视野编号+X+Y+R
-                            List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
-                            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-                            sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
-                            sendTLMCamreaposition1.RawMaterialName1 = "Foam";
-                            sendTLMCamreaposition1.FOV = "1";
-                            sendTLMCamreaposition1.Photo_X1 = "256.890";
-                            sendTLMCamreaposition1.Photo_Y1 = "345.445";
-                            sendTLMCamreaposition1.Photo_R1 = "67.456";
-                            sendTLMCamreapositions.Add(sendTLMCamreaposition1);
-                            //SN2+物料名称+视野编号+X+Y+R
-                            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-                            sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
-                            sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
-                            sendTLMCamreaposition2.FOV = "2";
-                            sendTLMCamreaposition2.Photo_X1 = "256.8902";
-                            sendTLMCamreaposition2.Photo_Y1 = "345.4452";
-                            sendTLMCamreaposition2.Photo_R1 = "67.4562";
-                            sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+                            ////SN1+物料名称+视野编号+X+Y+R
+                            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+                            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+                            //sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
+                            //sendTLMCamreaposition1.RawMaterialName1 = "Foam";
+                            //sendTLMCamreaposition1.FOV = "1";
+                            //sendTLMCamreaposition1.Photo_X1 = "256.890";
+                            //sendTLMCamreaposition1.Photo_Y1 = "345.445";
+                            //sendTLMCamreaposition1.Photo_R1 = "67.456";
+                            //sendTLMCamreapositions.Add(sendTLMCamreaposition1);
+                            ////SN2+物料名称+视野编号+X+Y+R
+                            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+                            //sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
+                            //sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
+                            //sendTLMCamreaposition2.FOV = "2";
+                            //sendTLMCamreaposition2.Photo_X1 = "256.8902";
+                            //sendTLMCamreaposition2.Photo_Y1 = "345.4452";
+                            //sendTLMCamreaposition2.Photo_R1 = "67.4562";
+                            //sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+                            //组合字符串
+                           // string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendTLMCamreaposition2.Cast<object>().ToList());
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendTLMCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, list_positions.Cast<object>().ToList());
                            
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -168,16 +170,20 @@ namespace AkribisFAM.CommunicationProtocol
                             sendGMCommandTop1.GM = "GM";
                             sendGMCommandTop1.PickNumber = "1";
                             InstructionHeader = $"{sendGMCommandTop1.GM},{sendGMCommandTop1.PickNumber},";
-                            //吸嘴编号+物料名称+视野编号+子区域编号
-                            List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> sendGMCommandAppends = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
-                            FeedUpCamrea.Pushcommand.SendGMCommandAppend sendGMCommandAppend = new FeedUpCamrea.Pushcommand.SendGMCommandAppend();
-                            sendGMCommandAppend.NozzlelD1 = "4";
-                            sendGMCommandAppend.RawMaterialName1 = "Foam";
-                            sendGMCommandAppend.FOV1 = "1";
-                            sendGMCommandAppend.SubRegionID1 = "3";
-                            sendGMCommandAppends.Add(sendGMCommandAppend);
+                            ////吸嘴编号+物料名称+视野编号+子区域编号
+                            //List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> sendGMCommandAppends = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
+                            //FeedUpCamrea.Pushcommand.SendGMCommandAppend sendGMCommandAppend = new FeedUpCamrea.Pushcommand.SendGMCommandAppend();
+                            //sendGMCommandAppend.NozzlelD1 = "4";
+                            //sendGMCommandAppend.RawMaterialName1 = "Foam";
+                            //sendGMCommandAppend.FOV1 = "1";
+                            //sendGMCommandAppend.SubRegionID1 = "3";
+                            //sendGMCommandAppends.Add(sendGMCommandAppend);
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendGMCommandTop1, sendGMCommandAppends.Cast<object>().ToList());
+                            // string sendcommandData = StrClass1.BuildPacket(sendTLMCommandTop1, sendGMCommandAppend.Cast<object>().ToList());
+
+
+                            //组合字符串
+                            string sendcommandData = StrClass1.BuildPacket(sendGMCommandTop1, list_positions.Cast<object>().ToList());
                             
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -336,7 +342,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand+"\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

@@ -58,7 +58,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggITESTCamreaSendData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand) //机台复位时与相机交互自动触发流程
+        public static bool TriggITESTCamreaSendData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand, List<object> list_positions) //机台复位时与相机交互自动触发流程
         {
             try
             {
@@ -72,16 +72,16 @@ namespace AkribisFAM.CommunicationProtocol
                             sendRecordCommandTop1.RecordImage = "RecordImage";
                             InstructionHeader = $"{sendRecordCommandTop1.RecordImage},";
 
-                            //ITEST图像存储路径+存储数量
-                            List<ITESTCamrea.Pushcommand.SendRecordCamreaposition> sendRecordCamreapositions = new List<ITESTCamrea.Pushcommand.SendRecordCamreaposition>();
-                            ITESTCamrea.Pushcommand.SendRecordCamreaposition sendRecordCamreaposition1= new ITESTCamrea.Pushcommand.SendRecordCamreaposition();
+                            ////ITEST图像存储路径+存储数量
+                            //List<ITESTCamrea.Pushcommand.SendRecordCamreaposition> sendRecordCamreapositions = new List<ITESTCamrea.Pushcommand.SendRecordCamreaposition>();
+                            //ITESTCamrea.Pushcommand.SendRecordCamreaposition sendRecordCamreaposition1= new ITESTCamrea.Pushcommand.SendRecordCamreaposition();
 
-                            sendRecordCamreaposition1.ImagePath = @"F:\\itestimage";
-                            sendRecordCamreaposition1.Num = "1";
-                            sendRecordCamreapositions.Add(sendRecordCamreaposition1);
+                            //sendRecordCamreaposition1.ImagePath = @"F:\\itestimage";
+                            //sendRecordCamreaposition1.Num = "1";
+                            //sendRecordCamreapositions.Add(sendRecordCamreaposition1);
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendRecordCommandTop1, sendRecordCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendRecordCommandTop1, list_positions.Cast<object>().ToList());
 
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -245,7 +245,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

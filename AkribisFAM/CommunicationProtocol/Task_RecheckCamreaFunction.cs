@@ -72,7 +72,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggRecheckCamreaSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand) //复检相机拍照与相机交互自动触发流程
+        public static bool TriggRecheckCamreaSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, List<object> list_positions) //复检相机拍照与相机交互自动触发流程
         {
             try
             {
@@ -88,20 +88,20 @@ namespace AkribisFAM.CommunicationProtocol
                             sendTFCCommandTop1.CamreaCount = "1";
                             InstructionHeader = $"{sendTFCCommandTop1.TFC},{sendTFCCommandTop1.CmdID},{sendTFCCommandTop1.CamreaCount},";
 
-                            //SN1+穴位编号+物料名称+X +Y+R
-                            List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
-                            RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
+                            ////SN1+穴位编号+物料名称+X +Y+R
+                            //List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
+                            //RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
 
-                            sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
-                            sendTFCCamreaposition1.CaveID = "1";//穴位编号
-                            sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
-                            sendTFCCamreaposition1.Photo_X1 = "256.890";
-                            sendTFCCamreaposition1.Photo_Y1 = "345.445";
-                            sendTFCCamreaposition1.Photo_R1 = "67.456";
-                            sendTFCCamreapositions.Add(sendTFCCamreaposition1);
+                            //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
+                            //sendTFCCamreaposition1.CaveID = "1";//穴位编号
+                            //sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
+                            //sendTFCCamreaposition1.Photo_X1 = "256.890";
+                            //sendTFCCamreaposition1.Photo_Y1 = "345.445";
+                            //sendTFCCamreaposition1.Photo_R1 = "67.456";
+                            //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
 
                             //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTFCCommandTop1, sendTFCCamreapositions.Cast<object>().ToList());
+                            string sendcommandData = StrClass1.BuildPacket(sendTFCCommandTop1, list_positions.Cast<object>().ToList());
 
                             //发送字符串到Socket
                             bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
@@ -293,7 +293,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand);
+            TCPNetworkManage.InputLoop(ClientNames.camera3, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }
