@@ -27,6 +27,7 @@ using AkribisFAM.WorkStation;
 using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
+using AAMotion;
 
 namespace AkribisFAM
 {
@@ -114,8 +115,9 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            //对轴初始化使能 改到登录之后
-            GlobalManager.Current.InitializeAxis();
+            //对轴初始化使能 改到登录之后            
+            AkrAction.Current.axisAllEnable(true);
+            GlobalManager.Current.InitializeAxisMode();
 
             Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try
@@ -200,6 +202,26 @@ namespace AkribisFAM
             GlobalManager.Current.FuJian_exit = false;
             AutorunManager.Current.hasReseted = true;
             //button.PromptCount += 1;
+
+            //20250512
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+
+            //20250512
+
+
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

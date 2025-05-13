@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
+using System.Diagnostics;
+using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
@@ -223,6 +225,10 @@ namespace AkribisFAM.WorkStation
 
         public bool Step1()
         {
+            //测试用
+            Debug.WriteLine("ZuZhuang.Current.Step1()");
+            return true;
+            
             if (!BoradIn())
                 return false;
 
@@ -249,15 +255,11 @@ namespace AkribisFAM.WorkStation
 
         public bool Step2()
         {
-            Console.WriteLine("ZuZhuang.Current.Step2()");
+            Debug.WriteLine("ZuZhuang.Current.Step2()");
 
             GlobalManager.Current.current_Zuzhuang_step = 2;
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
-
-            //Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
-
-            //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, "ASD");
 
             //到feedar上拍照
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);     
@@ -272,7 +274,7 @@ namespace AkribisFAM.WorkStation
 
         public bool Step3()
         {
-            Console.WriteLine("ZuZhuang.Current.Step3()");
+            Debug.WriteLine("ZuZhuang.Current.Step3-1()");
 
             GlobalManager.Current.current_Zuzhuang_step = 3;
 
@@ -282,6 +284,7 @@ namespace AkribisFAM.WorkStation
             //吸嘴取料
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
+            Debug.WriteLine("ZuZhuang.Current.Step3-2()");
             CheckState();
             //触发 UI 动画
             OnStopStep3?.Invoke();
@@ -375,6 +378,7 @@ namespace AkribisFAM.WorkStation
                         Step3();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
 
+
                     step4:
                         //CCD2精定位
                         Step4();
@@ -395,28 +399,28 @@ namespace AkribisFAM.WorkStation
 
                     step6:
                         //拍料盘
-                        if(!GlobalManager.Current.has_XueWeiXinXi) goto step7; 
+                        if (!GlobalManager.Current.has_XueWeiXinXi) goto step7;
                         Step6();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;                        
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
 
                     step7:
                         //放料
                         Step7();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         //当前组装的料小于穴位数时，要一直取料
-                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
+                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count)
                         {
-                            goto step2; 
+                            goto step2;
                         }
 
-                    if (GlobalManager.Current.IsPass)
-                    {
-                        goto step2;
-                    }
-                    else
-                    {
-                        BoardOut();
-                    }
+                        if (GlobalManager.Current.IsPass)
+                        {
+                            goto step2;
+                        }
+                        else
+                        {
+                            BoardOut();
+                        }
 
 
                 }

@@ -12,6 +12,8 @@ using AGM800 = AkribisFAM.AAmotionFAM.AGM800;
 using System.Diagnostics;
 using AkribisFAM.Manager;
 using System.Threading;
+using AkribisFAM.ViewModel;
+using LiveCharts;
 
 namespace AkribisFAM
 {
@@ -24,8 +26,13 @@ namespace AkribisFAM
         //全局心跳包
         private System.Timers.Timer heartbeatTimer;
 
+        private System.Timers.Timer PosTimer;
+
         //错误队列
         private DispatcherTimer _errorCheckTimer;
+
+        //A轴实时位置
+        public long current_APos = 0;
 
 
         // 记录 A 轴和 B 轴的是否到位的状态
@@ -243,6 +250,11 @@ namespace AkribisFAM
             //heartbeatTimer.AutoReset = true; // 自动重复触发
             heartbeatTimer.Enabled = true;   // 启动定时器
 
+            PosTimer = new System.Timers.Timer(200); // 每300ms触发一次
+            PosTimer.Elapsed += PosTimer_Elapsed;
+            //heartbeatTimer.AutoReset = true; // 自动重复触发
+            PosTimer.Enabled = true;   // 启动定时器
+
             //StartErrorMonitor();
 
 
@@ -283,6 +295,23 @@ namespace AkribisFAM
             catch(Exception ex)
             {
                 MessageBox.Show("心跳包发生异常 : " + ex.ToString());
+            }
+        }
+
+        private void PosTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                if (_Agm800.controller.IsConnected)
+                {
+                    AxisControlViewModel.Current.UpdateAxisPostion();
+                    //Debug.WriteLine("当前A轴位置:" + current_APos.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+
             }
         }
         #endregion
@@ -326,16 +355,10 @@ namespace AkribisFAM
         //    _errorCheckTimer.Start();
         //}
 
-        public void InitializeAxis()
+        public void InitializeAxisMode()
         {
             try
             {
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotorOn = 1;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotorOn = 1;
-
-
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
                 GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;

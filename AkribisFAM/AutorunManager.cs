@@ -67,7 +67,7 @@ namespace AkribisFAM
 
             try
             {
-                Trace.WriteLine("Autorun Process");
+                Debug.WriteLine("Autorun Process");
 
                 try
                 {

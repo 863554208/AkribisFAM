@@ -32,6 +32,11 @@ namespace AkribisFAM
             var _warningManager = WarningManager.Current;
 
             TCPNetworkManage.TCPInitialize();
+            //启动与AGM800的连接
+            StartConnectAGM800();
+
+            ModbusTCPWorker.GetInstance().Connect();
+            IOManager.Instance.ReadIO_status();
 
             //TODO
             try
@@ -56,6 +61,8 @@ namespace AkribisFAM
 
             SetLanguage("en-US");
 
+
+
             if (new LoginViewModel().ShowDialog() == true)
             {
                 new MainWindow().ShowDialog();
@@ -77,19 +84,18 @@ namespace AkribisFAM
 
         private void StartConnectAGM800()
         {
-            string agm800_IP = "172.1.1.101";            
+            string agm800_IP = "172.1.1.101";
             GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP);
         }
         private void CloseAACommServer()
         {
             try
             {
-                // 获取所有名为 "AACommServer" 的进程（去掉 .exe）
                 var processes = System.Diagnostics.Process.GetProcessesByName("AACommServer");
                 foreach (var proc in processes)
                 {
-                    proc.Kill();       // 强制终止进程
-                    proc.WaitForExit(); // 等待它完全退出
+                    proc.Kill();   
+                    proc.WaitForExit(); 
                 }
             }
             catch (Exception ex)
