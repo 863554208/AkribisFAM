@@ -14,6 +14,7 @@ using AkribisFAM.DB;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
+using AkribisFAM.CommunicationProtocol;
 namespace AkribisFAM
 {
     /// <summary>
@@ -29,6 +30,13 @@ namespace AkribisFAM
             var _testStation1 = TestStation1.Current;
             var _testStation2 = TestStation2.Current;
             var _warningManager = WarningManager.Current;
+
+            TCPNetworkManage.TCPInitialize();
+            //启动与AGM800的连接
+            StartConnectAGM800();
+
+            ModbusTCPWorker.GetInstance().Connect();
+            IOManager.Instance.ReadIO_status();
 
             //TODO
             try
@@ -50,8 +58,6 @@ namespace AkribisFAM
                 // 关闭数据库连接
                 DatabaseManager.Shutdown();
             }
-
-
 
             SetLanguage("en-US");
 
@@ -78,7 +84,7 @@ namespace AkribisFAM
 
         private void StartConnectAGM800()
         {
-            string agm800_IP = "172.1.1.101";            
+            string agm800_IP = "172.1.1.101";
             GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP);
         }
         private void CloseAACommServer()

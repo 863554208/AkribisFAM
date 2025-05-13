@@ -12,7 +12,7 @@ namespace AkribisFAM.CommunicationProtocol
     {
         private static ModbusTCPWorker _instance;
         private bool connect_state = false;
-        private string m_ip = "172.1.1.13";
+        private string m_ip = "173.1.1.14";
         private int port;
         private ModbusTcpNet modbus = null;
         //private object locker = new object();
@@ -38,7 +38,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
         public bool Initializate()
         {
-            return Connect(m_ip = "172.1.1.13", port = 502);
+            return Connect(m_ip = "173.1.1.14", port = 502);
         }
 
         public bool Connect(string ip = null, int port = 502, int timeout = 1000)
