@@ -2513,7 +2513,7 @@ namespace AkribisFAM.Windows
             }));
             Thread.Sleep(1000);
             wait();
-            task9 = new Task(() => movedown(rect56, 355, 345, 20));
+            task9 = new Task(() => movedown(rect56, 345, 355, 20));
             task9.Start();
             flag10 = 0;
             this.Dispatcher.BeginInvoke(new Action(() =>
@@ -2983,9 +2983,6 @@ namespace AkribisFAM.Windows
 
         private void start1_Click(object sender, RoutedEventArgs e)
         {
-            while (GlobalManager.Current.isRun) {
-                Thread.Sleep(100);
-            }
             flag = 0;
             flag1 = 0;
             flag2 = 0;

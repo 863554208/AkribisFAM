@@ -32,7 +32,7 @@ namespace AkribisFAM.CommunicationProtocol
                     _instance = new ModbusTCPWorker();
                 }
             }
-            Console.WriteLine(_instance);
+            //Console.WriteLine(_instance);
             return _instance;
 
         }
@@ -224,7 +224,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                Console.WriteLine("未连接到服务器，无法读取线圈状态。");
+                //Console.WriteLine("未连接到服务器，无法读取线圈状态。");
                 return false;
             }
 
