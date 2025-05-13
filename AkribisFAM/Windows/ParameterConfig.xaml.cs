@@ -2983,9 +2983,9 @@ namespace AkribisFAM.Windows
 
         private void start1_Click(object sender, RoutedEventArgs e)
         {
-            while (GlobalManager.Current.isRun) {
-                Thread.Sleep(100);
-            }
+            //while (!GlobalManager.Current.isRun) {
+            //    Thread.Sleep(100);
+            //}
             flag = 0;
             flag1 = 0;
             flag2 = 0;

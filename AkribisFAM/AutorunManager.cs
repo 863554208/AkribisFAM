@@ -80,6 +80,7 @@ namespace AkribisFAM
                     tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current)));
                     //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
 
                     await Task.WhenAll(tasks);
