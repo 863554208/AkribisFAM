@@ -2071,6 +2071,7 @@ namespace AkribisFAM.Windows
             beltmoveflag[1] = 0;
             wait();
             //trigger jiansu IO
+            GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] = true;
             flag5 = 1;
             task1 = new Task(() => returnOK5(rect23, rect53));
             task1.Start();
@@ -2398,6 +2399,7 @@ namespace AkribisFAM.Windows
             beltmoveflag[2] = 0;
             wait();
             //trigger jiansu IO
+            GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] = true;
             flag9 = 1;
             task1 = new Task(() => returnOK9(rect28, rect55));
             task1.Start();
@@ -2557,6 +2559,7 @@ namespace AkribisFAM.Windows
             beltmoveflag[3] = 0;
             wait();
             //trigger jiansu IO
+            GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = true;
             flag13 = 1;
             task1 = new Task(() => returnOK13(rect31, rect57));
             task1.Start();
@@ -2580,6 +2583,7 @@ namespace AkribisFAM.Windows
                 task10.Start();
                 task11.Start();
                 Task.WaitAll(task10, task11);
+                GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
                 flag13 = 0;
                 task10 = new Task(() => moveforward(rect, 685, 719, 20));
                 task11 = new Task(() => moveforward(rect1, 685, 719, 20));
@@ -2641,6 +2645,7 @@ namespace AkribisFAM.Windows
                 task9 = new Task(() => movedown(rect58, 345, 355, 20));
                 task9.Start();
                 flag14 = 0;
+                GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
                 flag13 = 0;
             }
             else
@@ -2667,8 +2672,8 @@ namespace AkribisFAM.Windows
                 task10.Start();
                 task11.Start();
                 Task.WaitAll(task10, task11);
-                flag13 = 0;
                 GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
+                flag13 = 0;
                 task10 = new Task(() => moveforward(rect, 685, 719, 20));
                 task11 = new Task(() => moveforward(rect1, 685, 719, 20));
                 task10.Start();
@@ -2978,6 +2983,9 @@ namespace AkribisFAM.Windows
 
         private void start1_Click(object sender, RoutedEventArgs e)
         {
+            while (GlobalManager.Current.isRun) {
+                Thread.Sleep(100);
+            }
             flag = 0;
             flag1 = 0;
             flag2 = 0;

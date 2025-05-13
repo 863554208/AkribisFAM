@@ -119,6 +119,9 @@ namespace AkribisFAM
             AkrAction.Current.axisAllEnable(true);
             GlobalManager.Current.InitializeAxisMode();
 
+            //测试用
+            GlobalManager.Current.isRun = true;
+
             Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try
             {
