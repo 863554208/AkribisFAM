@@ -91,12 +91,11 @@ namespace AkribisFAM
         {
             try
             {
-                // 获取所有名为 "AACommServer" 的进程（去掉 .exe）
                 var processes = System.Diagnostics.Process.GetProcessesByName("AACommServer");
                 foreach (var proc in processes)
                 {
-                    proc.Kill();       // 强制终止进程
-                    proc.WaitForExit(); // 等待它完全退出
+                    proc.Kill();   
+                    proc.WaitForExit(); 
                 }
             }
             catch (Exception ex)
