@@ -9,6 +9,7 @@ using LiveCharts.SeriesAlgorithms;
 using YamlDotNet.Core;
 using HslCommunication;
 using static AkribisFAM.GlobalManager;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM.WorkStation
 {
@@ -175,6 +176,24 @@ namespace AkribisFAM.WorkStation
 
         public bool Step1()
         {
+            //FuJian
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == false)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 1);
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == true)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
+
+            return true;
+
             if (!BoardIn()) return false;
 
             Console.WriteLine("Fujian step1");
