@@ -17,7 +17,8 @@
     },
 "IN":
 {
-"Acceleration_Sign1":"0",
+    "Acceleration_Sign1": "0",
+"IN2": "2",
 "Stop_Sign1":"4",
 "Stop_Sign2":"5",
 "Stop_Sign3":"6",

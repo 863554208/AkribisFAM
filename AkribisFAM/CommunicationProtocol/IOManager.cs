@@ -46,7 +46,8 @@ namespace AkribisFAM.CommunicationProtocol
         bord_lift_in_position1,
         bord_lift_in_position2,
         bord_lift_in_position3,
-        bord_lift_in_position4
+        bord_lift_in_position4,
+            IN2
     }
 
     class IOManager
@@ -130,7 +131,7 @@ namespace AkribisFAM.CommunicationProtocol
                         var IOnamevalue = IOname.Value;
                         OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
                     }
-                    Thread.Sleep(50);
+                    Thread.Sleep(5);
                 }
             }));
             //循环读取输入IO
@@ -144,7 +145,7 @@ namespace AkribisFAM.CommunicationProtocol
                         var IOnamevalue = IOname.Value;
                         INIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
                     }
-                    Thread.Sleep(50);
+                    Thread.Sleep(5);
                 }
             }));
         }

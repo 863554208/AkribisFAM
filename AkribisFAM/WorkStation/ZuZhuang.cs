@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
+using System.Diagnostics;
+using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
@@ -223,6 +225,10 @@ namespace AkribisFAM.WorkStation
 
         public bool Step1()
         {
+            //测试用
+            Debug.WriteLine("ZuZhuang.Current.Step1()");
+            return true;
+            
             if (!BoradIn())
                 return false;
 
@@ -249,16 +255,48 @@ namespace AkribisFAM.WorkStation
 
         public bool Step2()
         {
-            Console.WriteLine("ZuZhuang.Current.Step2()");
+            Debug.WriteLine("ZuZhuang.Current.Step2()");
 
             GlobalManager.Current.current_Zuzhuang_step = 2;
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            //Task_FeedupCameraFunction.TriggFeedUpCamreaSendData(Task_FeedupCameraFunction.FeedupCameraProcessCommand.TLM);
+            ////SN1+物料名称+视野编号+X+Y+R
+            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            //sendTLMCamreaposition1.SN1 = "Pick_0_20250418152023_1";
+            //sendTLMCamreaposition1.RawMaterialName1 = "Foam";
+            //sendTLMCamreaposition1.FOV = "1";
+            //sendTLMCamreaposition1.Photo_X1 = "230000.00";
+            //sendTLMCamreaposition1.Photo_Y1 = "500.00";
+            //sendTLMCamreaposition1.Photo_R1 = "0.00";
+            //sendTLMCamreapositions.Add(sendTLMCamreaposition1);
+            //////SN2+物料名称+视野编号+X+Y+R
+            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            //sendTLMCamreaposition2.SN1 = "Pick_0_20250418152023_2";
+            //sendTLMCamreaposition2.RawMaterialName1 = "Foam2";
+            //sendTLMCamreaposition2.FOV = "2";
+            //sendTLMCamreaposition2.Photo_X1 = "256.8902";
+            //sendTLMCamreaposition2.Photo_Y1 = "345.4452";
+            //sendTLMCamreaposition2.Photo_R1 = "67.4562";
+            //sendTLMCamreapositions.Add(sendTLMCamreaposition2);
+            //组合字符串
 
-            //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, "ASD");
 
+            //Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, sendTLMCamreapositions);
+
+            GlobalManager.Current.InitializeAxisMode();
+
+            //AkrAction.Current.axisCNC_A2("A", "B", 250000, 80000, 100000, 20000, 1, 1, 1, 0.5);
+            AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 50000, 1, null, null);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(250000, 100000, null, 50000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            {
+                Thread.Sleep(50);
+            }
+
+            Debug.WriteLine("ZuZhuang.Current.Step2-1()");
             //到feedar上拍照
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);     
 
@@ -272,7 +310,7 @@ namespace AkribisFAM.WorkStation
 
         public bool Step3()
         {
-            Console.WriteLine("ZuZhuang.Current.Step3()");
+            Debug.WriteLine("ZuZhuang.Current.Step3-1()");
 
             GlobalManager.Current.current_Zuzhuang_step = 3;
 
@@ -282,6 +320,18 @@ namespace AkribisFAM.WorkStation
             //吸嘴取料
             WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
+            GlobalManager.Current.InitializeAxisMode();
+
+            //AkrAction.Current.axisCNC_A2("A", "B", 100000, 0, 100000, 20000, 1, 1, 1, 0.5);
+
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(100000, 0, null, 50000, 20000);
+            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
+            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            {
+                Thread.Sleep(50);
+            }
+
+            Debug.WriteLine("ZuZhuang.Current.Step3-2()");
             CheckState();
             //触发 UI 动画
             OnStopStep3?.Invoke();
@@ -358,12 +408,15 @@ namespace AkribisFAM.WorkStation
 
                 while (true)
                 {
+                    continue;
                     step1:
                         bool ret = Step1();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         if (!ret) continue;
                         //如果吸嘴上有料，直接跳去CCD2精定位
-                        if (GlobalManager.Current.current_FOAM_Count > 0) goto step4;
+
+                        //20250512 测试用
+                        //if (GlobalManager.Current.current_FOAM_Count > 0) goto step4;
 
                     step2:
                         //飞达上拍料
@@ -375,48 +428,55 @@ namespace AkribisFAM.WorkStation
                         Step3();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
 
-                    step4:
-                        //CCD2精定位
-                        Step4();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
-                        if (GlobalManager.Current.BadFoamCount > 0)
-                        {
-                            goto step5;
-                        }
-                        else
-                        {
-                            goto step6;
-                        }
-
-                    step5:
-                        //如果有坏料，放到坏料盒里
-                        Step5();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
-
-                    step6:
-                        //拍料盘
-                        if(!GlobalManager.Current.has_XueWeiXinXi) goto step7; 
-                        Step6();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;                        
-
-                    step7:
-                        //放料
-                        Step7();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
-                        //当前组装的料小于穴位数时，要一直取料
-                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
-                        {
-                            goto step2; 
-                        }
-
-                    if (GlobalManager.Current.IsPass)
-                    {
-                        goto step2;
-                    }
-                    else
-                    {
+                        //20250512 测试用
                         BoardOut();
-                    }
+
+                    //20250512 测试用
+                    //step4:
+                    //    //CCD2精定位
+                    //    Step4();
+                    //    if (GlobalManager.Current.Zuzhuang_exit) break;
+
+
+
+                    //    if (GlobalManager.Current.BadFoamCount > 0)
+                    //    {
+                    //        goto step5;
+                    //    }
+                    //    else
+                    //    {
+                    //        goto step6;
+                    //    }
+
+                    //step5:
+                    //    //如果有坏料，放到坏料盒里
+                    //    Step5();
+                    //    if (GlobalManager.Current.Zuzhuang_exit) break;
+
+                    //step6:
+                    //    //拍料盘
+                    //    if(!GlobalManager.Current.has_XueWeiXinXi) goto step7; 
+                    //    Step6();
+                    //    if (GlobalManager.Current.Zuzhuang_exit) break;                        
+
+                    //step7:
+                    //    //放料
+                    //    Step7();
+                    //    if (GlobalManager.Current.Zuzhuang_exit) break;
+                    //    //当前组装的料小于穴位数时，要一直取料
+                    //    if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) 
+                    //    {
+                    //        goto step2; 
+                    //    }
+
+                    //if (GlobalManager.Current.IsPass)
+                    //{
+                    //    goto step2;
+                    //}
+                    //else
+                    //{
+                    //    BoardOut();
+                    //}
 
 
                 }
