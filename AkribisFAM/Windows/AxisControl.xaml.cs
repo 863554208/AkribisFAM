@@ -75,11 +75,7 @@ namespace AkribisFAM.Windows
                 AxiscomboBox.SelectedIndex = -1;
             }
         }
-        private void Test_Click(object sender, RoutedEventArgs e)
-        {
-            //20250512
-            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-        }
+
 
 
         private void MotorOn_Click(object sender, RoutedEventArgs e)
@@ -120,8 +116,6 @@ namespace AkribisFAM.Windows
                 }
             }
 
-            //20250512
-            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
         }
 
 
