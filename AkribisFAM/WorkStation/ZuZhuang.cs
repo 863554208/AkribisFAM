@@ -227,6 +227,23 @@ namespace AkribisFAM.WorkStation
         {
             //测试用
             Debug.WriteLine("ZuZhuang.Current.Step1()");
+
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] == false)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 1);
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] == true)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
+
+
             return true;
             
             if (!BoradIn())
@@ -361,8 +378,9 @@ namespace AkribisFAM.WorkStation
 
                 while (true)
                 {
-                    step1:
+                step1:
                         bool ret = Step1();
+                        continue;
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         if (!ret) continue;
                         //如果吸嘴上有料，直接跳去CCD2精定位

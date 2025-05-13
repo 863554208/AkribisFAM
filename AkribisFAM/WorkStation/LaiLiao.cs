@@ -207,7 +207,7 @@ namespace AkribisFAM.WorkStation
             //进板
             //if (!BoradIn()) 
             //    return false;
-            Thread.Sleep(5000);
+
             //LaiLiao
             while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == false)
             {
@@ -216,6 +216,9 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
             //顶板
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+
+
             while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == true)
             {
                 Thread.Sleep(100);
@@ -225,52 +228,6 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
 
             //ZuZhuang
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] == false)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 1);
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
-
-            //FuJian
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == false)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 1);
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
-
-            //Reject
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] == false)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 1);
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
 
             #region 展示用的demo
             //20250513 展示用的demo 【史彦洋】 修改 Start
@@ -434,6 +391,7 @@ namespace AkribisFAM.WorkStation
                 {
 
                     step1: bool ret = Step1();
+                        continue;
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;
 
