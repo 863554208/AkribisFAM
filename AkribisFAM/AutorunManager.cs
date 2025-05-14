@@ -235,9 +235,8 @@ namespace AkribisFAM
             if(LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor();
+                Thread.Sleep(3000);
             }
-
-            Thread.Sleep(3000);
 
             //传送带停止
             AkrAction.Current.StopConveyor();
@@ -252,6 +251,9 @@ namespace AkribisFAM
             GlobalManager.Current.current_Zuzhuang_step = 0;
             GlobalManager.Current.current_FuJian_step = 0;
             LaiLiao.Current.board_count = 0;
+            ZuZhuang.Current.board_count = 0;
+            FuJian.Current.board_count = 0;
+            Reject.Current.board_count = 0;
 
             GlobalManager.Current.Lailiao_exit = false;
             GlobalManager.Current.Zuzhuang_exit = false;
