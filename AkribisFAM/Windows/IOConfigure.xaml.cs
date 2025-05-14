@@ -43,9 +43,23 @@ namespace AkribisFAM.Windows
             InitializeComponent();
             for (int i = 0; i < 112; i++)
             {
+                Rectangle rectangle= this.FindName($"IN{i}") as Rectangle;
+                rectangle.Width = 120;
+                rectangle.Height = 50;
+                ((TextBlock)this.FindName($"Text_IN{i}")).HorizontalAlignment = HorizontalAlignment.Center;
+            ((TextBlock)this.FindName($"Text_IN{i}")).VerticalAlignment = VerticalAlignment.Center;
+            ((TextBlock)this.FindName($"Text_IN{i}")).Width = 70;
+            ((TextBlock)this.FindName($"Text_IN{i}")).Height = 50;
+            ((TextBlock)this.FindName($"Text_IN{i}")).FontSize = 12;
+            ((TextBlock)this.FindName($"Text_IN{i}")).TextAlignment = TextAlignment.Center;
+
+               // ((TextBlock)this.FindName($"Text_IN{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
+
+
+
                 Button button = this.FindName($"Out{i}") as Button;
                 button.Width = 120;
-                button.Height = 30;
+                button.Height = 50;
                 //button.BorderBrush = Brush.;
 
 
@@ -53,27 +67,28 @@ namespace AkribisFAM.Windows
                 ((TextBlock)this.FindName($"Textout{i}")).VerticalAlignment = VerticalAlignment.Center;
                 ((TextBlock)this.FindName($"Textout{i}")).Width = 70;
                 ((TextBlock)this.FindName($"Textout{i}")).Height = 30;
-                ((TextBlock)this.FindName($"Textout{i}")).FontSize = 10;
+                ((TextBlock)this.FindName($"Textout{i}")).FontSize = 12;
                 ((TextBlock)this.FindName($"Textout{i}")).TextAlignment = TextAlignment.Center;
+                //((TextBlock)this.FindName($"Textout{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
             }
 
 
 
-            //// 初始化字典
-            //OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
-            //foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
-            //{
-            //    OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
-            //}
+            // 初始化字典
+            OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
+            foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
+            {
+                OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
+            }
 
-            //InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
-            //foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
-            //{
-            //    InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
-            //}
+            InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
+            foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
+            {
+                InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
+            }
 
-            //Task task1 = new Task(UpdateUI_IO);
-            //task1.Start();
+            Task task1 = new Task(UpdateUI_IO);
+            task1.Start();
         }
 
         private void UpdateUI_IO()
