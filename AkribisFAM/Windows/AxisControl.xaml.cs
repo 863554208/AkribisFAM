@@ -109,21 +109,20 @@ namespace AkribisFAM.Windows
             //string axisName = _axisDic.GetAxisName(CurrentAxis);
             //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
-            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //{
-            //    try
-            //    {
-            //        AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller, axisRef);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show("轴下使能报错 :" + ex.Message);
-            //    }
-            //}
-            //20250514 增加多个AGM800的控制 【史彦洋】 追加 Start
-            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller1, AxisRef.B);
-            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller1, AxisRef.B, 150000);
-            //20250514 增加多个AGM800的控制 【史彦洋】 追加 End
+            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
+            {
+                try
+                {
+                    AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller, axisRef);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("轴下使能报错 :" + ex.Message);
+                }
+            }
+
+            //20250512
+            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
         }
 
 
