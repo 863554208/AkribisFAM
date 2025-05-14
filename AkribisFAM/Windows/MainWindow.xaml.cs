@@ -119,6 +119,9 @@ namespace AkribisFAM
             AkrAction.Current.axisAllEnable(true);
             GlobalManager.Current.InitializeAxisMode();
 
+            //测试用
+            GlobalManager.Current.isRun = true;
+
             Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
             try
             {
@@ -205,19 +208,19 @@ namespace AkribisFAM
 
             //20250512
 
-            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
-            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
-            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
-            {
-                Thread.Sleep(50);
-            }
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
 
-            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
-            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            {
-                Thread.Sleep(50);
-            }
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
 
             //20250512
 

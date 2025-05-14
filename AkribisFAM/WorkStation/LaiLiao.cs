@@ -208,30 +208,55 @@ namespace AkribisFAM.WorkStation
             //if (!BoradIn()) 
             //    return false;
 
+            //LaiLiao
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == false)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+
+
+            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == true)
+            {
+                Thread.Sleep(100);
+            }
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            //顶板
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
+
+            //ZuZhuang
+
+            #region 展示用的demo
+            //20250513 展示用的demo 【史彦洋】 修改 Start
             //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
             //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
 
 
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(250000);
-            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
-            {
-                Thread.Sleep(50);
-            }
-            //等待到位信号IN-3)
-           // while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2] == false)
-           // {
-                Thread.Sleep(50);
-           // }
+            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(250000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+            ////等待到位信号IN-3)
+            //while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2] == false)
+            //{
+            //    Thread.Sleep(50);
+            //}
 
-            //控制气缸顶起
-           // IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-           // IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
+            ////控制气缸顶起
+            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
 
-            //等待到位信号IN-3
+            ////等待到位信号IN-3
             //while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.NG_cover_plate1] == false)
-           // {
-                Thread.Sleep(50);
-           // }
+            //{
+            //    Thread.Sleep(50);
+            //}
+            //20250513 展示用的demo 【史彦洋】 修改 End
+            #endregion
 
             //触发 UI 动画
             OnTriggerStep1?.Invoke();
@@ -257,54 +282,54 @@ namespace AkribisFAM.WorkStation
             //触发 UI 动画
             OnTriggerStep2?.Invoke();
 
-            //执行飞拍
-            List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
-            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-            sendTLMCamreaposition1.SN1 = $"Pick_0_assad231_1";
-            sendTLMCamreaposition1.RawMaterialName1 = "Foam";
-            sendTLMCamreaposition1.FOV = "1";
-            sendTLMCamreaposition1.Photo_X1 = "300.44";
-            sendTLMCamreaposition1.Photo_Y1 = "400.24";
-            sendTLMCamreaposition1.Photo_R1 = "0";
-            sendTLMCamreapositions.Add(sendTLMCamreaposition1);
+            #region 展示用的demo
+            ////执行飞拍
+            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            //sendTLMCamreaposition1.SN1 = $"Pick_0_assad231_1";
+            //sendTLMCamreaposition1.RawMaterialName1 = "Foam";
+            //sendTLMCamreaposition1.FOV = "1";
+            //sendTLMCamreaposition1.Photo_X1 = "300.44";
+            //sendTLMCamreaposition1.Photo_Y1 = "400.24";
+            //sendTLMCamreaposition1.Photo_R1 = "0";
+            //sendTLMCamreapositions.Add(sendTLMCamreaposition1);
 
-            FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-            sendTLMCamreaposition2.SN1 = $"Pick_0_asdsaasasd213123_2";
-            sendTLMCamreaposition2.RawMaterialName1 = "Foam";
-            sendTLMCamreaposition2.FOV = "2";
-            sendTLMCamreaposition2.Photo_X1 = "500.11";
-            sendTLMCamreaposition2.Photo_Y1 = "503.22";
-            sendTLMCamreaposition2.Photo_R1 = "0";
-            sendTLMCamreapositions.Add(sendTLMCamreaposition2);
-
-
-
-            Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, sendTLMCamreapositions);
+            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
+            //sendTLMCamreaposition2.SN1 = $"Pick_0_asdsaasasd213123_2";
+            //sendTLMCamreaposition2.RawMaterialName1 = "Foam";
+            //sendTLMCamreaposition2.FOV = "2";
+            //sendTLMCamreaposition2.Photo_X1 = "500.11";
+            //sendTLMCamreaposition2.Photo_Y1 = "503.22";
+            //sendTLMCamreaposition2.Photo_R1 = "0";
+            //sendTLMCamreapositions.Add(sendTLMCamreaposition2);
 
 
-            AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 40000, 1, null, 200000);
 
-            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 50000);
-            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            {
-                Thread.Sleep(50);
-            }
+            //Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, sendTLMCamreapositions);
 
-            AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 90000, 1, null, 200000);
 
-            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 150000);
-            while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            {
-                Thread.Sleep(50);
-            }
+            //AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 40000, 1, null, 200000);
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 50000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+
+            //AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 90000, 1, null, 200000);
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 150000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
 
 
             //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-           // IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
-
-
+            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
+            #endregion
 
             //扫码
             WaitConveyor( 0,null, GlobalManager.Current.current_Lailiao_step);
@@ -366,6 +391,7 @@ namespace AkribisFAM.WorkStation
                 {
 
                     step1: bool ret = Step1();
+                        continue;
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;
 
@@ -379,7 +405,7 @@ namespace AkribisFAM.WorkStation
                     step4: Step4();
                         //
                         if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.currentLasered < 48)   goto step4;
+                        if (GlobalManager.Current.currentLasered < 48)  goto step4;
                         
 
                     //出板

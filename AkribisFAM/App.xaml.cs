@@ -38,6 +38,16 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
+            //调试用
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+
             //TODO
             try
             {
@@ -91,12 +101,11 @@ namespace AkribisFAM
         {
             try
             {
-                // 获取所有名为 "AACommServer" 的进程（去掉 .exe）
                 var processes = System.Diagnostics.Process.GetProcessesByName("AACommServer");
                 foreach (var proc in processes)
                 {
-                    proc.Kill();       // 强制终止进程
-                    proc.WaitForExit(); // 等待它完全退出
+                    proc.Kill();   
+                    proc.WaitForExit(); 
                 }
             }
             catch (Exception ex)
