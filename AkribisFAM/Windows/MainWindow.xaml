@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:AkribisFAM"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="958" Width="1304">
+        Title="MainWindow" Height="1080" Width="1920">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -15,9 +15,9 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid x:Name="container" Margin="0,10,0,18">
-        <Border BorderBrush="Black" BorderThickness="0" Margin="202,2,589,692" >
-            <Label Content="当前用户:" FontSize="24" VerticalAlignment="Center" Margin="10,0,54,0" Height="38"/>
+    <Grid x:Name="container" Margin="0,10,0,0">
+        <Border BorderBrush="Black" BorderThickness="0" Margin="202,2,589,940" >
+            <Label Content="当前用户:" FontSize="24" VerticalAlignment="Top" Margin="0,10,64,0" Height="38"/>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="111" VerticalAlignment="Top" Width="207">
             <Image HorizontalAlignment="Left" Height="135" VerticalAlignment="Center" Width="204" Margin="-1,0,0,0" Source="D:\AkribisLogo.png "/>
@@ -72,23 +72,23 @@
 
             </StackPanel>
         </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="545" Margin="223,141,0,0" VerticalAlignment="Top" Width="967">
-            <ContentControl Name="ContentDisplay" Margin="0,9,0,-1" HorizontalAlignment="Center" Width="967" />
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="776" Margin="228,120,0,0" VerticalAlignment="Top" Width="1505">
+            <ContentControl Name="ContentDisplay" Margin="9,9,126,9" />
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="526,710,0,0" VerticalAlignment="Top" Width="362">
-            <StackPanel Orientation="Horizontal" Margin="9,-9,-67,9">
+        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="1217,902,0,0" VerticalAlignment="Top" Width="516">
+            <StackPanel Orientation="Horizontal" Margin="9,-5,33,5">
                 <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
                 <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
                 <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="ResetButton_Click" />
             </StackPanel>
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="223,732,0,0" VerticalAlignment="Top" Width="275">
-            <StackPanel Orientation="Horizontal" Margin="0,0,136,0">
-                <Button Content="飞达1" Height="64" Width="48" FontWeight="Bold"/>
+        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="475,924,0,0" VerticalAlignment="Top" Width="275">
+            <StackPanel Orientation="Horizontal" Margin="9,-5,0,5" HorizontalAlignment="Left" Width="137">
+                <Button Content="飞达1" Height="64" Width="48" FontWeight="Bold" Margin="0,0,10,0"/>
                 <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
             </StackPanel>
         </Border>
-        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="1098,56,114,779"/>
+        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="1699,55,153,940"/>
     </Grid>
 </Window>
