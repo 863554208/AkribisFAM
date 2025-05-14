@@ -79,75 +79,81 @@ namespace AkribisFAM.Windows
 
 
         private void MotorOn_Click(object sender, RoutedEventArgs e)
-        {        
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+        {
+            //20250514 增加多个AGM800的控制 【史彦洋】 修改 Start
+            //string axisName = _axisDic.GetAxisName(CurrentAxis);
+            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
-            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            {
-                try
-                {
-                    AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("轴使能报错 :" + ex.Message);
-                }
-            }
+            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
+            //{
+            //    try
+            //    {
+            //        AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show("轴使能报错 :" + ex.Message);
+            //    }
+            //}
 
-            //设置脉冲触发的位置
-            AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 70000, 1, null, null);
+
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller,AxisRef.A , 200000);
+
+            //20250514 增加多个AGM800的控制 【史彦洋】 修改 End
+
         }
 
         private void MotorOff_Click(object sender, RoutedEventArgs e)
         {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+            //string axisName = _axisDic.GetAxisName(CurrentAxis);
+            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
 
-            if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            {
-                try
-                {
-                    AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller, axisRef);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("轴下使能报错 :" + ex.Message);
-                }
-            }
-
+            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
+            //{
+            //    try
+            //    {
+            //        AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller, axisRef);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show("轴下使能报错 :" + ex.Message);
+            //    }
+            //}
+            //20250514 增加多个AGM800的控制 【史彦洋】 追加 Start
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller1, AxisRef.B);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller1, AxisRef.B, 150000);
+            //20250514 增加多个AGM800的控制 【史彦洋】 追加 End
         }
 
 
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            int targetPos = int.Parse(Targetpos.Text);
+            //20250514 增加多个AGM800的控制 【史彦洋】 修改 Start
+            //string axisName = _axisDic.GetAxisName(CurrentAxis);
+            //int targetPos = int.Parse(Targetpos.Text);
 
-            Debug.WriteLine("start_click");
-            //20250429 
+            //Debug.WriteLine("start_click");
 
+            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+
+            //if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
+            //{
+            //    AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
+            //}
+
+
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
             //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
             //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).ClearBuffer();
 
-            if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(100000, 0, null, 100000, 20000);
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
 
-            if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
-            {
-                AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
-            }
-
-
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(100000, 0, null, 100000, 20000);
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
-
-
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller1, AxisRef.B);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller1, AxisRef.B, 0);
+            //20250514 增加多个AGM800的控制 【史彦洋】 修改 End
 
         }
 
@@ -259,13 +265,16 @@ namespace AkribisFAM.Windows
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-            GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
+            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
+            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
 
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(250000, 50000, null, 100000, 20000);
-            GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(250000, 50000, null, 100000, 20000);
+            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
             //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
+
+            AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, 0);
         }
 
     }

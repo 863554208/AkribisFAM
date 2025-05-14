@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AkribisFAM.Windows"
         mc:Ignorable="d"
-        Title="LoginViewModel" Height="450" Width="800">
+        Title="LoginViewModel" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid>
             <TextBox Name="UsernameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" TextAlignment="Left" VerticalContentAlignment="Center"/>

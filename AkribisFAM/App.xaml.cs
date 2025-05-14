@@ -32,6 +32,7 @@ namespace AkribisFAM
             var _warningManager = WarningManager.Current;
 
             TCPNetworkManage.TCPInitialize();
+
             //启动与AGM800的连接
             StartConnectAGM800();
 
@@ -39,14 +40,7 @@ namespace AkribisFAM
             IOManager.Instance.ReadIO_status();
 
             //调试用
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+
 
             //TODO
             try
@@ -94,8 +88,22 @@ namespace AkribisFAM
 
         private void StartConnectAGM800()
         {
-            string agm800_IP = "172.1.1.101";
-            GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP);
+            try
+            {
+                string agm800_IP0 = "172.1.1.101";
+                string agm800_IP1 = "172.1.1.102";
+                string agm800_IP2 = "172.1.1.103";
+                string agm800_IP3 = "172.1.1.104";
+                GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP0);
+
+                //20250514 增加多个AGM800的控制 【史彦洋】 追加 Start
+                AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP1);
+                //AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP2);
+                //AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP3);
+                //20250514 增加多个AGM800的控制 【史彦洋】 追加 End
+            }
+            catch (Exception ex) { }
+
         }
         private void CloseAACommServer()
         {

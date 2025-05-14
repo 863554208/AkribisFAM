@@ -357,7 +357,9 @@
     <Resource Include="Windows\palletmodel.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Lang\UI.en-US.resx" />
+    <EmbeddedResource Include="Lang\UI.en-US.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Lang\UI.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>UI.Designer.cs</LastGenOutput>
