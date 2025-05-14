@@ -316,6 +316,14 @@ namespace AkribisFAM
         }
         #endregion
 
+        public AxisRef GetAxisRefFromInteger(int index)
+        {
+            string letter = ('A' + index).ToString();
+            Enum.TryParse<AxisRef>(letter, out AxisRef axisRef);
+
+            return axisRef;
+        }
+
         #region A,B轴状态
         public void UpdateAStatus()
         {

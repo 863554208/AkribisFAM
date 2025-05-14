@@ -11,6 +11,7 @@ using AAMotion;
 using AkribisFAM.AAmotionFAM;
 using AkribisFAM.WorkStation;
 using LiveCharts.Wpf;
+using YamlDotNet.Core.Tokens;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
@@ -169,6 +170,51 @@ namespace AkribisFAM.WorkStation
         //    }
         //    return (int)ACTTION_ERR.NONE;
         //}
+
+        public void JogMove(GlobalManager.AxisName axisName , int dir , int vel)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+
+            AAMotionAPI.Jog(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), dir * vel);
+        }
+
+        public void Stop(GlobalManager.AxisName axisName)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Stop();
+        }
+
+        public bool MoveConveyor()
+        {
+            JogMove(GlobalManager.AxisName.BL1 ,1 ,10000);
+            JogMove(GlobalManager.AxisName.BL2, 1, 10000);
+            JogMove(GlobalManager.AxisName.BL3, 1, 10000);
+            JogMove(GlobalManager.AxisName.BL4, 1, 10000);
+            JogMove(GlobalManager.AxisName.BL5, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR1, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR2, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR3, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR4, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR5, 1, 10000);
+            return true;
+        }
+
+        public bool StopConveyor()
+        {
+            Stop(GlobalManager.AxisName.BL1);
+            Stop(GlobalManager.AxisName.BL2);
+            Stop(GlobalManager.AxisName.BL3);
+            Stop(GlobalManager.AxisName.BL4);
+            Stop(GlobalManager.AxisName.BL5);
+            Stop(GlobalManager.AxisName.BR1);
+            Stop(GlobalManager.AxisName.BR2);
+            Stop(GlobalManager.AxisName.BR3);
+            Stop(GlobalManager.AxisName.BR4);
+            Stop(GlobalManager.AxisName.BR5);
+            return true;
+        }
 
         public int axisAllHome(String path)
         {

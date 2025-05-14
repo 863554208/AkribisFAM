@@ -42,9 +42,6 @@ namespace AkribisFAM.AAmotionFAM
         public bool connectStatus = false;
 
         public MotionController[] controller = new MotionController[4];
-        public MotionController controller0 = AAMotionAPI.Initialize(ControllerType.AGM800);
-        public MotionController controller1 = AAMotionAPI.Initialize(ControllerType.AGM800);
-        public MotionController controller2 = AAMotionAPI.Initialize(ControllerType.AGM800);
-        public MotionController controller3 = AAMotionAPI.Initialize(ControllerType.AGM800);
+
     }
 }
