@@ -7,9 +7,21 @@ using AAMotion;
 
 namespace AkribisFAM.AAmotionFAM
 {
-    public partial class AGM800
+    public class AGM800
     {
-        
+        private static AGM800 _current;
+        public static AGM800 Current
+        {
+            get
+            {
+                if (_current == null)
+                {
+                    _current = new AGM800();
+                }
+                return _current;
+            }
+        }
+
         public readonly Dictionary<string, AxisRef> axisRefs = new Dictionary<string, AxisRef>
         {
             { "A", AxisRef.A },
@@ -26,10 +38,11 @@ namespace AkribisFAM.AAmotionFAM
             { "L", AxisRef.L }
         };
 
-        public bool connectStatus = false;
-        public bool disconnectStatus = false;
 
-        public MotionController controller = AAMotionAPI.Initialize(ControllerType.AGM800);
+        public bool connectStatus = false;
+
+        public MotionController[] controller = new MotionController[4];
+        public MotionController controller0 = AAMotionAPI.Initialize(ControllerType.AGM800);
         public MotionController controller1 = AAMotionAPI.Initialize(ControllerType.AGM800);
         public MotionController controller2 = AAMotionAPI.Initialize(ControllerType.AGM800);
         public MotionController controller3 = AAMotionAPI.Initialize(ControllerType.AGM800);
