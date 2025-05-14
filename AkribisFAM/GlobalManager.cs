@@ -14,6 +14,7 @@ using AkribisFAM.Manager;
 using System.Threading;
 using AkribisFAM.ViewModel;
 using LiveCharts;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -315,6 +316,22 @@ namespace AkribisFAM
             //}
         }
         #endregion
+
+        public bool WaitIO(IO_INFunction_Table pos, bool value)
+        {
+            int FeederRetry_Count = 0;
+            while (IOManager.Instance.INIO_status[(int)pos] == value)
+            {
+                Thread.Sleep(30);
+                FeederRetry_Count++;
+                if (FeederRetry_Count > 100)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         public AxisRef GetAxisRefFromInteger(int index)
         {

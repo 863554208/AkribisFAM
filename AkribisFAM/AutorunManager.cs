@@ -165,8 +165,8 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_12_lift4_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_13_lift4_cylinder_retract, 1);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_12_lift4_cylinder_extend, 0);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_13_lift4_cylinder_retract, 1);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
@@ -242,11 +242,15 @@ namespace AkribisFAM
             AkrAction.Current.StopConveyor();
 
             //飞达复位
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
-            //激光测距复位
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_3Initialized_feeder1 , false);
 
-            //相机复位
+            //激光测距复位(tcp)
 
+            //相机复位(tcp)
+
+            //程序状态为置0
             GlobalManager.Current.current_Lailiao_step = 0;
             GlobalManager.Current.current_Zuzhuang_step = 0;
             GlobalManager.Current.current_FuJian_step = 0;
