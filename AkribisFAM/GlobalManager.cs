@@ -14,6 +14,7 @@ using AkribisFAM.Manager;
 using System.Threading;
 using AkribisFAM.ViewModel;
 using LiveCharts;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -76,7 +77,7 @@ namespace AkribisFAM
         public bool lailiao_JiGuangCeJu { get; set; }
         public bool CCD1InPosition { get; set; }
         public bool Feedar1Captured { get; set; }
-        public bool CCD2Captured { get; set; } 
+        public bool CCD2Captured { get; set; }
         public bool MoveToLiaopan { get; set; }
         public bool GrabLiaoPan { get; set; }
 
@@ -237,13 +238,12 @@ namespace AkribisFAM
         }
         #region AGM800初始化以及状态显示
         // AGM800 控制器实例
-        public AGM800 _Agm800 { get; private set; }
+        //public AGM800 _Agm800 { get; private set; }
 
         // 构造函数初始化 AGM800
         private GlobalManager()
         {
-            _Agm800 = new AGM800();
-
+            //_Agm800 = new AGM800();
 
             // 初始化心跳定时器
             heartbeatTimer = new System.Timers.Timer(3000); // 每300ms触发一次
@@ -269,7 +269,7 @@ namespace AkribisFAM
 
         public bool AGM800Connection
         {
-            get => _agm800Connection;            
+            get => _agm800Connection;
             set
             {
                 if (_agm800Connection != value)
@@ -285,15 +285,15 @@ namespace AkribisFAM
         {
             try
             {
-                if(_Agm800.controller.IsConnected == false)
-                {
-                    //Console.WriteLine("监测到的状态是:" + false.ToString());
-                }
+                //if (AAmotionFAM.AGM800.Current.controller[0].IsConnected == false)
+                //{
+                //    //Console.WriteLine("监测到的状态是:" + false.ToString());
+                //}
 
                 //Console.WriteLine("连接状态:" + _Agm800.controller.IsConnected.ToString());
-                AGM800Connection = _Agm800.controller.IsConnected;
+                //AGM800Connection = _Agm800.controller0.IsConnected;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("心跳包发生异常 : " + ex.ToString());
             }
@@ -301,34 +301,58 @@ namespace AkribisFAM
 
         private void PosTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            try
-            {
-                if (_Agm800.controller.IsConnected)
-                {
-                    AxisControlViewModel.Current.UpdateAxisPostion();
-                    //Debug.WriteLine("当前A轴位置:" + current_APos.ToString());
-                }
+            //try
+            //{
+            //    if (AGM800.Current.controller[0].IsConnected)
+            //    {
+            //        AxisControlViewModel.Current.UpdateAxisPostion();
+            //        //Debug.WriteLine("当前A轴位置:" + current_APos.ToString());
+            //    }
 
-            }
-            catch (Exception ex)
-            {
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
         }
         #endregion
+
+        public bool WaitIO(IO_INFunction_Table pos, bool value)
+        {
+            int FeederRetry_Count = 0;
+            while (IOManager.Instance.INIO_status[(int)pos] == value)
+            {
+                Thread.Sleep(30);
+                FeederRetry_Count++;
+                if (FeederRetry_Count > 100)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
+        public AxisRef GetAxisRefFromInteger(int index)
+        {
+            string letter = ('A' + index).ToString();
+            Enum.TryParse<AxisRef>(letter, out AxisRef axisRef);
+
+            return axisRef;
+        }
 
         #region A,B轴状态
         public void UpdateAStatus()
         {
-            Enum.TryParse<AxisRef>("A", out AxisRef axisRef);
-            IsAInTarget = GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat == 4;
+            //Enum.TryParse<AxisRef>("A", out AxisRef axisRef);
+            //IsAInTarget = GlobalManager.Current._Agm800.controller0.GetAxis(axisRef).InTargetStat == 4;
         }
 
         // 更新 B 轴状态
         public void UpdateBStatus()
         {
-            Enum.TryParse<AxisRef>("B", out AxisRef axisRef);
-            IsBInTarget = GlobalManager.Current._Agm800.controller.GetAxis(axisRef).InTargetStat == 4;
+            //Enum.TryParse<AxisRef>("B", out AxisRef axisRef);
+            //IsBInTarget = GlobalManager.Current._Agm800.controller0.GetAxis(axisRef).InTargetStat == 4;
         }
         #endregion
 
@@ -356,22 +380,60 @@ namespace AkribisFAM
         //    _errorCheckTimer.Start();
         //}
 
-        public void InitializeAxisMode()
-        {
-            try
-            {
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.C).MotionMode = 11;
-                GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.D).MotionMode = 11;
+        //public void InitializeAxisMode()
+        //{
+        //    try
+        //    {
+        //        GlobalManager.Current._Agm800.controller0.GetAxis(AxisRef.A).MotionMode = 11;
+        //        GlobalManager.Current._Agm800.controller0.GetAxis(AxisRef.B).MotionMode = 11;
+        //        GlobalManager.Current._Agm800.controller0.GetAxis(AxisRef.C).MotionMode = 11;
+        //        GlobalManager.Current._Agm800.controller0.GetAxis(AxisRef.D).MotionMode = 11;
 
-                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-                GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.B).ClearBuffer();
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.ToString());
-            }
+        //        GlobalManager.Current._Agm800.controller0.GetCiGroup(AxisRef.A).ClearBuffer();
+        //        GlobalManager.Current._Agm800.controller0.GetCiGroup(AxisRef.B).ClearBuffer();
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Trace.WriteLine(ex.ToString());
+        //    }
+
+        //}
+
+
+        public enum AxisName
+        {
+            //AGM800[0]
+            LSX = 0,
+            LSY = 1,
+            FSX = 2,
+            FSY = 3,
+            BL5 = 4,
+            BR5 = 5,
+
+            //AGM800[1]
+            BL1 = 8,
+            BL2 = 9,
+            BL3 = 10,
+            BL4 = 11,
+            BR1 = 12,
+            BR2 = 13,
+            BR3 = 14,
+            BR4 = 15,
+
+            //AGM800[2]
+            PICK1_Z = 16,
+            PICK1_T = 17,
+            PICK2_Z = 18,
+            PICK2_T = 19,
+            PICK3_Z = 20,
+            PICK3_T = 21,
+            PICK4_Z = 22,
+            PICK4_T = 23,
+
+            //AGM800[3]
+            PRX = 24,
+            PRY = 25,
+            PRZ = 26,
 
         }
     }

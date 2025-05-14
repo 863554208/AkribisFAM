@@ -234,19 +234,19 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<bool> readResult = modbus.ReadBool("1;" + index);
                 if (readResult.IsSuccess)
                 {
-                    Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
-                    Console.WriteLine($"1;{index.ToString()}");
+                    //Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
+                    //Console.WriteLine($"1;{index.ToString()}");
                     return readResult.Content;
                 }
                 else
                 {
-                    Console.WriteLine($"读取线圈 {index} 失败：{readResult.Message}");
+                    //Console.WriteLine($"读取线圈 {index} 失败：{readResult.Message}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"读取线圈 {index} 时发生异常：{ex.Message}");
+                //Console.WriteLine($"读取线圈 {index} 时发生异常：{ex.Message}");
                 return false;
             }
         }

@@ -205,8 +205,8 @@ namespace AkribisFAM.WorkStation
             Debug.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
-            //if (!BoradIn()) 
-            //    return false;
+            if (!BoradIn())
+                return false;
 
             //LaiLiao
             while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == false)
@@ -391,7 +391,6 @@ namespace AkribisFAM.WorkStation
                 {
 
                     step1: bool ret = Step1();
-                        continue;
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;
 

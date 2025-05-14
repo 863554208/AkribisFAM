@@ -48,12 +48,12 @@ namespace AkribisFAM.ViewModel
 
         public void UpdateAxisPostion()
         {
-            var temp = GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).Pos.ToString();
-            Debug.WriteLine("temp:" + temp);
-            if (AxisPosition != temp) // 避免不必要的更新
-            {
-                AxisPosition = temp;
-            }
+            //var temp = GlobalManager.Current._Agm800.controller0.GetAxis(AxisRef.A).Pos.ToString();
+            //Debug.WriteLine("temp:" + temp);
+            //if (AxisPosition != temp) // 避免不必要的更新
+            //{
+            //    AxisPosition = temp;
+            //}
         }
     }
 }

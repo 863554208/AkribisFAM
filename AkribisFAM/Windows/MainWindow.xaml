@@ -7,7 +7,9 @@
         xmlns:local="clr-namespace:AkribisFAM"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="1080" Width="1920">
+        Title="Akribis FAM"
+        WindowState="Maximized"
+        ShowInTaskbar="False">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -72,15 +74,17 @@
 
             </StackPanel>
         </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="776" Margin="228,120,0,0" VerticalAlignment="Top" Width="1505">
-            <ContentControl Name="ContentDisplay" Margin="9,9,126,9" />
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="776" Margin="228,0,0,0" VerticalAlignment="Center" Width="1463">
+            <ContentControl Name="ContentDisplay" Margin="9,9,9,9" />
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="1217,902,0,0" VerticalAlignment="Top" Width="516">
             <StackPanel Orientation="Horizontal" Margin="9,-5,33,5">
                 <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
                 <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="ResetButton_Click" />
+                <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" 
+                        PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown"
+                        PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
             </StackPanel>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="475,924,0,0" VerticalAlignment="Top" Width="275">
