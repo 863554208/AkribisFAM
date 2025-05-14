@@ -4,9 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+             mc:Ignorable="d" d:DesignWidth="800" Height="851">
+    <Grid Margin="0,0,-430,0">
         <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="45" Margin="10,0,0,0" VerticalAlignment="Top" Width="456">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
                 <Button Content="轴调试" Width="69" Click="AxisConfigure_Click"/>
@@ -16,8 +15,8 @@
 
             </StackPanel>
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="390" Margin="10,50,0,0" VerticalAlignment="Top" Width="768" >
-            <ContentControl Name="ManualControlDisplay" />
+        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Center" Height="1123" Margin="0,50,0,0" VerticalAlignment="Top" Width="1210" >
+            <ContentControl Name="ManualControlDisplay" Margin="0,0,0,277" />
         </Border>
     </Grid>
 </UserControl>

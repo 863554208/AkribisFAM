@@ -208,8 +208,8 @@ namespace AkribisFAM.WorkStation
             //if (!BoradIn()) 
             //    return false;
 
-            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
 
 
             GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(250000);
@@ -218,20 +218,20 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(50);
             }
             //等待到位信号IN-3)
-            while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2] == false)
-            {
+           // while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2] == false)
+           // {
                 Thread.Sleep(50);
-            }
+           // }
 
             //控制气缸顶起
-            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
+           // IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+           // IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
 
             //等待到位信号IN-3
-            while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.NG_cover_plate1] == false)
-            {
+            //while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.NG_cover_plate1] == false)
+           // {
                 Thread.Sleep(50);
-            }
+           // }
 
             //触发 UI 动画
             OnTriggerStep1?.Invoke();
@@ -301,8 +301,8 @@ namespace AkribisFAM.WorkStation
             }
 
 
-            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+           // IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
 
 
 

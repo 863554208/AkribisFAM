@@ -78,7 +78,7 @@ namespace AkribisFAM.Windows
         private void Test_Click(object sender, RoutedEventArgs e)
         {
             //20250512
-            IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
         }
 
 
@@ -121,7 +121,7 @@ namespace AkribisFAM.Windows
             }
 
             //20250512
-            IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
+            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
         }
 
 
