@@ -230,7 +230,7 @@ namespace AkribisFAM
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
-            layer.Add(new PromptAdorner(button));
+            //layer.Add(new PromptAdorner(button));
         }
     }
 

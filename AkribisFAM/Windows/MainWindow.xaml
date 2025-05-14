@@ -89,6 +89,6 @@
                 <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
             </StackPanel>
         </Border>
-        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="1699,55,153,940"/>
-    </Grid>
+        <!--<local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="1699,55,153,940"/>
+    --></Grid>
 </Window>

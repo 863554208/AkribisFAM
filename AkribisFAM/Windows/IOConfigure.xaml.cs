@@ -25,6 +25,7 @@ using System.ComponentModel.Design;
 using System.Reflection;
 using System.Windows.Threading;
 using YamlDotNet.Core.Tokens;
+using System.Windows.Media.TextFormatting;
 
 namespace AkribisFAM.Windows
 {
@@ -40,21 +41,39 @@ namespace AkribisFAM.Windows
         public IOConfigure()
         {
             InitializeComponent();
-            // 初始化字典
-            OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
-            foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
+            for (int i = 0; i < 112; i++)
             {
-                OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
+                Button button = this.FindName($"Out{i}") as Button;
+                button.Width = 120;
+                button.Height = 30;
+                //button.BorderBrush = Brush.;
+
+
+                ((TextBlock)this.FindName($"Textout{i}")).HorizontalAlignment= HorizontalAlignment.Center;
+                ((TextBlock)this.FindName($"Textout{i}")).VerticalAlignment = VerticalAlignment.Center;
+                ((TextBlock)this.FindName($"Textout{i}")).Width = 70;
+                ((TextBlock)this.FindName($"Textout{i}")).Height = 30;
+                ((TextBlock)this.FindName($"Textout{i}")).FontSize = 10;
+                ((TextBlock)this.FindName($"Textout{i}")).TextAlignment = TextAlignment.Center;
             }
 
-            InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
-            foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
-            {
-                InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
-            }
 
-            Task task1 = new Task(UpdateUI_IO);
-            task1.Start();
+
+            //// 初始化字典
+            //OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
+            //foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
+            //{
+            //    OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
+            //}
+
+            //InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
+            //foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
+            //{
+            //    InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
+            //}
+
+            //Task task1 = new Task(UpdateUI_IO);
+            //task1.Start();
         }
 
         private void UpdateUI_IO()
@@ -144,8 +163,6 @@ namespace AkribisFAM.Windows
                     if (Enum.IsDefined(typeof(IO_OutFunction_Table), index))
                     {
                         IO_OutFunction_Table outEnum = (IO_OutFunction_Table)Enum.ToObject(typeof(IO_OutFunction_Table), index);
-
-
                         try
                         { 
                             bool currentStatus = IOManager.Instance.OutIO_status[(int)outEnum];
