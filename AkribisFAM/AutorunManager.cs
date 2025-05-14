@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using AAMotion;
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -42,11 +43,11 @@ namespace AkribisFAM
 
         public static bool CheckTaskReady()
         {
-            Task<bool>[] TaskArray = new Task<bool>[1];
+            //Task<bool>[] TaskArray = new Task<bool>[1];
 
-            TaskArray[0] = Task.Run(() => { return TestStation1.Current.Ready(); });
+            //TaskArray[0] = Task.Run(() => { return TestStation1.Current.Ready(); });
             
-            Task.WaitAll(TaskArray);
+            //Task.WaitAll(TaskArray);
 
             return true;
         }
@@ -144,5 +145,55 @@ namespace AkribisFAM
             GlobalManager.Current.IO_test3 = false;
         }
 
+        public void CylinderDown()
+        {
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+        }
+
+        public bool Reset()
+        {
+            //先把气缸下降
+            CylinderDown();
+
+            //轴使能
+            AkrAction.Current.axisAllEnable(true);
+
+            //轴回原点
+            AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+
+            //传送带启动
+
+            //传送带停止
+
+            //飞达复位
+
+            //激光测距复位
+
+            //相机复位
+
+            GlobalManager.Current.current_Lailiao_step = 0;
+            GlobalManager.Current.current_Zuzhuang_step = 0;
+            GlobalManager.Current.current_FuJian_step = 0;
+            LaiLiao.Current.board_count = 0;
+
+            GlobalManager.Current.Lailiao_exit = false;
+            GlobalManager.Current.Zuzhuang_exit = false;
+            GlobalManager.Current.FuJian_exit = false;
+
+            return true;
+        }
     }
 }

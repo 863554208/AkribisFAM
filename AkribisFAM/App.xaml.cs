@@ -15,6 +15,8 @@ using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.AAmotionFAM;
+using static AkribisFAM.GlobalManager;
 namespace AkribisFAM
 {
     /// <summary>
@@ -27,14 +29,16 @@ namespace AkribisFAM
         {
             base.OnStartup(e);
             var _globalManager = GlobalManager.Current;
-            var _testStation1 = TestStation1.Current;
-            var _testStation2 = TestStation2.Current;
             var _warningManager = WarningManager.Current;
+            var _agm800 = AAmotionFAM.AGM800.Current;
 
             TCPNetworkManage.TCPInitialize();
 
+            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             //启动与AGM800的连接
             StartConnectAGM800();
+
+            MessageBox.Show("2");
 
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
@@ -65,7 +69,7 @@ namespace AkribisFAM
 
             SetLanguage("en-US");
 
-
+            MessageBox.Show("1");
 
             if (new LoginViewModel().ShowDialog() == true)
             {
@@ -90,17 +94,20 @@ namespace AkribisFAM
         {
             try
             {
-                string agm800_IP0 = "172.1.1.101";
-                string agm800_IP1 = "172.1.1.102";
-                string agm800_IP2 = "172.1.1.103";
-                string agm800_IP3 = "172.1.1.104";
-                GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP0);
+                string[] agm800_IP = new string[]
+                {
+                    "172.1.1.101",
+                    "172.1.1.102",
+                    "172.1.1.103",
+                    "172.1.1.104"
+                };
 
-                //20250514 增加多个AGM800的控制 【史彦洋】 追加 Start
-                AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP1);
-                //AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP2);
-                //AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller1, agm800_IP3);
-                //20250514 增加多个AGM800的控制 【史彦洋】 追加 End
+                // 初始化控制器并连接到指定的 IP 地址
+                for (int i = 0; i < AAmotionFAM.AGM800.Current.controller.Length; i++)
+                {
+                    AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
+                    AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
+                }
             }
             catch (Exception ex) { }
 
