@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -41,6 +42,32 @@ namespace AkribisFAM.Manager
         HasNGPallet = 0x0006
     }
 
+    public struct ErrorInfo
+    {
+        public string dateTime;
+        public string user;
+        public string errorCode;
+        public int level;
+
+        public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
+        {
+            dateTime = dT.ToString();
+            user = usr;
+            errorCode = "0x" + Convert.ToString((int)eC, 16);
+            if ((int)eC > 0x0FFF)
+            {
+                level = 1;
+            }
+            else if ((int)eC > 0x00FF)
+            {
+                level = 2;
+            }
+            else {
+                level = 3;
+            }
+        }
+    }
+
     public class ErrorManager
     {
         private static ErrorManager _instance;
@@ -61,14 +88,18 @@ namespace AkribisFAM.Manager
         }
 
         private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
+        public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
 
         public int ErrorCnt = 0;
+        public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
+        public static int ModbusErrCntLimit = 10;
 
         public void Insert(ErrorCode err)
         {
             ErrorStack.Push(err);
             ErrorCnt = ErrorStack.Count;
+            ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
             UpdateErrorCnt?.Invoke();
         }
 

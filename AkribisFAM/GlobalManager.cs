@@ -35,6 +35,7 @@ namespace AkribisFAM
         //A轴实时位置
         public long current_APos = 0;
 
+        public string username;
 
         // 记录 A 轴和 B 轴的是否到位的状态
         public bool IsAInTarget { get; set; }

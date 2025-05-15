@@ -28,6 +28,9 @@ using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
 using AAMotion;
+using static AkribisFAM.Manager.StateManager;
+using static System.Windows.Forms.AxHost;
+using System.Net.Http;
 
 namespace AkribisFAM
 {
@@ -40,6 +43,7 @@ namespace AkribisFAM
         private DispatcherTimer _timer;
         private CancellationTokenSource _cancellationTokenSource;
         public ErrorIconViewModel ViewModel { get; }
+        private ErrorWindow ErrorWindow;
 
         //ResetButton 按住3秒才能触发
         private Stopwatch resetPressStopwatch = new Stopwatch();
@@ -64,6 +68,7 @@ namespace AkribisFAM
             this.DataContext = ViewModel;
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
+            StateManager.Current.State = StateCode.IDLE;
         }
 
         private void UpdateIcon()
@@ -82,6 +87,7 @@ namespace AkribisFAM
         {
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
@@ -151,59 +157,88 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            //对轴初始化使能 改到登录之后            
-            //AkrAction.Current.axisAllEnable(true);
-            //GlobalManager.Current.InitializeAxisMode();
+            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
+                StateManager.Current.State = StateCode.RUNNING;
+                StateManager.Current.RunningStart = DateTime.Now;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.Guarding = 1;
+                //对轴初始化使能 改到登录之后            
+                //AkrAction.Current.axisAllEnable(true);
+                //GlobalManager.Current.InitializeAxisMode();
 
-            //测试用
-            GlobalManager.Current.isRun = true;
+                //测试用
+                GlobalManager.Current.isRun = true;
 
-            Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
-            try
-            {
-                // 使用 Task.Run 来异步运行 AutoRunMain
-
-                _cancellationTokenSource = new CancellationTokenSource();
-                CancellationToken token = _cancellationTokenSource.Token;
-
-                await Task.Run(() => AutorunManager.Current.AutoRunMain());
-                if (AutorunManager.Current.isRunning)
+                Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
+                try
                 {
-                    StartAutoRunButton.IsEnabled = false;
+                    // 使用 Task.Run 来异步运行 AutoRunMain
+
+                    _cancellationTokenSource = new CancellationTokenSource();
+                    CancellationToken token = _cancellationTokenSource.Token;
+
+                    await Task.Run(() => AutorunManager.Current.AutoRunMain());
+                    if (AutorunManager.Current.isRunning)
+                    {
+                        //StartAutoRunButton.IsEnabled = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error running AutoRunMain: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Error running AutoRunMain: {ex.Message}");
-            }
+
         }
 
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            if (GlobalManager.Current.IsPause == false)
+            if (StateManager.Current.State == StateCode.RUNNING)
             {
-                GlobalManager.Current.IsPause = true;
-                //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
-                PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
-            }
-            else
-            {
-                GlobalManager.Current.IsPause = false;
-                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
-                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
-                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
-                //AutorunManager.Current.ResumeAutoRun();
-                PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+                if (GlobalManager.Current.IsPause == false)
+                {
+                    GlobalManager.Current.IsPause = true;
+                    //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
+                    PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
+                }
+                else
+                {
+                    GlobalManager.Current.IsPause = false;
+                    GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                    GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
+                    GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                    GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                    GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                    GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
+                    //AutorunManager.Current.ResumeAutoRun();
+                    PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+                }
             }
         }
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            AutorunManager.Current.StopAutoRun();
-            StartAutoRunButton.IsEnabled = true;
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                StateManager.Current.StoppedStart = DateTime.Now;
+                StateManager.Current.RunningEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.STOPPED;
+                StateManager.Current.Guarding = 0;
+                AutorunManager.Current.StopAutoRun();
+                StartAutoRunButton.IsEnabled = true;
+            }
+            else if (StateManager.Current.State == StateCode.MAINTENANCE)
+            {
+                StateManager.Current.StoppedStart = DateTime.Now;
+                StateManager.Current.MaintenanceEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.STOPPED;
+                StateManager.Current.Guarding = 0;
+                AutorunManager.Current.StopAutoRun();
+                StartAutoRunButton.IsEnabled = true;
+            }
+            else {
+                return;
+            }
         }
 
 
@@ -230,6 +265,26 @@ namespace AkribisFAM
 
         private void ExecuteReset()
         {
+            if (StateManager.Current.State == StateCode.STOPPED)
+            {
+                StateManager.Current.StoppedEnd = DateTime.Now;
+                StateManager.Current.IdleStart = DateTime.Now;
+                StateManager.Current.State = StateCode.IDLE;
+            }
+            else if (StateManager.Current.State == StateCode.MAINTENANCE)
+            {
+                StateManager.Current.MaintenanceEnd = DateTime.Now;
+                StateManager.Current.IdleStart = DateTime.Now;
+                StateManager.Current.State = StateCode.IDLE;
+            }
+            else if (StateManager.Current.State == StateCode.IDLE)
+            {
+
+            }
+            else
+            {
+                return;
+            }
             MessageBox.Show("开始复位");
             if (!AutorunManager.Current.Reset())
             {
@@ -244,6 +299,40 @@ namespace AkribisFAM
                 AutorunManager.Current.hasReseted = true;
             }
         }
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            GlobalManager.Current.current_Lailiao_step = 0;
+            GlobalManager.Current.current_Zuzhuang_step = 0;
+            GlobalManager.Current.current_FuJian_step = 0;
+            LaiLiao.Current.board_count = 0;
+            //ZuZhuang.Current.has_board = false;
+            //FuJian.Current.has_board = false;
+            GlobalManager.Current.Lailiao_exit = false;
+            GlobalManager.Current.Zuzhuang_exit = false;
+            GlobalManager.Current.FuJian_exit = false;
+            AutorunManager.Current.hasReseted = true;
+            //button.PromptCount += 1;
+
+            //20250512
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+
+            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
+            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
+            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
+            //{
+            //    Thread.Sleep(50);
+            //}
+
+            //20250512
+
+
+        }
 
         //20250514 暂时修改 【史彦洋】 修改 Start
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -252,7 +341,52 @@ namespace AkribisFAM
             layer.Add(new PromptAdorner(button));
         }
 
-        //20250514 暂时修改 【史彦洋】 修改 End
+
+        private async void IdleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                //要板信号置0
+                //当前设备中的板运行结束
+                await Task.Run(() =>
+                {
+                    StateManager.Current.DetectRemainBoard();
+                });
+                StateManager.Current.IdleStart = DateTime.Now;
+                StateManager.Current.RunningEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.IDLE;
+            }
+        }
+
+        private async void MaintenanceButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                //要板信号置0
+                //当前设备中的板运行结束
+                await Task.Run(() =>
+                {
+                    StateManager.Current.DetectRemainBoard();
+                });
+                StateManager.Current.MaintenanceStart = DateTime.Now;
+                StateManager.Current.RunningEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.MAINTENANCE;
+                StateManager.Current.Guarding = 0;
+            }
+            else if (StateManager.Current.State == StateCode.IDLE)
+            {
+                StateManager.Current.MaintenanceStart = DateTime.Now;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.MAINTENANCE;
+                StateManager.Current.Guarding = 0;
+            }
+        }
+
+        private void Alarmbutton_Click(object sender, RoutedEventArgs e)
+        {
+            ErrorWindow = new ErrorWindow();
+            ErrorWindow.Show();
+        }
     }
 
     internal class PromptableButton : Button

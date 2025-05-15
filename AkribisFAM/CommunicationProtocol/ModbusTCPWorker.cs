@@ -220,7 +220,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
         // 读取线圈状态
-        public bool Read_Coil(int index)
+        public bool Read_Coil(int index, ref bool result)
         {
             if (!connect_state)
             {
@@ -234,9 +234,10 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<bool> readResult = modbus.ReadBool("1;" + index);
                 if (readResult.IsSuccess)
                 {
-                    //Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
-                    //Console.WriteLine($"1;{index.ToString()}");
-                    return readResult.Content;
+                    Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
+                    Console.WriteLine($"1;{index.ToString()}");
+                    result = readResult.Content;
+                    return true;
                 }
                 else
                 {
