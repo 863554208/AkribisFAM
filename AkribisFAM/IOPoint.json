@@ -1,6 +1,6 @@
 {
     "Out": {
-             "OUT1_0Left_1_lift_cylinder_extend": 512,
+        "OUT1_0Left_1_lift_cylinder_extend": 512,
             "OUT1_1Left_1_lift_cylinder_retract": 513,
             "OUT1_2Right_1_lift_cylinder_extend": 514,
             "OUT1_3Right_1_lift_cylinder_retract": 515,

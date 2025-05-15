@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="540" Width="960">
-    <Grid Margin="0,0,0,0">
-        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Center" Width="960">
+             d:DesignHeight="540" Width="960" VerticalAlignment="Top" HorizontalAlignment="Left">
+    <Grid Margin="0,0,-153,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Width="1112">
             <Grid Height="800" Width="1200">
                 <TabControl Margin="10,10,-10,-10">
                     <TabItem Header="Params1" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="63">
@@ -36,7 +36,7 @@
                                     <Label Content="Laser measure points:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Width="160" Grid.Row="5" VerticalContentAlignment="Center"/>
                                     <TextBox x:Name="Beltspeed1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Width="120" MaxLines="1" PreviewTextInput="DoubleText_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" TextChanged="AxisParam_TextChanged" Grid.Column="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="64,0,0,0" Text="0"/>
                                     <TextBox x:Name="Laserpointsconfig" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="177" MaxLines="1" IsReadOnly="True" Grid.Column="1" Grid.Row="5" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-                                    <Button x:Name="LaserpointsFiledialog" Content="..." HorizontalAlignment="Left" Margin="192,0,0,0" VerticalAlignment="Center" Width="25" Click="LaserpointsFiledialog_Click" Grid.Column="1" Grid.Row="5"/>
+                                    <Button x:Name="LaserpointsFiledialog" Content="..." HorizontalAlignment="Left" Margin="192,0,0,7" VerticalAlignment="Bottom" Width="26" Click="LaserpointsFiledialog_Click" Grid.Column="1" Grid.Row="5"/>
                                     <Button x:Name="GenrateLaserjson" Content="Genrate" HorizontalAlignment="Left" Margin="222,0,0,0" VerticalAlignment="Center" Width="60" Click="Genratescanjson_Click" Grid.Column="1" Grid.Row="5"/>
                                     <Label Grid.Column="1" Content="Speed:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                                     <Label Grid.Column="1" Content="mm/s" HorizontalAlignment="Left" Margin="190,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
@@ -705,6 +705,7 @@
                     </TabItem>
                     <TabItem HorizontalAlignment="Center" Height="19" Header="TabItem" VerticalAlignment="Center" Width="59">
                         <Grid x:Name="action3" Background="#FFE5E5E5" Height="738">
+                            <Ellipse HorizontalAlignment="Left" Height="54" Margin="186,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="52"/>
                             <Path x:Name="arrow1" Canvas.Top="50" Canvas.Left="90" Stroke="Black" StrokeThickness="2">
                                 <Path.Data>
                                     <GeometryGroup>
@@ -849,7 +850,7 @@
                                     </GeometryGroup>
                                 </Path.Data>
                             </Path>
-                            <Rectangle HorizontalAlignment="Left" Height="100" Margin="10,169,0,0" Stroke="Black" VerticalAlignment="Top" Width="788" />
+                            <Rectangle HorizontalAlignment="Left" Height="100" Margin="10,169,0,0" Stroke="Black" VerticalAlignment="Top" Width="788" RadiusX="10" RadiusY="10" />
                             <Rectangle x:Name="rect10" HorizontalAlignment="Left" Height="34" Margin="10,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58"/>
                             <Rectangle x:Name="rect20" HorizontalAlignment="Left" Height="39" Margin="130,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="13"/>
                             <Rectangle x:Name="rect21" HorizontalAlignment="Left" Height="50" Margin="158,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16" />
@@ -867,9 +868,8 @@
                             <Rectangle HorizontalAlignment="Left" Height="60" Margin="230,24,0,0" Stroke="Black" VerticalAlignment="Top" Width="37" />
                             <Rectangle HorizontalAlignment="Left" Height="60" Margin="276,24,0,0" Stroke="Black" VerticalAlignment="Top" Width="38" />
                             <Rectangle HorizontalAlignment="Left" Height="54" Margin="249,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="56" />
-                            <Rectangle HorizontalAlignment="Left" Height="46" Margin="186,114,0,0" Stroke="Black" VerticalAlignment="Top" Width="48" />
                             <Label x:Name="palletfaomnum" Content="" HorizontalAlignment="Left" Margin="248,206,0,0" VerticalAlignment="Top" Width="40" />
-                            <Label x:Name="NGnum" Content="" HorizontalAlignment="Left" Margin="190,124,0,0" VerticalAlignment="Top" Width="44" />
+                            <Label x:Name="NGnum" Content="" HorizontalAlignment="Left" Margin="190,124,0,0" VerticalAlignment="Top" Width="44" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
                             <Rectangle x:Name="rect27" HorizontalAlignment="Left" Height="50" Margin="525,194,0,0" Stroke="Black" VerticalAlignment="Top" Width="16" />
                             <Rectangle x:Name="rect28" HorizontalAlignment="Left" Height="39" Margin="486,137,0,0" Stroke="Black" VerticalAlignment="Top" Width="14" />
                             <Label x:Name="Leftfoam" Content="" HorizontalAlignment="Left" Margin="424,206,0,0" VerticalAlignment="Top" Width="33" />
@@ -878,17 +878,19 @@
                             <Rectangle x:Name="rect32" HorizontalAlignment="Left" Height="34" Margin="94,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
                             <Rectangle x:Name="rect33" HorizontalAlignment="Left" Height="34" Margin="114,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
                             <Rectangle x:Name="rect34" HorizontalAlignment="Left" Height="34" Margin="296,202,0,0" Stroke="Black" VerticalAlignment="Top" Width="58" Visibility="Hidden"/>
-                            <Rectangle x:Name="rect26" HorizontalAlignment="Left" Height="42" Margin="295,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38" />
                             <Rectangle x:Name="rect29" HorizontalAlignment="Left" Height="42" Margin="462,198,0,0" Stroke="Black" VerticalAlignment="Top" Width="38"/>
                             <Label Content="Feeder" HorizontalAlignment="Left" Margin="175,29,0,0" VerticalAlignment="Top" />
                             <Label Content="CCD2" HorizontalAlignment="Left" Margin="256,124,0,0" VerticalAlignment="Top" />
-                            <Label Content="NG bin" HorizontalAlignment="Left" Margin="175,88,0,0" VerticalAlignment="Top" />
+                            <Label Content="Recycle bin" HorizontalAlignment="Left" Margin="175,88,0,0" VerticalAlignment="Top" />
                             <Label Content="scanner" HorizontalAlignment="Left" Margin="69,274,0,0" VerticalAlignment="Top" />
-                            <Label Content="CCD1 and picker" HorizontalAlignment="Left" Margin="266,274,0,0" VerticalAlignment="Top" />
+                            <Canvas x:Name="CCD1picker" HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="54" Margin="277,199,0,0">
+                                <Rectangle x:Name="rect26" Height="42" Stroke="Black" Width="56" HorizontalAlignment="Left" Canvas.Top="0" VerticalAlignment="Center" />
+                                <Label x:Name="picker" Content="CCD1&#xA;picker X" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            </Canvas>
                             <Label Content="CCD3 and tearer" HorizontalAlignment="Left" Margin="461,274,0,0" VerticalAlignment="Top" />
                             <Label Content="Reject" HorizontalAlignment="Left" Margin="666,274,0,0" VerticalAlignment="Top" />
                             <Label Content="laser" HorizontalAlignment="Left" Margin="101,185,0,0" VerticalAlignment="Top"/>
-                            <Rectangle HorizontalAlignment="Left" Height="18" Margin="10,355,0,0" Stroke="Black" VerticalAlignment="Top" Width="788" />
+                            <Rectangle HorizontalAlignment="Left" Height="18" Margin="10,355,0,0" Stroke="Black" VerticalAlignment="Top" Width="788" RadiusX="10" RadiusY="10" />
                             <Rectangle x:Name="rect52" HorizontalAlignment="Left" Height="62" Margin="158,355,0,0" Stroke="Black" VerticalAlignment="Top" Width="16"/>
                             <Rectangle x:Name="rect50" HorizontalAlignment="Left" Height="27" Margin="10,328,0,0" Stroke="Black" VerticalAlignment="Top" Width="58"/>
                             <Rectangle x:Name="rect51" HorizontalAlignment="Left" Height="12" Margin="130,343,0,0" Stroke="Black" VerticalAlignment="Top" Width="12"/>

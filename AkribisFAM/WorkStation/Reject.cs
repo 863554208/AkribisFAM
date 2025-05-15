@@ -154,6 +154,7 @@ namespace AkribisFAM.WorkStation
 
         public void BoardOut()
         {
+            
             SetIO(IO.Reject_BoardOut, true);
             board_count--;
         }
@@ -165,43 +166,37 @@ namespace AkribisFAM.WorkStation
             WarningManager.Current.WaiReject();
         }
 
-
-        public bool Step1()
+        public int CheckBoardIn()
         {
-            //Reject
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] == false)
+            if (ReadIO(IO.Reject_BoardIn) && board_count == 0)
             {
-                Thread.Sleep(100);
+                if (GlobalManager.Current.isNGPallete)
+                {
+                    //是NG板
+                    return 2;
+                }
+                else
+                {
+                    return 1;
+                }
             }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 1);
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+            return 0;
+        }
 
-            return true;
-
-
-            if (!BoardIn()) return false;
+        public int Step1()
+        {
+            int ret = CheckBoardIn();
 
             Console.WriteLine("Reject step1");
 
             GlobalManager.Current.current_Reject_step = 1;
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
+
             //用thread.sleep模拟实际生成动作
             System.Threading.Thread.Sleep(1000);
 
             CheckState();
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
-            //ErrorManager.Current.Insert(ErrorCode.AGM800Disconnect);
-            return true;
+
+            return ret;
         }
 
         public bool Step2()
@@ -249,11 +244,11 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-                step1:
-                        bool ret = Step1();
-                        continue;
+                    step1:
+                        int ret = Step1();
                         if (GlobalManager.Current.Reject_exit) break;
-                        if (!ret) continue;
+                        if (ret == 0) continue;
+                        if (ret == 1) goto step5;
 
                     step2:
                         Step2();
@@ -261,9 +256,14 @@ namespace AkribisFAM.WorkStation
 
                     step3:
                         Step3();
-                        if (GlobalManager.Current.Reject_exit) break;
-
+                        if (GlobalManager.Current.Reject_exit) break;  
+                        
                     BoardOut();
+
+                    step5:
+                        ;
+                        
+
                 }
             }
             catch (Exception ex)
