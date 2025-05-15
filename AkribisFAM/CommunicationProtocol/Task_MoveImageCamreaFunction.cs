@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static AkribisFAM.CommunicationProtocol.MoveImage.Pushcommand;
 
 namespace AkribisFAM.CommunicationProtocol
 {
@@ -14,11 +15,6 @@ namespace AkribisFAM.CommunicationProtocol
         #region//发送的指令
         public class Pushcommand
         {
-            //定义拍照发送头部指令
-            public class SendGroupCommandTop
-            {
-                public string Group; // 组合图片模块头
-            }
             //定义拍照位置
             public class SendGroupCamreaposition
             {
@@ -36,11 +32,6 @@ namespace AkribisFAM.CommunicationProtocol
         #region//接收的指令
         public class Acceptcommand
         {
-            //定义接受Cognex头部指令
-            public class AcceptGroupCommandTop
-            {
-                public string Group; // 组合图片模块头
-            }
             //定义Group_Status数据
             public class AcceptGroupRecheckAppend
             {
@@ -67,91 +58,33 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggMoveImageCamreaSendData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand, List<object> list_positions) //移动图片与相机交互自动触发流程
+        public static bool TriggMoveImageCamreaGROUPSendData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand, List<SendGroupCamreaposition> list_positions) //移动图片与相机交互自动触发流程
         {
             try
             {
-                switch ((int)moveImageCamreaProcessCommand)
+                InstructionHeader = $"Group3,";
+
+                //文件夹数量+文件夹名称+ 图片数量+ 取料拍照SN+ 吸嘴拍照SN+定位载具拍照SN+ 复检拍照SN
+                //List<MoveImage.Pushcommand.SendGroupCamreaposition> sendGroupCamreapositions = new List<MoveImage.Pushcommand.SendGroupCamreaposition>();
+                //MoveImage.Pushcommand.SendGroupCamreaposition sendGroupCamreaposition1 = new MoveImage.Pushcommand.SendGroupCamreaposition();
+
+                //sendGroupCamreaposition1.Folders_Number = "1";
+                //sendGroupCamreaposition1.Folders_SNOK= "542PAMC311100183_TestSN20250418152024 + 2_2_OK";
+                //sendGroupCamreaposition1.ImageNum = "4";
+                //sendGroupCamreaposition1.PhotoSN1 = "Pick_0_20250418152023_1";
+                //sendGroupCamreaposition1.PhotoSN2 = "LocateNozzle_1_20250418152027";
+                //sendGroupCamreaposition1.PhotoSN3 = "TLTTestSN20250418152024 + 2";
+                //sendGroupCamreaposition1.PhotoSN4 = "TFCTestSN20250418152024 + 2";
+                //sendGroupCamreapositions.Add(sendGroupCamreaposition1);
+
+                //组合字符串
+                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发移动图片: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)MoveImageCamreaProcessCommand.GROUP://GROUP触发指令
-                        {
-                            //GROUP触发指令头
-                            //Group3,1,542PAMC311100183_TestSN20250418152024 + 2_2_OK,4,
-                            //Pick_0_20250418152023_1,
-                            //LocateNozzle_1_20250418152027,
-                            //TLTTestSN20250418152024 + 2,
-                            //TFCTestSN20250418152024 + 2
-
-                            MoveImage.Pushcommand.SendGroupCommandTop sendGroupCommandTop1= new MoveImage.Pushcommand.SendGroupCommandTop();
-                            sendGroupCommandTop1.Group = "Group3";
-                            InstructionHeader = $"{sendGroupCommandTop1.Group},";
-
-                            //文件夹数量+文件夹名称+ 图片数量+ 取料拍照SN+ 吸嘴拍照SN+定位载具拍照SN+ 复检拍照SN
-                            List<MoveImage.Pushcommand.SendGroupCamreaposition> sendGroupCamreapositions = new List<MoveImage.Pushcommand.SendGroupCamreaposition>();
-                            MoveImage.Pushcommand.SendGroupCamreaposition sendGroupCamreaposition1 = new MoveImage.Pushcommand.SendGroupCamreaposition();
-
-                            //sendGroupCamreaposition1.Folders_Number = "1";
-                            //sendGroupCamreaposition1.Folders_SNOK= "542PAMC311100183_TestSN20250418152024 + 2_2_OK";
-                            //sendGroupCamreaposition1.ImageNum = "4";
-                            //sendGroupCamreaposition1.PhotoSN1 = "Pick_0_20250418152023_1";
-                            //sendGroupCamreaposition1.PhotoSN2 = "LocateNozzle_1_20250418152027";
-                            //sendGroupCamreaposition1.PhotoSN3 = "TLTTestSN20250418152024 + 2";
-                            //sendGroupCamreaposition1.PhotoSN4 = "TFCTestSN20250418152024 + 2";
-                            //sendGroupCamreapositions.Add(sendGroupCamreaposition1);
-
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendGroupCommandTop1, list_positions.Cast<object>().ToList());
-
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发移动图片: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)MoveImageCamreaProcessCommand.Down://预留指令
-                        {
-                            //MoveImage.Pushcommand.SendGroupCommandTop sendGroupCommandTop1 = new MoveImage.Pushcommand.SendGroupCommandTop();
-                            //sendGroupCommandTop1.Group = "Group3";
-                            //InstructionHeader = $"{sendGroupCommandTop1.Group},";
-
-                            ////文件夹数量+文件夹名称+ 图片数量+ 取料拍照SN+ 吸嘴拍照SN+定位载具拍照SN+ 复检拍照SN
-                            //List<MoveImage.Pushcommand.SendGroupCamreaposition> sendGroupCamreapositions = new List<MoveImage.Pushcommand.SendGroupCamreaposition>();
-                            //MoveImage.Pushcommand.SendGroupCamreaposition sendGroupCamreaposition1 = new MoveImage.Pushcommand.SendGroupCamreaposition();
-
-                            //sendGroupCamreaposition1.Folders_Number = "1";
-                            //sendGroupCamreaposition1.Folders_SNOK = "542PAMC311100183_TestSN20250418152024 + 2_2_OK";
-                            //sendGroupCamreaposition1.ImageNum = "4";
-                            //sendGroupCamreaposition1.PhotoSN1 = "Pick_0_20250418152023_1";
-                            //sendGroupCamreaposition1.PhotoSN2 = "LocateNozzle_1_20250418152027";
-                            //sendGroupCamreaposition1.PhotoSN3 = "TLTTestSN20250418152024 + 2";
-                            //sendGroupCamreaposition1.PhotoSN4 = "TFCTestSN20250418152024 + 2";
-                            //sendGroupCamreapositions.Add(sendGroupCamreaposition1);
-
-                            ////组合字符串
-                            //string sendcommandData = StrClass1.BuildPacket(sendGroupCommandTop1, sendGroupCamreapositions.Cast<object>().ToList());
-
-                            ////发送字符串到Socket
-                            //bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            //RecordLog("触发移动图片: " + sendcommandData);
-                            //if (!sendcommand_status)
-                            //{
-                            //    return false;
-                            //}
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                    return false;
                 }
                 return true;
             }
@@ -170,12 +103,10 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return null;
             }
-            //GROUP触发指令头
-            MoveImage.Pushcommand.SendGroupCommandTop sendGroupCommandTop1 = new MoveImage.Pushcommand.SendGroupCommandTop();
             Type camdowntype = typeof(MoveImage.Acceptcommand.GroupCamreaready);
             List<object> list_position = new List<object>();
             //解析字符串
-            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, sendGroupCommandTop1, list_position, camdowntype);
+            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list_position, camdowntype);
             if (!Analysis_status)
             {
                 return null;
@@ -184,69 +115,42 @@ namespace AkribisFAM.CommunicationProtocol
             return ((MoveImage.Acceptcommand.GroupCamreaready)list_position[0]).CamreaReadyFlag;
         }
 
-        public static bool TriggMoveImageCamreaAcceptData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand, out List<object> list_position)//移动图片与相机交互接收流程
+        public static List<MoveImage.Acceptcommand.AcceptGroupRecheckAppend> TriggMoveImageCamreaGROUPAcceptData(MoveImageCamreaProcessCommand moveImageCamreaProcessCommand)//移动图片与相机交互接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("移动图片收到: " + VisionAcceptData);
-                list_position = null;
 
                 if (!VisionAcceptData_status)
                 {
-                    return false;
+                    return null;
                 }
-                switch ((int)moveImageCamreaProcessCommand)
+
+                Type camdowntype = typeof(MoveImage.Acceptcommand.AcceptGroupRecheckAppend);
+                List<MoveImage.Acceptcommand.AcceptGroupRecheckAppend> list_positions = new List<MoveImage.Acceptcommand.AcceptGroupRecheckAppend>();
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
                 {
-                    case (int)MoveImageCamreaProcessCommand.GROUP://GROUP接收指令
-                        {
-                            //GROUP接收指令
-                            MoveImage.Acceptcommand.AcceptGroupCommandTop accepGroupCommandTop1 = new MoveImage.Acceptcommand.AcceptGroupCommandTop();
-                            Type camdowntype = typeof(MoveImage.Acceptcommand.AcceptGroupRecheckAppend);
-                            //List<object> list_position = new List<object>();
-                            list_position = new List<object>();
-                            //解析字符串
-                            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepGroupCommandTop1, list_position, camdowntype);
-                            if (!Analysis_status)
-                            {
-                                return false;
-                            }
-                            //需要输出list_position
-                        }
-                        break;
-                    case (int)MoveImageCamreaProcessCommand.Down://预留指令
-                        {
-                            ////GROUP接收指令
-                            //MoveImage.Acceptcommand.AcceptGroupCommandTop accepGroupCommandTop1 = new MoveImage.Acceptcommand.AcceptGroupCommandTop();
-                            //Type camdowntype = typeof(MoveImage.Acceptcommand.AcceptGroupRecheckAppend);
-                            ////List<object> list_position = new List<object>();
-                            //list_position = new List<object>();
-                            ////解析字符串
-                            //bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepGroupCommandTop1, list_position, camdowntype);
-                            //if (!Analysis_status)
-                            //{
-                            //    return false;
-                            //}
-                            ////需要输出list_position
-                        }
-                        break;
-                    default:
-                        {
-                            if (true)
-                            {
-                                //"接受指令有误"
-                                return false;
-                            }
-                        }
+                    return null;
                 }
-                return true;
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((MoveImage.Acceptcommand.AcceptGroupRecheckAppend)list[i]);
+                }
+                return list_positions;
             }
             catch (Exception ex)
             {
-                list_position = null;
                 ex.ToString();
-                return false;
+                return null;
             }
         }
 

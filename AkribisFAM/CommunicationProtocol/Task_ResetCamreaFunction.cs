@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using static AkribisFAM.CommunicationProtocol.ResetCamrea.Acceptcommand;
+using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 
 
 namespace AkribisFAM.CommunicationProtocol
@@ -14,11 +17,7 @@ namespace AkribisFAM.CommunicationProtocol
         #region//发送的指令
         public class Pushcommand
         {
-            //定义拍照发送头部指令
-            public class SendSetStatCommandTop
-            {
-                public string SetStation; //设置工站名
-            }
+            
             //定义拍照位置
             public class SendSetStatCamreaposition
             {
@@ -31,11 +30,7 @@ namespace AkribisFAM.CommunicationProtocol
         #region//接收的指令
         public class Acceptcommand
         {
-            //定义接受Cognex头部指令
-            public class AcceptSetStatCommandTop
-            {
-                public string SetStation; //设置工站名    
-            }
+            
             //定义工站status数据
             public class AcceptSetStatRecheckAppend
             {
@@ -55,154 +50,91 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
         private static string InstructionHeader;//指令头
-
-        public static bool TriggResetCamreaSendData(ResetCamreaProcessCommand resetCamreaProcessCommand, List<object> list_positions) //机台复位时与相机交互自动触发流程
+        public static bool TriggResetCamreaSendData(ResetCamreaProcessCommand resetCamreaProcessCommand, List<SendSetStatCamreaposition> list_positions) //机台复位时与相机交互自动触发流程
         {
             try
             {
-                switch ((int)resetCamreaProcessCommand)
+                //SetStation,LXSZ_B01-4FPAM-02_4_AE-40,FAM1-BZ
+                //SetStation触发指令头
+                InstructionHeader = $"SetStation,";
+
+                ////AE-PDCA站点+项目名称
+                //List<ResetCamrea.Pushcommand.SendSetStatCamreaposition> sendSetStatCamreapositions = new List<ResetCamrea.Pushcommand.SendSetStatCamreaposition>();
+                //ResetCamrea.Pushcommand.SendSetStatCamreaposition sendSetStatCamreaposition1= new ResetCamrea.Pushcommand.SendSetStatCamreaposition();
+
+                //sendSetStatCamreaposition1.AE_Station = "LXSZ_B01-4FPAM-02_4_AE-40";
+                //sendSetStatCamreaposition1.ProjectName = "FAM1-BZ";
+                //sendSetStatCamreapositions.Add(sendSetStatCamreaposition1);
+
+                //组合字符串
+                string sendcommandData =$"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}" ;
+
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发机台复位时发送: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)ResetCamreaProcessCommand.SetStation://SetStation触发指令
-                        {
-                            //SetStation,LXSZ_B01-4FPAM-02_4_AE-40,FAM1-BZ
-                            //SetStation触发指令头
-                            ResetCamrea.Pushcommand.SendSetStatCommandTop sendSetStatCommandTop1 = new ResetCamrea.Pushcommand.SendSetStatCommandTop();
-                            sendSetStatCommandTop1.SetStation = "SetStation";
-                            InstructionHeader = $"{sendSetStatCommandTop1.SetStation},";
-
-                            ////AE-PDCA站点+项目名称
-                            //List<ResetCamrea.Pushcommand.SendSetStatCamreaposition> sendSetStatCamreapositions = new List<ResetCamrea.Pushcommand.SendSetStatCamreaposition>();
-                            //ResetCamrea.Pushcommand.SendSetStatCamreaposition sendSetStatCamreaposition1= new ResetCamrea.Pushcommand.SendSetStatCamreaposition();
-                            
-                            //sendSetStatCamreaposition1.AE_Station = "LXSZ_B01-4FPAM-02_4_AE-40";
-                            //sendSetStatCamreaposition1.ProjectName = "FAM1-BZ";
-                            //sendSetStatCamreapositions.Add(sendSetStatCamreaposition1);
-
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendSetStatCommandTop1, list_positions.Cast<object>().ToList());
-
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发机台复位时发送: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)ResetCamreaProcessCommand.Down://预留指令
-                        {
-                            ////SetStation触发指令头
-                            //ResetCamrea.Pushcommand.SendSetStatCommandTop sendSetStatCommandTop1 = new ResetCamrea.Pushcommand.SendSetStatCommandTop();
-                            //sendSetStatCommandTop1.SetStation = "SetStation";
-                            //InstructionHeader = $"{sendSetStatCommandTop1},";
-
-                            ////AE-PDCA站点+项目名称
-                            //List<ResetCamrea.Pushcommand.SendSetStatCamreaposition> sendSetStatCamreapositions = new List<ResetCamrea.Pushcommand.SendSetStatCamreaposition>();
-                            //ResetCamrea.Pushcommand.SendSetStatCamreaposition sendSetStatCamreaposition1 = new ResetCamrea.Pushcommand.SendSetStatCamreaposition();
-
-                            //sendSetStatCamreaposition1.AE_Station = "LXSZ_B01-4FPAM-02_4_AE-40";
-                            //sendSetStatCamreaposition1.ProjectName = "FAM1-BZ";
-                            //sendSetStatCamreapositions.Add(sendSetStatCamreaposition1);
-
-                            ////组合字符串
-                            //string sendcommandData = StrClass1.BuildPacket(sendSetStatCommandTop1, sendSetStatCamreapositions.Cast<object>().ToList());
-
-                            ////发送字符串到Socket
-                            //bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            //RecordLog("触发机台复位时发送: " + sendcommandData);
-                            //if (!sendcommand_status)
-                            //{
-                            //    return false;
-                            //}
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                    return false;
                 }
                 return true;
             }
             catch (Exception ex)
             {
                 ex.ToString();
-                //bool sendcommand_status = this.VisionpositionfeedPushcommand("信息报错:"+ex.ToString());
                 return false;
             }
         }
 
-        public static bool TriggResetCamreaAcceptData(ResetCamreaProcessCommand resetCamreaProcessCommand, out List<object> list_position)//机台复位时与相机交互接收流程
+        public static List<AcceptSetStatRecheckAppend> TriggResetCamreaAcceptData(ResetCamreaProcessCommand resetCamreaProcessCommand)//机台复位时与相机交互接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("机台复位时收到: " + VisionAcceptData);
-                list_position = null;
 
                 if (!VisionAcceptData_status)
                 {
-                    return false;
+                    return null;
                 }
-                switch ((int)resetCamreaProcessCommand)
+
+                //SetStation接收指令头
+                Type camdowntype = typeof(ResetCamrea.Acceptcommand.AcceptSetStatRecheckAppend);
+                List<AcceptSetStatRecheckAppend> list_positions = new List<AcceptSetStatRecheckAppend>();
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
                 {
-                    case (int)ResetCamreaProcessCommand.SetStation://SetStation接收指令
-                        {
-                            //SetStation接收指令头
-                            ResetCamrea.Acceptcommand.AcceptSetStatCommandTop acceptSetStatCommandTop1 = new ResetCamrea.Acceptcommand.AcceptSetStatCommandTop();
-                            Type camdowntype = typeof(ResetCamrea.Acceptcommand.AcceptSetStatRecheckAppend);
-                            //List<object> list_position = new List<object>();
-                            list_position = new List<object>();
-                            //解析字符串
-                            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, acceptSetStatCommandTop1, list_position, camdowntype);
-                            if (!Analysis_status)
-                            {
-                                return false;
-                            }
-                            //需要输出list_position
-                        }
-                        break;
-                    case (int)ResetCamreaProcessCommand.Down://预留指令
-                        {
-                            ////SetStation接收指令头
-                            //ResetCamrea.Acceptcommand.AcceptSetStatCommandTop acceptSetStatCommandTop1 = new ResetCamrea.Acceptcommand.AcceptSetStatCommandTop();
-                            //Type camdowntype = typeof(ResetCamrea.Acceptcommand.AcceptSetStatRecheckAppend);
-                            ////List<object> list_position = new List<object>();
-                            //list_position = new List<object>();
-                            ////解析字符串
-                            //bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, acceptSetStatCommandTop1, list_position, camdowntype);
-                            //if (!Analysis_status)
-                            //{
-                            //    return false;
-                            //}
-                            ////需要输出list_position
-                        }
-                        break;
-                    default:
-                        {
-                            if (true)
-                            {
-                                //"接受指令有误"
-                                return false;
-                            }
-                        }
+                    return null;
                 }
-                return true;
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((AcceptSetStatRecheckAppend)list[i]);
+                }
+                return list_positions;
             }
             catch (Exception ex)
             {
-                list_position = null;
+
                 ex.ToString();
-                return false;
+                return null;
             }
         }
+
+
+
+
+
+
+
+
+
+
 
         public static void TriggResetCamreaStrClear()//清除客户端最后一条字符串
         {
