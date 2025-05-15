@@ -150,6 +150,7 @@
     <Compile Include="AAmotionFAM\AGM800.cs" />
     <Compile Include="AutorunManager.cs" />
     <Compile Include="CommunicationProtocol\CalibCommunicationProcess.cs" />
+    <Compile Include="CommunicationProtocol\Task_KEDistance.cs" />
     <Compile Include="CommunicationProtocol\IOManager.cs" />
     <Compile Include="CommunicationProtocol\ModbusTCPWorker.cs" />
     <Compile Include="CommunicationProtocol\StrClass1.cs" />
