@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="540" Width="960">
-    <Grid Margin="0,0,0,0">
-        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Center" Width="960" Margin="0,0,0,-209">
+             d:DesignHeight="540" Width="960" VerticalAlignment="Top" HorizontalAlignment="Left">
+    <Grid Margin="0,0,-153,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Width="1112">
             <Grid Height="800" Width="1200">
                 <TabControl Margin="10,10,-10,-10">
                     <TabItem Header="Params1" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="63">

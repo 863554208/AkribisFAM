@@ -15,6 +15,7 @@ using System.Threading;
 using AkribisFAM.ViewModel;
 using LiveCharts;
 using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Windows;
 
 namespace AkribisFAM
 {
@@ -178,6 +179,15 @@ namespace AkribisFAM
 
         #endregion
 
+        public struct Point
+        {
+            public double x;
+            public double y;
+            public double z;
+        }
+
+        public List<Point> Pointlist;
+
         public static GlobalManager Current
         {
             get
@@ -188,6 +198,11 @@ namespace AkribisFAM
                 }
                 return _current;
             }
+        }
+
+        public void ReadJsonPoint()
+        {
+
         }
 
         public void Lailiao_CheckState()
