@@ -10,6 +10,9 @@ using YamlDotNet.Core;
 using HslCommunication;
 using static AkribisFAM.GlobalManager;
 using AkribisFAM.CommunicationProtocol;
+using System.Reflection;
+using YamlDotNet.Core.Tokens;
+using System.Xml.Linq;
 
 namespace AkribisFAM.WorkStation
 {
@@ -84,10 +87,19 @@ namespace AkribisFAM.WorkStation
         {
             if (ReadIO(IO.ZuZhuang_BoardIn) && board_count == 0)
             {
+                //进入后改回false
+                SetIO(IO.ZuZhuang_BoardIn, false);
                 //传送带高速移动
                 MoveConveyor(200);
 
-                IO[] IOArray = new IO[] { IO.FuJian_JianSu };
+                IO[] IOArray = new IO[] { IO.LaiLiao_JianSu };
+                while (true) {
+                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN1_2Slowdown_Sign3]) {
+                        Thread.Sleep(100);
+                        if(IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN1_2Slowdown_Sign3])
+                            break;
+                    }
+                }
                 WaitConveyor(9999, IOArray, 0);
 
                 //顶板气缸上气
