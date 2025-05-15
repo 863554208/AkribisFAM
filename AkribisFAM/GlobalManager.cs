@@ -73,6 +73,12 @@ namespace AkribisFAM
 
         //测试用
         public bool isRun = false;
+
+        public List<(double X, double Y)> laserPoints;
+
+        public List<(double X, double Y)> feedarPoints;
+
+        public int TotalLaserCount = 48;
         #region 全局用来判断机器状态的标志位
 
         //模拟进板位置有料和无料IO信号

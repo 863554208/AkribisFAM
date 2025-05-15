@@ -69,27 +69,95 @@ namespace AkribisFAM.WorkStation
             WarningManager.Current.WaitZuZhuang();
         }
 
+        public static void Set(string propertyName, object value)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.SetValue(GlobalManager.Current, value);
+            }
+        }
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
+            {
+                if (ReadIO(index) == value)
+                {
+                    ret = true;
+                    break;
+                }
+                Thread.Sleep(50);
+            }
+
+            return ret;
+        }
+
+        public void ResumeConveyor()
+        {
+            if (GlobalManager.Current.station1_IsBoardInLowSpeed || GlobalManager.Current.station3_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
+            {
+                //低速运动
+                MoveConveyor(100);
+            }
+            else if (GlobalManager.Current.station1_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
+            {
+                MoveConveyor((int)AxisSpeed.BL1);
+            }
+        }
+
+
         public bool BoradIn()
         {
             if (GlobalManager.Current.IO_test2 && board_count==0)
             {
+
+                //将要板信号清空
+                Set("IO_test2", false);
+                Set("station2_IsBoardInHighSpeed", true);
+
                 //传送带高速移动
-                MoveConveyor(200);
+                MoveConveyor((int)AxisSpeed.BL1);
 
-                IO[] IOArray = new IO[] { IO.ZuZhuang_JianSu };
-                WaitConveyor(9999, IOArray, 0);
+                Set("station2_IsBoardInHighSpeed", false);
 
-                //顶板气缸上气
-                SetIO(IO.ZuZhuang_QiGang , true);
+                //等待减速光电2
+                if (!WaitIO(999999, IO_INFunction_Table.IN1_1Slowdown_Sign2, true)) throw new Exception();
+
+                //阻挡气缸2上气
+                SetIO(IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, 0);
+
+                //标志位转换
+                Set("station2_IsBoardInHighSpeed", false);
+                Set("station2_IsBoardInLowSpeed", true);
 
                 //传送带减速
                 MoveConveyor(100);
 
-                //TODO 这边有没有告诉已经到位的IO信号？
+                //等待料盘挡停到位信号1
+                if (!WaitIO(999999, IO_INFunction_Table.IN1_5Stop_Sign2, true)) throw new Exception();
+
+                //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
+                Set("station2_IsBoardInLowSpeed", false);
+                Set("station2_IsBoardIn", false);
+                Set("station2_IsLifting", true);
+
                 StopConveyor();
 
-                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.ZuZhuang_BoardIn , false);
+                //执行测距位顶升气缸顶升                
+
+                SetIO(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
+                SetIO(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+
+                Set("station1_IsLifting", false);
+
+                ResumeConveyor();
 
                 board_count += 1;
                 return true;
@@ -102,18 +170,62 @@ namespace AkribisFAM.WorkStation
         }
         public void BoardOut()
         {
-            SetIO(IO.ZuZhuang_BoardOut, true);
+            Set("station2_IsBoardOut", true);
+
+            //模拟给下一个工位发进板信号
+            GlobalManager.Current.IO_test3 = true;
+
+            //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
+            while (GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            {
+                Thread.Sleep(100);
+            }
+            StopConveyor();
+            SetIO(IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, 1);
 
             //出板时将穴位信息清空
             GlobalManager.Current.has_XueWeiXinXi = false;
 
+            Set("station1_IsBoardOut", false);
             board_count--;
-            GlobalManager.Current.IO_test3 = true;
+
+        }
+
+        public void WaitConveyor(int type)
+        {
+            DateTime time = DateTime.Now;
+            switch (type)
+            {
+                case 2:
+                    while (SnapFeedar() == 1) ;
+                    break;
+
+                case 3:
+                    while (PickFoam() == 1) ;
+                    break;
+
+                case 4:
+                    while (LowerCCD() == 1) ;
+                    break;
+
+                case 5:
+                    while (DropBadFoam() == 1) ;
+                    break;
+
+                case 6:
+                    while (SnapPallete() == 1) ;
+                    break;
+
+                case 7:
+                    while (PlaceFoam() == 1) ;
+                    break;
+            }
         }
 
         public void MoveConveyor(int vel)
         {
-            //TODO 移动传送带
+            AkrAction.Current.MoveConveyor(vel);
         }
 
         public void StopConveyor()
@@ -121,18 +233,28 @@ namespace AkribisFAM.WorkStation
             //TODO 停止传送带
         }
 
-        public bool ReadIO(IO index)
+        public bool ReadIO(IO_INFunction_Table index)
         {
-            return GlobalManager.Current.IOTable[(int)index];
+            return IOManager.Instance.INIO_status[(int)index];
+
         }
 
-        public void SetIO(IO index, bool value)
+        public void SetIO(IO_OutFunction_Table index, int value)
         {
-            GlobalManager.Current.IOTable[(int)index] = value;
+            IOManager.Instance.IO_ControlStatus(index, value);
         }
 
         public int SnapFeedar()
-        {
+        {         
+            foreach(var Point in GlobalManager.Current.feedarPoints)
+            {
+                AkrAction.Current.Move(AxisName.FSX, (int)Point.X, (int)AxisSpeed.FSX);
+                AkrAction.Current.Move(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
+
+
+
+            }
+            
             GlobalManager.Current.BadFoamCount = 0;
             return 0;
         }
@@ -170,58 +292,58 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-        public void WaitConveyor(int delta, IO[] IOarr, int type)
-        {
-            DateTime time = DateTime.Now;
+        //public void WaitConveyor(int delta, IO[] IOarr, int type)
+        //{
+        //    DateTime time = DateTime.Now;
 
-            if (delta != 0 && IOarr != null)
-            {
-                while ((DateTime.Now - time).TotalMilliseconds < delta)
-                {
-                    int judge = 0;
-                    foreach (var item in IOarr)
-                    {
-                        var res = ReadIO(item) ? 1 : 0;
-                        judge += res;
-                    }
+        //    if (delta != 0 && IOarr != null)
+        //    {
+        //        while ((DateTime.Now - time).TotalMilliseconds < delta)
+        //        {
+        //            int judge = 0;
+        //            foreach (var item in IOarr)
+        //            {
+        //                var res = ReadIO(item) ? 1 : 0;
+        //                judge += res;
+        //            }
 
-                    if (judge > 0)
-                    {
-                        break;
-                    }
-                    Thread.Sleep(50);
-                }
-            }
-            else
-            {
-                switch (type)
-                {
-                    case 2:
-                        while (SnapFeedar() == 1);
-                        break;
+        //            if (judge > 0)
+        //            {
+        //                break;
+        //            }
+        //            Thread.Sleep(50);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        switch (type)
+        //        {
+        //            case 2:
+        //                while (SnapFeedar() == 1);
+        //                break;
 
-                    case 3:
-                        while (PickFoam() == 1) ;
-                        break;
+        //            case 3:
+        //                while (PickFoam() == 1) ;
+        //                break;
 
-                    case 4:
-                        while (LowerCCD() == 1) ;
-                        break;
+        //            case 4:
+        //                while (LowerCCD() == 1) ;
+        //                break;
 
-                    case 5:
-                        while (DropBadFoam() == 1);
-                        break;
+        //            case 5:
+        //                while (DropBadFoam() == 1);
+        //                break;
 
-                    case 6:
-                        while (SnapPallete() == 1) ;
-                        break;
+        //            case 6:
+        //                while (SnapPallete() == 1) ;
+        //                break;
 
-                    case 7:
-                        while (PlaceFoam() == 1) ;
-                        break;
-                }
-            }
-        }
+        //            case 7:
+        //                while (PlaceFoam() == 1) ;
+        //                break;
+        //        }
+        //    }
+        //}
 
         public bool Step1()
         {
@@ -231,23 +353,13 @@ namespace AkribisFAM.WorkStation
             if (!BoradIn())
                 return false;
 
-            Console.WriteLine("ZuZhuang.Current.Step1()");
-
             GlobalManager.Current.current_Zuzhuang_step = 1;
 
             //将当前穴位信息清空
             GlobalManager.Current.has_XueWeiXinXi = false;
 
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000);
-
             CheckState();
 
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
 
             return true;
         }
@@ -257,16 +369,11 @@ namespace AkribisFAM.WorkStation
             Debug.WriteLine("ZuZhuang.Current.Step2()");
 
             GlobalManager.Current.current_Zuzhuang_step = 2;
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
 
             //到feedar上拍照
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);     
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
-
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
 
             return true;
         }
@@ -281,7 +388,7 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep3?.Invoke();
 
             //吸嘴取料
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
             Debug.WriteLine("ZuZhuang.Current.Step3-2()");
             CheckState();
@@ -301,7 +408,7 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep4?.Invoke();
 
             //CCD2精定位
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
@@ -318,7 +425,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 5;
 
             //拍Pallete料盘
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
@@ -332,7 +439,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 6;
 
             //拍Pallete料盘
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
@@ -346,7 +453,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 7;
 
             //拍Pallete料盘
-            WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 

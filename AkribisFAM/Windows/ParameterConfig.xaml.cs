@@ -841,6 +841,8 @@ namespace AkribisFAM.Windows
                 string filePath = openFileDialog.FileName;
                 string jsonString = File.ReadAllText(filePath);
                 palletpointswindow = new PalletPointsWindow();
+                var json = JObject.Parse(jsonString);
+
                 try
                 {
                     StreamReader file = File.OpenText(filePath);
@@ -850,6 +852,7 @@ namespace AkribisFAM.Windows
                     {
                         if (button.Name == "LaserpointsFiledialog")
                         {
+                            
                             Laserpointsconfig.Text = filePath;
                             palletpointswindow.jsontype = PointsType.Laser;
                             scanningareaparams.PalletID = int.Parse(jsonObject["PalletID"].ToString());
