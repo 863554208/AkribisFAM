@@ -16,9 +16,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.CommunicationProtocol;
 using static System.Windows.Forms.AxHost;
-using System.Threading;
 using System.Collections;
 
 namespace AkribisFAM.Windows

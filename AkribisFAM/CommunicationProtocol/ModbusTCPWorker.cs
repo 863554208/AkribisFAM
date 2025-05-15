@@ -220,7 +220,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
         // 读取线圈状态
-        public bool Read_Coil(int index)
+        public bool Read_Coil(int index, ref bool result)
         {
             if (!connect_state)
             {
@@ -236,7 +236,8 @@ namespace AkribisFAM.CommunicationProtocol
                 {
                     Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
                     Console.WriteLine($"1;{index.ToString()}");
-                    return readResult.Content;
+                    result = readResult.Content;
+                    return true;
                 }
                 else
                 {

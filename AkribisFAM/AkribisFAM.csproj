@@ -176,6 +176,7 @@
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
     <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
     <Compile Include="ShareValues.cs" />
@@ -206,6 +207,9 @@
     </Compile>
     <Compile Include="Windows\DebugLog.xaml.cs">
       <DependentUpon>DebugLog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ErrorWindow.xaml.cs">
+      <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\GenrateJson.xaml.cs">
       <DependentUpon>GenrateJson.xaml</DependentUpon>
@@ -251,6 +255,10 @@
     <Page Include="Theme\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ErrorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

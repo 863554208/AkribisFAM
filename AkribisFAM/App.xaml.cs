@@ -32,6 +32,7 @@ namespace AkribisFAM
             var _warningManager = WarningManager.Current;
 
             TCPNetworkManage.TCPInitialize();
+            StateManager.Current.DetectTimeDeltaThread();
             //启动与AGM800的连接
             StartConnectAGM800();
 

@@ -36,7 +36,7 @@ namespace AkribisFAM.Windows
         {
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
-
+            GlobalManager.Current.username = username;
 
 
             // 检查用户名和密码是否为空
