@@ -137,7 +137,6 @@ namespace AkribisFAM.CommunicationProtocol
         OUT7_15Reserve
 
     }
-
     public enum IO_INFunction_Table
     {
         IN1_0Slowdown_Sign1 = 0,

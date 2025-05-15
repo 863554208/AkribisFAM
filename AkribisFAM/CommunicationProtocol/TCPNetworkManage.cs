@@ -11,19 +11,19 @@ namespace AkribisFAM.CommunicationProtocol
 {
     public enum ClientNames
     {
-        [Description("飞达上相机")]
+        
         camera1_Feed,
-        [Description("流道上相机")]
+        
         camera1_Runner,
-        [Description("精定位下相机")]
+        
         camera2,
-        [Description("复检相机")]
+        
         camera3,
-        [Description("激光测距")]
+        
         lazer,
-        [Description("扫码枪")]
+        
         scanner,
-        [Description("PDCA")]
+        
         mes
     }
 

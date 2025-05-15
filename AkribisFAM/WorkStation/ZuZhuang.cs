@@ -243,8 +243,6 @@ namespace AkribisFAM.WorkStation
             //顶板
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
 
-
-            return true;
             
             if (!BoradIn())
                 return false;

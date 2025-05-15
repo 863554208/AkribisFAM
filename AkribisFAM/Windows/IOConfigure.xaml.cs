@@ -18,6 +18,11 @@ using System.Windows.Shapes;
 using AkribisFAM.CommunicationProtocol;
 using static System.Windows.Forms.AxHost;
 using System.Collections;
+using AkribisFAM.CommunicationProtocol;
+using System.ComponentModel.Design;
+using System.Reflection;
+using System.Windows.Threading;
+using YamlDotNet.Core.Tokens;
 
 namespace AkribisFAM.Windows
 {
@@ -33,118 +38,133 @@ namespace AkribisFAM.Windows
         public IOConfigure()
         {
             InitializeComponent();
-            ChangeInIOState(rect1, 1);
             // 初始化字典
-            OutputIOPairs = new Dictionary<string, int>
+            OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
+            foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
             {
-                { "button1", 1 }
-            };
-            InputIOPairs = new Dictionary<int, Rectangle>
+                OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
+            }
+
+            InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
+            foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
             {
-                { 1, rect1 }
-            };
-            Task task1 = new Task(UpdateInputIO);
+                InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
+            }
+
+            Task task1 = new Task(UpdateUI_IO);
             task1.Start();
         }
 
-        private void UpdateInputIO()
+        private void UpdateUI_IO()
         {
             while (true)
             {
-                for (int i = 0; i < InputIOPairs.Count; i++) {
-                    //ChangeInIOState(InputIOPairs[i], IO[i]);
-                    Thread.Sleep(1000);
+                foreach (var Inkvp in InputIOPairs)//ShowInputIO
+                {
+                    var InputIOPairskey = Inkvp.Key;
+                    var rect = Inkvp.Value;
+                    ShowChangeInIOState(rect, IOManager.Instance.INIO_status[InputIOPairskey] ? 1 : 0);
                 }
+
+                foreach (var Outkvp in OutputIOPairs)//ShowOutputIO
+                {
+                    var buttonname = Outkvp.Key;
+                    var OutputIOPairsvalue = Outkvp.Value;
+                    ShowChangeOutIOState(buttonname, IOManager.Instance.OutIO_status[OutputIOPairsvalue] ? 1 : 0);
+                }
+                Thread.Sleep(200);
             }
         }
 
-        private void ChangeInIOState(Rectangle rect, int state)
+        private void ShowChangeInIOState(Rectangle rect, int state)
         {
-            if (state == 0)
+            if (state == 1)
             {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     rect.Fill = new SolidColorBrush(Colors.LightGreen);
                 }));
             }
-            else {
+            else
+            {
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    rect.Fill = new SolidColorBrush(Colors.LightPink);
+                    rect.Fill = new SolidColorBrush(Colors.LightGray);
                 }));
             }
         }
 
-        int ret = 1;
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private void ShowChangeOutIOState(string ButtonName, int state)
         {
-            Button button = sender as Button;
-            if (button != null)
+            this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                //IO输出接口
-                int IOID = OutputIOPairs["button1"];
-                //int ret = SendIO(IOID);
-                if (ret == 0)
+                Button button = this.FindName(ButtonName) as Button;
+                if (state == 1)
                 {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        button.Background = new SolidColorBrush(Colors.LightGreen);
-                    }));
-                    ret = 1;
+                    button.Background = new SolidColorBrush(Colors.LightGreen);
                 }
                 else
                 {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        button.Background = new SolidColorBrush(Colors.LightPink);
-                    }));
-                    ret = 0;
+                    button.Background = new SolidColorBrush(Colors.LightGray);
+                }
+            }));
+        }
+
+        bool IO_Clickstatus = true;
+        private async void Out_Click(object sender, RoutedEventArgs e)
+        {
+            if (IO_Clickstatus)
+            {
+                IO_Clickstatus = false;
+                try
+                {
+                    await UI_IOControlStatus(((Button)sender).Name);
+                }
+                finally
+                {
+                    IO_Clickstatus = true;
                 }
             }
         }
+        private async Task UI_IOControlStatus(string IO_OutName)
+        {
+            try
+            {
+                if (!OutputIOPairs.ContainsKey(IO_OutName))
+                {
+                    Console.WriteLine($"The key does not exist in the dictionary：{IO_OutName}");
+                    return;
+                }
+                int index = OutputIOPairs[IO_OutName];
+
+                await Task.Run(() =>
+                {
+                    if (Enum.IsDefined(typeof(IO_OutFunction_Table), index))
+                    {
+                        IO_OutFunction_Table outEnum = (IO_OutFunction_Table)Enum.ToObject(typeof(IO_OutFunction_Table), index);
 
 
-        //private void INOUTIOshow()
-        //{
-        //    Task.Run(new Action(() =>
-        //    {
-        //        while (true)
-        //        {
-        //            //显示在UI界面//输入
-        //            this.Label5.Dispatcher.BeginInvoke(new Action<bool>((IO_INstatus) =>
-        //            {
-        //                this.Label5.Background = IO_INstatus ? Brushes.Green : Brushes.Red;
-
-        //            }), IOManager.Instance.INIO_status[(int)IO_INFunction_Table.Stop_Sign1]);
-
-
-        //            this.Label9.Dispatcher.BeginInvoke(new Action<bool>((IO_INstatus) =>
-        //            {
-
-        //                this.Label9.Background = IO_INstatus ? Brushes.Green : Brushes.Red;
-        //            }), IOManager.Instance.INIO_status[(int)IO_INFunction_Table.NG_cover_plate1]);
-
-
-        //            //输出
-        //            this.Button9.Dispatcher.BeginInvoke(new Action<bool>((IO_OUTstatus) =>
-        //            {
-
-        //                this.Button9.Background = IO_OUTstatus ? Brushes.Green : Brushes.Red;
-        //            }), IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.Left_3_lift_cylinder_extend]);
-
-        //            this.Button11.Dispatcher.BeginInvoke(new Action<bool>((IO_OUTstatus) =>
-        //            {
-
-        //                this.Button11.Background = IO_OUTstatus ? Brushes.Green : Brushes.Red;
-        //            }), IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.Right_3_lift_cylinder_extend]);
-
-        //            Thread.Sleep(100);
-        //        }
-        //    }));
-        //}
-
-
-
-
+                        try
+                        { 
+                            bool currentStatus = IOManager.Instance.OutIO_status[(int)outEnum];
+                            IOManager.Instance.IO_ControlStatus(outEnum, currentStatus ? 0 : 1);
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"IO Write Failure{ex.ToString()}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid enumeration value：{index.ToString()}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Task failed: {ex}");
+            }
+        }
     }
 }

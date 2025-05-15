@@ -241,13 +241,13 @@ namespace AkribisFAM.CommunicationProtocol
                 }
                 else
                 {
-                    Console.WriteLine($"读取线圈 {index} 失败：{readResult.Message}");
+                    //Console.WriteLine($"读取线圈 {index} 失败：{readResult.Message}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"读取线圈 {index} 时发生异常：{ex.Message}");
+                //Console.WriteLine($"读取线圈 {index} 时发生异常：{ex.Message}");
                 return false;
             }
         }

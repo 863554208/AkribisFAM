@@ -15,6 +15,8 @@ using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.AAmotionFAM;
+using static AkribisFAM.GlobalManager;
 namespace AkribisFAM
 {
     /// <summary>
@@ -27,27 +29,22 @@ namespace AkribisFAM
         {
             base.OnStartup(e);
             var _globalManager = GlobalManager.Current;
-            var _testStation1 = TestStation1.Current;
-            var _testStation2 = TestStation2.Current;
             var _warningManager = WarningManager.Current;
+            var _agm800 = AAmotionFAM.AGM800.Current;
 
             TCPNetworkManage.TCPInitialize();
+            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             StateManager.Current.DetectTimeDeltaThread();
             //启动与AGM800的连接
             StartConnectAGM800();
+
+            MessageBox.Show("2");
 
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
             //调试用
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+
 
             //TODO
             try
@@ -72,7 +69,7 @@ namespace AkribisFAM
 
             SetLanguage("en-US");
 
-
+            MessageBox.Show("1");
 
             if (new LoginViewModel().ShowDialog() == true)
             {
@@ -95,8 +92,25 @@ namespace AkribisFAM
 
         private void StartConnectAGM800()
         {
-            string agm800_IP = "172.1.1.101";
-            GlobalManager.Current.AGM800Connection = AAMotionAPI.Connect(GlobalManager.Current._Agm800.controller, agm800_IP);
+            try
+            {
+                string[] agm800_IP = new string[]
+                {
+                    "172.1.1.101",
+                    "172.1.1.102",
+                    "172.1.1.103",
+                    "172.1.1.104"
+                };
+
+                // 初始化控制器并连接到指定的 IP 地址
+                for (int i = 0; i < AAmotionFAM.AGM800.Current.controller.Length; i++)
+                {
+                    AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
+                    AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
+                }
+            }
+            catch (Exception ex) { }
+
         }
         private void CloseAACommServer()
         {

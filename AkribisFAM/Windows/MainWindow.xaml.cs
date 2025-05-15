@@ -45,6 +45,12 @@ namespace AkribisFAM
         public ErrorIconViewModel ViewModel { get; }
         private ErrorWindow ErrorWindow;
 
+        //ResetButton 按住3秒才能触发
+        private Stopwatch resetPressStopwatch = new Stopwatch();
+        private DispatcherTimer resetTimer;
+        private bool isResetButtonTriggered = false;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -118,6 +124,36 @@ namespace AkribisFAM
         //    AutorunManager.Current.AutoRunMain();
         //}
 
+        //ResetButton 按住3秒才能触发
+        private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            isResetButtonTriggered = false;
+            resetPressStopwatch.Restart();
+
+            resetTimer = new DispatcherTimer();
+            resetTimer.Interval = TimeSpan.FromSeconds(3);
+            resetTimer.Tick += (s, args) =>
+            {
+                resetTimer.Stop();
+                isResetButtonTriggered = true;
+                ExecuteReset();
+            };
+            resetTimer.Start();
+        }
+
+        private void ResetButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            resetTimer?.Stop();
+            resetPressStopwatch.Stop();
+
+            // 如果松开太早，提示用户
+            if (!isResetButtonTriggered)
+            {
+                MessageBox.Show("请按住按钮至少3秒以执行复位");
+            }
+        }
+
+
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
@@ -127,8 +163,8 @@ namespace AkribisFAM
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.Guarding = 1;
                 //对轴初始化使能 改到登录之后            
-                AkrAction.Current.axisAllEnable(true);
-                GlobalManager.Current.InitializeAxisMode();
+                //AkrAction.Current.axisAllEnable(true);
+                //GlobalManager.Current.InitializeAxisMode();
 
                 //测试用
                 GlobalManager.Current.isRun = true;
@@ -227,7 +263,7 @@ namespace AkribisFAM
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
         }
 
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        private void ExecuteReset()
         {
             if (StateManager.Current.State == StateCode.STOPPED)
             {
@@ -243,12 +279,28 @@ namespace AkribisFAM
             }
             else if (StateManager.Current.State == StateCode.IDLE)
             {
-                
+
             }
-            else { 
+            else
+            {
                 return;
             }
-            StateManager.Current.Guarding = 1;
+            MessageBox.Show("开始复位");
+            if (!AutorunManager.Current.Reset())
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("复位失败");
+                });
+                AutorunManager.Current.hasReseted = false;
+            }
+            else
+            {
+                AutorunManager.Current.hasReseted = true;
+            }
+        }
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
             GlobalManager.Current.current_Lailiao_step = 0;
             GlobalManager.Current.current_Zuzhuang_step = 0;
             GlobalManager.Current.current_FuJian_step = 0;
@@ -282,6 +334,7 @@ namespace AkribisFAM
 
         }
 
+        //20250514 暂时修改 【史彦洋】 修改 Start
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
