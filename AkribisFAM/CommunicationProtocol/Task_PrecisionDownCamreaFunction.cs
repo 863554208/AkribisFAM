@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 
 
 namespace AkribisFAM.CommunicationProtocol
@@ -14,13 +15,6 @@ namespace AkribisFAM.CommunicationProtocol
         #region//发送的指令
         public class Pushcommand
         {
-            //定义拍照发送头部指令
-            public class SendTLNCommandTop
-            {
-                public string TLN; // 模块头
-                public string CmdID;  // 指令编号
-                public string CamreaCount; // 拍照次数  
-            }
             //定义拍照位置
             public class SendTLNCamreaposition
             {
@@ -39,13 +33,6 @@ namespace AkribisFAM.CommunicationProtocol
         #region//接收的指令
         public class Acceptcommand
         {
-            //定义接受Cognex头部指令
-            public class AcceptTLNCommandTop
-            {
-                public string TLN; // 模块头
-                public string CmdID;  // 指令编号
-                public string CamreaCount; // 拍照次数
-            }
             //定义物料精定位的坐标
             public class AcceptTLNDownPosition
             {
@@ -77,179 +64,78 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
         private static string InstructionHeader;//指令头
-       
-        public static bool TriggDownCamreaSendData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand, List<object> list_positions) //下相机拍照与相机交互自动触发流程
+
+
+        public static bool TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand, List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> list_positions) //下相机拍照与相机交互TLN自动触发流程
         {
             try
             {
-                switch ((int)precisionDownCamreaProcessCommand)
+                InstructionHeader = $"TLN,Cmd_100,4,";
+
+                ////SN1+物料名称+视野编号+X+Y+R
+                //List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> sendTLNCamreapositions = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
+                //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition1 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+
+                //sendTLNCamreaposition1.SN = "LocateNozzle_1_20250418152027";
+                //sendTLNCamreaposition1.NozzleID= "1";//吸嘴编号
+                //sendTLNCamreaposition1.RawMaterialName = "Foam";
+                //sendTLNCamreaposition1.CaveID = "0";
+                //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition1.Photo_X1 = "256.890";
+                //sendTLNCamreaposition1.Photo_Y1 = "345.445";
+                //sendTLNCamreaposition1.Photo_R1 = "67.456";
+                //sendTLNCamreapositions.Add(sendTLNCamreaposition1);
+
+                ////SN2+物料名称+视野编号+X+Y+R
+                //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition2 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+
+                //sendTLNCamreaposition2.SN = "LocateNozzle_2_20250418152027";
+                //sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
+                //sendTLNCamreaposition2.RawMaterialName = "Foam";
+                //sendTLNCamreaposition2.CaveID = "0";
+                //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition2.Photo_X1 = "256.890";
+                //sendTLNCamreaposition2.Photo_Y1 = "345.445";
+                //sendTLNCamreaposition2.Photo_R1 = "67.456";
+                //sendTLNCamreapositions.Add(sendTLNCamreaposition2);
+
+                ////SN3+物料名称+视野编号+X+Y+R
+                //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition3 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+
+                //sendTLNCamreaposition3.SN = "LocateNozzle_3_20250418152027";
+                //sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
+                //sendTLNCamreaposition3.RawMaterialName = "Foam";
+                //sendTLNCamreaposition3.CaveID = "0";
+                //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition3.Photo_X1 = "256.890";
+                //sendTLNCamreaposition3.Photo_Y1 = "345.445";
+                //sendTLNCamreaposition3.Photo_R1 = "67.456";
+                //sendTLNCamreapositions.Add(sendTLNCamreaposition3);
+
+                ////SN4+物料名称+视野编号+X+Y+R
+                //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition4 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
+
+                //sendTLNCamreaposition4.SN = "LocateNozzle_4_20250418152027";
+                //sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
+                //sendTLNCamreaposition4.RawMaterialName = "Foam";
+                //sendTLNCamreaposition4.CaveID = "0";
+                //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition4.Photo_X1 = "256.890";
+                //sendTLNCamreaposition4.Photo_Y1 = "345.445";
+                //sendTLNCamreaposition4.Photo_R1 = "67.456";
+                //sendTLNCamreapositions.Add(sendTLNCamreaposition4);
+
+                //组合字符串
+                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发下相机精定位定位: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)PrecisionDownCamreaProcessCommand.TLN://TLN触发指令
-                        {
-                            //TLN触发指令头
-                            PrecisionDownCamrea.Pushcommand.SendTLNCommandTop sendTLNCommandTop1 = new PrecisionDownCamrea.Pushcommand.SendTLNCommandTop();
-                            sendTLNCommandTop1.TLN = "TLN";
-                            sendTLNCommandTop1.CmdID = "Cmd_100";
-                            sendTLNCommandTop1.CamreaCount = "4";
-                            InstructionHeader = $"{sendTLNCommandTop1.TLN},{sendTLNCommandTop1.CmdID},{sendTLNCommandTop1.CamreaCount},";
-
-                            ////SN1+物料名称+视野编号+X+Y+R
-                            //List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> sendTLNCamreapositions = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition1 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition1.SN = "LocateNozzle_1_20250418152027";
-                            //sendTLNCamreaposition1.NozzleID= "1";//吸嘴编号
-                            //sendTLNCamreaposition1.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition1.CaveID = "0";
-                            //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition1.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition1.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition1.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition1);
-
-                            ////SN2+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition2 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition2.SN = "LocateNozzle_2_20250418152027";
-                            //sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
-                            //sendTLNCamreaposition2.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition2.CaveID = "0";
-                            //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition2.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition2.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition2.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition2);
-
-                            ////SN3+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition3 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition3.SN = "LocateNozzle_3_20250418152027";
-                            //sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
-                            //sendTLNCamreaposition3.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition3.CaveID = "0";
-                            //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition3.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition3.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition3.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition3);
-
-                            ////SN4+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition4 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition4.SN = "LocateNozzle_4_20250418152027";
-                            //sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
-                            //sendTLNCamreaposition4.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition4.CaveID = "0";
-                            //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition4.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition4.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition4.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition4);
-
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTLNCommandTop1, list_positions.Cast<object>().ToList());
-                           
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发下相机精定位定位: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)PrecisionDownCamreaProcessCommand.Down://预留指令
-                        {
-
-                            ////TLN触发指令头
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCommandTop sendTLNCommandTop1 = new PrecisionDownCamrea.Pushcommand.SendTLNCommandTop();
-                            //sendTLNCommandTop1.TLN = "TLN";
-                            //sendTLNCommandTop1.CmdID = "Cmd_100";
-                            //sendTLNCommandTop1.CamreaCount = "4";
-                            //InstructionHeader = $"{sendTLNCommandTop1.TLN},{sendTLNCommandTop1.CmdID},{sendTLNCommandTop1.CamreaCount},";
-
-                            ////SN1+物料名称+视野编号+X+Y+R
-                            //List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> sendTLNCamreapositions = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition1 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition1.SN = "LocateNozzle_1_20250418152027";
-                            //sendTLNCamreaposition1.NozzleID = "1";//吸嘴编号
-                            //sendTLNCamreaposition1.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition1.CaveID = "0";
-                            //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition1.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition1.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition1.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition1);
-
-                            ////SN2+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition2 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition2.SN = "LocateNozzle_2_20250418152027";
-                            //sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
-                            //sendTLNCamreaposition2.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition2.CaveID = "0";
-                            //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition2.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition2.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition2.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition2);
-
-                            ////SN3+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition3 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition3.SN = "LocateNozzle_3_20250418152027";
-                            //sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
-                            //sendTLNCamreaposition3.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition3.CaveID = "0";
-                            //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition3.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition3.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition3.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition3);
-
-                            ////SN4+物料名称+视野编号+X+Y+R
-                            //PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition sendTLNCamreaposition4 = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition();
-
-                            //sendTLNCamreaposition4.SN = "LocateNozzle_4_20250418152027";
-                            //sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
-                            //sendTLNCamreaposition4.RawMaterialName = "Foam";
-                            //sendTLNCamreaposition4.CaveID = "0";
-                            //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
-                            //sendTLNCamreaposition4.Photo_X1 = "256.890";
-                            //sendTLNCamreaposition4.Photo_Y1 = "345.445";
-                            //sendTLNCamreaposition4.Photo_R1 = "67.456";
-                            //sendTLNCamreapositions.Add(sendTLNCamreaposition4);
-
-                            ////组合字符串
-                            //string sendcommandData = null;
-                            //bool CommandData_Status = StrClass1.BuildPacket(sendTLNCommandTop1, sendTLNCamreapositions.Cast<object>().ToList(), out sendcommandData);
-                            //if (!CommandData_Status)
-                            //{
-                            //    return false;
-                            //}
-                            ////发送字符串到Socket
-                            //bool sendcommand_status = VisionpositionfeedPushcommand(sendcommandData);
-                            //RecordLog("触发飞达定位: " + sendcommandData);
-                            //if (!sendcommand_status)
-                            //{
-                            //    return false;
-                            //}
-
-
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                    return false;
                 }
+
                 return true;
             }
             catch (Exception ex)
@@ -267,12 +153,11 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return null;
             }
-            //TLN接收指令头
-            PrecisionDownCamrea.Pushcommand.SendTLNCommandTop sendTLNCommandTop1 = new PrecisionDownCamrea.Pushcommand.SendTLNCommandTop();
+
             Type camdowntype = typeof(PrecisionDownCamrea.Acceptcommand.TLNCamreaready);
             List<object> list_position = new List<object>();
             //解析字符串
-            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, sendTLNCommandTop1, list_position, camdowntype);
+            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list_position, camdowntype);
             if (!Analysis_status)
             {
                 return null;
@@ -281,69 +166,40 @@ namespace AkribisFAM.CommunicationProtocol
             return ((PrecisionDownCamrea.Acceptcommand.TLNCamreaready)list_position[0]).CamreaReadyFlag;
         }
 
-        public static bool TriggDownCamreaAcceptData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand, out List<object> list_position)//下相机拍照与相机交互接收流程
+        public static List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand)//下相机拍照与相机交互TLN接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("下相机收到取料坐标: " + VisionAcceptData);
-                list_position = null;
-
                 if (!VisionAcceptData_status)
                 {
-                    return false;
+                    return null;
                 }
-                switch ((int)precisionDownCamreaProcessCommand)
+                Type camdowntype = typeof(PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition);
+                List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> list_positions = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
                 {
-                    case (int)PrecisionDownCamreaProcessCommand.TLN://TLM接收指令
-                        {
-                            //TLN接收指令头
-                            PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop accepTLNCommandTop1 = new PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop();
-                            Type camdowntype = typeof(PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition);
-                            //List<object> list_position = new List<object>();
-                            list_position = new List<object>();
-                            //解析字符串
-                            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepTLNCommandTop1, list_position, camdowntype);
-                            if (!Analysis_status)
-                            {
-                                return false;
-                            }
-                            //需要输出list_position
-                        }
-                        break;
-                    case (int)PrecisionDownCamreaProcessCommand.Down://预留指令
-                        {
-                            ////TLN接收指令头
-                            //PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop accepTLNCommandTop1 = new PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop();
-                            //Type camdowntype = typeof(PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop);
-                            ////List<object> list_position = new List<object>();
-                            //list_position = new List<object>();
-                            ////解析字符串
-                            //bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepTLNCommandTop1, list_position, camdowntype);
-                            //if (!Analysis_status)
-                            //{
-                            //    return false;
-                            //}
-                            ////需要输出list_position
-                        }
-                        break;
-                    default:
-                        {
-                            if (true)
-                            {
-                                //"接受指令有误"
-                                return false;
-                            }
-                        }
+                    return null;
                 }
-                return true;
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition)list[i]);
+                }
+                return list_positions;
             }
             catch (Exception ex)
             {
-                list_position = null;
                 ex.ToString();
-                return false;
+                return null;
             }
         }
 

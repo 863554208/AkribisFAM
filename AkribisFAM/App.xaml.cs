@@ -34,8 +34,8 @@ namespace AkribisFAM
             var _agm800 = AAmotionFAM.AGM800.Current;
 
             TCPNetworkManage.TCPInitialize();
-
             //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            StateManager.Current.DetectTimeDeltaThread();
             //启动与AGM800的连接
             StartConnectAGM800();
 

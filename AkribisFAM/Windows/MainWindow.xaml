@@ -24,11 +24,11 @@
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="111" VerticalAlignment="Top" Width="207">
             <Image HorizontalAlignment="Left" Height="135" VerticalAlignment="Center" Width="204" Margin="-1,0,0,0" Source="D:\AkribisLogo.png "/>
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="55" Margin="212,60,0,0" VerticalAlignment="Top" Width="408">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-1,0,0,0" Width="593">
+        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="55" Margin="212,60,0,0" VerticalAlignment="Top" Width="578">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-1,0,0,0" Width="537">
                 <!-- First Label -->
                 <Label Content="设备状态" FontSize="15" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBox TextWrapping="Wrap" Text="Running"  BorderThickness="0" VerticalAlignment="Center" Width="60"/>
+                <TextBox x:Name="CurrentState" TextWrapping="Wrap" Text="Running"  BorderThickness="0" VerticalAlignment="Center" Width="104"/>
 
                 <Label Content="CT" FontSize="15" VerticalAlignment="Center" FontWeight="Bold"/>
                 <TextBox TextWrapping="Wrap" Text="36" VerticalAlignment="Center" Width="60" BorderThickness="0" />
@@ -77,14 +77,16 @@
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="776" Margin="228,0,0,0" VerticalAlignment="Center" Width="1463">
             <ContentControl Name="ContentDisplay" Margin="9,9,9,9" />
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="1217,902,0,0" VerticalAlignment="Top" Width="516">
-            <StackPanel Orientation="Horizontal" Margin="9,-5,33,5">
+        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="909,902,0,0" VerticalAlignment="Top" Width="824">
+            <StackPanel Orientation="Horizontal" Margin="9,-5,0,5">
                 <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
                 <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
                 <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" 
                         PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown"
                         PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+                <Button x:Name="IdleButton" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
+                <Button x:Name="MaintenanceButton" Content="Maintenance" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>
         </Border>
         <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="475,924,0,0" VerticalAlignment="Top" Width="275">
@@ -93,6 +95,6 @@
                 <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
             </StackPanel>
         </Border>
-        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="1699,55,153,940"/>
+        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="952,38,0,0" Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Height="55" Width="72"/>
     </Grid>
 </Window>

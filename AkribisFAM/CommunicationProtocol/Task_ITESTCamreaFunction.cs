@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static AkribisFAM.CommunicationProtocol.ITESTCamrea.Acceptcommand;
 
 
 namespace AkribisFAM.CommunicationProtocol
@@ -14,11 +15,6 @@ namespace AkribisFAM.CommunicationProtocol
         #region//发送的指令
         public class Pushcommand
         {
-            //定义拍照发送头部指令
-            public class SendRecordCommandTop
-            {
-                public string RecordImage; // 开启ITEST图像上传
-            }
             //定义拍照位置
             public class SendRecordCamreaposition
             {
@@ -31,11 +27,7 @@ namespace AkribisFAM.CommunicationProtocol
         #region//接收的指令
         public class Acceptcommand
         {
-            //定义接受Cognex头部指令
-            public class AcceptRecordCommandTop
-            {
-                public string RecordImage; // 开启ITEST图像上传    
-            }
+
             //定义ITEST status数据
             public class AcceptRecordRecheckAppend
             {
@@ -58,78 +50,31 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggITESTCamreaSendData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand, List<object> list_positions) //机台复位时与相机交互自动触发流程
+        public static bool TriggITESTCamreaSendData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand, List<AcceptRecordRecheckAppend> list_positions) //机台复位时与相机交互自动触发流程
         {
             try
             {
-                switch ((int)iTESTCamreaProcessCommand)
+                //RecordImage,F:\itestimage,1
+                InstructionHeader = $"RecordImage,";
+                ////ITEST图像存储路径+存储数量
+                //List<ITESTCamrea.Pushcommand.SendRecordCamreaposition> sendRecordCamreapositions = new List<ITESTCamrea.Pushcommand.SendRecordCamreaposition>();
+                //ITESTCamrea.Pushcommand.SendRecordCamreaposition sendRecordCamreaposition1= new ITESTCamrea.Pushcommand.SendRecordCamreaposition();
+
+                //sendRecordCamreaposition1.ImagePath = @"F:\\itestimage";
+                //sendRecordCamreaposition1.Num = "1";
+                //sendRecordCamreapositions.Add(sendRecordCamreaposition1);
+
+                //组合字符串
+                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发ITEST功能时发送: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)ITESTCamreaProcessCommand.RecordImage://RecordImage触发指令
-                        {
-                            //RecordImage,F:\itestimage,1
-                            //RecordImage触发指令头
-                            ITESTCamrea.Pushcommand.SendRecordCommandTop sendRecordCommandTop1 = new ITESTCamrea.Pushcommand.SendRecordCommandTop();
-                            sendRecordCommandTop1.RecordImage = "RecordImage";
-                            InstructionHeader = $"{sendRecordCommandTop1.RecordImage},";
-
-                            ////ITEST图像存储路径+存储数量
-                            //List<ITESTCamrea.Pushcommand.SendRecordCamreaposition> sendRecordCamreapositions = new List<ITESTCamrea.Pushcommand.SendRecordCamreaposition>();
-                            //ITESTCamrea.Pushcommand.SendRecordCamreaposition sendRecordCamreaposition1= new ITESTCamrea.Pushcommand.SendRecordCamreaposition();
-
-                            //sendRecordCamreaposition1.ImagePath = @"F:\\itestimage";
-                            //sendRecordCamreaposition1.Num = "1";
-                            //sendRecordCamreapositions.Add(sendRecordCamreaposition1);
-
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendRecordCommandTop1, list_positions.Cast<object>().ToList());
-
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发ITEST功能时发送: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)ITESTCamreaProcessCommand.Down://预留指令
-                        {
-                            ////RecordImage触发指令头
-                            //ITESTCamrea.Pushcommand.SendRecordCommandTop sendRecordCommandTop1 = new ITESTCamrea.Pushcommand.SendRecordCommandTop();
-                            //sendRecordCommandTop1.RecordImage = "RecordImage";
-                            //InstructionHeader = $"{sendRecordCommandTop1.RecordImage},";
-
-                            ////ITEST图像存储路径+存储数量
-                            //List<ITESTCamrea.Pushcommand.SendRecordCamreaposition> sendRecordCamreapositions = new List<ITESTCamrea.Pushcommand.SendRecordCamreaposition>();
-                            //ITESTCamrea.Pushcommand.SendRecordCamreaposition sendRecordCamreaposition1 = new ITESTCamrea.Pushcommand.SendRecordCamreaposition();
-
-                            //sendRecordCamreaposition1.ImagePath = @"F:\\itestimage";
-                            //sendRecordCamreaposition1.Num = "1";
-                            //sendRecordCamreapositions.Add(sendRecordCamreaposition1);
-
-                            ////组合字符串
-                            //string sendcommandData = StrClass1.BuildPacket(sendRecordCommandTop1, sendRecordCamreapositions.Cast<object>().ToList());
-
-                            ////发送字符串到Socket
-                            //bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            //RecordLog("触发ITEST功能时发送: " + sendcommandData);
-                            //if (!sendcommand_status)
-                            //{
-                            //    return false;
-                            //}
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                    return false;
                 }
+
                 return true;
             }
             catch (Exception ex)
@@ -140,69 +85,42 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static bool TriggResetCamreaAcceptData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand, out List<object> list_position)//机台复位时与相机交互接收流程
+        public static List<ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend> TriggResetCamreaAcceptData(ITESTCamreaProcessCommand iTESTCamreaProcessCommand)//机台复位时与相机交互接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("机台ITEST功能时收到: " + VisionAcceptData);
-                list_position = null;
-
                 if (!VisionAcceptData_status)
                 {
-                    return false;
+                    return null;
                 }
-                switch ((int)iTESTCamreaProcessCommand)
+
+                Type camdowntype = typeof(ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend);
+                List<ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend> list_positions = new List<ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend>();
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
                 {
-                    case (int)ITESTCamreaProcessCommand.RecordImage://RecordImage接收指令
-                        {
-                            //RecordImage接收指令头
-                            ITESTCamrea.Acceptcommand.AcceptRecordCommandTop acceptRecordCommandTop1 = new ITESTCamrea.Acceptcommand.AcceptRecordCommandTop();
-                            Type camdowntype = typeof(ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend);
-                            //List<object> list_position = new List<object>();
-                            list_position = new List<object>();
-                            //解析字符串
-                            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, acceptRecordCommandTop1, list_position, camdowntype);
-                            if (!Analysis_status)
-                            {
-                                return false;
-                            }
-                            //需要输出list_position
-                        }
-                        break;
-                    case (int)ITESTCamreaProcessCommand.Down://预留指令
-                        {
-                            ////RecordImage接收指令头
-                            //ITESTCamrea.Acceptcommand.AcceptRecordCommandTop acceptRecordCommandTop1 = new ITESTCamrea.Acceptcommand.AcceptRecordCommandTop();
-                            //Type camdowntype = typeof(ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend);
-                            ////List<object> list_position = new List<object>();
-                            //list_position = new List<object>();
-                            ////解析字符串
-                            //bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, acceptRecordCommandTop1, list_position, camdowntype);
-                            //if (!Analysis_status)
-                            //{
-                            //    return false;
-                            //}
-                            ////需要输出list_position
-                        }
-                        break;
-                    default:
-                        {
-                            if (true)
-                            {
-                                //"接受指令有误"
-                                return false;
-                            }
-                        }
+                    return null;
                 }
-                return true;
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((ITESTCamrea.Acceptcommand.AcceptRecordRecheckAppend)list[i]);
+                }
+                return list_positions;
             }
             catch (Exception ex)
             {
-                list_position = null;
+
                 ex.ToString();
-                return false;
+                return null;
             }
         }
 
