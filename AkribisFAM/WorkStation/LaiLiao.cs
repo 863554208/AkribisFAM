@@ -14,6 +14,7 @@ using AkribisFAM.Windows;
 using static AAComm.Extensions.AACommFwInfo;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
+using System.CodeDom;
 
 namespace AkribisFAM.WorkStation
 {
@@ -68,39 +69,50 @@ namespace AkribisFAM.WorkStation
             throw new NotImplementedException();
         }
 
+        public static void Set(string propertyName, object value)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.SetValue(GlobalManager.Current, value);
+            }
+        }
+
         public override bool Ready()
         {
             return true;
         }
 
-        public bool ReadIO(IO index)
+        public bool ReadIO(IO_INFunction_Table index)
         {
-            return GlobalManager.Current.IOTable[(int)index];
+            return IOManager.Instance.INIO_status[(int)index];
+
         }
 
-        public void SetIO(IO index ,bool value)
+        public void SetIO(IO_OutFunction_Table index , int value)
         {
-            GlobalManager.Current.IOTable[(int)index] = value;
+            IOManager.Instance.IO_ControlStatus( index , value);
         }
 
         public int ScanBarcode()
         {
-            
-            //扫码
-            Thread.Sleep(100);
+            //触发扫码枪扫码
+
             return 0;
         }
 
         public int LaserHeight()
         {
-            //扫码
+            //激光测距
+            //AkrAction.Current.Move(AxisName.LSX)
             Thread.Sleep(100);
             return 0;
         }
 
         public void MoveConveyor(int vel)
         {
-            //TODO 移动传送带
+            AkrAction.Current.MoveConveyor(vel);
         }
 
         public void StopConveyor()
@@ -113,65 +125,104 @@ namespace AkribisFAM.WorkStation
             return boolValues.Select(b => b ? 1 : 0).ToArray();
         }
 
-        public void WaitConveyor(int delta, IO[] IOarr , int type)
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
-
-            if (delta != 0 && IOarr != null)
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
-                while ((DateTime.Now - time).TotalMilliseconds < delta)
+                if (ReadIO(index) == value)
                 {
-                    int judge = 0;
-                    foreach (var item in IOarr)
-                    {
-                        var res = ReadIO(item) ? 1 : 0; // 如果 ReadIO 返回 true，则 res 为 1，否则为 0
-                        judge += res;
-                    }
-
-                    if (judge > 0) 
-                    {
-                        break;
-                    }
-                    Thread.Sleep(50);
+                    ret = true;
+                    break;
                 }
+                Thread.Sleep(50);
             }
-            else
-            {
-                switch (type)
-                {
-                    case 2: 
-                        while (ScanBarcode() == 1);
-                        break;
 
-                    case 4:
-                        while(LaserHeight() ==1); 
-                        break;
-                }
+            return ret;
+        }
+        public void WaitConveyor(int type)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            switch (type)
+            {
+                case 2: 
+                    while (ScanBarcode() == 1);
+                    break;
+
+                case 4:
+                    while(LaserHeight() ==1); 
+                    break;
             }
         }
 
+        public void ResumeConveyor()
+        {
+            if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station3_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
+            {
+                //低速运动
+                MoveConveyor(100);
+            }
+            else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
+            {
+                MoveConveyor((int)AxisSpeed.BL1);
+            }
+        }
 
         public bool BoradIn()
         {
-            if (ReadIO(IO.LaiLiao_BoardIn) && board_count == 0)
-            {                
+            //给上游发要板信号
+            SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+
+            if (ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0)
+            {
+                Set("station1_IsBoardInHighSpeed", true);
+                Set("IO_test2", false);
+
+                //将要板信号清空
+                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
+
                 //传送带高速移动
-                MoveConveyor(200);
+                MoveConveyor((int)AxisSpeed.BL1);
 
-                IO[] IOArray = new IO[]{IO.LaiLiao_JianSu };
-                WaitConveyor(9999, IOArray, 0);
+                Set("station1_IsBoardInHighSpeed", false);
 
-                //顶板气缸上气
-                SetIO(IO.LaiLiao_QiGang ,true);
+                //等待减速光电1
+                if(!WaitIO(999999, IO_INFunction_Table.IN1_0Slowdown_Sign1 ,true)) throw new Exception();
 
-                //传送带减速
+                //阻挡气缸1上气
+                SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 0);
+
+                //标志位转换
+                Set("station1_IsBoardInHighSpeed", false);
+                Set("station1_IsBoardInLowSpeed", true);
+
+                //传送带低速运动
                 MoveConveyor(100);
 
-                //TODO 这边有没有告诉已经到位的IO信号？
+                //等待料盘挡停到位信号1
+                if (!WaitIO(999999, IO_INFunction_Table.IN1_4Stop_Sign1, true)) throw new Exception();
+
+                //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
+                Set("station1_IsBoardInLowSpeed", false);
+                Set("station1_IsBoardIn", false);
+                Set("station1_IsLifting", true);
+                
                 StopConveyor();
 
-                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.LaiLiao_BoardIn, false);
+                //执行测距位顶升气缸顶升                
+
+                SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
+                SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
+                
+                Set("station1_IsLifting", false);
+
+                ResumeConveyor();
 
                 board_count += 1;
 
@@ -187,10 +238,28 @@ namespace AkribisFAM.WorkStation
         public void Boardout()
         {
             //WaitConveyor((int)Input.LaiLiao_BoardOut);
-            SetIO(IO.LaiLiao_BoardOut ,true);
-            board_count -= 1;
+            Set("station1_IsBoardOut", true);
+
             //模拟给下一个工位发进板信号
             GlobalManager.Current.IO_test2 = true;
+
+            //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
+            while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            {
+                Thread.Sleep(100);
+            }
+
+            //执行气缸放气，下降
+            StopConveyor();
+            SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
+
+            ResumeConveyor();
+
+            Set("station1_IsBoardOut", false);
+            //SetIO(IO.LaiLiao_BoardOut ,true);
+            board_count -= 1;
+            
         }
 
         public void CheckState()
@@ -207,27 +276,6 @@ namespace AkribisFAM.WorkStation
             //进板
             if (!BoradIn())
                 return false;
-
-            //LaiLiao
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == false)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
-
-
-
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
-
-            //ZuZhuang
 
             #region 展示用的demo
             //20250513 展示用的demo 【史彦洋】 修改 Start
@@ -258,17 +306,11 @@ namespace AkribisFAM.WorkStation
             //20250513 展示用的demo 【史彦洋】 修改 End
             #endregion
 
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
 
             CheckState();
 
             GlobalManager.Current.current_Lailiao_step = 1;
-
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
 
             return true;
         }
@@ -278,9 +320,6 @@ namespace AkribisFAM.WorkStation
             Console.WriteLine("LaiLiao.Current.Step2()");
 
             GlobalManager.Current.current_Lailiao_step = 2;
-
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
 
             #region 展示用的demo
             ////执行飞拍
@@ -332,10 +371,7 @@ namespace AkribisFAM.WorkStation
             #endregion
 
             //扫码
-            WaitConveyor( 0,null, GlobalManager.Current.current_Lailiao_step);
-
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
+            WaitConveyor(GlobalManager.Current.current_Lailiao_step);
 
             CheckState();
 
@@ -349,8 +385,9 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Lailiao_step = 3;
 
             IO[] IOArray = new IO[] { IO.LaiLiao_DingSheng };
+
             //顶升
-            WaitConveyor(9999, IOArray, GlobalManager.Current.current_Lailiao_step);
+            //WaitConveyor(9999, IOArray, GlobalManager.Current.current_Lailiao_step);
 
             CheckState();
 
@@ -363,21 +400,13 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 4;
 
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
-
             //激光测距
-            WaitConveyor(0, null, GlobalManager.Current.current_Lailiao_step);
+            //WaitConveyor(0, null,false, GlobalManager.Current.current_Lailiao_step);
 
             //气缸放气，降低顶升
-            SetIO(IO.LaiLiao_QiGang, false);
-
-            SetIO(IO.LaiLiao_DingSheng ,false);
 
             CheckState();
 
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
 
             return true;
         }
