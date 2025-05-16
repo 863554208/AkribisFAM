@@ -21,6 +21,7 @@ namespace AkribisFAM
 {
     public class GlobalManager
     {
+        public int i = 1;
 
         // 单例模式，确保全局只有一个实例
         private static GlobalManager _current;
