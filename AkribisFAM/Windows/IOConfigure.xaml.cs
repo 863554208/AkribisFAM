@@ -23,6 +23,8 @@ using System.ComponentModel.Design;
 using System.Reflection;
 using System.Windows.Threading;
 using YamlDotNet.Core.Tokens;
+using System.Windows.Media.TextFormatting;
+using AkribisFAM.Util;
 
 namespace AkribisFAM.Windows
 {
@@ -38,6 +40,60 @@ namespace AkribisFAM.Windows
         public IOConfigure()
         {
             InitializeComponent();
+            for (int i = 0; i < 112; i++)
+            {
+                Rectangle rectangle = this.FindName($"IN{i}") as Rectangle;
+                rectangle.Width = 120;
+                rectangle.Height = 50;
+                ((TextBlock)this.FindName($"Text_IN{i}")).HorizontalAlignment = HorizontalAlignment.Center;
+                ((TextBlock)this.FindName($"Text_IN{i}")).VerticalAlignment = VerticalAlignment.Center;
+                ((TextBlock)this.FindName($"Text_IN{i}")).Width = 70;
+                ((TextBlock)this.FindName($"Text_IN{i}")).Height = 50;
+                ((TextBlock)this.FindName($"Text_IN{i}")).FontSize = 12;
+                ((TextBlock)this.FindName($"Text_IN{i}")).TextAlignment = TextAlignment.Center;
+                //rect.RadiusX = 10;
+                //rect.RadiusY = 10;
+                // ((TextBlock)this.FindName($"Text_IN{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
+
+                Button button = this.FindName($"Out{i}") as Button;
+                button.Width = 120;
+                button.Height = 53;
+                button.BorderBrush = Brushes.Black;
+                button.BorderThickness = new Thickness(1);
+
+                // 创建圆角模板
+                ControlTemplate template = new ControlTemplate(typeof(Button));
+                FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
+                border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
+                border.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
+                border.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
+                border.SetValue(Border.CornerRadiusProperty, new CornerRadius(5)); // 设置圆角半径
+
+                FrameworkElementFactory contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+                contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+                contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+                border.AppendChild(contentPresenter);
+
+                template.VisualTree = border;
+                button.Template = template;
+
+
+
+
+
+
+
+                ((TextBlock)this.FindName($"Textout{i}")).HorizontalAlignment = HorizontalAlignment.Center;
+                ((TextBlock)this.FindName($"Textout{i}")).VerticalAlignment = VerticalAlignment.Center;
+                ((TextBlock)this.FindName($"Textout{i}")).Width = 70;
+                ((TextBlock)this.FindName($"Textout{i}")).Height = 30;
+                ((TextBlock)this.FindName($"Textout{i}")).FontSize = 12;
+                ((TextBlock)this.FindName($"Textout{i}")).TextAlignment = TextAlignment.Center;
+                //((TextBlock)this.FindName($"Textout{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
+            }
+
+
+
             // 初始化字典
             OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
             foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
@@ -113,6 +169,8 @@ namespace AkribisFAM.Windows
         bool IO_Clickstatus = true;
         private async void Out_Click(object sender, RoutedEventArgs e)
         {
+            //((Button)sender).text
+            //Logger.WriteLog($"{ }")
             if (IO_Clickstatus)
             {
                 IO_Clickstatus = false;
@@ -142,10 +200,8 @@ namespace AkribisFAM.Windows
                     if (Enum.IsDefined(typeof(IO_OutFunction_Table), index))
                     {
                         IO_OutFunction_Table outEnum = (IO_OutFunction_Table)Enum.ToObject(typeof(IO_OutFunction_Table), index);
-
-
                         try
-                        { 
+                        {
                             bool currentStatus = IOManager.Instance.OutIO_status[(int)outEnum];
                             IOManager.Instance.IO_ControlStatus(outEnum, currentStatus ? 0 : 1);
                             return;

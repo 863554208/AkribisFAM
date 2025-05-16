@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="540" Width="960">
-    <Grid Margin="0,0,0,0">
-        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Center" Width="960" Margin="0,0,0,-209">
+             d:DesignHeight="540" Width="960" VerticalAlignment="Top" HorizontalAlignment="Left">
+    <Grid Margin="0,0,-153,0">
+        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Width="1112">
             <Grid Height="800" Width="1200">
                 <TabControl Margin="10,10,-10,-10">
                     <TabItem Header="Params1" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="63">
@@ -36,7 +36,7 @@
                                     <Label Content="Laser measure points:" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" Width="160" Grid.Row="5" VerticalContentAlignment="Center"/>
                                     <TextBox x:Name="Beltspeed1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Width="120" MaxLines="1" PreviewTextInput="DoubleText_PreviewTextInput" InputMethod.IsInputMethodEnabled="False" TextChanged="AxisParam_TextChanged" Grid.Column="1" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="64,0,0,0" Text="0"/>
                                     <TextBox x:Name="Laserpointsconfig" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="177" MaxLines="1" IsReadOnly="True" Grid.Column="1" Grid.Row="5" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-                                    <Button x:Name="LaserpointsFiledialog" Content="..." HorizontalAlignment="Left" Margin="192,0,0,0" VerticalAlignment="Center" Width="25" Click="LaserpointsFiledialog_Click" Grid.Column="1" Grid.Row="5"/>
+                                    <Button x:Name="LaserpointsFiledialog" Content="..." HorizontalAlignment="Left" Margin="192,0,0,7" VerticalAlignment="Bottom" Width="26" Click="LaserpointsFiledialog_Click" Grid.Column="1" Grid.Row="5"/>
                                     <Button x:Name="GenrateLaserjson" Content="Genrate" HorizontalAlignment="Left" Margin="222,0,0,0" VerticalAlignment="Center" Width="60" Click="Genratescanjson_Click" Grid.Column="1" Grid.Row="5"/>
                                     <Label Grid.Column="1" Content="Speed:" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
                                     <Label Grid.Column="1" Content="mm/s" HorizontalAlignment="Left" Margin="190,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>

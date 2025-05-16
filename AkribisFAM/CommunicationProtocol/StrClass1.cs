@@ -14,25 +14,14 @@ namespace AkribisFAM.CommunicationProtocol
         /// <summary>
         /// 数据发送组包
         /// </summary>
-        /// <param name="senddatatop">指令头部对象</param>
         /// <param name="camreapositionslist"> 拍照位置对象的集合</param>
         /// <param name="sendcommanddata"> 返回组包的字符串</param>
         /// <returns></returns>
-        public static string BuildPacket(object senddatatop, List<object> camreapositionslist)
+        public static string BuildPacket(List<object> camreapositionslist)
         {
             try
             {
                 var sendcommand = new StringBuilder();
-                Type typetop = senddatatop.GetType();
-
-                // 遍历senddatatop对象类型的字段
-                foreach (FieldInfo field in typetop.GetFields(BindingFlags.Public | BindingFlags.Instance))
-                {
-                    object fieldValue = field.GetValue(senddatatop);
-                    sendcommand.Append(fieldValue).Append(",");
-                    //Console.WriteLine($"字段名: {field.Name}, 值: {fieldValue}");
-                }
-
                 // 遍历camreapositionslist集合
                 foreach (var camreapositions in camreapositionslist)
                 {
@@ -49,7 +38,6 @@ namespace AkribisFAM.CommunicationProtocol
                 {
                     sendcommand.Length--; // 删除最后一个逗号
                 }
-                //sendcommand.Append("\r\n");
                 string sendcommanddata = sendcommand.ToString();
                 return sendcommanddata;
             }
@@ -67,35 +55,23 @@ namespace AkribisFAM.CommunicationProtocol
         /// </summary>
         /// <param name="readdatatop">需要匹配的头部指令</param>
         /// <param name="acceptpacket">接受包的字符串</param>
-        /// <param name="readcommandtop">返回正则表达式匹配的命令头部</param>
         /// <param name="list_readdata">返回列表对象数据</param>
         /// <param name="List_Type">列表对象的类型</param>
         /// <returns></returns>
-        public static bool TryParsePacket(string readdatatop, string acceptpacket,  object readcommandtop,List<object> list_readdata, Type List_Type)
+        public static bool TryParsePacket(string readdatatop, string acceptpacket,List<object> list_readdata, Type List_Type)
         {
             try
             {
-                //readcommandtop = null;
-                //list_readdata = null;
-               //list_readdata.Clear();
                 string pattern = $"^{readdatatop}";// 正则匹配命令与数据
                 Match match = Regex.Match(acceptpacket, pattern);
                 if (!match.Success)
                 {
-                    readcommandtop = null;
                     list_readdata = null;
                     return false; // 匹配失败返回 false
                 }
 
                 //将字符串转化为对象信息
                 string str_readcommandtop = match.Groups[0].Value; // 提取命令
-                List<string> liststr_readcommandtop = str_readcommandtop.Split(',').ToList();
-                if (!Fieldassignment(readcommandtop, liststr_readcommandtop))
-                {
-                    readcommandtop = null;
-                    list_readdata = null;
-                    return false;//为对象类型字段赋值失败
-                }
 
                 //将字符串转化为对应位置的列表信息
                 string str_readdata = acceptpacket.Replace(str_readcommandtop, "");// 提取数据
@@ -112,7 +88,6 @@ namespace AkribisFAM.CommunicationProtocol
 
                         if (!Fieldassignment(list_readdata[i], liststr_readdata))
                         {
-                            readcommandtop = null;
                             list_readdata = null;
                             return false;//为对象类型字段赋值失败
                         }
@@ -127,7 +102,6 @@ namespace AkribisFAM.CommunicationProtocol
                         object list_obj = Activator.CreateInstance(List_Type);
                         if (!Fieldassignment(list_obj, liststr_readdata))
                         {
-                            readcommandtop = null;
                             list_readdata = null;
                             return false;//为对象类型字段赋值失败
                         }
@@ -146,7 +120,7 @@ namespace AkribisFAM.CommunicationProtocol
                         object list_obj = Activator.CreateInstance(List_Type);
                         if (!Fieldassignment(list_obj, liststr_readdata))
                         {
-                            readcommandtop = null;
+                            
                             list_readdata = null;
                             return false;//为对象类型字段赋值失败
                         }
@@ -158,9 +132,6 @@ namespace AkribisFAM.CommunicationProtocol
             }
             catch (Exception ex)
             {
-                //readcommandtop = "解包失败:" + ex.ToString();
-                //readdata = "解包失败:" + ex.ToString();
-                readcommandtop = null;
                 list_readdata = null;
                 return false;
             }
@@ -208,6 +179,5 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
         #endregion
-
     }
 }

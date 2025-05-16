@@ -15,9 +15,55 @@ using System.Threading;
 using AkribisFAM.ViewModel;
 using LiveCharts;
 using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Windows;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using Newtonsoft.Json;
 
 namespace AkribisFAM
 {
+    [DataContract]
+    public class Point
+    {
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public int type { get; set; }
+        [DataMember]
+        public int col { get; set; }
+        [DataMember]
+        public int row { get; set; }
+        [DataMember]
+        public int X { get; set; }
+        [DataMember]
+        public int Y { get; set; }
+        [DataMember]
+        public int Z { get; set; }
+        [DataMember]
+        public int R { get; set; }
+
+    }
+    [DataContract]
+    public class StationPoints
+    {
+        [DataMember]
+        public string cols { get; set; }
+        [DataMember]
+        public string rows { get; set; }
+        [DataMember]
+        public List<Point> LaiLiaoPointList { get; set; }
+        [DataMember]
+        public List<Point> ZuZhuangPointList { get; set; }
+        [DataMember]
+        public List<Point> FuJianPointList { get; set; }
+        [DataMember]
+        public List<Point> RejectPointList { get; set; }
+    }
+
+
+
+
     public class GlobalManager
     {
 
@@ -37,12 +83,62 @@ namespace AkribisFAM
 
         public string username;
 
+        //记录每个工站是否在气缸上气和顶升的状态
+        public bool station1_IsLifting;
+        public bool station2_IsLifting;
+        public bool station3_IsLifting;
+        public bool station4_IsLifting;
+
+        //记录每个工站是否在气缸放气和下降的状态
+        public bool station1_IsLiftingDown;
+        public bool station2_IsLiftingDown;
+        public bool station3_IsLiftingDown;
+        public bool station4_IsLiftingDown;
+
+        public bool station1_IsBoardInHighSpeed;
+        public bool station2_IsBoardInHighSpeed;
+        public bool station3_IsBoardInHighSpeed;
+        public bool station4_IsBoardInHighSpeed;
+
+        public bool station1_IsBoardInLowSpeed;
+        public bool station2_IsBoardInLowSpeed;
+        public bool station3_IsBoardInLowSpeed;
+        public bool station4_IsBoardInLowSpeed;
+
+        public bool station1_IsBoardOut;
+        public bool station2_IsBoardOut;
+        public bool station3_IsBoardOut;
+        public bool station4_IsBoardOut;
+
         // 记录 A 轴和 B 轴的是否到位的状态
+
+        public bool UsePicker1;
+        public bool UsePicker2;
+        public bool UsePicker3;
+        public bool UsePicker4;
+
+        //判断每个吸到的料在经过CCD2复检之后时候合格
+        public bool picker1State;
+        public bool picker2State;           
+        public bool picker3State;
+        public bool picker4State;
+
+        //记录3号工位检测出的是否是NG板
+        public bool isNGPallete;
+
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
         //测试用
         public bool isRun = false;
+
+        public List<(double X, double Y)> laserPoints;
+
+        public List<(double X, double Y)> feedarPoints;
+
+        public List<(double X, double Y)> palletePoints;
+
+        public int TotalLaserCount = 48;
         #region 全局用来判断机器状态的标志位
 
         //模拟进板位置有料和无料IO信号
@@ -59,7 +155,7 @@ namespace AkribisFAM
         public bool IsPause { get; set; }
 
         //是否已经拍了pallete拼盘
-        public bool has_XueWeiXinXi { get; set; }
+        public bool palleteSnaped { get; set; }
 
         //当前有多少组装到pallete里面
         public int current_Assembled { get; set; }
@@ -117,27 +213,6 @@ namespace AkribisFAM
         public int[] Reject_delta = new int[Reject_stepnum];
 
 
-
-        //public bool current_Lailiao_step1_state = true;
-        //public bool current_Lailiao_step2_state = true;
-        //public bool current_Lailiao_step3_state = true;
-        //public bool current_Lailiao_step4_state = true;
-
-        //public bool current_ZuZhuang_step1_state = true;
-        //public bool current_ZuZhuang_step2_state = true;
-        //public bool current_ZuZhuang_step3_state = true;
-        //public bool current_ZuZhuang_step4_state = true;
-
-        //public bool current_FuJian_step1_state = true;
-        //public bool current_FuJian_step2_state = true;
-        //public bool current_FuJian_step3_state = true;
-        //public bool current_FuJian_step4_state = true;
-
-        //public int[] temp = new int[] { 1, 2, 3, 4, };
-
-        //public bool step1_enabled;
-        //public bool step2_enabled;
-        //public bool step3_enabled;
         public bool IsPass { get; set; }
 
         #endregion
@@ -189,6 +264,8 @@ namespace AkribisFAM
                 return _current;
             }
         }
+
+
 
         public void Lailiao_CheckState()
         {
@@ -318,10 +395,10 @@ namespace AkribisFAM
         }
         #endregion
 
-        public bool WaitIO(IO_INFunction_Table pos, bool value)
+        public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == value)
+            while (IOManager.Instance.INIO_status[(int)pos] == (value == 1))
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
@@ -400,7 +477,6 @@ namespace AkribisFAM
 
         //}
 
-
         public enum AxisName
         {
             //AGM800[0]
@@ -436,6 +512,76 @@ namespace AkribisFAM
             PRY = 25,
             PRZ = 26,
 
+        }
+        public enum AxisSpeed
+        {
+            //AGM800[0]
+            LSX = 100000,
+            LSY = 100000,
+            FSX = 100000,
+            FSY = 100000,
+            BL5 = 100,
+            BR5 = 100,
+
+            //AGM800[1]
+            BL1 = 100,
+            BL2 = 100,
+            BL3 = 100,
+            BL4 = 100,
+            BR1 = 100,
+            BR2 = 100,
+            BR3 = 100,
+            BR4 = 100,
+
+            //AGM800[2]
+            PICK1_Z = 100000,
+            PICK1_T = 100000,
+            PICK2_Z = 100000,
+            PICK2_T = 100000,
+            PICK3_Z = 100000,
+            PICK3_T = 100000,
+            PICK4_Z = 100000,
+            PICK4_T = 100000,
+
+            //AGM800[3]
+            PRX = 100000,
+            PRY = 100000,
+            PRZ = 100000,
+        }
+        public enum AxisAcc
+        {
+            //AGM800[0]
+            LSX = 1000000,
+            LSY = 1000000,
+            FSX = 1000000,
+            FSY = 1000000,
+            BL5 = 4,
+            BR5 = 5,
+
+            //AGM800[1]
+            BL1 = 8,
+            BL2 = 9,
+            BL3 = 10,
+            BL4 = 11,
+            BR1 = 12,
+            BR2 = 13,
+            BR3 = 14,
+            BR4 = 15,
+
+            //AGM800[2]
+            PICK1_Z = 1000000,
+            PICK1_T = 1000000,
+            PICK2_Z = 1000000,
+            PICK2_T = 1000000,
+            PICK3_Z = 1000000,
+            PICK3_T = 1000000,
+            PICK4_Z = 1000000,
+            PICK4_T = 1000000,
+
+            //AGM800[3]
+            PRX = 1000000,
+            PRY = 1000000,
+            PRZ = 1000000,
         }
     }
 }

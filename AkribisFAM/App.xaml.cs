@@ -17,6 +17,7 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
+using Newtonsoft.Json.Linq;
 namespace AkribisFAM
 {
     /// <summary>
@@ -37,7 +38,6 @@ namespace AkribisFAM
             StateManager.Current.DetectTimeDeltaThread();
             //启动与AGM800的连接
             StartConnectAGM800();
-
 
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
@@ -65,10 +65,12 @@ namespace AkribisFAM
                 // 关闭数据库连接
                 DatabaseManager.Shutdown();
             }
+            //ZuZhuang.Current.test();
 
+            //加载激光测距点位信息
+            LoadLaserPoints();
             SetLanguage("en-US");
 
-  
 
             if (new LoginViewModel().ShowDialog() == true)
             {
@@ -127,6 +129,40 @@ namespace AkribisFAM
                 // 如果失败可以记录日志或忽略
                 MessageBox.Show($"关闭 AACommServer 失败: {ex.Message}", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        public void LoadLaserPoints()
+        {
+            try
+            {
+                string filePath = "D:\\akribisfam_config\\scanpoints.json";
+                string jsonString = System.IO.File.ReadAllText(filePath);
+                var json = JObject.Parse(jsonString);
+                var flatList = new List<(double X, double Y)>();
+                foreach (var prop in json.Properties())
+                {
+                    if (prop.Name.StartsWith("module"))
+                    {
+                        var module = prop.Name;
+                        var points = (JObject)prop.Value;
+
+                        foreach (var pointProp in points.Properties())
+                        {
+                            var point = pointProp.Name;
+                            var coords = pointProp.Value;
+
+                            double x = coords["X"].Value<double>();
+                            double y = coords["Y"].Value<double>();
+                            double z = coords["Z"].Value<double>();
+
+                            flatList.Add((x, y));
+                        }
+                    }
+                }
+                GlobalManager.Current.laserPoints = flatList;
+            }
+            catch { }
+
         }
 
 

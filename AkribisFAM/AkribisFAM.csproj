@@ -116,6 +116,7 @@
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -159,12 +160,14 @@
     <Compile Include="AAmotionFAM\AGM800.cs" />
     <Compile Include="AutorunManager.cs" />
     <Compile Include="CommunicationProtocol\CalibCommunicationProcess.cs" />
+    <Compile Include="CommunicationProtocol\CamerCalibProcess.cs" />
     <Compile Include="CommunicationProtocol\IOManager.cs" />
     <Compile Include="CommunicationProtocol\ModbusTCPWorker.cs" />
     <Compile Include="CommunicationProtocol\StrClass1.cs" />
     <Compile Include="CommunicationProtocol\Task_AssUpCameraFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_FeedupCameraFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_ITESTCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_KEYENCEDistance.cs" />
     <Compile Include="CommunicationProtocol\Task_MoveImageCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_PrecisionDownCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_RecheckCamreaFunction.cs" />
@@ -188,6 +191,8 @@
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="NewStation\newStation1.cs" />
+    <Compile Include="NewStation\newStation2.cs" />
     <Compile Include="ShareValues.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
@@ -359,6 +364,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="IOPoint.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="NozzleCalib.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

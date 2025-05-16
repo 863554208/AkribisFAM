@@ -12,6 +12,8 @@ using AAMotion;
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
+using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
+using AkribisFAM.NewStation;
 
 namespace AkribisFAM
 {
@@ -75,14 +77,11 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation1.Current)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation2.Current)));
-
                     tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(TestStation3)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(newStation2.Current)));
 
                     await Task.WhenAll(tasks);
                 }
@@ -165,8 +164,8 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
 
-            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_12_lift4_cylinder_extend, 0);
-            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_13_lift4_cylinder_retract, 1);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
@@ -216,14 +215,26 @@ namespace AkribisFAM
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+
+            //判断所有气缸缩回
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, 1);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
         }
 
         public bool Reset()
         {
             //复位气缸和吸嘴IO
             CylinderDown();
-
-            //判断所有气缸缩回
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
@@ -234,7 +245,7 @@ namespace AkribisFAM
             //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
             if(LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
             {
-                AkrAction.Current.MoveConveyor();
+                AkrAction.Current.MoveConveyor(100);
                 Thread.Sleep(3000);
             }
 
@@ -244,7 +255,9 @@ namespace AkribisFAM
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
-            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_3Initialized_feeder1 , false);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_3Initialized_feeder1 ,0);
+
+            
 
             //激光测距复位(tcp)
 

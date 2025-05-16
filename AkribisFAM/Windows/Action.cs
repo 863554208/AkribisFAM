@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AAMotion;
@@ -171,6 +172,54 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
+        public void SetSingleEvent(GlobalManager.AxisName axisName , int pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),pos,eventSelect,eventPulseRes, eventPulseWid);
+        }
+        public void MoveNoWait(GlobalManager.AxisName axisName, int position, int? speed = null , int? accel = null , int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
+
+        }
+        public void Move(GlobalManager.AxisName axisName, int position, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            {
+                //TODO 加入退出机制
+                Thread.Sleep(50);
+            }
+        }
+
+        public void MoveRel(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            {
+                //TODO 加入退出机制
+                Thread.Sleep(50);
+            }
+        }
+
+        public void MoveRelNoWait(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
+        }
+
         public void JogMove(GlobalManager.AxisName axisName , int dir , int vel)
         {
             int agmIndex = (int)axisName / 8;
@@ -186,18 +235,18 @@ namespace AkribisFAM.WorkStation
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Stop();
         }
 
-        public bool MoveConveyor()
+        public bool MoveConveyor(int vel)
         {
-            JogMove(GlobalManager.AxisName.BL1 ,1 ,10000);
-            JogMove(GlobalManager.AxisName.BL2, 1, 10000);
-            JogMove(GlobalManager.AxisName.BL3, 1, 10000);
-            JogMove(GlobalManager.AxisName.BL4, 1, 10000);
-            JogMove(GlobalManager.AxisName.BL5, 1, 10000);
-            JogMove(GlobalManager.AxisName.BR1, 1, 10000);
-            JogMove(GlobalManager.AxisName.BR2, 1, 10000);
-            JogMove(GlobalManager.AxisName.BR3, 1, 10000);
-            JogMove(GlobalManager.AxisName.BR4, 1, 10000);
-            JogMove(GlobalManager.AxisName.BR5, 1, 10000);
+            JogMove(GlobalManager.AxisName.BL1 ,1 , vel);
+            JogMove(GlobalManager.AxisName.BL2, 1, vel);
+            JogMove(GlobalManager.AxisName.BL3, 1, vel);
+            JogMove(GlobalManager.AxisName.BL4, 1, vel);
+            //JogMove(GlobalManager.AxisName.BL5, 1, 10000);
+            JogMove(GlobalManager.AxisName.BR1, 1, vel);
+            JogMove(GlobalManager.AxisName.BR2, 1, vel);
+            JogMove(GlobalManager.AxisName.BR3, 1, vel);
+            JogMove(GlobalManager.AxisName.BR4, 1, vel);
+            //JogMove(GlobalManager.AxisName.BR5, 1, 10000);
             return true;
         }
 
