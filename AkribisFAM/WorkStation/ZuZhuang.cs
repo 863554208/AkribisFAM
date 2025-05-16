@@ -36,6 +36,7 @@ namespace AkribisFAM.WorkStation
         List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
         List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
         List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> palletePath = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> ();
+        List<AssUpCamrea.Pushcommand.SendGTCommandAppend> fetchMatrial = new List<AssUpCamrea.Pushcommand.SendGTCommandAppend>();
         public static ZuZhuang Current
         {
             get
@@ -448,9 +449,11 @@ namespace AkribisFAM.WorkStation
                     Photo_Y1 = Point.Y.ToString(),
                     Photo_R1 = "0"
                 };
+                palletePath.Add(sendTLTCamreaposition);
                 count++;
             }
 
+            Task_AssUpCameraFunction.TriggAssUpCamreaTLTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT, palletePath);
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
                 AkrAction.Current.SetSingleEvent(AxisName.FSX, (int)AxisSpeed.FSX, 1);
@@ -458,8 +461,7 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.MoveNoWait(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
 
             }
-
-
+            //等待Cognex返回的结果
 
             GlobalManager.Current.palleteSnaped = true;
             return 0;
@@ -467,10 +469,133 @@ namespace AkribisFAM.WorkStation
 
         public int PlaceFoam()
         {
-            //这里要改成实际吸取了多少料
-            GlobalManager.Current.current_FOAM_Count -= 4;
+            var caveId = (GlobalManager.Current.current_Assembled + 1);
 
-            GlobalManager.Current.current_Assembled += 4;
+            if (GlobalManager.Current.picker1State == true)
+            {
+                fetchMatrial.Clear();
+                AssUpCamrea.Pushcommand.SendGTCommandAppend sendGTCommandAppend = new AssUpCamrea.Pushcommand.SendGTCommandAppend()
+                {
+                    NozzlelD1 ="1",
+                    RawMaterialName1 = "123",
+                    CaveID1 = caveId.ToString(),
+                    TargetMaterialName1="123"
+                };
+                fetchMatrial.Add(sendGTCommandAppend);
+                Task_AssUpCameraFunction.TriggAssUpCamreaGTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.GT, fetchMatrial);
+
+                AkrAction.Current.Move(AxisName.FSX, 200000, (int)AxisSpeed.FSX);
+                AkrAction.Current.Move(AxisName.FSY, 200000, (int)AxisSpeed.FSY);
+
+                AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
+                SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+                SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 1);
+                Thread.Sleep(20);
+                SetIO(IO_OutFunction_Table.OUT3_8solenoid_valve1_A, 1);
+                SetIO(IO_OutFunction_Table.OUT3_9solenoid_valve1_B, 0);
+                Thread.Sleep(20);
+                AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
+
+                caveId++;
+                GlobalManager.Current.current_Assembled++;
+                GlobalManager.Current.current_FOAM_Count--;
+                
+            }
+            if (GlobalManager.Current.picker2State == true)
+            {
+                fetchMatrial.Clear();
+                AssUpCamrea.Pushcommand.SendGTCommandAppend sendGTCommandAppend = new AssUpCamrea.Pushcommand.SendGTCommandAppend()
+                {
+                    NozzlelD1 = "2",
+                    RawMaterialName1 = "123",
+                    CaveID1 = caveId.ToString(),
+                    TargetMaterialName1 = "123"
+                };
+                fetchMatrial.Add(sendGTCommandAppend);
+                Task_AssUpCameraFunction.TriggAssUpCamreaGTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.GT, fetchMatrial);
+
+                //移动到CaveId对应的点
+                AkrAction.Current.Move(AxisName.FSX, 200000, (int)AxisSpeed.FSX);
+                AkrAction.Current.Move(AxisName.FSY, 200000, (int)AxisSpeed.FSY);
+
+                AkrAction.Current.Move(AxisName.PICK2_Z, 10000, (int)AxisSpeed.PICK2_Z);
+                SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 0);
+                SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 1);
+                Thread.Sleep(20);
+                SetIO(IO_OutFunction_Table.OUT3_10solenoid_valve2_A, 1);
+                SetIO(IO_OutFunction_Table.OUT3_11solenoid_valve2_B, 0);
+                Thread.Sleep(20);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 20000, (int)AxisSpeed.PICK2_Z);
+
+                caveId++;
+                GlobalManager.Current.current_Assembled++;
+                GlobalManager.Current.current_FOAM_Count--;
+
+            }
+
+            if (GlobalManager.Current.picker3State == true)
+            {
+                fetchMatrial.Clear();
+                AssUpCamrea.Pushcommand.SendGTCommandAppend sendGTCommandAppend = new AssUpCamrea.Pushcommand.SendGTCommandAppend()
+                {
+                    NozzlelD1 = "3",
+                    RawMaterialName1 = "123",
+                    CaveID1 = caveId.ToString(),
+                    TargetMaterialName1 = "123"
+                };
+                fetchMatrial.Add(sendGTCommandAppend);
+                Task_AssUpCameraFunction.TriggAssUpCamreaGTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.GT, fetchMatrial);
+
+                //移动到CaveId对应的点
+                AkrAction.Current.Move(AxisName.FSX, 200000, (int)AxisSpeed.FSX);
+                AkrAction.Current.Move(AxisName.FSY, 200000, (int)AxisSpeed.FSY);
+
+                AkrAction.Current.Move(AxisName.PICK3_Z, 10000, (int)AxisSpeed.PICK3_Z);
+                SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 0);
+                SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 1);
+                Thread.Sleep(20);
+                SetIO(IO_OutFunction_Table.OUT3_12solenoid_valve3_A, 1);
+                SetIO(IO_OutFunction_Table.OUT3_13solenoid_valve3_B, 0);
+                Thread.Sleep(20);
+                AkrAction.Current.Move(AxisName.PICK3_Z, 20000, (int)AxisSpeed.PICK3_Z);
+
+                caveId++;
+                GlobalManager.Current.current_Assembled++;
+                GlobalManager.Current.current_FOAM_Count--;
+
+            }
+
+            if (GlobalManager.Current.picker4State == true)
+            {
+                fetchMatrial.Clear();
+                AssUpCamrea.Pushcommand.SendGTCommandAppend sendGTCommandAppend = new AssUpCamrea.Pushcommand.SendGTCommandAppend()
+                {
+                    NozzlelD1 = "4",
+                    RawMaterialName1 = "123",
+                    CaveID1 = caveId.ToString(),
+                    TargetMaterialName1 = "123"
+                };
+                fetchMatrial.Add(sendGTCommandAppend);
+                Task_AssUpCameraFunction.TriggAssUpCamreaGTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.GT, fetchMatrial);
+
+                //移动到CaveId对应的点
+                AkrAction.Current.Move(AxisName.FSX, 200000, (int)AxisSpeed.FSX);
+                AkrAction.Current.Move(AxisName.FSY, 200000, (int)AxisSpeed.FSY);
+
+                AkrAction.Current.Move(AxisName.PICK4_Z, 10000, (int)AxisSpeed.PICK4_Z);
+                SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 0);
+                SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 1);
+                Thread.Sleep(20);
+                SetIO(IO_OutFunction_Table.OUT3_14solenoid_valve4_A, 1);
+                SetIO(IO_OutFunction_Table.OUT3_15solenoid_valve4_B, 0);
+                Thread.Sleep(20);
+                AkrAction.Current.Move(AxisName.PICK4_Z, 20000, (int)AxisSpeed.PICK4_Z);
+
+                caveId++;
+                GlobalManager.Current.current_Assembled++;
+                GlobalManager.Current.current_FOAM_Count--;
+
+            }
 
             return 0;
         }
