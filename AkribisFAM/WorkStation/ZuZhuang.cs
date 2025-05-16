@@ -12,6 +12,7 @@ using System.Diagnostics;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
+using System.Windows.Controls;
 
 namespace AkribisFAM.WorkStation
 {
@@ -237,7 +238,7 @@ namespace AkribisFAM.WorkStation
 
         public void StopConveyor()
         {
-            //TODO 停止传送带
+            AkrAction.Current.StopConveyor();
         }
 
         public bool ReadIO(IO_INFunction_Table index)
@@ -336,6 +337,7 @@ namespace AkribisFAM.WorkStation
 
         public int LowerCCD()
         {
+            
             ccd2SnapPath.Clear();
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
@@ -431,6 +433,23 @@ namespace AkribisFAM.WorkStation
         public int SnapPallete()
         {
             palletePath.Clear();
+            int count = 0;
+            foreach(var Point in GlobalManager.Current.palletePoints)
+            {
+                
+                AssUpCamrea.Pushcommand.SendTLTCamreaposition sendTLTCamreaposition = new AssUpCamrea.Pushcommand.SendTLTCamreaposition()
+                {
+                    SN = "ASDASD",
+                    NozzleID = "1",
+                    MaterialTypeN1 = "0",
+                    AcupointNumber = count.ToString(),
+                    TargetMaterialName1 = "0",
+                    Photo_X1 = Point.X.ToString(),
+                    Photo_Y1 = Point.Y.ToString(),
+                    Photo_R1 = "0"
+                };
+                count++;
+            }
 
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
@@ -456,58 +475,6 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-        //public void WaitConveyor(int delta, IO[] IOarr, int type)
-        //{
-        //    DateTime time = DateTime.Now;
-
-        //    if (delta != 0 && IOarr != null)
-        //    {
-        //        while ((DateTime.Now - time).TotalMilliseconds < delta)
-        //        {
-        //            int judge = 0;
-        //            foreach (var item in IOarr)
-        //            {
-        //                var res = ReadIO(item) ? 1 : 0;
-        //                judge += res;
-        //            }
-
-        //            if (judge > 0)
-        //            {
-        //                break;
-        //            }
-        //            Thread.Sleep(50);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        switch (type)
-        //        {
-        //            case 2:
-        //                while (SnapFeedar() == 1);
-        //                break;
-
-        //            case 3:
-        //                while (PickFoam() == 1) ;
-        //                break;
-
-        //            case 4:
-        //                while (LowerCCD() == 1) ;
-        //                break;
-
-        //            case 5:
-        //                while (DropBadFoam() == 1);
-        //                break;
-
-        //            case 6:
-        //                while (SnapPallete() == 1) ;
-        //                break;
-
-        //            case 7:
-        //                while (PlaceFoam() == 1) ;
-        //                break;
-        //        }
-        //    }
-        //}
 
         public bool Step1()
         {
@@ -547,16 +514,13 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Zuzhuang_step = 3;
 
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
-
             //吸嘴取料
-            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             Debug.WriteLine("ZuZhuang.Current.Step3-2()");
+
             CheckState();
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
+
 
             return true;
         }
@@ -567,16 +531,11 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Zuzhuang_step = 4;
 
-            //触发 UI 动画
-            OnTriggerStep4?.Invoke();
-
             //CCD2精定位
-            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
-            //触发 UI 动画
-            OnStopStep4?.Invoke();
 
             return true;
         }
@@ -588,7 +547,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 5;
 
             //拍Pallete料盘
-            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
@@ -602,7 +561,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 6;
 
             //拍Pallete料盘
-            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
