@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Windows.Forms;
 using AkribisFAM.Util;
 using AkribisFAM.ViewModel;
 using AkribisFAM.WorkStation;
+using System.Windows; 
 
 namespace AkribisFAM.Manager
 {
@@ -44,28 +46,31 @@ namespace AkribisFAM.Manager
 
     public struct ErrorInfo
     {
-        public string dateTime;
-        public string user;
-        public string errorCode;
-        public int level;
+        //Modify By YXW
+        public string DateTime { get; set; }
+        public string User { get; set; }
+        public string ErrorCode { get; set; }
+        public int Level { get; set; }
 
         public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
         {
-            dateTime = dT.ToString();
-            user = usr;
-            errorCode = "0x" + Convert.ToString((int)eC, 16);
+            DateTime = dT.ToString();
+            User = usr;
+            ErrorCode = "0x" + Convert.ToString((int)eC, 16);
             if ((int)eC > 0x0FFF)
             {
-                level = 1;
+                Level = 1;
             }
             else if ((int)eC > 0x00FF)
             {
-                level = 2;
+                Level = 2;
             }
-            else {
-                level = 3;
+            else
+            {
+                Level = 3;
             }
         }
+        //End Modify
     }
 
     public class ErrorManager
@@ -88,7 +93,12 @@ namespace AkribisFAM.Manager
         }
 
         private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
-        public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+        //public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+
+        //Modify By YXW
+        public ObservableCollection<ErrorInfo> ErrorInfos { get; set; } = new ObservableCollection<ErrorInfo>();
+
+        //End Modify
 
         public int ErrorCnt = 0;
         public int ModbusErrCnt;
@@ -99,7 +109,14 @@ namespace AkribisFAM.Manager
         {
             ErrorStack.Push(err);
             ErrorCnt = ErrorStack.Count;
-            ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+            //ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+
+            //Modify By YXW
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+            });
+            //END 
             UpdateErrorCnt?.Invoke();
         }
 

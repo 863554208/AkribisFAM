@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:kl="clr-namespace:AkribisFAM.Lang"
         xmlns:local="clr-namespace:AkribisFAM"
+         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
-        ShowInTaskbar="False">
+        ShowInTaskbar="False"  Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,84 +18,121 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid x:Name="container" Margin="0,10,0,0">
-        <Border BorderBrush="Black" BorderThickness="0" Margin="202,2,589,940" >
-            <Label Content="当前用户:" FontSize="24" VerticalAlignment="Top" Margin="0,10,64,0" Height="38"/>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="111" VerticalAlignment="Top" Width="207">
-            <Image HorizontalAlignment="Left" Height="135" VerticalAlignment="Center" Width="204" Margin="-1,0,0,0" Source="D:\AkribisLogo.png "/>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="55" Margin="212,60,0,0" VerticalAlignment="Top" Width="578">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-1,0,0,0" Width="537">
-                <!-- First Label -->
-                <Label Content="设备状态" FontSize="15" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBox x:Name="CurrentState" TextWrapping="Wrap" Text="Running"  BorderThickness="0" VerticalAlignment="Center" Width="104"/>
 
-                <Label Content="CT" FontSize="15" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBox TextWrapping="Wrap" Text="36" VerticalAlignment="Center" Width="60" BorderThickness="0" />
+    <!--************************************************************************************************************-->
+    <!--//Add By YXW 2025-5-16 ************************************************************-->
+    <!--************************************************************************************************************-->
+    <Grid x:Name="container" Margin="0,10,0,0" >
+        <!-- 定义三行 -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
 
-                <Label Content="UPH" FontSize="15" VerticalAlignment="Center" Width="67" FontWeight="Bold" />
-                <TextBox TextWrapping="Wrap" Text="120" VerticalAlignment="Center" Width="60 " BorderThickness="0"/>
-                <TextBlock />
-            </StackPanel>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="55" Margin="435,0,0,0" VerticalAlignment="Top" Width="355">
+        <!-- 第一行，水平 StackPanel -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                <Label Content="{DynamicResource UserLab}"></Label>
+                <Label Name="NowUserLab"></Label>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="35">
-                <!-- Button 1 -->
-                <Button x:Name="AGMConnectionLabel" Content="AGM" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-                <!-- Button 2 -->
-                <Button Content="扫码枪" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-                <!-- Button 3 -->
-                <Button Content="测距仪" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-                <!-- Button 4 -->
-                <Button Content="相机1" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-                <!-- Button 5 -->
-                <Button Content="相机2" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-                <!-- Button 6 -->
-                <Button Content="相机3" Width="50" Height="50" Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                Background="Gray" Foreground="White" FontSize="12" BorderBrush="Black" BorderThickness="2"/>
-            </StackPanel>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="56" Margin="795,0,0,0" VerticalAlignment="Top" Width="229">
-            <TextBlock  Name="currentTimeTextBlock"  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="20"/>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="389" Margin="0,141,0,0" VerticalAlignment="Top" Width="207">
-            <StackPanel Orientation="Vertical">
-                <Button Content="{DynamicResource Main Page}" HorizontalAlignment="Stretch" Height="82" FontSize="15" FontWeight="Bold" Click="MainWindowButton_Click"/>
-                <Button Content="{DynamicResource Manual Control}" HorizontalAlignment="Stretch" Height="77" FontSize="15" FontWeight="Bold" Click="ManualControlButton_Click"/>
-                <Button Content="{DynamicResource Parameter Setting}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="ParameterConfigButton_Click"/>
-                <Button Content="{DynamicResource Internet Config}" HorizontalAlignment="Stretch" Height="76" FontSize="15" FontWeight="Bold" Click="InternetConfigButton_Click"/>
-                <Button Content="{DynamicResource Log}" HorizontalAlignment="Stretch" Height="75" FontSize="15" FontWeight="Bold" Click="DebugLogButton_Click"/>
+                <Label Content="{DynamicResource SysStatelab}"></Label>
+                <Label Name="NowStateLab"></Label>
 
+                <Label Content="{DynamicResource CTlab}"></Label>
+                <Label Name="CtValueLab"></Label>
+
+                <Label Content="{DynamicResource UPHlab}"></Label>
+                <Label Name="UphValueLab"></Label>
             </StackPanel>
-        </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="776" Margin="228,0,0,0" VerticalAlignment="Center" Width="1463">
-            <ContentControl Name="ContentDisplay" Margin="9,9,9,9" />
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="112" Margin="909,902,0,0" VerticalAlignment="Top" Width="824">
-            <StackPanel Orientation="Horizontal" Margin="9,-5,0,5">
-                <Button x:Name="StartAutoRunButton" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
-                <Button x:Name="StopAutoRunButton" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
-                <Button x:Name="PauseAutoRunButton" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button x:Name="ResetButton" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" 
-                        PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown"
-                        PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
-                <Button x:Name="IdleButton" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
-                <Button x:Name="MaintenanceButton" Content="Maintenance" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
+                <Button Name="BtnDevice" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnDevice_Click"></Button>
+                <Button Name="BtnScanningGun" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnScanningGun_Click"></Button>
+                <Button Name="BtnRangefinder" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnRangefinder_Click"></Button>
+                <Button Name="BtnCamera1" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera1_Click"></Button>
+                <Button Name="BtnCamera2" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera2_Click"></Button>
+                <Button Name="BtnCamera3" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera3_Click"></Button>
             </StackPanel>
-        </Border>
-        <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" Height="68" Margin="475,924,0,0" VerticalAlignment="Top" Width="275">
-            <StackPanel Orientation="Horizontal" Margin="9,-5,0,5" HorizontalAlignment="Left" Width="137">
-                <Button Content="飞达1" Height="64" Width="48" FontWeight="Bold" Margin="0,0,10,0"/>
-                <Button Content="飞达2" Height="64" Width="48" FontWeight="Bold" />
+            <local:PromptableButton x:Name="button"  PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True"  Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center" Height="55" Width="72"/>
+            <Border BorderBrush="Transparent" BorderThickness="1"  HorizontalAlignment="Left"   VerticalAlignment="Center" >
+                <TextBlock  Name="currentTimeTextBlock" Text="NowTime---"  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="20"/>
+            </Border>
+
+
+        </StackPanel>
+
+        <!-- 第二行，水平 StackPanel -->
+        <Grid Grid.Row="1" Background="LightGreen"
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="171*" />
+                <ColumnDefinition Width="1429*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧菜单 -->
+            <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
+                <materialDesign:ColorZone Mode="PrimaryMid" VerticalAlignment="Center">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+                        
+                        <RadioButton Content="{DynamicResource Main Page}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="82"   IsChecked="True"
+                 Click="MainWindowButton_Click"/>
+
+                        <RadioButton Content="{DynamicResource Manual Control}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="77"   IsChecked="False"
+                 Click="ManualControlButton_Click"/>
+
+                        <RadioButton Content="{DynamicResource Parameter Setting}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="76"  IsChecked="False"
+                 Click="ParameterConfigButton_Click"/>
+
+                        <RadioButton Content="{DynamicResource Parameter Setting}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="76"  IsChecked="False"
+                 Click="InternetConfigButton_Click"/>
+
+                        <RadioButton Content="{DynamicResource Log}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="75"   IsChecked="False"
+                 Click="DebugLogButton_Click"/>
+                    </StackPanel>
+                </materialDesign:ColorZone>
+            </Border>
+
+            <!-- 右侧内容 -->
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                <ContentControl Name="ContentDisplay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            </Border>
+        </Grid>
+
+        <!-- 第三行，水平 StackPanel -->
+        <Grid Grid.Row="2" Background="LightSalmon">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 按钮组放在右边 -->
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Button x:Name="StartAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
+                <Button x:Name="StopAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
+                <Button x:Name="PauseAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
+                <Button x:Name="ResetButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+                <Button x:Name="IdleButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
+                <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>
-        </Border>
-        <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True" Margin="952,38,0,0" Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Top" Height="55" Width="72"/>
+        </Grid>
     </Grid>
 </Window>

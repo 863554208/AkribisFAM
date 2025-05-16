@@ -13,6 +13,10 @@ using AkribisFAM.CommunicationProtocol;
 using System.Reflection;
 using YamlDotNet.Core.Tokens;
 using System.Xml.Linq;
+using System.Data.SQLite;
+using static System.Windows.Forms.AxHost;
+using System.Windows;
+using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 
 namespace AkribisFAM.WorkStation
 {
@@ -31,6 +35,7 @@ namespace AkribisFAM.WorkStation
 
         int delta = 0;
         public int board_count = 0;
+
 
         public static FuJian Current
         {
@@ -58,187 +63,301 @@ namespace AkribisFAM.WorkStation
             throw new NotImplementedException();
         }
 
+        public static void Set(string propertyName, object value)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.SetValue(GlobalManager.Current, value);
+            }
+        }
+
         public override bool Ready()
         {
             return true;
         }
 
-        public bool ReadIO(IO index)
+        public bool ReadIO(IO_INFunction_Table index)
         {
-            return GlobalManager.Current.IOTable[(int)index];
+            return IOManager.Instance.INIO_status[(int)index];
+
         }
 
-        public void SetIO(IO index, bool value)
+        public void SetIO(IO_OutFunction_Table index , int value)
         {
-            GlobalManager.Current.IOTable[(int)index] = value;
+            IOManager.Instance.IO_ControlStatus( index , value);
         }
 
         public void MoveConveyor(int vel)
         {
-            //TODO 移动传送带
+            AkrAction.Current.MoveConveyor(vel);
         }
 
         public void StopConveyor()
         {
-            //TODO 停止传送带
+            AkrAction.Current.StopConveyor();
         }
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
+            {
+                if (ReadIO(index) == value)
+                {
+                    ret = true;
+                    break;
+                }
+                Thread.Sleep(50);
+            }
+
+            return ret;
+        }
+        public void WaitConveyor(int type)
+        {
+            //DateTime time = DateTime.Now;
+            //bool ret = false;
+            //switch (type)
+            //{
+            //    case 2: 
+            //        while (ScanBarcode() == 1);
+            //        break;
+
+            //    case 4:
+            //        while(LaserHeight() ==1); 
+            //        break;
+            //}
+        }
+
+        public void ResumeConveyor()
+        {
+            if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
+            {
+                //低速运动
+                MoveConveyor(100);
+            }
+            else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
+            {
+                MoveConveyor((int)AxisSpeed.BL1);
+            }
+        }
+		
+
+        public int CheckState(bool state)
+        {
+            if (GlobalManager.Current.FuJian_exit) return 1;
+            if (state)
+            {
+                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+            }
+            else {
+                //报错
+                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 1;
+            }
+            GlobalManager.Current.FuJian_CheckState();
+            WarningManager.Current.WaiFuJian();
+            return 0;
+        }
+
+        public void WaitConveyor(int delta, int type)
+        {
+            //DateTime time = DateTime.Now;
+
+            //switch (type)
+            //{
+            //    case 2:
+            //        while (RemoveFilm() == 1) ;
+            //        break;
+            //    case 3:
+            //        while (CCD3ReCheck() == 1) ;
+            //        break;
+
+            //}
+        }
+
+        const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
+        public struct FuJianPoint
+        {
+            public double x;
+            public double y;
+            public double z;
+        }
+
+        public List<FuJianPoint> Pointlist = new List<FuJianPoint>(modulenum);
 
         public bool BoardIn()
         {
-            if (ReadIO(IO.ZuZhuang_BoardIn) && board_count == 0)
-            {
-                //进入后改回false
-                SetIO(IO.ZuZhuang_BoardIn, false);
-                //传送带高速移动
-                MoveConveyor(200);
-
-                IO[] IOArray = new IO[] { IO.LaiLiao_JianSu };
-                while (true) {
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN1_2Slowdown_Sign3]) {
-                        Thread.Sleep(100);
-                        if(IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN1_2Slowdown_Sign3])
-                            break;
-                    }
-                }
-                WaitConveyor(9999, IOArray, 0);
-
-                //顶板气缸上气
-                SetIO(IO.FuJian_QiGang,true);
-
-                //传送带减速
-                MoveConveyor(100);
-
-                //TODO 这边有没有告诉已经到位的IO信号？
-                StopConveyor();
-
-                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.FuJian_BoardIn, false);
-
-                GlobalManager.Current.IO_test3 = false;
-                board_count += 1;
-                return true;
-            }
-            else
-            {
-                Thread.Sleep(100);
+            bool ret;
+            //进入后改回false
+            GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] = false;
+            Set("station3_IsBoardInHighSpeed", true);
+            Set("IO_test4", false);
+            //传送带高速移动
+            MoveConveyor((int)AxisSpeed.BL3);
+            MoveConveyor((int)AxisSpeed.BR3);
+            //等待减速IO
+            ret = WaitIO(9999, IO_INFunction_Table.IN1_2Slowdown_Sign3, true);
+            if (CheckState(ret) == 1) {
                 return false;
             }
-        }
-
-        public void BoardOut()
-        {
-            SetIO(IO.FuJian_BoardOut, true);
-            board_count--;
-            GlobalManager.Current.IO_test4 = true;
-        }
-
-        public void CheckState()
-        {
-            GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
-            GlobalManager.Current.FuJian_CheckState();
-            WarningManager.Current.WaiFuJian();
-        }
-
-        public int RemoveFilm()
-        {
-            return 0;
-        }
-        public int CCD3ReCheck()
-        {
-            return 0;
-        }
-
-        public void WaitConveyor(int delta, IO[] IOarr, int type)
-        {
-            DateTime time = DateTime.Now;
-
-            if (delta != 0 && IOarr != null)
+            Set("station3_IsBoardInHighSpeed", false);
+            //挡板气缸上气
+            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 1);
+            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 0);
+            Set("station3_IsBoardInLowSpeed", true);
+            if (CheckState(true) == 1)
             {
-                while ((DateTime.Now - time).TotalMilliseconds < delta)
-                {
-                    int judge = 0;
-                    foreach (var item in IOarr)
-                    {
-                        var res = ReadIO(item) ? 1 : 0;
-                        judge += res;
-                    }
-
-                    if (judge > 0)
-                    {
-                        break;
-                    }
-                    Thread.Sleep(50);
-                }
+                return false;
             }
-            else
+            //传送带减速
+            MoveConveyor(100);
+            //等待停止IO
+            ret =  WaitIO(9999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
+            if (CheckState(ret) == 1)
             {
-                switch (type)
-                {
-                    case 2:
-                        while (RemoveFilm() == 1);
-                        break;
-                    case 3:
-                        while (CCD3ReCheck() == 1) ;
-                        break;
-
-
-                }
+                return false;
             }
-        }
-
-        public bool Step1()
-        {
-            //FuJian
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == false)
+            Set("station3_IsBoardInLowSpeed", false);
+            Set("station3_IsBoardIn", false);
+            Set("station3_IsLifting", true);
+            //停止传送带
+            StopConveyor();
+            //顶起气缸上气
+            SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 1);
+            SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 0);
+            SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 1);
+            SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 0);
+            if (CheckState(ret) == 1)
             {
-                Thread.Sleep(100);
+                return false;
             }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 1);
-            while (GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] == true)
-            {
-                Thread.Sleep(100);
-            }
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 0);
-            //顶板
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
+            //禁止来料
+            Set("station3_IsLifting", false);
+            ResumeConveyor();
+            board_count += 1;
 
             return true;
-
-            if (!BoardIn()) return false;
-
-            Console.WriteLine("Fujian step1");
-            //触发 UI 动画
-            OnTriggerStep1?.Invoke();
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000);
-
-            GlobalManager.Current.current_FuJian_step = 1;
-
-            CheckState();
-            //触发 UI 动画
-            OnStopStep1?.Invoke();
-            return true;
         }
-        public bool Step2()
+
+        public bool Tearing()
         {
-            Console.WriteLine("step2");
-
-            GlobalManager.Current.current_FuJian_step = 2;
-
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
-
+            bool ret;
             //撕膜
-            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
+            for(int i = 0; i < modulenum; ++i)
+            {
+                //移动到穴位
+                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //移动z轴下降
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].z);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //夹爪气缸打开
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
+                //检测到位信号
+                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                if (CheckState(ret) == 1)
+                {
+                    return false;
+                }
+                //夹爪气缸夹取
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
+                //检测到位信号
+                ret = WaitIO(9999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+                if (CheckState(ret) == 1)
+                {
+                    return false;
+                }
+                //移动撕膜
 
-            CheckState();
+                //Z轴上升
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[26].z);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //移动到蓝膜收集处
+                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[12].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].y);
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].z);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //夹爪气缸打开
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
+                //检测到位信号
+                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                if (CheckState(ret) == 1)
+                {
+                    return false;
+                }
+                //蓝膜收集吸气
+                SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1);
+                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+                Thread.Sleep(1000);
+                SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
+                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 1);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
+        public int[] modulestate = new int[modulenum];
+        public int boardstate;
+        public bool Recheck()
+        {
+            //复检
+            int cnt = 0;
+            for (int i = modulenum + 1; i < modulenum*2+1; ++i)
+            {
+                //移动到穴位
+                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
+                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //康耐视复检
 
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //触发拍照IO
 
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                //获取康耐视数据
+
+                if (CheckState(true) == 1)
+                {
+                    return false;
+                }
+                modulestate[i - (modulenum + 1)] = 1;//ok
+                cnt = cnt + modulestate[i - (modulenum + 1)];
+            }
+            if (cnt < modulenum)
+            {
+                GlobalManager.Current.isNGPallete = true;
+            }
             return true;
         }
         public bool Step3()
@@ -248,13 +367,44 @@ namespace AkribisFAM.WorkStation
             OnTriggerStep3?.Invoke();
 
             GlobalManager.Current.current_FuJian_step = 3;
-            //CCD3复检
-            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
 
-            CheckState();
             //触发 UI 动画
             OnStopStep3?.Invoke();
 
+            return true;
+        }
+
+        public bool BoardOut()
+        {
+            bool ret;
+            //顶起气缸下降
+            SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
+            SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //等待顶起气缸下降信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
+            ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            //挡板气缸下降
+            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
+            //等待挡板下降到位信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            Set("station3_IsBoardOut", true);
+            board_count--;
+            GlobalManager.Current.IO_test4 = true;
             return true;
         }
 
@@ -265,16 +415,23 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
                 step1:
-                    bool ret = Step1();
+                    if (!GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] || board_count != 0)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
+                    GlobalManager.Current.current_FuJian_step = 1;
+                    BoardIn();
                     if (GlobalManager.Current.FuJian_exit) break;
-                    if (!ret) continue;
 
                 step2:
-                    Step2();
+                    GlobalManager.Current.current_FuJian_step = 2;
+                    Tearing();
                     if (GlobalManager.Current.FuJian_exit)break;
 
                 step3:
-                    Step3();
+                    GlobalManager.Current.current_FuJian_step = 3;
+                    Recheck();
                     if (GlobalManager.Current.FuJian_exit) break;
 
                 BoardOut();

@@ -126,16 +126,6 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-
-
-
-
-
-
-
-
-
-
         public static void TriggResetCamreaStrClear()//清除客户端最后一条字符串
         {
             TCPNetworkManage.ClearLastMessage(ClientNames.camera1_Feed);

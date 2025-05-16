@@ -9,7 +9,8 @@
     <Grid Background="#FFE5E5E5">
         <GroupBox Header="Camera View" Margin="0,0,200,0">
             <Grid>
-                <Image x:Name="Imageview" Margin="0,0,2,3"/>
+                <Image x:Name="Imageview" Margin="0,0,233,4"/>
+                <Button Content="Nozzle1Calib" HorizontalAlignment="Left" Margin="402,36,0,0" VerticalAlignment="Top" Height="32" Width="106" Click="Button_Click"/>
             </Grid>
         </GroupBox>
         <GroupBox Header="Parameters" Margin="573,0,0,0">
