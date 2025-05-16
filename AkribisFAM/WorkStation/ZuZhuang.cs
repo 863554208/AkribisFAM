@@ -277,6 +277,7 @@ namespace AkribisFAM.WorkStation
             //给Cognex发拍照信息
             Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
 
+
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
                 AkrAction.Current.SetSingleEvent(AxisName.FSX, (int)AxisSpeed.FSX,1);
@@ -284,7 +285,11 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.MoveNoWait(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
 
             }
-            
+
+            //接受Cognex的信息
+            List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+            msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+
             //根据congex返回的结果判断坐标，以及是否有
             GlobalManager.Current.BadFoamCount = 0;
             return 0;
@@ -363,6 +368,8 @@ namespace AkribisFAM.WorkStation
             AkrAction.Current.Move(AxisName.FSX, 10000, (int)AxisSpeed.FSX);
             AkrAction.Current.Move(AxisName.FSY, 10000, (int)AxisSpeed.FSY);
 
+
+
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
                 AkrAction.Current.SetSingleEvent(AxisName.FSX, (int)AxisSpeed.FSX, 1);
@@ -370,6 +377,10 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.MoveNoWait(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
 
             }
+
+            //接受Cognex信息
+            List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+            AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
 
             return 0;
         }
@@ -535,8 +546,7 @@ namespace AkribisFAM.WorkStation
                 GlobalManager.Current.current_Assembled++;
                 GlobalManager.Current.current_FOAM_Count--;
 
-            }
-
+            }            
             if (GlobalManager.Current.picker3State == true)
             {
                 fetchMatrial.Clear();
@@ -568,7 +578,6 @@ namespace AkribisFAM.WorkStation
                 GlobalManager.Current.current_FOAM_Count--;
 
             }
-
             if (GlobalManager.Current.picker4State == true)
             {
                 fetchMatrial.Clear();

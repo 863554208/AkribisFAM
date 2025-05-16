@@ -106,7 +106,7 @@ namespace AkribisFAM.WorkStation
         {
             //激光测距
             //AkrAction.Current.Move(AxisName.LSX);
-            foreach(var Point in GlobalManager.Current.laserPoints)
+            foreach (var Point in GlobalManager.Current.laserPoints)
             {
                 //移动
                 AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
@@ -114,6 +114,15 @@ namespace AkribisFAM.WorkStation
 
                 //触发测距
                 //TODO 如果激光测距报错，返回错误值
+                List<KEYENCEDistance.Pushcommand.SendKDistanceAppend> sendKDistanceAppend = new List<KEYENCEDistance.Pushcommand.SendKDistanceAppend>();
+                sendKDistanceAppend.Clear();
+                KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
+                {
+                    TestNumber = "1",
+                    address = "0",
+                };
+                sendKDistanceAppend.Add(temp);
+                Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, sendKDistanceAppend);
 
                 GlobalManager.Current.currentLasered++;
 
@@ -136,7 +145,6 @@ namespace AkribisFAM.WorkStation
         {
             return boolValues.Select(b => b ? 1 : 0).ToArray();
         }
-
 
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {

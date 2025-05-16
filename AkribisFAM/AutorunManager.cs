@@ -81,7 +81,6 @@ namespace AkribisFAM
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(newStation2.Current)));
 
                     await Task.WhenAll(tasks);
                 }
