@@ -67,6 +67,17 @@ namespace AkribisFAM
 
         // 记录 A 轴和 B 轴的是否到位的状态
 
+        public bool UsePicker1;
+        public bool UsePicker2;
+        public bool UsePicker3;
+        public bool UsePicker4;
+
+        //判断每个吸到的料在经过CCD2复检之后时候合格
+        public bool picker1State;
+        public bool picker2State;           
+        public bool picker3State;
+        public bool picker4State;
+
         //记录3号工位检测出的是否是NG板
         public bool isNGPallete;
 
@@ -79,6 +90,8 @@ namespace AkribisFAM
         public List<(double X, double Y)> laserPoints;
 
         public List<(double X, double Y)> feedarPoints;
+
+        public List<(double X, double Y)> palletePoints;
 
         public int TotalLaserCount = 48;
         #region 全局用来判断机器状态的标志位
@@ -97,7 +110,7 @@ namespace AkribisFAM
         public bool IsPause { get; set; }
 
         //是否已经拍了pallete拼盘
-        public bool has_XueWeiXinXi { get; set; }
+        public bool palleteSnaped { get; set; }
 
         //当前有多少组装到pallete里面
         public int current_Assembled { get; set; }

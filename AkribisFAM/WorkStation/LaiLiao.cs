@@ -109,12 +109,11 @@ namespace AkribisFAM.WorkStation
             foreach(var Point in GlobalManager.Current.laserPoints)
             {
                 //移动
-                AkrAction.Current.Move(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
-                AkrAction.Current.Move(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSX );
+                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
+                AkrAction.Current.MoveNoWait(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
 
                 //触发测距
                 //TODO 如果激光测距报错，返回错误值
-
 
                 GlobalManager.Current.currentLasered++;
 

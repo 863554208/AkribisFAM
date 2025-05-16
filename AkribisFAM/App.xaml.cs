@@ -65,6 +65,7 @@ namespace AkribisFAM
                 // 关闭数据库连接
                 DatabaseManager.Shutdown();
             }
+            ZuZhuang.Current.test();
 
             //加载激光测距点位信息
             LoadLaserPoints();
@@ -132,31 +133,36 @@ namespace AkribisFAM
 
         public void LoadLaserPoints()
         {
-            string filePath = "D:\\akribisfam_config\\scanpoints.json";
-            string jsonString = System.IO.File.ReadAllText(filePath);
-            var json = JObject.Parse(jsonString);
-            var flatList = new List<(double X, double Y)>();
-            foreach (var prop in json.Properties())
+            try
             {
-                if (prop.Name.StartsWith("module"))
+                string filePath = "D:\\akribisfam_config\\scanpoints.json";
+                string jsonString = System.IO.File.ReadAllText(filePath);
+                var json = JObject.Parse(jsonString);
+                var flatList = new List<(double X, double Y)>();
+                foreach (var prop in json.Properties())
                 {
-                    var module = prop.Name;
-                    var points = (JObject)prop.Value;
-
-                    foreach (var pointProp in points.Properties())
+                    if (prop.Name.StartsWith("module"))
                     {
-                        var point = pointProp.Name;
-                        var coords = pointProp.Value;
+                        var module = prop.Name;
+                        var points = (JObject)prop.Value;
 
-                        double x = coords["X"].Value<double>();
-                        double y = coords["Y"].Value<double>();
-                        double z = coords["Z"].Value<double>();
+                        foreach (var pointProp in points.Properties())
+                        {
+                            var point = pointProp.Name;
+                            var coords = pointProp.Value;
 
-                        flatList.Add((x, y));
+                            double x = coords["X"].Value<double>();
+                            double y = coords["Y"].Value<double>();
+                            double z = coords["Z"].Value<double>();
+
+                            flatList.Add((x, y));
+                        }
                     }
                 }
+                GlobalManager.Current.laserPoints = flatList;
             }
-            GlobalManager.Current.laserPoints = flatList;
+            catch { }
+
         }
 
 
