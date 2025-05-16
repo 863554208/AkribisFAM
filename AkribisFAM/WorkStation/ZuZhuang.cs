@@ -388,6 +388,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_9solenoid_valve1_B, 0);
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
+                GlobalManager.Current.BadFoamCount--;
             }
             if (GlobalManager.Current.picker2State == false)
             {
@@ -401,6 +402,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_11solenoid_valve2_B, 0);
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
+                GlobalManager.Current.BadFoamCount--;
             }
             if (GlobalManager.Current.picker3State == false)
             {
@@ -414,6 +416,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_13solenoid_valve3_B, 0);
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
+                GlobalManager.Current.BadFoamCount--;
             }
             if (GlobalManager.Current.picker4State == false)
             {
@@ -427,6 +430,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_15solenoid_valve4_B, 0);
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
+                GlobalManager.Current.BadFoamCount--;
             }
             return 0;
         }
@@ -707,6 +711,7 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        #region 测试用
         public void Step1Test()
         {
             Thread.Sleep(5000);
@@ -733,6 +738,8 @@ namespace AkribisFAM.WorkStation
             Thread.Sleep(1000);
             Debug.WriteLine("step5");
         }
+
+        #endregion
 
         public async void test()
         {
