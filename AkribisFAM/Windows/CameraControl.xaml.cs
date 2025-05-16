@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using Microsoft.Win32;
 
 namespace AkribisFAM.Windows
@@ -109,6 +110,27 @@ namespace AkribisFAM.Windows
         private void Capturebtn_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        bool Calibstatus_Click = true;
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Calibstatus_Click)
+            {
+                Calibstatus_Click = false;
+                try
+                {
+                    await CamerCalibProcess.Instance.CombineCalibrationprocess();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred during the joint calibration process:" + ex.Message);
+                }
+                finally
+                {
+                    Calibstatus_Click = true;
+                }
+            }
         }
     }
 }
