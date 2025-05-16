@@ -72,6 +72,11 @@ namespace AkribisFAM.Windows
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
             JObject jsObj = new JObject();
+            if(setpointwindow == null)
+            {
+                MessageBox.Show("Please press Add button to set reference point of each position!");
+                return;
+            }
             int PalletID;
             bool success = int.TryParse(PalletIDtext.Text, out PalletID);
             if (success)

@@ -16,9 +16,54 @@ using AkribisFAM.ViewModel;
 using LiveCharts;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Windows;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using Newtonsoft.Json;
 
 namespace AkribisFAM
 {
+    [DataContract]
+    public class Point
+    {
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public int type { get; set; }
+        [DataMember]
+        public int col { get; set; }
+        [DataMember]
+        public int row { get; set; }
+        [DataMember]
+        public int X { get; set; }
+        [DataMember]
+        public int Y { get; set; }
+        [DataMember]
+        public int Z { get; set; }
+        [DataMember]
+        public int R { get; set; }
+
+    }
+    [DataContract]
+    public class StationPoints
+    {
+        [DataMember]
+        public string cols { get; set; }
+        [DataMember]
+        public string rows { get; set; }
+        [DataMember]
+        public List<Point> LaiLiaoPointList { get; set; }
+        [DataMember]
+        public List<Point> ZuZhuangPointList { get; set; }
+        [DataMember]
+        public List<Point> FuJianPointList { get; set; }
+        [DataMember]
+        public List<Point> RejectPointList { get; set; }
+    }
+
+
+
+
     public class GlobalManager
     {
 
@@ -189,15 +234,6 @@ namespace AkribisFAM
 
         #endregion
 
-        public struct Point
-        {
-            public double x;
-            public double y;
-            public double z;
-        }
-
-        public List<Point> Pointlist;
-
         public static GlobalManager Current
         {
             get
@@ -210,10 +246,7 @@ namespace AkribisFAM
             }
         }
 
-        public void ReadJsonPoint()
-        {
 
-        }
 
         public void Lailiao_CheckState()
         {

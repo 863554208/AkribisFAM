@@ -20,8 +20,8 @@ namespace AkribisFAM
 
         public static int MAXPOINTSNUM = 4;
         public static int MAXPALLETNUM = 6;
-        public static int MAXMODULENUMX = 5;
-        public static int MAXMODULENUMY = 5;
+        public static int MAXMODULENUMX = 8;
+        public static int MAXMODULENUMY = 8;
 
 
     }
