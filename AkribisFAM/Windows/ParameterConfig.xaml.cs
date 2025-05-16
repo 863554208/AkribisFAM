@@ -1097,6 +1097,10 @@ namespace AkribisFAM.Windows
 
         private void ApplyLimit_Click(object sender, RoutedEventArgs e)
         {
+            if(LimitJsonObject == null)
+            {
+                return;
+            }
             LimitJsonObject["ScanningArea"]["Belt"]["Speed"][0] = double.Parse(Beltspeed1min.Text);
             LimitJsonObject["ScanningArea"]["Belt"]["Speed"][1] = double.Parse(Beltspeed1max.Text);
             LimitJsonObject["ScanningArea"]["Lift"]["Speed"][0] = double.Parse(Liftspeed1min.Text);
