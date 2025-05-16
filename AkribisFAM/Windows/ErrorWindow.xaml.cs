@@ -25,8 +25,14 @@ namespace AkribisFAM.Windows
         public ErrorWindow()
         {
             InitializeComponent();
-            ErrorData.ItemsSource = ErrorManager.Current.ErrorInfos;
-            this.DataContext = this;
+            //ErrorData.ItemsSource = ErrorManager.Current.ErrorInfos;
+
+            var data = ErrorManager.Current.ErrorInfos;
+            Console.WriteLine($"共有 {data.Count} 条错误信息"); // 或者设置断点检查
+
+            ErrorManager.Current.Clear();
+
+            this.DataContext = ErrorManager.Current;
         }
     }
 }

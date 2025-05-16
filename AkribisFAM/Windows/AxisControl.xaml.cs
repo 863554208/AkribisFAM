@@ -18,6 +18,7 @@ using AkribisFAM.Util;
 using AkribisFAM.ViewModel;
 using System.Diagnostics;
 using AkribisFAM.CommunicationProtocol;
+using static MaterialDesignThemes.Wpf.Theme;
 
 namespace AkribisFAM.Windows
 {
@@ -26,254 +27,96 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class AxisControl : UserControl
     {
-        private int _currentAxis;
-        private AxisIntegerToStringDic _axisDic;
-        private bool isJogging = false;
-        public int CurrentAxis
-        {
-            get => _currentAxis;
-            set
-            {
-                _currentAxis = value;
-                UpdateUI();
-            }
-        }
+
+        int AxisNum = 24;
+
+        List<bool> AxisList = new List<bool>();
 
         public AxisControl()
         {
             InitializeComponent();
-            _axisDic = new AxisIntegerToStringDic();
-            _currentAxis = 1;
-            this.DataContext = AxisControlViewModel.Current;
+            
+            initUI();
+
+
         }
 
-        private void Axis_Click(object sender, RoutedEventArgs e)
+
+        private void initUI()
         {
-
-            if (sender is Button btn)
+            for (int i = 1; i <= AxisNum; i++)
             {
-                string axisId = btn.Name; 
+                string axisName = $"Axis {i}";
 
-                var match = System.Text.RegularExpressions.Regex.Match(axisId, @"\d+");
-                if (match.Success && int.TryParse(match.Value, out int axisNumber))
-                {
-                    CurrentAxis = axisNumber;                   
-                }
+                // 添加到 ComboBox（CboxNowAxis）
+                CboxNowAxis.Items.Add(axisName);
+
+                // 添加到 ListBox（AxisListBox）
+                AxisListBox.Items.Add(axisName);
+
+                AxisList.Add(false);
+
+            }
+
+            // 可选：设置默认选中第一个
+            if (CboxNowAxis.Items.Count > 0)
+                CboxNowAxis.SelectedIndex = 0;
+
+            if (AxisListBox.Items.Count > 0)
+                AxisListBox.SelectedIndex = 0;
+        }
+
+        private void CboxNowAxis_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int nowAxis = CboxNowAxis.SelectedIndex;
+            tbAxisName.Text = CboxNowAxis.SelectedValue.ToString();
+            if (AxisListBox.SelectedIndex != nowAxis)
+            {
+                AxisListBox.SelectedIndex = nowAxis;
+            }
+            if (AxisList[nowAxis] != IsAxisEnable.IsChecked)
+            {
+                IsAxisEnable.IsChecked = AxisList[nowAxis];
             }
         }
 
-        private void UpdateUI()
+        private void AxisListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            currentAxisLabel.Content = $"Axis {CurrentAxis}";
-
-            if (CurrentAxis >= 1 && CurrentAxis <= AxiscomboBox.Items.Count)
+            int nowAxis = AxisListBox.SelectedIndex;
+            tbAxisName.Text = AxisListBox.SelectedItem.ToString();
+            if (CboxNowAxis.SelectedIndex != nowAxis)
             {
-                AxiscomboBox.SelectedIndex = CurrentAxis - 1;
+                CboxNowAxis.SelectedIndex = nowAxis;
+            }
+
+            if (AxisList[nowAxis] != IsAxisEnable.IsChecked)
+            {
+                IsAxisEnable.IsChecked = AxisList[nowAxis];
+            }
+
+        }
+
+        private void BtnMove_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnStop_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
+            if (btn != null && btn.IsChecked == true)
+            {
+                // 打开逻辑
             }
             else
             {
-                AxiscomboBox.SelectedIndex = -1;
+                //关闭
             }
         }
-
-
-
-        private void MotorOn_Click(object sender, RoutedEventArgs e)
-        {
-            //20250514 增加多个AGM800的控制 【史彦洋】 修改 Start
-            //string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
-
-            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //{
-            //    try
-            //    {
-            //        AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, axisRef);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show("轴使能报错 :" + ex.Message);
-            //    }
-            //}
-
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller0, AxisRef.A);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller0,AxisRef.A , 200000);
-
-            //20250514 增加多个AGM800的控制 【史彦洋】 修改 End
-
-        }
-
-        private void MotorOff_Click(object sender, RoutedEventArgs e)
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //if (!GlobalManager.Current._Agm800.controller0.IsConnected) return;
-
-            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //{
-            //    try
-            //    {
-            //        AAMotionAPI.MotorOff(GlobalManager.Current._Agm800.controller0, axisRef);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show("轴下使能报错 :" + ex.Message);
-            //    }
-            //}
-
-
-        }
-
-
-
-        private void Start_Click(object sender, RoutedEventArgs e)
-        {
-            //20250514 增加多个AGM800的控制 【史彦洋】 修改 Start
-            //string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //int targetPos = int.Parse(Targetpos.Text);
-
-            //Debug.WriteLine("start_click");
-
-            //if (!GlobalManager.Current._Agm800.controller.IsConnected) return;
-
-            //if (Enum.TryParse<AxisRef>(axisName, out AxisRef axisRef))
-            //{
-            //    AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, axisRef, targetPos);
-            //}
-
-
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(100000, 0, null, 100000, 20000);
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller1, AxisRef.B);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller1, AxisRef.B, 0);
-            //20250514 增加多个AGM800的控制 【史彦洋】 修改 End
-
-        }
-
-        private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!isJogging)
-            {
-                isJogging = true;
-                StartJogging_Forword();
-            }
-        }
-        private void JogForwordButton_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            isJogging = false;
-            StopMove(CurrentAxis);
-        }
-
-        private void JogBackwordButton_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!isJogging)
-            {
-                isJogging = true;
-                StartJogging_Backword();
-            }
-        }
-        private void JogBackwordButton_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            isJogging = false;
-            StopMove(CurrentAxis);
-        }
-
-
-
-        private void StartJogging_Forword()
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            int dir = 1;
-            int.TryParse(Velocitytext.Text,out int vel);
-            //if (GlobalManager.Current._Agm800.controller0.IsConnected)
-            //{
-            //    if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //    {
-            //        AAMotionAPI.Jog(GlobalManager.Current._Agm800.controller0, axisRef, vel * dir);
-            //    }
-            //}
-        }
-
-        private void StartJogging_Backword()
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            int dir = -1;
-            int.TryParse(Velocitytext.Text, out int vel);
-            //if (GlobalManager.Current._Agm800.controller0.IsConnected)
-            //{
-            //    if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //    {
-            //        AAMotionAPI.Jog(GlobalManager.Current._Agm800.controller0, axisRef, vel * dir);
-            //    }
-            //}
-        }
-
-        //TODO 一定要判断以后轴号是不是跟当初设置移动的一致，如果修改了轴号再停止运动，需要提示
-        public void StopMove(int Axis)
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //if (GlobalManager.Current._Agm800.controller0.IsConnected)
-            //{
-            //    if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //    {
-            //        GlobalManager.Current._Agm800.controller0.GetAxis(axisRef).Stop();
-            //    }
-            //}
-
-        }
-
-        public void Test()
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //{
-            //    var a = GlobalManager.Current._Agm800.controller0.GetAxis(axisRef).Pos;
-            //}
-        }
-        
-
-        private void ReturnToZero_Click(object sender, RoutedEventArgs e)
-        {
-            string axisName = _axisDic.GetAxisName(CurrentAxis);
-            //if (!GlobalManager.Current._Agm800.controller0.IsConnected) return;
-
-            //if (GlobalManager.Current._Agm800.axisRefs.TryGetValue(axisName, out AxisRef axisRef))
-            //{
-            //    try
-            //    {
-            //        AAMotionAPI.Home(GlobalManager.Current._Agm800.controller0, axisRef, "D:\\Home.hseq");
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show("轴使能报错 :" + ex.Message);
-            //    }
-            //}
-        }      
-
-        private void AxiscomboBox_SelectionChanged(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).ClearBuffer();
-            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MotionMode = 11;
-            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).MotionMode = 11;
-
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).LinearAbsolute(250000, 50000, null, 100000, 20000);
-            //GlobalManager.Current._Agm800.controller.GetCiGroup(AxisRef.A).Begin();
-            //GlobalManager.Current._Agm800.controller.GetGroup(AxisRef.A).Begin();
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller0, AxisRef.A);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller0, AxisRef.A, 0);
-        }
-
     }
 }
