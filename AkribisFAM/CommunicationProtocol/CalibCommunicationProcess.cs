@@ -52,7 +52,7 @@ namespace AkribisFAM.CommunicationProtocol
     {
         private static string InstructionHeader;//指令头 
 
-        public static void SendCombineCalibration(CombineCalibProcess combineCalibProcess)//多相机联合标定通讯
+        public static void SendCombineCalibration(CombineCalibProcess combineCalibProcess,string Data)//多相机联合标定通讯
         {
             switch (combineCalibProcess)
             {
@@ -64,31 +64,42 @@ namespace AkribisFAM.CommunicationProtocol
                 case CombineCalibProcess.Combinepick:
                     {
 
-                        string CombinepickRobot = "234,789,90";
-                        CalibPushcommand($"C1,{CombinepickRobot}\r\n");
+                        //string CombinepickRobot = "234,789,90";
+                        //string CombinepickRobot = ReadaxisPositionXYR();
+                        // CalibPushcommand($"C1,{CombinepickRobot}\r\n");
+                         CalibPushcommand($"C1,{Data}\r\n");
                     }
                     break;
                 case CombineCalibProcess.CombineRelationpick:
                     {
-                        string CombineRelationpickPhotoXY = ReadaxisPositionXYR();
-                        CalibPushcommand($"SET,1,4,{CombineRelationpickPhotoXY.Split(',')[0]},{CombineRelationpickPhotoXY.Split(',')[1]},0\r\n");
+                        //string CombineRelationpickPhotoXY = ReadaxisPositionXYR();
+                        //CalibPushcommand($"SET,1,4,{CombineRelationpickPhotoXY.Split(',')[0]},{CombineRelationpickPhotoXY.Split(',')[1]},0\r\n");
+                        CalibPushcommand($"SET,1,4,{Data}\r\n");
+
                     }
                     break;
                 case CombineCalibProcess.Combineongoing:
                     {
-                        SendAloneCalib(DownCamreaAloneCalibProcess.Ongoing, DownCamreaNozzleCalibNumber.C2);
+                        //string Combinecalib11Robot = ReadaxisPositionXYR();
+                        //CalibPushcommand($"{"C2"},{Combinecalib11Robot}\r\n");
+
+                        CalibPushcommand($"C2,{Data}\r\n");
+
                     }
                     break;
                 case CombineCalibProcess.Combineput:
                     {
-                        string CombineputRobot = "234,789,95";
-                        CalibPushcommand($"C3,{CombineputRobot}\r\n");
+                        //string CombineputRobot = "234,789,95";
+                        //string CombineputRobot = ReadaxisPositionXYR();
+                        //CalibPushcommand($"C3,{CombineputRobot}\r\n");
+                        CalibPushcommand($"C3,{Data}\r\n");
                     }
                     break;
                 case CombineCalibProcess.CombineRelationput:
                     {
-                        string CombineRelationputPhotoXY = ReadaxisPositionXYR();
-                        CalibPushcommand($"SET,3,5,{CombineRelationputPhotoXY.Split(',')[0]},{CombineRelationputPhotoXY.Split(',')[1]},0\r\n");
+                        //string CombineRelationputPhotoXY = ReadaxisPositionXYR();
+                        //CalibPushcommand($"SET,3,5,{CombineRelationputPhotoXY.Split(',')[0]},{CombineRelationputPhotoXY.Split(',')[1]},0\r\n");
+                        CalibPushcommand($"SET,3,5,{Data}\r\n");
                     }
                     break;
                 case CombineCalibProcess.Combinecalibend:
@@ -109,7 +120,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static void SendAloneCalib(DownCamreaAloneCalibProcess downCamreaCalibStatus, DownCamreaNozzleCalibNumber downCamreaNozzleCalibNumber)//下相机单独11点标定通讯
+        public static void SendAloneCalib(DownCamreaAloneCalibProcess downCamreaCalibStatus, DownCamreaNozzleCalibNumber downCamreaNozzleCalibNumber,string Data)//下相机单独11点标定通讯
         {
             switch (downCamreaCalibStatus)
             {
@@ -120,7 +131,8 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case DownCamreaAloneCalibProcess.Ongoing:
                     {
-                        CalibPushcommand($"{downCamreaNozzleCalibNumber.ToString()},{ReadaxisPositionXYR()}\r\n");
+                        //CalibPushcommand($"{downCamreaNozzleCalibNumber.ToString()},{ReadaxisPositionXYR()}\r\n");
+                        CalibPushcommand($"{downCamreaNozzleCalibNumber.ToString()},{Data}\r\n");
                     }
                     break;
                 case DownCamreaAloneCalibProcess.calibend:
@@ -141,7 +153,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static void SendMoveCameraCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber moveCameraCalibPositionNumber)//移动相机单独九点标定
+        public static void SendMoveCameraCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber moveCameraCalibPositionNumber,string Data)//移动相机单独九点标定
         {
             switch (downCamreaAloneCalibProcess)
             {
@@ -152,8 +164,9 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case DownCamreaAloneCalibProcess.Ongoing:
                     {
-                        string CombineRelationpickPhotoXY = ReadaxisPositionXYR();
-                        CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{CombineRelationpickPhotoXY.Split(',')[0]},{CombineRelationpickPhotoXY.Split(',')[1]},0");
+                        //    string CombineRelationpickPhotoXY = ReadaxisPositionXYR();
+                        //    CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{CombineRelationpickPhotoXY.Split(',')[0]},{CombineRelationpickPhotoXY.Split(',')[1]},0");
+                        CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{Data},0");
                     }
                     break;
                 case DownCamreaAloneCalibProcess.calibend:
@@ -197,6 +210,8 @@ namespace AkribisFAM.CommunicationProtocol
         {
             return "345,567,89";
         }
+        
+
 
         public static void TriggAssUpCamreaStrClear()//清除客户端最后一条字符串
         {
