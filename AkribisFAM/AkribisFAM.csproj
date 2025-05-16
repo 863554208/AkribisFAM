@@ -150,12 +150,14 @@
     <Compile Include="AAmotionFAM\AGM800.cs" />
     <Compile Include="AutorunManager.cs" />
     <Compile Include="CommunicationProtocol\CalibCommunicationProcess.cs" />
+    <Compile Include="CommunicationProtocol\CamerCalibProcess.cs" />
     <Compile Include="CommunicationProtocol\IOManager.cs" />
     <Compile Include="CommunicationProtocol\ModbusTCPWorker.cs" />
     <Compile Include="CommunicationProtocol\StrClass1.cs" />
     <Compile Include="CommunicationProtocol\Task_AssUpCameraFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_FeedupCameraFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_ITESTCamreaFunction.cs" />
+    <Compile Include="CommunicationProtocol\Task_KEYENCEDistance.cs" />
     <Compile Include="CommunicationProtocol\Task_MoveImageCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_PrecisionDownCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\Task_RecheckCamreaFunction.cs" />
@@ -350,6 +352,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="IOPoint.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="NozzleCalib.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
