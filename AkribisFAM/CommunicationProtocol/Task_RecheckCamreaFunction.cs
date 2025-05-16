@@ -15,13 +15,7 @@ namespace AkribisFAM.CommunicationProtocol
         #region//发送的指令
         public class Pushcommand
         {
-            //定义拍照发送头部指令
-            public class SendTFCCommandTop
-            {
-                public string TFC; // 模块头
-                public string CmdID;  // 指令编号
-                public string CamreaCount; // 拍照次数  
-            }
+
             //定义拍照位置
             public class SendTFCCamreaposition
             {
@@ -38,13 +32,7 @@ namespace AkribisFAM.CommunicationProtocol
         #region//接收的指令
         public class Acceptcommand
         {
-            //定义接受Cognex头部指令
-            public class AcceptTFCCommandTop
-            {
-                public string TFC; // 模块头
-                public string CmdID;  // 指令编号
-                public string CamreaCount; // 拍照次数
-            }
+
             //定义复检数据
             public class AcceptTFCRecheckAppend
             {
@@ -72,90 +60,37 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggRecheckCamreaSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, List<object> list_positions) //复检相机拍照与相机交互自动触发流程
+        public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> list_positions) //复检相机拍照与相机交互TFC自动触发流程
         {
             try
             {
-                switch ((int)recheckCamreaProcessCommand)
+
+                //TFC,CMD_1000,1,TFCTestSN20250418152024 + 2,2,Foam + Moudel,0.000,0.000,0.000
+                //TFC触发指令头
+
+                InstructionHeader = $"TFC,CMD_1000,1,";
+
+                ////SN1+穴位编号+物料名称+X +Y+R
+                //List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
+                //RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
+
+                //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
+                //sendTFCCamreaposition1.CaveID = "1";//穴位编号
+                //sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
+                //sendTFCCamreaposition1.Photo_X1 = "256.890";
+                //sendTFCCamreaposition1.Photo_Y1 = "345.445";
+                //sendTFCCamreaposition1.Photo_R1 = "67.456";
+                //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
+
+                //组合字符串
+                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
+                RecordLog("触发复检相机: " + sendcommandData);
+                if (!sendcommand_status)
                 {
-                    case (int)RecheckCamreaProcessCommand.TFC://TFC触发指令
-                        {
-                            //TFC,CMD_1000,1,TFCTestSN20250418152024 + 2,2,Foam + Moudel,0.000,0.000,0.000
-                            //TFC触发指令头
-                            RecheckCamrea.Pushcommand.SendTFCCommandTop sendTFCCommandTop1 = new RecheckCamrea.Pushcommand.SendTFCCommandTop();
-                            sendTFCCommandTop1.TFC = "TFC";
-                            sendTFCCommandTop1.CmdID = "CMD_1000";
-                            sendTFCCommandTop1.CamreaCount = "1";
-                            InstructionHeader = $"{sendTFCCommandTop1.TFC},{sendTFCCommandTop1.CmdID},{sendTFCCommandTop1.CamreaCount},";
-
-                            ////SN1+穴位编号+物料名称+X +Y+R
-                            //List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
-                            //RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
-
-                            //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
-                            //sendTFCCamreaposition1.CaveID = "1";//穴位编号
-                            //sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
-                            //sendTFCCamreaposition1.Photo_X1 = "256.890";
-                            //sendTFCCamreaposition1.Photo_Y1 = "345.445";
-                            //sendTFCCamreaposition1.Photo_R1 = "67.456";
-                            //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
-
-                            //组合字符串
-                            string sendcommandData = StrClass1.BuildPacket(sendTFCCommandTop1, list_positions.Cast<object>().ToList());
-
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                            RecordLog("触发复检相机: " + sendcommandData);
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
-                    case (int)RecheckCamreaProcessCommand.Down://预留指令
-                        {
-                            ////TFC,CMD_1000,1,TFCTestSN20250418152024 + 2,2,Foam + Moudel,0.000,0.000,0.000
-                            ////TFC触发指令头
-                            //RecheckCamrea.Pushcommand.SendTFCCommandTop sendTFCCommandTop1 = new RecheckCamrea.Pushcommand.SendTFCCommandTop();
-                            //sendTFCCommandTop1.TFC = "TFC";
-                            //sendTFCCommandTop1.CmdID = "CMD_1000";
-                            //sendTFCCommandTop1.CamreaCount = "1";
-                            //InstructionHeader = $"{sendTFCCommandTop1.TFC},{sendTFCCommandTop1.CmdID},{sendTFCCommandTop1.CamreaCount},";
-
-                            ////SN1+穴位编号+物料名称+X +Y+R
-                            //List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
-                            //RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
-
-                            //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
-                            //sendTFCCamreaposition1.CaveID = "1";//穴位编号
-                            //sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
-                            //sendTFCCamreaposition1.Photo_X1 = "256.890";
-                            //sendTFCCamreaposition1.Photo_Y1 = "345.445";
-                            //sendTFCCamreaposition1.Photo_R1 = "67.456";
-                            //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
-
-                            ////组合字符串
-                            //string sendcommandData = StrClass1.BuildPacket(sendTFCCommandTop1, sendTFCCamreapositions.Cast<object>().ToList());
-
-                            ////发送字符串到Socket
-                            //bool sendcommand_status = VisionpositionfeedPushcommand(sendcommandData);
-                            //RecordLog("触发复检相机: " + sendcommandData);
-                            //if (!sendcommand_status)
-                            //{
-                            //    return false;
-                            //}
-                        }
-                        break;
-                    default:
-                        {
-                            //发送字符串到Socket
-                            bool sendcommand_status = VisionpositionPushcommand("触发指令有误");
-                            if (!sendcommand_status)
-                            {
-                                return false;
-                            }
-                        }
-                        break;
+                    return false;
                 }
                 return true;
             }
@@ -175,11 +110,11 @@ namespace AkribisFAM.CommunicationProtocol
                 return null;
             }
             //TFC接收指令头
-            RecheckCamrea.Pushcommand.SendTFCCommandTop sendTLNCommandTop1 = new RecheckCamrea.Pushcommand.SendTFCCommandTop();
+
             Type camdowntype = typeof(RecheckCamrea.Acceptcommand.TFCCamreaready);
             List<object> list_position = new List<object>();
             //解析字符串
-            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, sendTLNCommandTop1, list_position, camdowntype);
+            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list_position, camdowntype);
             if (!Analysis_status)
             {
                 return null;
@@ -188,69 +123,47 @@ namespace AkribisFAM.CommunicationProtocol
             return ((RecheckCamrea.Acceptcommand.TFCCamreaready)list_position[0]).CamreaReadyFlag;
         }
 
-        public static bool TriggRecheckCamreaAcceptData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, out List<object> list_position)//下相机拍照与相机交互接收流程
+        public static List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend> TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand recheckCamreaProcessCommand)//复检相机拍照与相机交互TFC接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("复检相机收到: " + VisionAcceptData);
-                list_position = null;
 
                 if (!VisionAcceptData_status)
                 {
-                    return false;
+                    return null;
                 }
-                switch ((int)recheckCamreaProcessCommand)
+
+
+                //TFC接收指令头
+
+                Type camdowntype = typeof(RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend);
+                List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend> list_positions = new List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend>();
+
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
                 {
-                    case (int)RecheckCamreaProcessCommand.TFC://TFC接收指令
-                        {
-                            //TFC接收指令头
-                            RecheckCamrea.Acceptcommand.AcceptTFCCommandTop accepTFCCommandTop1 = new RecheckCamrea.Acceptcommand.AcceptTFCCommandTop();
-                            Type camdowntype = typeof(RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend);
-                            //List<object> list_position = new List<object>();
-                            list_position = new List<object>();
-                            //解析字符串
-                            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepTFCCommandTop1, list_position, camdowntype);
-                            if (!Analysis_status)
-                            {
-                                return false;
-                            }
-                            //需要输出list_position
-                        }
-                        break;
-                    case (int)RecheckCamreaProcessCommand.Down://预留指令
-                        {
-                            ////TLN接收指令头
-                            //PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop accepTLNCommandTop1 = new PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop();
-                            //Type camdowntype = typeof(PrecisionDownCamrea.Acceptcommand.AcceptTLNCommandTop);
-                            ////List<object> list_position = new List<object>();
-                            //list_position = new List<object>();
-                            ////解析字符串
-                            //bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, accepTLNCommandTop1, list_position, camdowntype);
-                            //if (!Analysis_status)
-                            //{
-                            //    return false;
-                            //}
-                            ////需要输出list_position
-                        }
-                        break;
-                    default:
-                        {
-                            if (true)
-                            {
-                                //"接受指令有误"
-                                return false;
-                            }
-                        }
+                    return null;
                 }
-                return true;
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend)list[i]);
+                }
+                return list_positions;
             }
             catch (Exception ex)
             {
-                list_position = null;
+
                 ex.ToString();
-                return false;
+                return null;
             }
         }
 

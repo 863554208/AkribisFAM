@@ -171,15 +171,53 @@ namespace AkribisFAM.WorkStation
         //    }
         //    return (int)ACTTION_ERR.NONE;
         //}
-        public void Move(GlobalManager.AxisName axisName, int position, int? speed = null , int? accel = null , int? decel = null)
+
+        public void SetSingleEvent(GlobalManager.AxisName axisName , int pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),pos,eventSelect,eventPulseRes, eventPulseWid);
+        }
+        public void MoveNoWait(GlobalManager.AxisName axisName, int position, int? speed = null , int? accel = null , int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
+
+        }
+        public void Move(GlobalManager.AxisName axisName, int position, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
+                //TODO 加入退出机制
                 Thread.Sleep(50);
             }
+        }
+
+        public void MoveRel(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            {
+                //TODO 加入退出机制
+                Thread.Sleep(50);
+            }
+        }
+
+        public void MoveRelNoWait(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
         }
 
         public void JogMove(GlobalManager.AxisName axisName , int dir , int vel)

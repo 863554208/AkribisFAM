@@ -19,7 +19,7 @@ namespace AkribisFAM.CommunicationProtocol
         private readonly object socketLock = new object();  // 用于锁定socket，防止并发访问
         private volatile bool isRunning = true;  //控制线程运行,控制客户端是否继续运行
         private ConcurrentQueue<string> messageCache = new ConcurrentQueue<string>();// 消息缓存结构为 ConcurrentQueue：用于先进先出方式获取最新消息
-        private const int MaxCacheSize = 100; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
+        private const int MaxCacheSize = 10; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
 
         // 构造函数，初始化客户端连接信息
         public TcpClientWorker(string host, int port)
