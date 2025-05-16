@@ -105,8 +105,20 @@ namespace AkribisFAM.WorkStation
         public int LaserHeight()
         {
             //激光测距
-            //AkrAction.Current.Move(AxisName.LSX)
-            Thread.Sleep(100);
+            //AkrAction.Current.Move(AxisName.LSX);
+            foreach(var Point in GlobalManager.Current.laserPoints)
+            {
+                //移动
+                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
+                AkrAction.Current.MoveNoWait(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
+
+                //触发测距
+                //TODO 如果激光测距报错，返回错误值
+
+                GlobalManager.Current.currentLasered++;
+
+                Thread.Sleep(50);
+            }
             return 0;
         }
 
@@ -152,7 +164,7 @@ namespace AkribisFAM.WorkStation
                     while (ScanBarcode() == 1);
                     break;
 
-                case 4:
+                case 3:
                     while(LaserHeight() ==1); 
                     break;
             }
@@ -179,15 +191,12 @@ namespace AkribisFAM.WorkStation
             if (ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0)
             {
                 Set("station1_IsBoardInHighSpeed", true);
-                Set("IO_test2", false);
 
                 //将要板信号清空
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
 
                 //传送带高速移动
                 MoveConveyor((int)AxisSpeed.BL1);
-
-                Set("station1_IsBoardInHighSpeed", false);
 
                 //等待减速光电1
                 if(!WaitIO(999999, IO_INFunction_Table.IN1_0Slowdown_Sign1 ,true)) throw new Exception();
@@ -276,6 +285,8 @@ namespace AkribisFAM.WorkStation
             //进板
             if (!BoradIn())
                 return false;
+
+            GlobalManager.Current.currentLasered = 0;
 
             #region 展示用的demo
             //20250513 展示用的demo 【史彦洋】 修改 Start
@@ -386,8 +397,8 @@ namespace AkribisFAM.WorkStation
 
             IO[] IOArray = new IO[] { IO.LaiLiao_DingSheng };
 
-            //顶升
-            //WaitConveyor(9999, IOArray, GlobalManager.Current.current_Lailiao_step);
+            //激光测距
+            WaitConveyor(GlobalManager.Current.current_Lailiao_step);
 
             CheckState();
 
@@ -400,13 +411,7 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 4;
 
-            //激光测距
-            //WaitConveyor(0, null,false, GlobalManager.Current.current_Lailiao_step);
-
-            //气缸放气，降低顶升
-
             CheckState();
-
 
             return true;
         }
@@ -428,14 +433,9 @@ namespace AkribisFAM.WorkStation
 
                     step3: Step3();
                         if (GlobalManager.Current.Lailiao_exit) break;
-                        GlobalManager.Current.currentLasered = 0;
-
-                    step4: Step4();
-                        //
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.currentLasered < 48)  goto step4;
+                        if (GlobalManager.Current.currentLasered < GlobalManager.Current.TotalLaserCount)
                         
-
+                        
                     //出板
                     Boardout();
 
