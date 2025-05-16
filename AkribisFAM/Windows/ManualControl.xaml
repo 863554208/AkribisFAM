@@ -4,19 +4,57 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
-             mc:Ignorable="d" d:DesignWidth="800" Height="851">
-    <Grid Margin="0,0,-430,0">
-        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="45" Margin="10,0,0,0" VerticalAlignment="Top" Width="456">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                <Button Content="轴调试" Width="69" Click="AxisConfigure_Click"/>
-                <Button Content="气动调试" Width="74" Click="AirControl_Click"/>
-                <Button Content="相机调试" Width="69" Click="CameraControl_Click"/>
-                <Button Content="IO调试" Width="65" Click="IOConfigure_Click"/>
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851">
+    <UserControl.Resources>
+        <Style x:Key="SelectableButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Selected">
+                                <Setter TargetName="border" Property="Background" Value="#FF6200EE"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE0E0E0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="5">
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- 第一行：自适应内容高度 -->
+            <RowDefinition Height="*"/>
+            <!-- 第二行：占满剩余空间 -->
+        </Grid.RowDefinitions>
 
+        <!-- 第一行按钮区域 -->
+        <Border Grid.Row="0" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="轴调试" Background="#FF6200EE" Name="AxisDebug" Style="{StaticResource SelectableButtonStyle}"  Width="80" Click="AxisConfigure_Click"/>
+                <Button Content="气动调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
+                <Button Content="相机调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
+                <Button Content="IO调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
             </StackPanel>
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Center" Height="1123" Margin="0,50,0,0" VerticalAlignment="Top" Width="1210" >
-            <ContentControl Name="ManualControlDisplay" Margin="0,0,0,277" />
+
+        <!-- 第二行内容显示区域 -->
+        <Border Grid.Row="1" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ContentControl Name="ManualControlDisplay" Margin="10"/>
         </Border>
     </Grid>
 </UserControl>

@@ -7,4 +7,41 @@
     <sys:String x:Key="Parameter Setting">参数配置</sys:String>
     <sys:String x:Key="Internet Config">网络配置</sys:String>
     <sys:String x:Key="Log">系统日志</sys:String>
+
+    <sys:String x:Key="UserLab">当前用户:</sys:String>
+    <sys:String x:Key="SysStatelab">设备状态:</sys:String>
+    <sys:String x:Key="CTlab">CT:</sys:String>
+    <sys:String x:Key="UPHlab">UPH:</sys:String>
+
+    <sys:String x:Key="DeviceBtn">设备</sys:String>
+    <sys:String x:Key="ScanningGunBtn">扫码枪</sys:String>
+    <sys:String x:Key="RangefinderBtn">测距仪</sys:String>
+    <sys:String x:Key="Camera1Btn">相机1</sys:String>
+    <sys:String x:Key="Camera2Btn">相机2</sys:String>
+    <sys:String x:Key="Camera3Btn">相机3</sys:String>
+    <sys:String x:Key="MESBtn">MES</sys:String>
+
+
+    <sys:String x:Key="TextAxisList">轴列表</sys:String>
+    <sys:String x:Key="TextAxisStat">轴状态</sys:String>
+    <sys:String x:Key="TextAxisControl">轴控制</sys:String>
+    <sys:String x:Key="TextAxisName">轴名</sys:String>
+    <sys:String x:Key="TextTargetAxisPos">目标位置</sys:String>
+    <sys:String x:Key="TextNowAxisVel">速度</sys:String>
+    <sys:String x:Key="TextNowAxisAcc">加/减速度</sys:String>
+    <sys:String x:Key="TextNowAxisEnable">当前轴使能</sys:String>
+    <sys:String x:Key="TextAxisStart">运动</sys:String>
+    <sys:String x:Key="TextAxisStop">停止</sys:String>
+    <sys:String x:Key="TextAxisJog">点动</sys:String>
+
+    <sys:String x:Key="TextNowAxisPos">当前位置</sys:String>
+    <sys:String x:Key="TextNowAxisEN">使能</sys:String>
+    <sys:String x:Key="TextNowAxisInPos">到位</sys:String>
+    <sys:String x:Key="TextNowAxisHome">原点</sys:String>
+    <sys:String x:Key="TextNowLimit+">硬限位+</sys:String>
+    <sys:String x:Key="TextNowLimit-">硬限位-</sys:String>
+    <sys:String x:Key="TextNowSwLimit-">软限位-</sys:String>
+    <sys:String x:Key="TextNowSwLimit+">软限位+</sys:String>
+    <sys:String x:Key="TextNowAxisErr">报警</sys:String>
+
 </ResourceDictionary>

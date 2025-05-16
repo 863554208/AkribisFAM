@@ -50,6 +50,11 @@ namespace AkribisFAM
         private DispatcherTimer resetTimer;
         private bool isResetButtonTriggered = false;
 
+        MainContent mainContent;
+        ManualControl manualControl;
+        ParameterConfig parameterConfig;
+        InternetConfig internetConfig;
+        DebugLog debugLog;
 
         public MainWindow()
         {
@@ -69,6 +74,17 @@ namespace AkribisFAM
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
             StateManager.Current.State = StateCode.IDLE;
+
+            //Add By YXW
+            mainContent = new MainContent();
+            manualControl = new ManualControl();
+            parameterConfig = new ParameterConfig();
+            internetConfig = new InternetConfig();
+            debugLog = new DebugLog();
+            ContentDisplay.Content = mainContent;
+
+            //END Add
+
         }
 
         private void UpdateIcon()
@@ -87,42 +103,38 @@ namespace AkribisFAM
         {
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
+            //CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "主界面" 内容
-            ContentDisplay.Content = new MainContent();  // MainScreen 是你定义的一个用户控件或界面
+            ContentDisplay.Content = mainContent;  // MainScreen 是你定义的一个用户控件或界面
         }
 
         // 点击 "手动调试" 按钮
         private void ManualControlButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = new ManualControl(); // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = manualControl; // ManualDebugScreen 是你定义的用户控件或界面
         }
 
         private void ParameterConfigButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = new ParameterConfig(); // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = parameterConfig; // ManualDebugScreen 是你定义的用户控件或界面
         }
         private void InternetConfigButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = new InternetConfig(); // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = internetConfig; // ManualDebugScreen 是你定义的用户控件或界面
         }
         private void DebugLogButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = new DebugLog(); // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = debugLog; // ManualDebugScreen 是你定义的用户控件或界面
         }
 
-        //private void StartAutoRun_Click(object sender, RoutedEventArgs e)
-        //{
-        //    AutorunManager.Current.AutoRunMain();
-        //}
 
         //ResetButton 按住3秒才能触发
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -199,7 +211,7 @@ namespace AkribisFAM
                 {
                     GlobalManager.Current.IsPause = true;
                     //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
-                    PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
+                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
                 }
                 else
                 {
@@ -211,7 +223,7 @@ namespace AkribisFAM
                     GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
                     GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
                     //AutorunManager.Current.ResumeAutoRun();
-                    PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
                 }
             }
         }
@@ -384,9 +396,69 @@ namespace AkribisFAM
 
         private void Alarmbutton_Click(object sender, RoutedEventArgs e)
         {
-            ErrorWindow = new ErrorWindow();
-            ErrorWindow.Show();
+            //ErrorWindow = new ErrorWindow();
+            //ErrorWindow.Show();
+
+            //Modify By YXW
+            if (ErrorWindow == null)
+            {
+                ErrorWindow = new ErrorWindow();
+                ErrorWindow.Closed += (s, args) => ErrorWindow = null; //窗口关闭时清空引用
+
+
+                // 手动设置居中（相对于屏幕）
+                var screenWidth = SystemParameters.PrimaryScreenWidth;
+                var screenHeight = SystemParameters.PrimaryScreenHeight;
+                var windowWidth = ErrorWindow.Width;
+                var windowHeight = ErrorWindow.Height;
+
+                ErrorWindow.Left = (screenWidth - windowWidth) / 2;
+                ErrorWindow.Top = (screenHeight - windowHeight) / 2;
+
+                ErrorWindow.Show();
+            }
+            else
+            {
+                if (ErrorWindow.WindowState == WindowState.Minimized)
+                {
+                    ErrorWindow.WindowState = WindowState.Normal;
+                }
+                ErrorWindow.Activate(); // 激活已有窗口
+            }
         }
+
+        private void BtnDevice_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnScanningGun_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnRangefinder_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnCamera1_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnCamera2_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnCamera3_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+
     }
 
     internal class PromptableButton : Button

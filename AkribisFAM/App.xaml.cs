@@ -38,7 +38,6 @@ namespace AkribisFAM
             //启动与AGM800的连接
             StartConnectAGM800();
 
-            MessageBox.Show("2");
 
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
@@ -69,7 +68,7 @@ namespace AkribisFAM
 
             SetLanguage("en-US");
 
-            MessageBox.Show("1");
+  
 
             if (new LoginViewModel().ShowDialog() == true)
             {
