@@ -116,14 +116,15 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.Move(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
 
                 //触发测距
-                sendKDistanceAppend.Clear();
-                KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                {
-                    TestNumber = "1",
-                    address = "0",
-                };
-                sendKDistanceAppend.Add(temp);
-                Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, sendKDistanceAppend);
+                //sendKDistanceAppend.Clear();
+                //KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
+                //{
+                //    TestNumber = "1",
+                //    address = "0",
+                //};
+                //sendKDistanceAppend.Add(temp);
+                //string temp = "1,0";
+                Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
 
                 //得到测量结果
                 AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
