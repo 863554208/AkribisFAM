@@ -104,6 +104,9 @@ namespace AkribisFAM.CommunicationProtocol
                 // 等待所有连接完成，如果任何一个连接还没完成，程序会在这里阻塞直到所有连接都成功
                 Task.WhenAll(connectTasks).Wait();
 
+
+
+
                 // 所有客户端连接完成后，输出成功信息
                 //Console.WriteLine("All clients connected!");
                
