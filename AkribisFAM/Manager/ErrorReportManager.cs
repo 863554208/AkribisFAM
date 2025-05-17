@@ -114,7 +114,7 @@ namespace AkribisFAM.Manager
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+                 ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
             });
             //END 
             UpdateErrorCnt?.Invoke();
