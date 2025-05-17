@@ -17,6 +17,8 @@ using static AkribisFAM.GlobalManager;
 using static AAComm.Extensions.AACommFwInfo;
 using AkribisFAM.Windows;
 using System.Windows;
+using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
+using System.Diagnostics.Eventing.Reader;
 
 namespace AkribisFAM.WorkStation
 {
@@ -387,6 +389,99 @@ namespace AkribisFAM.WorkStation
                 AutorunManager.Current.isRunning = false;
                 ErrorReportManager.Report(ex);
             }
+        }
+
+        public struct TrainPoint
+        {
+            public int x;
+            public int y;
+            public int z;
+            public int r;
+        }
+        //1-4结束位置， 5起始位置， 6-9取料位置
+        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(5);
+
+        public bool TrainNozzle(int pickernum)
+        {
+            bool ret;
+            //移动取料
+            AkrAction.Current.Move(AxisName.FSX, TrainPointlist[pickernum + 5].x, (int)AxisSpeed.FSX);
+            AkrAction.Current.Move(AxisName.FSY, TrainPointlist[pickernum + 5].y, (int)AxisSpeed.FSY);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //picker 取料
+            AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
+            if (pickernum == 0)
+            {
+                SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
+                SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+                ret = WaitIO(999999, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true);
+            }
+            else if (pickernum == 1)
+            {
+                SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
+                SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
+                ret = WaitIO(999999, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true);
+            }
+            else if (pickernum == 2) {
+                SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
+                SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
+                ret = WaitIO(999999, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback, true);
+            }
+            else if (pickernum == 3)
+            {
+                SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
+                SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
+                ret = WaitIO(999999, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback, true);
+            }
+            else
+            {
+                ret = false;
+            }
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
+            //移动到飞拍起始位置
+            AkrAction.Current.Move(AxisName.FSX, TrainPointlist[4].x, (int)AxisSpeed.FSX);
+            AkrAction.Current.Move(AxisName.FSY, TrainPointlist[4].y, (int)AxisSpeed.FSY);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+
+            //给Cognex发拍照信息
+
+            //飞拍移动到结束位置
+            AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
+            AkrAction.Current.MoveNoWait(AxisName.FSX, TrainPointlist[pickernum].x, (int)AxisSpeed.FSX);
+
+            //接受Cognex结果
+
+            return true;
+        }
+
+        public void TrainNozzles()
+        {
+
+            Task<bool> task = new Task<bool>(() =>
+            {
+                for (int i = 0; i < 4; ++i)
+                {
+                    bool ret = TrainNozzle(i);
+                    if (CheckState(ret) == 1)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            task.Start();
+
         }
     }
 }
