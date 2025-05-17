@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Media;
+using AAMotion;
+using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using LiveCharts.SeriesAlgorithms;
 using YamlDotNet.Core;
 using HslCommunication;
 using static AkribisFAM.GlobalManager;
-using AkribisFAM.CommunicationProtocol;
+using static AAComm.Extensions.AACommFwInfo;
+using AkribisFAM.Windows;
+using System.Windows;
 
 namespace AkribisFAM.WorkStation
 {
@@ -55,186 +62,301 @@ namespace AkribisFAM.WorkStation
             throw new NotImplementedException();
         }
 
+        public static void Set(string propertyName, object value)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.SetValue(GlobalManager.Current, value);
+            }
+        }
+
         public override bool Ready()
         {
             return true;
         }
 
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            return IOManager.Instance.INIO_status[(int)index];
 
+        }
+
+        public void SetIO(IO_OutFunction_Table index , int value)
+        {
+            IOManager.Instance.IO_ControlStatus( index , value);
+        }
+		
         public void MoveConveyor(int vel)
         {
-            //TODO 移动传送带
+            AkrAction.Current.MoveConveyor(vel);
         }
 
         public void StopConveyor()
         {
-            //TODO 停止传送带
+            AkrAction.Current.StopConveyor();
         }
 
-        public bool ReadIO(IO index)
-        {
-            return GlobalManager.Current.IOTable[(int)index];
-        }
-
-        public void SetIO(IO index, bool value)
-        {
-            GlobalManager.Current.IOTable[(int)index] = value;
-        }
 
         public int DropNGPallete()
         {
             return 0;
         }
 
-        public void WaitConveyor(int delta, IO[] IOarr, int type)
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
-
-            if (delta != 0 && IOarr != null)
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
-                while ((DateTime.Now - time).TotalMilliseconds < delta)
+                if (ReadIO(index) == value)
                 {
-                    int judge = 0;
-                    foreach (var item in IOarr)
-                    {
-                        var res = ReadIO(item) ? 1 : 0;
-                        judge += res;
-                    }
-
-                    if (judge > 0)
-                    {
-                        break;
-                    }
-                    Thread.Sleep(50);
+                    ret = true;
+                    break;
                 }
+                Thread.Sleep(50);
             }
-            else
-            {
-                switch (type)
-                {
-                    case 2:
-                        while (DropNGPallete() == 1) ;
-                        break;
-
-                }
-            }
-        }
-
-        public bool BoardIn()
-        {
-            if (ReadIO(IO.Reject_BoardIn) && board_count == 0)
-            {
-                //传送带高速移动
-                MoveConveyor(200);
-
-                IO[] IOArray = new IO[] { IO.Reject_JianSu };
-                WaitConveyor(9999, IOArray, 0);
-
-                //顶板气缸上气
-                SetIO(IO.Reject_QiGang ,true);
-
-                //传送带减速
-                MoveConveyor(100);
-
-                //TODO 这边有没有告诉已经到位的IO信号？
-                StopConveyor();
-
-                //实际生产时要把这行注释掉，进板IO信号不是我们软件给
-                SetIO(IO.ZuZhuang_BoardIn, false);
-
-                board_count +=1 ;
-                return true;
-            }
-            else
-            {
-                Thread.Sleep(100);
-                return false;
-            }
-        }
-
-        public void BoardOut()
-        {
-            
-            SetIO(IO.Reject_BoardOut, true);
-            board_count--;
-        }
-
-        public void CheckState()
-        {
-            GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 0;
-            GlobalManager.Current.Reject_CheckState();
-            WarningManager.Current.WaiReject();
-        }
-
-        public int CheckBoardIn()
-        {
-            if (ReadIO(IO.Reject_BoardIn) && board_count == 0)
-            {
-                if (GlobalManager.Current.isNGPallete)
-                {
-                    //是NG板
-                    return 2;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-            return 0;
-        }
-
-        public int Step1()
-        {
-            int ret = CheckBoardIn();
-
-            Console.WriteLine("Reject step1");
-
-            GlobalManager.Current.current_Reject_step = 1;
-
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000);
-
-            CheckState();
 
             return ret;
+        }
+		
+        public void WaitConveyor(int delta, IO[] IOarr, int type)
+        {
+            //DateTime time = DateTime.Now;
+
+            //if (delta != 0 && IOarr != null)
+            //{
+            //    while ((DateTime.Now - time).TotalMilliseconds < delta)
+            //    {
+            //        int judge = 0;
+            //        foreach (var item in IOarr)
+            //        {
+            //            var res = ReadIO(item) ? 1 : 0;
+            //            judge += res;
+            //        }
+
+            //        if (judge > 0)
+            //        {
+            //            break;
+            //        }
+            //        Thread.Sleep(50);
+            //    }
+            //}
+            //else
+            //{
+            //    switch (type)
+            //    {
+            //        case 2:
+            //            while (DropNGPallete() == 1) ;
+            //            break;
+
+            //    }
+            //}
+        }
+
+        public void ResumeConveyor()
+        {
+            if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station3_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed)
+            {
+                //低速运动
+                MoveConveyor(100);
+            }
+            else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed)
+            {
+                MoveConveyor((int)AxisSpeed.BL1);
+            }
+        }
+
+        public bool hasNGboard;
+        public bool BoardIn()
+        {
+            bool ret;
+            //进入后改回false
+            GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] = false;
+            Set("station4_IsBoardInHighSpeed", true);
+            //Set("IO_test4", false);
+            //传送带高速移动
+            MoveConveyor((int)AxisSpeed.BL4);
+            MoveConveyor((int)AxisSpeed.BR4);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //等待减速IO
+            ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
+            Set("station4_IsBoardInHighSpeed", false);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            //挡板气缸上气
+            SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
+            SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+            Set("station4_IsBoardInLowSpeed", true);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //传送带减速
+            MoveConveyor(100);
+            //等待停止IO
+            ret = WaitIO(9999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
+            Set("station4_IsBoardInLowSpeed", false);
+            Set("station4_IsBoardIn", false);
+            Set("station4_IsLifting", true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            board_count += 1;
+            //停止传送带
+            StopConveyor();
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            Set("station4_IsBoardOut", true);
+            return true;
+        }
+
+        private bool ActionNG() {
+            bool ret;
+            //顶起气缸上气
+            SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
+            SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
+            Set("station4_IsLifting", false);
+            ResumeConveyor();
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //NG位感应IO
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            //顶起气缸下降
+            SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //挡板气缸下降
+            SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //等待挡板下降到位信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            board_count -= 1;
+            hasNGboard = true;
+
+            Task<bool> task = new Task<bool>(() =>
+            {
+                return DetectNG();
+            });
+            task.Start();
+            return true;
+        }
+
+        private bool ActionOK()
+        {
+            bool ret;
+            //发送出料信号
+            SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //等待允许出料信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            //挡板气缸下降
+            SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
+            //等待挡板下降到位信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            board_count -= 1;
+            return true;
+        }
+
+        private bool DetectNG() {
+            //打开蜂鸣器
+            SetIO(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            //等待取走信号
+            bool ret = WaitIO(999999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
+            if (CheckState(ret) == 1)
+            {
+                //关闭蜂鸣器
+                SetIO(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+                return false;
+            }
+            if (ret)
+            {
+                board_count -= 1;
+            }
+            //关闭蜂鸣器
+            SetIO(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            return true;
+        }
+
+        public int CheckState(bool state)
+        {
+            if (GlobalManager.Current.Reject_exit) return 1;
+            if (state)
+            {
+                GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 0;
+            }
+            else
+            {
+                GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 1;
+            }
+            GlobalManager.Current.Reject_CheckState();
+            WarningManager.Current.WaiReject();
+            return 0;
         }
 
         public bool Step2()
         {
-            Console.WriteLine("step2");
-
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
-
-            GlobalManager.Current.current_FuJian_step = 2;
-
-            //NG顶升
-            WaitConveyor(0, null, GlobalManager.Current.current_FuJian_step);
-
-            CheckState();
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
-
-            return true;
-        }
-
-        public bool Step3()
-        {
-            Console.WriteLine("step3");
-
-            //触发 UI 动画
-            OnTriggerStep2?.Invoke();
-
-            GlobalManager.Current.current_FuJian_step = 3;
-
-            //用thread.sleep模拟实际生成动作
-            System.Threading.Thread.Sleep(1000);
-
-            CheckState();
-            //触发 UI 动画
-            OnStopStep2?.Invoke();
-
-            return true;
+            if (GlobalManager.Current.isNGPallete)
+            {
+                if (board_count == 0)
+                {
+                    //NG位无料
+                    return ActionNG();
+                }
+                else
+                {
+                    //NG位有料
+                    CheckState(false);
+                    return false;
+                }
+            }
+            else
+            {
+                //OK料
+                return ActionOK();
+            }
         }
 
         public override void AutoRun()
@@ -245,25 +367,19 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
                     step1:
-                        int ret = Step1();
+                        if (!GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] || board_count != 0) {
+                            Thread.Sleep(100);
+                            continue;
+                        }
+                        GlobalManager.Current.current_Reject_step = 1;
+                        BoardIn();
                         if (GlobalManager.Current.Reject_exit) break;
-                        if (ret == 0) continue;
-                        if (ret == 1) goto step5;
 
                     step2:
+                        GlobalManager.Current.current_Reject_step = 2;
                         Step2();
                         if (GlobalManager.Current.Reject_exit) break;
-
-                    step3:
-                        Step3();
-                        if (GlobalManager.Current.Reject_exit) break;  
-                        
-                    BoardOut();
-
-                    step5:
-                        ;
-                        
-
+                            
                 }
             }
             catch (Exception ex)

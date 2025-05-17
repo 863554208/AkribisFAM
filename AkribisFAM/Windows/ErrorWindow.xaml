@@ -7,12 +7,12 @@
         mc:Ignorable="d"
         Title="ErrorWindow" Height="450" Width="800">
     <Grid>
-        <DataGrid x:Name="ErrorData" AutoGenerateColumns="True" HorizontalAlignment="Left" VerticalAlignment="Top" Height="430" Width="800">
+        <DataGrid x:Name="ErrorData" AutoGenerateColumns="False"  ItemsSource="{Binding ErrorInfos}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="DateTime" Binding="{Binding dateTime}"/>
-                <DataGridTextColumn Header="User"  Binding="{Binding user}"/>
-                <DataGridTextColumn Header="ErrorCode" Binding="{Binding errorCode}" />
-                <DataGridTextColumn Header="Level" Binding="{Binding level}" />
+                <DataGridTextColumn Header="DateTime" Binding="{Binding DateTime}"/>
+                <DataGridTextColumn Header="User"  Binding="{Binding User}"/>
+                <DataGridTextColumn Header="ErrorCode" Binding="{Binding ErrorCode}" />
+                <DataGridTextColumn Header="Level" Binding="{Binding Level}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

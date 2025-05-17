@@ -65,7 +65,7 @@ namespace AkribisFAM
                 // 关闭数据库连接
                 DatabaseManager.Shutdown();
             }
-            ZuZhuang.Current.test();
+            //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
             LoadLaserPoints();
