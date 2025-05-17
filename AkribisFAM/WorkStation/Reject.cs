@@ -340,7 +340,7 @@ namespace AkribisFAM.WorkStation
         {
             if (GlobalManager.Current.isNGPallete)
             {
-                if (board_count == 0)
+                if (!hasNGboard)
                 {
                     //NG位无料
                     return ActionNG();

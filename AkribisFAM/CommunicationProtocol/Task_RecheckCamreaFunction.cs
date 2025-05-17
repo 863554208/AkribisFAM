@@ -60,7 +60,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> list_positions) //复检相机拍照与相机交互TFC自动触发流程
+        public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand,string sendData) //复检相机拍照与相机交互TFC自动触发流程
         {
             try
             {
@@ -83,7 +83,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
 
                 //组合字符串
-                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+                string sendcommandData = $"{InstructionHeader}{sendData}";
 
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);

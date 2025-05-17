@@ -255,7 +255,7 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //移动z轴下降
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].z);
+                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -279,9 +279,10 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //移动撕膜
-
+                AkrAction.Current.MoveRel(AxisName.PRY, 2000, 100000);
+                AkrAction.Current.MoveRel(AxisName.PRZ, 2000, 100000);
                 //Z轴上升
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[26].z);
+                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[26].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -289,7 +290,7 @@ namespace AkribisFAM.WorkStation
                 //移动到蓝膜收集处
                 AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[12].x);//mm * 10000
                 AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].y);
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].z);
+                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[12].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -326,6 +327,7 @@ namespace AkribisFAM.WorkStation
             for (int i = modulenum + 1; i < modulenum*2+1; ++i)
             {
                 //移动到穴位
+                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
                 AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
                 AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
                 AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
@@ -334,24 +336,24 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //康耐视复检
+                string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
+                TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
 
-                if (CheckState(true) == 1)
-                {
-                    return false;
-                }
-                //触发拍照IO
-
-                if (CheckState(true) == 1)
-                {
-                    return false;
-                }
                 //获取康耐视数据
-
-                if (CheckState(true) == 1)
+                string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
+                int cogres;
+                bool ret = int.TryParse(Errcode, out cogres);
+                if (CheckState(ret) == 1)
                 {
                     return false;
                 }
-                modulestate[i - (modulenum + 1)] = 1;//ok
+                if (cogres != 1)
+                {
+                    //康耐视报错
+                    CheckState(false);
+                }
+                string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
+                
                 cnt = cnt + modulestate[i - (modulenum + 1)];
             }
             if (cnt < modulenum)
