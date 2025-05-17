@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,7 +41,9 @@ namespace AkribisFAM.Windows
             iOConfigure = new IOConfigure();
 
             ManualControlDisplay.Content = axisControl;
-   
+
+            this.AxisDebug.Tag = "Selected";
+
 
         }
 
@@ -74,11 +77,19 @@ namespace AkribisFAM.Windows
 
         private void SetSelectedButton(Button btn)
         {
+            // 清除所有按钮的选中状态
+            AxisDebug.Tag = null;
+            AirDebug.Tag = null;
+            CameraDebug.Tag = null;
+            IoDebug.Tag = null;
+
             if (_selectedButton != null)
                 _selectedButton.Tag = null; // 取消之前选中的样式
 
             btn.Tag = "Selected"; // 设置当前选中
             _selectedButton = btn;
+
+
         }
     }
 }

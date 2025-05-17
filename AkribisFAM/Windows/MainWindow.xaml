@@ -10,7 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
-        ShowInTaskbar="False"  Height="1000" Width="1600">
+          Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -31,35 +31,55 @@
         </Grid.RowDefinitions>
 
         <!-- 第一行，水平 StackPanel -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Background="LightBlue">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                <Label Content="{DynamicResource UserLab}"></Label>
-                <Label Name="NowUserLab"></Label>
+        <Grid Grid.Row="0" Background="LightBlue">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <!-- 左侧用户状态信息 -->
+                <ColumnDefinition Width="2*"/>
+                <!-- 中间按钮 -->
+                <ColumnDefinition Width="0.4*"/>
+                <!-- 报警按钮 -->
+                <ColumnDefinition Width="*"/>
+                <!-- 时间显示 -->
+            </Grid.ColumnDefinitions>
 
-                <Label Content="{DynamicResource SysStatelab}"></Label>
-                <Label Name="NowStateLab"></Label>
+            <!-- 用户状态标签 -->
+            <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
+                <Label Content="{DynamicResource UserLab}" />
+                <Label Name="NowUserLab" />
 
-                <Label Content="{DynamicResource CTlab}"></Label>
-                <Label Name="CtValueLab"></Label>
+                <Label Content="{DynamicResource SysStatelab}" />
+                <Label Name="NowStateLab" />
 
-                <Label Content="{DynamicResource UPHlab}"></Label>
-                <Label Name="UphValueLab"></Label>
+                <Label Content="{DynamicResource CTlab}" />
+                <Label Name="CtValueLab" />
+
+                <Label Content="{DynamicResource UPHlab}" />
+                <Label Name="UphValueLab" />
             </StackPanel>
-            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" >
-                <Button Name="BtnDevice" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnDevice_Click"></Button>
-                <Button Name="BtnScanningGun" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnScanningGun_Click"></Button>
-                <Button Name="BtnRangefinder" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnRangefinder_Click"></Button>
-                <Button Name="BtnCamera1" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera1_Click"></Button>
-                <Button Name="BtnCamera2" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera2_Click"></Button>
-                <Button Name="BtnCamera3" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera3_Click"></Button>
+
+            <!-- 按钮区域 -->
+            <StackPanel Margin="150 0 0 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
+                <Button Name="BtnDevice" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnDevice_Click" />
+                <Button Name="BtnScanningGun" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnScanningGun_Click" />
+                <Button Name="BtnRangefinder" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnRangefinder_Click" />
+                <Button Name="BtnCamera1" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera1_Click" />
+                <Button Name="BtnCamera2" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera2_Click" />
+                <Button Name="BtnCamera3" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera3_Click" />
             </StackPanel>
-            <local:PromptableButton x:Name="button"  PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png" SnapsToDevicePixels="True"  Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center" Height="55" Width="72"/>
-            <Border BorderBrush="Transparent" BorderThickness="1"  HorizontalAlignment="Left"   VerticalAlignment="Center" >
-                <TextBlock  Name="currentTimeTextBlock" Text="NowTime---"  HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" FontSize="20"/>
+
+            <!-- 报警按钮 -->
+            <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
+                            Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            Height="55" Width="72" Grid.Column="2" />
+
+            <!-- 当前时间 -->
+            <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="3">
+                <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   TextWrapping="Wrap" FontSize="20" />
             </Border>
-
-
-        </StackPanel>
+        </Grid>
 
         <!-- 第二行，水平 StackPanel -->
         <Grid Grid.Row="1" Background="LightGreen"
@@ -75,7 +95,7 @@
 
             <!-- 左侧菜单 -->
             <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
-                <materialDesign:ColorZone Mode="PrimaryMid" VerticalAlignment="Center">
+                <materialDesign:ColorZone Mode="PrimaryMid" >
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
                         
                         <RadioButton Content="{DynamicResource Main Page}"
