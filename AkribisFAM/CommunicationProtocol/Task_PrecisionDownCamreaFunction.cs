@@ -64,8 +64,6 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
         private static string InstructionHeader;//指令头
-
-
         public static bool TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand precisionDownCamreaProcessCommand, List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> list_positions) //下相机拍照与相机交互TLN自动触发流程
         {
             try

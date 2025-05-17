@@ -60,11 +60,11 @@
 
                 <!-- Row 3 -->
                 <TextBlock Text="" Grid.Row="3" Grid.Column="0" />
-                <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="1">
-                    <Ellipse Name="AxisEnStat" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                <Viewbox  Stretch="Uniform" Grid.Row="3" Grid.Column="1">
+                    <Ellipse Name="AxisEnStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="2">
-                    <Ellipse Name="AxisInPosStat" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisInPosStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
 
                 <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisHome}" Grid.Row="4" Grid.Column="0" />
@@ -76,24 +76,24 @@
                 <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowSwLimit-}" Grid.Row="6" Grid.Column="2" />
 
                 <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="0">
-                    <Ellipse Name="AxisHomeStat" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisHomeStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="1">
-                    <Ellipse Name="AxisLimitStatP" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisLimitStatP" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="2">
-                    <Ellipse Name="AxisLimitStatN" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisLimitStatN" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
 
                 
                 <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="0">
-                    <Ellipse Name="AxisErrStat" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisErrStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="1">
-                    <Ellipse Name="AxisSwLimitStatP" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisSwLimitStatP" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="2">
-                    <Ellipse Name="AxisSwLimitStatN" Width="80" Height="80" Fill="LightGray" Stroke="Blue" StrokeThickness="2"/>
+                    <Ellipse Name="AxisSwLimitStatN" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
                 </Viewbox>
 
 
@@ -133,17 +133,17 @@
 
                     <!-- 第2行 -->
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TextTargetAxisPos}" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="1"   Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1"/>
+                    <TextBox Name="TbTargetPos" Grid.Row="1"   Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="1" Grid.Column="2"  Text="mm"  VerticalAlignment="Center"/>
 
                     <!-- 第3行 -->
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource TextNowAxisVel}" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1"/>
+                    <TextBox Name="TbVel" Grid.Row="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="2" Grid.Column="2" Text="mm/s" VerticalAlignment="Center"/>
 
                     <!-- 第4行 -->
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TextNowAxisAcc}" VerticalAlignment="Center"/>
-                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="3" Grid.Column="1"/>
+                    <TextBox Name="TbAccDec" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="3" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" Text="mm/s²" VerticalAlignment="Center"/>
                 </Grid>
                 <!--<StackPanel Orientation="Horizontal">

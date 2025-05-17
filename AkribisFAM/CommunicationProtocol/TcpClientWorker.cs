@@ -18,8 +18,13 @@ namespace AkribisFAM.CommunicationProtocol
         private Socket socket = null;        // 用来进行TCP连接的Socket对象
         private readonly object socketLock = new object();  // 用于锁定socket，防止并发访问
         private volatile bool isRunning = true;  //控制线程运行,控制客户端是否继续运行
-        private ConcurrentQueue<string> messageCache = new ConcurrentQueue<string>();// 消息缓存结构为 ConcurrentQueue：用于先进先出方式获取最新消息
-        private const int MaxCacheSize = 10; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
+        
+       // private 
+
+
+
+
+
 
         // 构造函数，初始化客户端连接信息
         public TcpClientWorker(string host, int port)
@@ -67,12 +72,16 @@ namespace AkribisFAM.CommunicationProtocol
             ));
         }
 
-
         public string LastReceivedMessage { get; private set; } = null;
-        private readonly object LastReceivedMessageLock = new object(); 
+        private readonly object LastReceivedMessageLock = new object();
+        private ConcurrentQueue<string> messageCache= new ConcurrentQueue<string>();// 消息缓存结构为 ConcurrentQueue：用于先进先出方式获取最新消息
+        private const int MaxCacheSize = 10; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
+
+
         // 消息接收循环
         private void ReceiveLoop()
         {
+           
             byte[] buffer = new byte[4096];  // 接收消息的缓冲区
             try
             {
@@ -107,6 +116,7 @@ namespace AkribisFAM.CommunicationProtocol
                 Reconnect();  // 如果接收出错，尝试重连
             }
         }
+
 
         // 重连机制
         private void Reconnect()

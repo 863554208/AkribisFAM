@@ -45,10 +45,10 @@
         <!-- 第一行按钮区域 -->
         <Border Grid.Row="0" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal">
-                <Button Content="轴调试" Background="#FF6200EE" Name="AxisDebug" Style="{StaticResource SelectableButtonStyle}"  Width="80" Click="AxisConfigure_Click"/>
-                <Button Content="气动调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
-                <Button Content="相机调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
-                <Button Content="IO调试" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
+                <Button Content="轴调试"  Name="AxisDebug" Style="{StaticResource SelectableButtonStyle}"  Width="80" Click="AxisConfigure_Click"/>
+                <Button Content="气动调试" Name="AirDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
+                <Button Content="相机调试" Name="CameraDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
+                <Button Content="IO调试" Name="IoDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
             </StackPanel>
         </Border>
 
