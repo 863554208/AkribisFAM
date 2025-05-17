@@ -125,7 +125,9 @@ namespace AkribisFAM
 
         //记录3号工位检测出的是否是NG板
         public bool isNGPallete;
-
+        public bool IsByPass;
+        public bool SendByPassToStation2;
+        public bool SendByPassToStation3;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
@@ -265,8 +267,6 @@ namespace AkribisFAM
             }
         }
 
-
-
         public void Lailiao_CheckState()
         {
             if (GlobalManager.Current.Lailiao_state[current_Lailiao_step] == 0)
@@ -290,7 +290,6 @@ namespace AkribisFAM
                 GlobalManager.Current.Zuzhuang_delta[current_Zuzhuang_step] = Pausetime;
             }
         }
-
         public void FuJian_CheckState()
         {
             if (GlobalManager.Current.FuJian_state[current_FuJian_step] == 0)
@@ -402,7 +401,7 @@ namespace AkribisFAM
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
-                if (FeederRetry_Count > 100)
+                if (FeederRetry_Count > 10)
                 {
                     return false;
                 }
