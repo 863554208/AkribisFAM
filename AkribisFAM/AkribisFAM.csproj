@@ -175,7 +175,6 @@
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DB\dbAccess.cs" />
-    <Compile Include="DebugParams.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
