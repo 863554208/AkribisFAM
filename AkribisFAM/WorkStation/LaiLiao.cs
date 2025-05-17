@@ -338,15 +338,12 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-
         public override void AutoRun()
         {
-
             try
             {
                 while (true)
                 {
-
                     step1: bool ret = Step1();
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;

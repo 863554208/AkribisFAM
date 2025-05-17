@@ -129,29 +129,35 @@ namespace AkribisFAM.Windows
             return obj;
         }
 
-        private void ReadAxisParamJson() {
-            string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-            string path = folder + "\\AxisParams.json";
+        private void ReadAxisParamJson() 
+        {
+            try
+            {
+                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                string path = folder + "\\AxisParams.json";
 
-            LoadConfig(path);
-            foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
-            {
-                string speedname = item.Key + "_Speed";
-                TextBox tbspeed = (TextBox)FindObject(speedname);
-                tbspeed.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                LoadConfig(path);
+                foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
+                {
+                    string speedname = item.Key + "_Speed";
+                    TextBox tbspeed = (TextBox)FindObject(speedname);
+                    tbspeed.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
+                {
+                    string accname = item.Key + "_Acc";
+                    TextBox tbacc = (TextBox)FindObject(accname);
+                    tbacc.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
+                {
+                    string decname = item.Key + "_Dec";
+                    TextBox tbdec = (TextBox)FindObject(decname);
+                    tbdec.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
             }
-            foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
-            {
-                string accname = item.Key + "_Acc";
-                TextBox tbacc = (TextBox)FindObject(accname);
-                tbacc.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
-            }
-            foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
-            {
-                string decname = item.Key + "_Dec";
-                TextBox tbdec = (TextBox)FindObject(decname);
-                tbdec.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
-            }
+            catch { }
+
         }
 
         private int first = 1;
