@@ -143,7 +143,7 @@ namespace AkribisFAM
             resetPressStopwatch.Restart();
 
             resetTimer = new DispatcherTimer();
-            resetTimer.Interval = TimeSpan.FromSeconds(3);
+            resetTimer.Interval = TimeSpan.FromSeconds(1);
             resetTimer.Tick += (s, args) =>
             {
                 resetTimer.Stop();

@@ -18,8 +18,13 @@ namespace AkribisFAM.CommunicationProtocol
         private Socket socket = null;        // 用来进行TCP连接的Socket对象
         private readonly object socketLock = new object();  // 用于锁定socket，防止并发访问
         private volatile bool isRunning = true;  //控制线程运行,控制客户端是否继续运行
-        private ConcurrentQueue<string> messageCache = new ConcurrentQueue<string>();// 消息缓存结构为 ConcurrentQueue：用于先进先出方式获取最新消息
-        private const int MaxCacheSize = 10; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
+        
+       // private 
+
+
+
+
+
 
         // 构造函数，初始化客户端连接信息
         public TcpClientWorker(string host, int port)
@@ -60,19 +65,23 @@ namespace AkribisFAM.CommunicationProtocol
                        // Logger.WriteLog($"[{host}:{port}] Connection failed: {ex.Message}, {retryCount} retry after 2 seconds");//端口号连接失败，第一次重试
                         //Console.WriteLine($"[{host}:{port}] Connection failed: {ex.Message}, {retryCount} retry after 2 seconds");
                         tempSocket?.Dispose();  // 确保释放失败的 socket
-                        Thread.Sleep(2000);  // 如果连接失败，等待2秒后重试
+                        Thread.Sleep(30);  // 如果连接失败，等待2秒后重试
                     }
                 }
             }
             ));
         }
 
-
         public string LastReceivedMessage { get; private set; } = null;
-        private readonly object LastReceivedMessageLock = new object(); 
+        private readonly object LastReceivedMessageLock = new object();
+        private ConcurrentQueue<string> messageCache= new ConcurrentQueue<string>();// 消息缓存结构为 ConcurrentQueue：用于先进先出方式获取最新消息
+        private const int MaxCacheSize = 10; // 最大缓存大小，超出时删除最旧的消息（在添加时控制）
+
+
         // 消息接收循环
         private void ReceiveLoop()
         {
+           
             byte[] buffer = new byte[4096];  // 接收消息的缓冲区
             try
             {
@@ -107,6 +116,7 @@ namespace AkribisFAM.CommunicationProtocol
                 Reconnect();  // 如果接收出错，尝试重连
             }
         }
+
 
         // 重连机制
         private void Reconnect()
@@ -190,22 +200,18 @@ namespace AkribisFAM.CommunicationProtocol
             StrClear();
             if (socket == null || !socket.Connected)
             {
-               // Logger.WriteLog($"[{host}:{port}] Socket not connected, attempting to reconnect...");
-                //Console.WriteLine($"[Port {port}] Socket not connected, attempting to reconnect...");
-                Reconnect();  // 如果连接断开，尝试重连
+               Reconnect(); //断连时尝试重连
             }
 
             try
             {
                 InternalSend(message);  // 调用内部的发送方法
-               // Logger.WriteLog($"[{host}:{port}] Sent external message: {message}");
-                //Console.WriteLine($"[Port {port}] Sent external message: {message}");
+
             }
             catch (Exception ex)
             {
-               // Logger.WriteLog($"[{host}:{port}] External send error: {ex.Message}");
-                //Console.WriteLine($"[Port {port}] External send error: {ex.Message}");
-                Reconnect();  // 如果发送失败，尝试重连
+               Reconnect();
+                  
             }
         }
 

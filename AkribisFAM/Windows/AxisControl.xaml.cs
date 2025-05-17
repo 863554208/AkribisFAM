@@ -19,6 +19,9 @@ using AkribisFAM.ViewModel;
 using System.Diagnostics;
 using AkribisFAM.CommunicationProtocol;
 using static MaterialDesignThemes.Wpf.Theme;
+using System.Text.RegularExpressions;
+using static AkribisFAM.Windows.AxisControl;
+using LiveCharts.Wpf;
 
 namespace AkribisFAM.Windows
 {
@@ -28,33 +31,65 @@ namespace AkribisFAM.Windows
     public partial class AxisControl : UserControl
     {
 
-        int AxisNum = 24;
+        const int AxisNum = 24;
+        int nowAxisIndex = 0;
+        List<Ellipse> statList = new List<Ellipse>();
 
-        List<bool> AxisList = new List<bool>();
+
+        private List<SingleAxis> _axisDataList = new List<SingleAxis>();
+
+        public List<SingleAxis> AxisDataList
+        {
+            get { return _axisDataList; }
+            set { _axisDataList = value; }
+        }
+
+        public class SingleAxis
+        {
+            public double nowPos;
+            public double tarpos;
+            public double vel;
+
+            //依次使能，到位，原点，硬限位+，硬限位-。报警，软限位+，软限位-
+            public List<bool> AxisStat = new List<bool>() { false, false, false, false, false, false, false, false };
+        }
+
 
         public AxisControl()
         {
             InitializeComponent();
-            
-            initUI();
+
+            initAxisUI("Axis");
+
+            statList.Add(AxisEnStat);
+            statList.Add(AxisInPosStat);
+            statList.Add(AxisHomeStat);
+            statList.Add(AxisLimitStatP);
+            statList.Add(AxisLimitStatN);
+            statList.Add(AxisErrStat);
+            statList.Add(AxisSwLimitStatP);
+            statList.Add(AxisSwLimitStatN);
+    
+            DataContext = this;
+
+            //SingleAxis af = new SingleAxis();
+            //updateAxisData(af);
 
 
         }
 
-
-        private void initUI()
+        //由于CboxNowAxis和AxisListBox后台生成，没有用上绑定。切换语言时需要调用。
+        private void initAxisUI(string prenName)
         {
             for (int i = 1; i <= AxisNum; i++)
             {
-                string axisName = $"Axis {i}";
+                string axisName = $"{prenName} {i}";
 
                 // 添加到 ComboBox（CboxNowAxis）
                 CboxNowAxis.Items.Add(axisName);
 
                 // 添加到 ListBox（AxisListBox）
                 AxisListBox.Items.Add(axisName);
-
-                AxisList.Add(false);
 
             }
 
@@ -66,6 +101,40 @@ namespace AkribisFAM.Windows
                 AxisListBox.SelectedIndex = 0;
         }
 
+        private void updateAxisData(SingleAxis axis)
+        {
+            tbNowPos.Text = axis.nowPos.ToString();
+            tbTargetPos.Text = axis.tarpos.ToString();
+            tbAxisVel.Text= axis.vel.ToString();
+
+            if (axis.AxisStat.Count < statList.Count)
+            {
+                return;
+            }
+            for (int i=0;i< statList.Count;++i)
+            {
+                if (axis.AxisStat[i])
+                {
+                    statList[i].Fill = Brushes.Green;
+                }
+                else
+                {
+                    statList[i].Fill = Brushes.Gray;
+                }
+            }
+
+        }
+
+        private void setUIAxisData(int index)
+        {
+            if (index < 0 || index >= _axisDataList.Count)
+            {
+                return; 
+            }
+            SingleAxis axis = _axisDataList[index]; // 安全访问
+            updateAxisData(axis);
+        }
+
         private void CboxNowAxis_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int nowAxis = CboxNowAxis.SelectedIndex;
@@ -74,10 +143,11 @@ namespace AkribisFAM.Windows
             {
                 AxisListBox.SelectedIndex = nowAxis;
             }
-            if (AxisList[nowAxis] != IsAxisEnable.IsChecked)
-            {
-                IsAxisEnable.IsChecked = AxisList[nowAxis];
-            }
+
+            nowAxisIndex = nowAxis;
+            setUIAxisData(nowAxis);
+
+
         }
 
         private void AxisListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -89,21 +159,29 @@ namespace AkribisFAM.Windows
                 CboxNowAxis.SelectedIndex = nowAxis;
             }
 
-            if (AxisList[nowAxis] != IsAxisEnable.IsChecked)
-            {
-                IsAxisEnable.IsChecked = AxisList[nowAxis];
-            }
-
+            nowAxisIndex = nowAxis;
+            setUIAxisData(nowAxis);
         }
 
         private void BtnMove_Click(object sender, RoutedEventArgs e)
         {
+            bool success =
+                double.TryParse(TbTargetPos.Text.Trim(), out double posValue) &&
+                double.TryParse(TbVel.Text.Trim(), out double velValue) &&
+                double.TryParse(TbAccDec.Text.Trim(), out double accValue);
 
+            if (!success)
+            {
+                MessageBox.Show("输入格式有误，请检查目标位置、速度和加速度！");
+                return;
+            }
+
+            //Todo MoveAbs(nowAxisIndex,posValue,velValue,accValue)
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
-
+            //Todo Stop(nowAxisIndex)
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
@@ -112,11 +190,58 @@ namespace AkribisFAM.Windows
             if (btn != null && btn.IsChecked == true)
             {
                 // 打开逻辑
+                //Todo   Enable(nowAxisIndex)
             }
             else
             {
-                //关闭
+                //关闭   DisEnable(nowAxisIndex)
             }
         }
+
+        private void FloatTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is System.Windows.Controls.TextBox tb)
+            {
+                string newText = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
+                                       .Insert(tb.SelectionStart, e.Text);
+
+                e.Handled = !IsValidFloatInput(newText);
+            }
+        }
+
+        private void FloatTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!IsValidFloatInput(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private void FloatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //// 禁止 Ctrl+V 粘贴
+            //if ((Keyboard.Modifiers == ModifierKeys.Control) && (e.Key == Key.V))
+            //{
+            //    e.Handled = true;
+            //}
+
+            // 禁用中文输入法（保险起见）
+            InputMethod.Current.ImeState = InputMethodState.Off;
+        }
+
+        private bool IsValidFloatInput(string input)
+        {
+            // 支持合法浮点数格式：123、0.5、.5、123.
+            return Regex.IsMatch(input, @"^(\d+(\.\d*)?|\.\d+)?$");
+        }
+
     }
 }

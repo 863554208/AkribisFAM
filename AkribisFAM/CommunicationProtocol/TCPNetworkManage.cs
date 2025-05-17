@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -104,6 +105,9 @@ namespace AkribisFAM.CommunicationProtocol
                 // 等待所有连接完成，如果任何一个连接还没完成，程序会在这里阻塞直到所有连接都成功
                 Task.WhenAll(connectTasks).Wait();
 
+
+
+
                 // 所有客户端连接完成后，输出成功信息
                 //Console.WriteLine("All clients connected!");
                
@@ -174,15 +178,23 @@ namespace AkribisFAM.CommunicationProtocol
         public static void InputLoop(ClientNames clientName, string message)
         {
             if (string.IsNullOrEmpty(message)) return;// 如果输入为空则退出
-            if (namedClients.ContainsKey(clientName))  // 检查字典中是否存在这个客户端连接
+            try
             {
-                namedClients[clientName].Send(message);  // 发送消息
+                if (namedClients.ContainsKey(clientName))  // 检查字典中是否存在这个客户端连接
+                {
+                    namedClients[clientName].Send(message);  // 发送消息
+                }
+                else
+                {
+                    //Console.WriteLine("Client not found for given IP and port.");  // 如果找不到客户端，输出错误信息
+                    //Logger.WriteLog("Client not found for given IP and port.");
+                }
             }
-            else
-            {
-                //Console.WriteLine("Client not found for given IP and port.");  // 如果找不到客户端，输出错误信息
-                //Logger.WriteLog("Client not found for given IP and port.");
+            catch (Exception e) 
+            { 
+                Debug.WriteLine("tcp服务器发送数据出错 : {0}",e.ToString());
             }
+
         }
 
         //清除指定客户端的最近一条消息
