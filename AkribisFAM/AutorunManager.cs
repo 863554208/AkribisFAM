@@ -14,6 +14,7 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using AkribisFAM.NewStation;
+using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 
 namespace AkribisFAM
 {
@@ -22,6 +23,9 @@ namespace AkribisFAM
         private static AutorunManager _current;
         public bool isRunning;
         public bool hasReseted;
+
+        List<SendSetStatCamreaposition> sendSetStatCamreapositionList = new List<SendSetStatCamreaposition>();
+
         public static AutorunManager Current
         {
             get
@@ -256,16 +260,25 @@ namespace AkribisFAM
 
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_3Initialized_feeder1 ,0);
 
-            
-
             //激光测距复位(tcp)
 
+
             //相机复位(tcp)
+            sendSetStatCamreapositionList.Clear();
+            SendSetStatCamreaposition command = new SendSetStatCamreaposition
+            {
+                AE_Station = "123",
+                ProjectName ="project",
+            };
+            sendSetStatCamreapositionList.Add(command);
+            Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
+
 
             //程序状态为置0
             GlobalManager.Current.current_Lailiao_step = 0;
             GlobalManager.Current.current_Zuzhuang_step = 0;
             GlobalManager.Current.current_FuJian_step = 0;
+            GlobalManager.Current.current_Reject_step = 0;
             LaiLiao.Current.board_count = 0;
             ZuZhuang.Current.board_count = 0;
             FuJian.Current.board_count = 0;

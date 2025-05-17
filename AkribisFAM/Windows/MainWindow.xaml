@@ -10,7 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
-        ShowInTaskbar="False"  Height="1000" Width="1600">
+        Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -84,7 +84,6 @@ namespace AkribisFAM.WorkStation
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
         }
-
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
@@ -114,8 +113,6 @@ namespace AkribisFAM.WorkStation
                 MoveConveyor((int)AxisSpeed.BL1);
             }
         }
-
-
         public bool BoradIn()
         {
             //20250516 进板改为异步进板 【史彦洋】 修改 Start
@@ -613,7 +610,6 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-
         public bool Step1()
         {
             //测试用
@@ -648,17 +644,14 @@ namespace AkribisFAM.WorkStation
 
         public bool Step3()
         {
-            Debug.WriteLine("ZuZhuang.Current.Step3-1()");
+            Debug.WriteLine("ZuZhuang.Current.Step3()");
 
             GlobalManager.Current.current_Zuzhuang_step = 3;
 
             //吸嘴取料
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            Debug.WriteLine("ZuZhuang.Current.Step3-2()");
-
             CheckState();
-
 
             return true;
         }
@@ -713,7 +706,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.current_Zuzhuang_step = 7;
 
             //拍Pallete料盘
-            //WaitConveyor(0, null, GlobalManager.Current.current_Zuzhuang_step);
+            WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             CheckState();
 
@@ -800,6 +793,7 @@ namespace AkribisFAM.WorkStation
                             continue;
                         }
                         var task1 = Task.Run(() => Step1());
+                        if (GlobalManager.Current.SendByPassToStation2) goto step9;
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         //如果吸嘴上有料，直接跳去CCD2精定位
                         if (GlobalManager.Current.current_FOAM_Count > 0) goto step4;
@@ -833,9 +827,9 @@ namespace AkribisFAM.WorkStation
                         if (GlobalManager.Current.Zuzhuang_exit) break;
 
                     step6:
+                        if (GlobalManager.Current.palleteSnaped) goto step7;
                         await task1;
-                        //拍料盘
-                        if (!GlobalManager.Current.palleteSnaped) goto step7;
+                        //拍料盘                        
                         Step6();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
 
@@ -844,14 +838,18 @@ namespace AkribisFAM.WorkStation
                         Step7();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         //当前组装的料小于穴位数时，要一直取料
-                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count)
-                        {
-                            goto step2;
-                        }
-                        else
-                        {
-                            BoardOut();
-                        }
+                        if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) goto step2;
+
+                    step8:
+                        BoardOut();
+                        GlobalManager.Current.SendByPassToStation3 = false;
+                        continue;
+
+                    step9:
+                        await task1;
+                        GlobalManager.Current.SendByPassToStation3 = true;
+                        BoardOut();
+
                 }
 
                 #region 老代码
