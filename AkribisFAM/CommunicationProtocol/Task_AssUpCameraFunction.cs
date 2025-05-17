@@ -95,7 +95,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket
-                bool sendcommand_status = VisionpositionfeedPushcommand(sendcommandData);
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
                 RecordLog("触发流道定位: " + sendcommandData);
                 if (!sendcommand_status)
                 {
@@ -121,7 +121,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket
-                bool sendcommand_status = VisionpositionfeedPushcommand(sendcommandData);
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
                 RecordLog("触发吸嘴贴装: " + sendcommandData);
                 if (!sendcommand_status)
                 {
@@ -141,7 +141,7 @@ namespace AkribisFAM.CommunicationProtocol
         public static string TriggAssUpCamreaready()//读准备就绪
         {
             string VisionAcceptData = null;
-            if (!VisionpositionfeedAcceptcommand(out VisionAcceptData))
+            if (!VisionpositionAcceptcommand(out VisionAcceptData))
             {
                 return null;
             }
@@ -162,7 +162,7 @@ namespace AkribisFAM.CommunicationProtocol
             try
             {
                 string VisionAcceptData = "";
-                bool VisionAcceptData_status = VisionpositionfeedAcceptcommand(out VisionAcceptData);
+                bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到贴装坐标: " + VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
@@ -202,7 +202,7 @@ namespace AkribisFAM.CommunicationProtocol
             try
             {
                 string VisionAcceptData = "";
-                bool VisionAcceptData_status = VisionpositionfeedAcceptcommand(out VisionAcceptData);
+                bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到贴装坐标: " + VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
@@ -247,7 +247,7 @@ namespace AkribisFAM.CommunicationProtocol
             // Logger.WriteLog(message);
         }
 
-        private static bool VisionpositionfeedAcceptcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
+        private static bool VisionpositionAcceptcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
         {
             VisionAcceptCommand = null;
             int timeoutMs = 5000;//5秒之后超时
@@ -274,7 +274,7 @@ namespace AkribisFAM.CommunicationProtocol
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
 
-        private static bool VisionpositionfeedPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
+        private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)

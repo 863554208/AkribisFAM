@@ -52,15 +52,16 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool SendMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand, List<SendKDistanceAppend> sendKDistanceAppends) //来料与基恩士测距交互MS自动触发流程
+        public static bool SendMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand,string sendmsdata) //来料与基恩士测距交互MS自动触发流程
         {
             try
             {
                 InstructionHeader = $"MS,";
+                 //MS,0,1\n
                 //组合字符串
-                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(sendKDistanceAppends.Cast<object>().ToList())}";
+                string sendcommandData = $"{InstructionHeader}{sendmsdata}";
                 //发送字符串到Socket
-                bool sendcommand_status = VisionpositionfeedPushcommand(sendcommandData);
+                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
                 RecordLog("激光测距: " + sendcommandData);
                 if (!sendcommand_status)
                 {
@@ -82,7 +83,7 @@ namespace AkribisFAM.CommunicationProtocol
             try
             {
                 string VisionAcceptData = "";
-                bool VisionAcceptData_status = VisionpositionfeedAcceptcommand(out VisionAcceptData);
+                bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到测高数据: " + VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
@@ -115,7 +116,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static void TriggAssUpCamreaStrClear()//清除客户端最后一条字符串
+        public static void TriggMSStrClear()//清除客户端最后一条字符串
         {
             TCPNetworkManage.ClearLastMessage(ClientNames.lazer);
         }
@@ -125,7 +126,7 @@ namespace AkribisFAM.CommunicationProtocol
             // Logger.WriteLog(message);
         }
 
-        private static bool VisionpositionfeedAcceptcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
+        private static bool VisionpositionAcceptcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
         {
             VisionAcceptCommand = null;
             int timeoutMs = 1000;//1秒之后超时
@@ -150,7 +151,7 @@ namespace AkribisFAM.CommunicationProtocol
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
 
-        private static bool VisionpositionfeedPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
+        private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.lazer, VisionSendCommand + "\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
