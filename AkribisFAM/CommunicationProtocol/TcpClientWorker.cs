@@ -65,7 +65,7 @@ namespace AkribisFAM.CommunicationProtocol
                        // Logger.WriteLog($"[{host}:{port}] Connection failed: {ex.Message}, {retryCount} retry after 2 seconds");//端口号连接失败，第一次重试
                         //Console.WriteLine($"[{host}:{port}] Connection failed: {ex.Message}, {retryCount} retry after 2 seconds");
                         tempSocket?.Dispose();  // 确保释放失败的 socket
-                        Thread.Sleep(2000);  // 如果连接失败，等待2秒后重试
+                        Thread.Sleep(30);  // 如果连接失败，等待2秒后重试
                     }
                 }
             }
@@ -200,22 +200,18 @@ namespace AkribisFAM.CommunicationProtocol
             StrClear();
             if (socket == null || !socket.Connected)
             {
-               // Logger.WriteLog($"[{host}:{port}] Socket not connected, attempting to reconnect...");
-                //Console.WriteLine($"[Port {port}] Socket not connected, attempting to reconnect...");
-                Reconnect();  // 如果连接断开，尝试重连
+               Reconnect(); //断连时尝试重连
             }
 
             try
             {
                 InternalSend(message);  // 调用内部的发送方法
-               // Logger.WriteLog($"[{host}:{port}] Sent external message: {message}");
-                //Console.WriteLine($"[Port {port}] Sent external message: {message}");
+
             }
             catch (Exception ex)
             {
-               // Logger.WriteLog($"[{host}:{port}] External send error: {ex.Message}");
-                //Console.WriteLine($"[Port {port}] External send error: {ex.Message}");
-                Reconnect();  // 如果发送失败，尝试重连
+               Reconnect();
+                  
             }
         }
 

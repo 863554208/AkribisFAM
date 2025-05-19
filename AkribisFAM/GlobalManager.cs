@@ -20,6 +20,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
+using System.Windows.Forms.Design;
 
 namespace AkribisFAM
 {
@@ -48,10 +49,6 @@ namespace AkribisFAM
     public class StationPoints
     {
         [DataMember]
-        public string cols { get; set; }
-        [DataMember]
-        public string rows { get; set; }
-        [DataMember]
         public List<Point> LaiLiaoPointList { get; set; }
         [DataMember]
         public List<Point> ZuZhuangPointList { get; set; }
@@ -61,6 +58,18 @@ namespace AkribisFAM
         public List<Point> RejectPointList { get; set; }
     }
 
+
+
+    [JsonObject]
+    public class AxisParams
+    {
+        [JsonProperty("AxisSpeedDict")]
+        public Dictionary<string, int> AxisSpeedDict { get; set; }
+        [JsonProperty("AxisAccDict")]
+        public Dictionary<string, int> AxisAccDict { get; set; }
+        [JsonProperty("AxisDecDict")]
+        public Dictionary<string, int> AxisDecDict { get; set; }
+    }
 
 
 
@@ -125,7 +134,9 @@ namespace AkribisFAM
 
         //记录3号工位检测出的是否是NG板
         public bool isNGPallete;
-
+        public bool IsByPass;
+        public bool SendByPassToStation2;
+        public bool SendByPassToStation3;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
@@ -265,8 +276,6 @@ namespace AkribisFAM
             }
         }
 
-
-
         public void Lailiao_CheckState()
         {
             if (GlobalManager.Current.Lailiao_state[current_Lailiao_step] == 0)
@@ -290,7 +299,6 @@ namespace AkribisFAM
                 GlobalManager.Current.Zuzhuang_delta[current_Zuzhuang_step] = Pausetime;
             }
         }
-
         public void FuJian_CheckState()
         {
             if (GlobalManager.Current.FuJian_state[current_FuJian_step] == 0)
@@ -402,7 +410,7 @@ namespace AkribisFAM
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
-                if (FeederRetry_Count > 100)
+                if (FeederRetry_Count > 10)
                 {
                     return false;
                 }
@@ -583,5 +591,11 @@ namespace AkribisFAM
             PRY = 1000000,
             PRZ = 1000000,
         }
+
+        //轴参数
+        public AxisParams axisparams = new AxisParams();
+
+        //count 和 mm 的比例
+        public double coef = 10000.0; 
     }
 }

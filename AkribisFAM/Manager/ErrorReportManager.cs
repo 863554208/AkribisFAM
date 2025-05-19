@@ -114,9 +114,12 @@ namespace AkribisFAM.Manager
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+                 ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
             });
             //END 
+            if ((int)err > 0x00FF) {
+                StateManager.Current.State = StateManager.StateCode.STOPPED;
+            }
             UpdateErrorCnt?.Invoke();
         }
 

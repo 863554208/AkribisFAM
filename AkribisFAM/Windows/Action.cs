@@ -205,11 +205,11 @@ namespace AkribisFAM.WorkStation
             int axisRefNum = (int)axisName % 8;
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
-            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
-            {
-                //TODO 加入退出机制
-                Thread.Sleep(50);
-            }
+            //while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            //{
+            //    //TODO 加入退出机制
+            //    Thread.Sleep(50);
+            //}
         }
 
         public void MoveRelNoWait(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
@@ -230,9 +230,15 @@ namespace AkribisFAM.WorkStation
 
         public void Stop(GlobalManager.AxisName axisName)
         {
-            int agmIndex = (int)axisName / 8;
-            int axisRefNum = (int)axisName % 8;
-            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Stop();
+
+            try
+            {
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Stop();
+            }
+            catch (Exception e) { }
+            
         }
 
         public bool MoveConveyor(int vel)
@@ -267,114 +273,118 @@ namespace AkribisFAM.WorkStation
 
         public int axisAllHome(String path)
         {
-            string[] fileNames = Directory.GetFiles(path);
-
-            //先对Z轴回原
-            foreach (string fileName in fileNames)
+            try
             {
-                string name = Path.GetFileName(fileName).Trim();
+                string[] fileNames = Directory.GetFiles(path);
 
-                string[] parts = name.Split('_');
-
-                if (parts.Length >= 2)
+                //先对Z轴回原
+                foreach (string fileName in fileNames)
                 {
-                    int numericPart = int.Parse(parts[0]);
-                    int axisNumber;
-                    string AxisPart = parts[1];
-                    switch (AxisPart.ToUpper())
+                    string name = Path.GetFileName(fileName).Trim();
+
+                    string[] parts = name.Split('_');
+
+                    if (parts.Length >= 2)
                     {
-                        case "A":
-                            axisNumber = 0;
-                            break;
-                        case "B":
-                            axisNumber = 1;
-                            break;
-                        case "C":
-                            axisNumber = 2;
-                            break;
-                        case "D":
-                            axisNumber = 3;
-                            break;
-                        case "E":
-                            axisNumber = 4;
-                            break;
-                        case "F":
-                            axisNumber = 5;
-                            break;
-                        case "G":
-                            axisNumber = 6;
-                            break;
-                        case "H":
-                            axisNumber = 7;
-                            break;
-                        default:
-                            axisNumber = -1; 
-                            break;
+                        int numericPart = int.Parse(parts[0]);
+                        int axisNumber;
+                        string AxisPart = parts[1];
+                        switch (AxisPart.ToUpper())
+                        {
+                            case "A":
+                                axisNumber = 0;
+                                break;
+                            case "B":
+                                axisNumber = 1;
+                                break;
+                            case "C":
+                                axisNumber = 2;
+                                break;
+                            case "D":
+                                axisNumber = 3;
+                                break;
+                            case "E":
+                                axisNumber = 4;
+                                break;
+                            case "F":
+                                axisNumber = 5;
+                                break;
+                            case "G":
+                                axisNumber = 6;
+                                break;
+                            case "H":
+                                axisNumber = 7;
+                                break;
+                            default:
+                                axisNumber = -1;
+                                break;
+                        }
+                        int index = numericPart * 8 + axisNumber;
+                        if (index == (int)AxisName.PICK1_Z || index == (int)AxisName.PICK2_Z || index == (int)AxisName.PICK3_Z || index == (int)AxisName.PICK4_Z || index == (int)AxisName.PRZ)
+                        {
+                            AAmotionFAM.AGM800.Current.axisRefs.TryGetValue(AxisPart, out AxisRef axisRef);
+                            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[numericPart], axisRef, fileName);
+                        }
+
                     }
-                    int index = numericPart * 8 + axisNumber;
-                    if (index == (int)AxisName.PICK1_Z || index == (int)AxisName.PICK2_Z || index == (int)AxisName.PICK3_Z || index == (int)AxisName.PICK4_Z || index == (int)AxisName.PRZ) 
+                    else
                     {
+                        Console.WriteLine("Invalid file name format: " + name);
+                    }
+                }
+
+                //再对其他轴回原
+                foreach (string fileName in fileNames)
+                {
+                    string name = Path.GetFileName(fileName).Trim();
+                    string[] parts = name.Split('_');
+                    if (parts.Length >= 2)
+                    {
+                        int numericPart = int.Parse(parts[0]);
+                        int axisNumber;
+                        string AxisPart = parts[1];
+                        switch (AxisPart.ToUpper())
+                        {
+                            case "A":
+                                axisNumber = 0;
+                                break;
+                            case "B":
+                                axisNumber = 1;
+                                break;
+                            case "C":
+                                axisNumber = 2;
+                                break;
+                            case "D":
+                                axisNumber = 3;
+                                break;
+                            case "E":
+                                axisNumber = 4;
+                                break;
+                            case "F":
+                                axisNumber = 5;
+                                break;
+                            case "G":
+                                axisNumber = 6;
+                                break;
+                            case "H":
+                                axisNumber = 7;
+                                break;
+                            default:
+                                axisNumber = -1;
+                                break;
+                        }
+                        int index = numericPart * 8 + axisNumber;
+                        if (index == (int)AxisName.PICK1_Z || index == (int)AxisName.PICK2_Z || index == (int)AxisName.PICK3_Z || index == (int)AxisName.PICK4_Z || index == (int)AxisName.PRZ)
+                        {
+                            break;
+                        }
                         AAmotionFAM.AGM800.Current.axisRefs.TryGetValue(AxisPart, out AxisRef axisRef);
                         AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[numericPart], axisRef, fileName);
-                    }
 
-                }
-                else
-                {
-                    Console.WriteLine("Invalid file name format: " + name);
+                    }
                 }
             }
-
-            //再对其他轴回原
-            foreach (string fileName in fileNames)
-            {
-                string name = Path.GetFileName(fileName).Trim();
-                string[] parts = name.Split('_');
-                if (parts.Length >= 2)
-                {
-                    int numericPart = int.Parse(parts[0]);
-                    int axisNumber;
-                    string AxisPart = parts[1];
-                    switch (AxisPart.ToUpper())
-                    {
-                        case "A":
-                            axisNumber = 0;
-                            break;
-                        case "B":
-                            axisNumber = 1;
-                            break;
-                        case "C":
-                            axisNumber = 2;
-                            break;
-                        case "D":
-                            axisNumber = 3;
-                            break;
-                        case "E":
-                            axisNumber = 4;
-                            break;
-                        case "F":
-                            axisNumber = 5;
-                            break;
-                        case "G":
-                            axisNumber = 6;
-                            break;
-                        case "H":
-                            axisNumber = 7;
-                            break;
-                        default:
-                            axisNumber = -1;
-                            break;
-                    }
-                    int index = numericPart * 8 + axisNumber;
-                    if (index == (int)AxisName.PICK1_Z || index == (int)AxisName.PICK2_Z || index == (int)AxisName.PICK3_Z || index == (int)AxisName.PICK4_Z || index == (int)AxisName.PRZ)
-                    {
-                        break;
-                    }
-                    AAmotionFAM.AGM800.Current.axisRefs.TryGetValue(AxisPart, out AxisRef axisRef);
-                    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[numericPart], axisRef, fileName);
-
-                }
-            }
+            catch (Exception e) { }
 
             return (int)ACTTION_ERR.NONE;
         }
@@ -517,29 +527,55 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
-        public int axisEnable(string Axis, bool enable)
+        public int axisEnable(GlobalManager.AxisName axisName, bool enable)
         {
-            foreach (var controller in AAmotionFAM.AGM800.Current.controller)
+            try
             {
-                if(AAmotionFAM.AGM800.Current.axisRefs.TryGetValue(Axis, out AxisRef axisRef))
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                if (enable == true)
                 {
-                    AAMotionAPI.MotorOn(controller, axisRef);
+                    AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+                }
+                else
+                {
+                    AAMotionAPI.MotorOff(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
                 }
             }
+            catch (Exception e) { }
+
             return (int)ACTTION_ERR.NONE;
         }
 
         public int axisAllEnable(bool enable)
         {
             int ret = 0;
-            ret += axisEnable("A", enable);
-            ret += axisEnable("B", enable);
-            ret += axisEnable("C", enable);
-            ret += axisEnable("D", enable);
-            ret += axisEnable("E", enable);
-            ret += axisEnable("F", enable);
-            ret += axisEnable("G", enable);
-            ret += axisEnable("H", enable);
+            ret += axisEnable(AxisName.LSX, enable);
+            ret += axisEnable(AxisName.LSY, enable);
+            ret += axisEnable(AxisName.FSX, enable);
+            ret += axisEnable(AxisName.FSY, enable);
+            ret += axisEnable(AxisName.BL5, enable);
+            ret += axisEnable(AxisName.BR5, enable);
+            ret += axisEnable(AxisName.BL1, enable);
+            ret += axisEnable(AxisName.BL2, enable);
+            ret += axisEnable(AxisName.BL3, enable);
+            ret += axisEnable(AxisName.BL4, enable);
+            ret += axisEnable(AxisName.BR1, enable);
+            ret += axisEnable(AxisName.BR2, enable);
+            ret += axisEnable(AxisName.BR3, enable);
+            ret += axisEnable(AxisName.BR4, enable);
+            ret += axisEnable(AxisName.PICK1_Z, enable);
+            ret += axisEnable(AxisName.PICK1_T, enable);
+            ret += axisEnable(AxisName.PICK2_Z, enable);
+            ret += axisEnable(AxisName.PICK2_T, enable);
+            ret += axisEnable(AxisName.PICK3_Z, enable);
+            ret += axisEnable(AxisName.PICK3_T, enable);
+            ret += axisEnable(AxisName.PICK4_Z, enable);
+            ret += axisEnable(AxisName.PICK4_T, enable);
+            ret += axisEnable(AxisName.PRX, enable);
+            ret += axisEnable(AxisName.PRY, enable);
+            ret += axisEnable(AxisName.PRZ, enable);
+
             if (ret != 0)
             {
                 return (int)ACTTION_ERR.GTOUPERR;

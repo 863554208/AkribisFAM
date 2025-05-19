@@ -15,6 +15,7 @@ using static AAComm.Extensions.AACommFwInfo;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using System.CodeDom;
+using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
 
 namespace AkribisFAM.WorkStation
 {
@@ -41,6 +42,8 @@ namespace AkribisFAM.WorkStation
         public int board_count = 0;
         int delta = 0;
 
+        List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptKDistanceAppend = new List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend>();
+        List<KEYENCEDistance.Pushcommand.SendKDistanceAppend> sendKDistanceAppend = new List<KEYENCEDistance.Pushcommand.SendKDistanceAppend>();
 
         public static LaiLiao Current
         {
@@ -56,7 +59,6 @@ namespace AkribisFAM.WorkStation
                 return _instance;
             }
         }
-
 
         public override void ReturnZero()
         {
@@ -97,28 +99,41 @@ namespace AkribisFAM.WorkStation
 
         public int ScanBarcode()
         {
+            GlobalManager.Current.IsByPass = false;
             //触发扫码枪扫码
 
+            GlobalManager.Current.IsByPass = true;
             return 0;
         }
 
         public int LaserHeight()
         {
             //激光测距
-            //AkrAction.Current.Move(AxisName.LSX);
-            foreach(var Point in GlobalManager.Current.laserPoints)
+            foreach (var Point in GlobalManager.Current.laserPoints)
             {
                 //移动
                 AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
-                AkrAction.Current.MoveNoWait(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
+                AkrAction.Current.Move(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
 
                 //触发测距
-                //TODO 如果激光测距报错，返回错误值
+                //sendKDistanceAppend.Clear();
+                //KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
+                //{
+                //    TestNumber = "1",
+                //    address = "0",
+                //};
+                //sendKDistanceAppend.Add(temp);
+                //string temp = "1,0";
+                Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
 
+                //得到测量结果
+                AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
+                var res = AcceptKDistanceAppend[0].MeasurData;
                 GlobalManager.Current.currentLasered++;
 
                 Thread.Sleep(50);
             }
+
             return 0;
         }
 
@@ -129,14 +144,8 @@ namespace AkribisFAM.WorkStation
 
         public void StopConveyor()
         {
-            //TODO 停止传送带
+            AkrAction.Current.StopConveyor();
         }
-
-        public int[] ToIntegerArray(params bool[] boolValues)
-        {
-            return boolValues.Select(b => b ? 1 : 0).ToArray();
-        }
-
 
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
@@ -154,6 +163,7 @@ namespace AkribisFAM.WorkStation
 
             return ret;
         }
+
         public void WaitConveyor(int type)
         {
             DateTime time = DateTime.Now;
@@ -246,11 +256,14 @@ namespace AkribisFAM.WorkStation
 
         public void Boardout()
         {
-            //WaitConveyor((int)Input.LaiLiao_BoardOut);
             Set("station1_IsBoardOut", true);
 
             //模拟给下一个工位发进板信号
             GlobalManager.Current.IO_test2 = true;
+            if (GlobalManager.Current.IsByPass)
+            {
+                GlobalManager.Current.SendByPassToStation2 = true;
+            }
 
             //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
             while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
@@ -288,35 +301,6 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.currentLasered = 0;
 
-            #region 展示用的demo
-            //20250513 展示用的demo 【史彦洋】 修改 Start
-            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
-
-
-            //GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).MoveAbs(250000);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-            ////等待到位信号IN-3)
-            //while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2] == false)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            ////控制气缸顶起
-            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
-
-            ////等待到位信号IN-3
-            //while (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.NG_cover_plate1] == false)
-            //{
-            //    Thread.Sleep(50);
-            //}
-            //20250513 展示用的demo 【史彦洋】 修改 End
-            #endregion
-
             Thread.Sleep(500);
 
             CheckState();
@@ -332,55 +316,6 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 2;
 
-            #region 展示用的demo
-            ////执行飞拍
-            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> sendTLMCamreapositions = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
-            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-            //sendTLMCamreaposition1.SN1 = $"Pick_0_assad231_1";
-            //sendTLMCamreaposition1.RawMaterialName1 = "Foam";
-            //sendTLMCamreaposition1.FOV = "1";
-            //sendTLMCamreaposition1.Photo_X1 = "300.44";
-            //sendTLMCamreaposition1.Photo_Y1 = "400.24";
-            //sendTLMCamreaposition1.Photo_R1 = "0";
-            //sendTLMCamreapositions.Add(sendTLMCamreaposition1);
-
-            //FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition2 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition();
-            //sendTLMCamreaposition2.SN1 = $"Pick_0_asdsaasasd213123_2";
-            //sendTLMCamreaposition2.RawMaterialName1 = "Foam";
-            //sendTLMCamreaposition2.FOV = "2";
-            //sendTLMCamreaposition2.Photo_X1 = "500.11";
-            //sendTLMCamreaposition2.Photo_Y1 = "503.22";
-            //sendTLMCamreaposition2.Photo_R1 = "0";
-            //sendTLMCamreapositions.Add(sendTLMCamreaposition2);
-
-
-
-            //Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, sendTLMCamreapositions);
-
-
-            //AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 40000, 1, null, 200000);
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 50000);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            //AAMotionAPI.SetSingleEventPEG(GlobalManager.Current._Agm800.controller, AxisRef.B, 90000, 1, null, 200000);
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 150000);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-
-            //IOManager.Instance.WriteIO_Falsestatus(IO_OutFunction_Table.Left_3_lift_cylinder_extend);
-            //IOManager.Instance.WriteIO_Truestatus(IO_OutFunction_Table.Right_3_lift_cylinder_extend);
-            #endregion
-
             //扫码
             WaitConveyor(GlobalManager.Current.current_Lailiao_step);
 
@@ -395,8 +330,6 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.current_Lailiao_step = 3;
 
-            IO[] IOArray = new IO[] { IO.LaiLiao_DingSheng };
-
             //激光测距
             WaitConveyor(GlobalManager.Current.current_Lailiao_step);
 
@@ -405,16 +338,6 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public bool Step4()
-        {
-            Console.WriteLine("LaiLiao.Current.Step4()");
-
-            GlobalManager.Current.current_Lailiao_step = 4;
-
-            CheckState();
-
-            return true;
-        }
 
         public override void AutoRun()
         {
@@ -430,14 +353,14 @@ namespace AkribisFAM.WorkStation
 
                     step2: Step2();
                         if (GlobalManager.Current.Lailiao_exit) break;
+                        if (GlobalManager.Current.IsByPass) goto step4;
 
                     step3: Step3();
                         if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.currentLasered < GlobalManager.Current.TotalLaserCount)
-                        
-                        
+                        //if (GlobalManager.Current.currentLasered < GlobalManager.Current.TotalLaserCount)
                     //出板
-                    Boardout();
+                    step4:
+                        Boardout();
 
                     #region 老代码
                     //if (GlobalManager.Current.lailiao_ChuFaJinBan)
