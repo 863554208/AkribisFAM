@@ -123,7 +123,7 @@
                 <Label Content="_PNP_Gantry_vacuum2" HorizontalAlignment="Center" Grid.Row="2" VerticalAlignment="Center"/>
                 <Label Content="_PNP_Gantry_vacuum3" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center"/>
                 <Label Content="_PNP_Gantry_vacuum4" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center"/>
-                <Button x:Name="Suctionnozzle11" Content="Blow" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="3" Grid.Row="1" Click="Suctionnozzle11_Click" />
+                <Button x:Name="Suctionnozzle11" Content="Blow" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="30" Width="104" Grid.Column="3" Grid.Row="1" Click="Suctionnozzle11_Click" Margin="0,0,0,5" />
                 <Button x:Name="Suctionnozzle21" Content="Blow" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="3" Grid.Row="2" Click="Suctionnozzle11_Click" />
                 <Button x:Name="Suctionnozzle31" Content="Blow" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="3" Grid.Row="3" Click="Suctionnozzle11_Click" />
                 <Button x:Name="Suctionnozzle41" Content="Blow" HorizontalAlignment="Center" VerticalAlignment="Center" Height="30" Width="103" Grid.Column="3" Grid.Row="4" Click="Suctionnozzle11_Click" />

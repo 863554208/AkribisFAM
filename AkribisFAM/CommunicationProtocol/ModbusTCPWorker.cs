@@ -254,11 +254,11 @@ namespace AkribisFAM.CommunicationProtocol
         // 写单个线圈
         public bool Write_Coil(int index, bool value)
         {
-            if (!connect_state)
-            {
-                Console.WriteLine("未连接到服务器，无法写入线圈。");
-                return false;
-            }
+            //if (!connect_state)
+            //{
+            //    Console.WriteLine("未连接到服务器，无法写入线圈。");
+            //    return false;
+            //}
 
             try
             {
