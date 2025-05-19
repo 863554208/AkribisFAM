@@ -40,6 +40,9 @@ namespace AkribisFAM.Windows
         public IOConfigure()
         {
             InitializeComponent();
+
+
+
             // 初始化字典
             OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
             foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
@@ -91,7 +94,7 @@ namespace AkribisFAM.Windows
                 {
                     button.Background = new SolidColorBrush(Colors.LightGray);
                 }
-            })); 
+            }));
         }
 
         private void ShowChangeOutIOState(string ButtonName, int state)
@@ -110,8 +113,31 @@ namespace AkribisFAM.Windows
             }));
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         bool IO_Clickstatus = true;
-        private async void Out_Click(object sender, RoutedEventArgs e)
+        private async void Out_Click(object sender, RoutedEventArgs e)//单独触发点亮IO
         {
             if (IO_Clickstatus)
             {

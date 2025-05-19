@@ -31,6 +31,9 @@ using AAMotion;
 using static AkribisFAM.Manager.StateManager;
 using static System.Windows.Forms.AxHost;
 using System.Net.Http;
+using AkribisFAM.CommunicationProtocol;
+using System.Reflection;
+using YamlDotNet.Core.Tokens;
 
 namespace AkribisFAM
 {
@@ -53,6 +56,7 @@ namespace AkribisFAM
         MainContent mainContent;
         ManualControl manualControl;
         ParameterConfig parameterConfig;
+        Performance performance;
         InternetConfig internetConfig;
         DebugLog debugLog;
 
@@ -74,11 +78,14 @@ namespace AkribisFAM
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
             StateManager.Current.State = StateCode.IDLE;
-
+            StateManager.Current.TotalInput = 0;
+            StateManager.Current.TotalOutputOK = 0;
+            StateManager.Current.TotalOutputNG = 0;
             //Add By YXW
             mainContent = new MainContent();
             manualControl = new ManualControl();
             parameterConfig = new ParameterConfig();
+            performance = new Performance();
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
@@ -99,13 +106,62 @@ namespace AkribisFAM
         {
             // 页面加载时立即更新一次时间
             Timer_Tick(this, null);
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
+            layer.Add(new PromptAdorner(button));
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            //CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
+            NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+
+                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.STOPPED)
+            {
+                StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.StoppedTimeLB.Content = StateManager.Current.StoppedTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.MAINTENANCE)
+            {
+                StateManager.Current.MaintenanceTime = DateTime.Now - StateManager.Current.MaintenanceStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.MaintenanceTimeLB.Content = StateManager.Current.MaintenanceTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.IDLE)
+            {
+                StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.IdleTimeLB.Content = StateManager.Current.IdleTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                performance.INPUTLB.Content = StateManager.Current.TotalInput.ToString();
+                performance.OUTPUT_OKLB.Content = StateManager.Current.TotalOutputOK.ToString();
+                performance.OUTPUT_NGLB.Content = StateManager.Current.TotalOutputNG.ToString();
+                //performance.LOADINGLB.Content = 
+                performance.AVAILABILITYLB.Content = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
+                if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
+                    performance.PERFORMANCELB.Content = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
+                }
+                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
+                    performance.QUALITYLB.Content = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                }
+            }));
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
@@ -125,6 +181,11 @@ namespace AkribisFAM
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
             ContentDisplay.Content = parameterConfig; // ManualDebugScreen 是你定义的用户控件或界面
+        }
+        private void PerformanceButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 将 ContentControl 显示的内容更改为 "手动调试" 内容
+            ContentDisplay.Content = performance; // ManualDebugScreen 是你定义的用户控件或界面
         }
         private void InternetConfigButton_Click(object sender, RoutedEventArgs e)
         {
@@ -167,8 +228,6 @@ namespace AkribisFAM
             }
         }
 
-
-
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
@@ -182,16 +241,16 @@ namespace AkribisFAM
 
                 //测试用
                 GlobalManager.Current.isRun = true;
-
+                StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
                 {
                     // 使用 Task.Run 来异步运行 AutoRunMain
-
+                    
                     _cancellationTokenSource = new CancellationTokenSource();
                     CancellationToken token = _cancellationTokenSource.Token;
 
-                    await Task.Run(() => AutorunManager.Current.AutoRunMain());
+                    await Task.Run(() => AutorunManager.Current.AutoRunMain(token));
                     if (AutorunManager.Current.isRunning)
                     {
                         //StartAutoRunButton.IsEnabled = false;
@@ -207,26 +266,32 @@ namespace AkribisFAM
 
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            if (StateManager.Current.State == StateCode.RUNNING)
+            if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
             {
-                if (GlobalManager.Current.IsPause == false)
-                {
-                    GlobalManager.Current.IsPause = true;
-                    //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
-                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
-                }
-                else
-                {
-                    GlobalManager.Current.IsPause = false;
-                    GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-                    GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
-                    GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                    GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                    GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
-                    GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
-                    //AutorunManager.Current.ResumeAutoRun();
-                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
-                }
+                GlobalManager.Current.IsPause = true;
+                StateManager.Current.IdleStart = DateTime.Now;
+                StateManager.Current.RunningEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.IDLE;
+                //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
+                //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
+            }
+            else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
+            {
+                GlobalManager.Current.IsPause = false;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.RunningStart = DateTime.Now;
+                StateManager.Current.State = StateCode.RUNNING;
+                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
+                //AutorunManager.Current.ResumeAutoRun();
+                //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+            }
+            else { 
+
             }
         }
 
@@ -238,6 +303,8 @@ namespace AkribisFAM
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
+                _cancellationTokenSource?.Cancel();
+
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
@@ -247,10 +314,13 @@ namespace AkribisFAM
                 StateManager.Current.MaintenanceEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
+                _cancellationTokenSource?.Cancel();
+
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
             else {
+                _cancellationTokenSource?.Cancel();
                 return;
             }
         }
@@ -348,11 +418,10 @@ namespace AkribisFAM
 
         }
 
-        //20250514 暂时修改 【史彦洋】 修改 Start
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
-            //layer.Add(new PromptAdorner(button));
+            layer.Add(new PromptAdorner(button));
         }
 
 
@@ -361,6 +430,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 //要板信号置0
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
                 //当前设备中的板运行结束
                 await Task.Run(() =>
                 {
@@ -377,6 +447,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 //要板信号置0
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
                 //当前设备中的板运行结束
                 await Task.Run(() =>
                 {
@@ -459,8 +530,14 @@ namespace AkribisFAM
 
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            bool result = false;
 
+            ModbusTCPWorker.GetInstance().Read_Coil((int)IO_INFunction_Table.IN1_0Slowdown_Sign1, ref result);
 
+            bool result2 = result;
+        }
     }
 
     internal class PromptableButton : Button

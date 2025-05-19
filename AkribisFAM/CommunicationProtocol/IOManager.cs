@@ -191,14 +191,16 @@ namespace AkribisFAM.CommunicationProtocol
         IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
         IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
 
-        IN4_0Backup_Platform_2_has_label_feeder1,
-        IN4_1Platform_has_label_feeder1,
-        IN4_2Alarm_feeder1,
-        IN4_3Initialized_feeder1,
-        IN4_4Backup_Platform_2_has_label_feeder2,
-        IN4_5Platform_has_label_feeder2,
-        IN4_6Alarm_feeder2,
-        IN4_7Initialized_feeder2,
+        IN4_0Initialized_feeder1,
+        IN4_1Alarm_feeder1,
+        IN4_2Platform_has_label_feeder1,
+        IN4_3Backup_Platform_2_has_label_feeder1,
+
+        IN4_4Initialized_feeder2,
+        IN4_5Alarm_feeder2,
+        IN4_6Platform_has_label_feeder2,
+        IN4_7Backup_Platform_2_has_label_feeder2,
+
         IN4_8Feeder1_limit_cylinder_extend_InPos,
         IN4_9Feeder1_limit_cylinder_retract_InPos,
         IN4_10Feeder2_limit_cylinder_extend_InPos,
@@ -330,6 +332,12 @@ namespace AkribisFAM.CommunicationProtocol
 
             //    //OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
             //}
+
+
+
+
+
+
             ErrorManager.Current.ModbusErrCnt = 0;
             //循环读取输出IO
             Task.Run(new Action(() =>
@@ -343,9 +351,11 @@ namespace AkribisFAM.CommunicationProtocol
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
                         bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref OutIO_status[(int)IOnamekey]);
-                        if (ret == false) {
+                        if (ret == false)
+                        {
                             ErrorManager.Current.ModbusErrCnt++;
-                            if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit) {
+                            if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit)
+                            {
                                 ModbusTCPWorker.GetInstance().Disconnect();
                                 Thread.Sleep(5000);
                                 bool initret = ModbusTCPWorker.GetInstance().Initializate();

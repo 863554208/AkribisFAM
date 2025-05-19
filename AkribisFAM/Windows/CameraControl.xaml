@@ -34,6 +34,9 @@
                 <Button x:Name="Capturebtn" Content="Capture" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Width="78" Click="Capturebtn_Click"/>
                 <Button x:Name="Loadbtn" Content="Load" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="78" Click="Loadbtn_Click"/>
                 <Button x:Name="Savebtn" Content="Save" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" Width="78" Click="Savebtn_Click"/>
+                <Button x:Name="NozzleCalib" Content="Nozzle Calib" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" Click="NozzleCalib_Click"/>
+                <Button x:Name="PointsCalib" Content="11 Points Calib" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Click="PointsCalib_Click"/>
+                <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Click="JointCalib_Click"/>
             </Grid>
         </GroupBox>
     </Grid>

@@ -19,6 +19,10 @@ using AkribisFAM.Windows;
 using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using System.Diagnostics.Eventing.Reader;
+using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
+using static AkribisFAM.CommunicationProtocol.Task_TTNCamreaFunction;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace AkribisFAM.WorkStation
 {
@@ -342,6 +346,7 @@ namespace AkribisFAM.WorkStation
         {
             if (GlobalManager.Current.isNGPallete)
             {
+                StateManager.Current.TotalOutputNG++;
                 if (!hasNGboard)
                 {
                     //NG位无料
@@ -356,6 +361,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
+                StateManager.Current.TotalOutputOK++;
                 //OK料
                 return ActionOK();
             }
@@ -368,6 +374,11 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
+                    //20250519 测试 【史彦洋】 追加 Start
+                    Console.WriteLine("zuzhuang ceshi 1");
+                    Thread.Sleep(1000);
+                    continue;
+
                     step1:
                         if (!GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] || board_count != 0) {
                             Thread.Sleep(100);
@@ -391,15 +402,21 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public struct TrainPoint
+        [JsonObject]
+        public class TrainPoint
         {
-            public int x;
-            public int y;
-            public int z;
-            public int r;
+            [JsonProperty("X")]
+            public int x { get; set; }
+            [JsonProperty("Y")]
+            public int y { get; set; }
+            [JsonProperty("Z")]
+            public int z { get; set; }
+            [JsonProperty("R")]
+            public int r { get; set; }
         }
+
         //1-4结束位置， 5起始位置， 6-9取料位置
-        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(5);
+        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(9);
 
         public bool TrainNozzle(int pickernum)
         {
@@ -452,13 +469,23 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-
             //给Cognex发拍照信息
+            string command = "SN" + "123456," + $"+{pickernum}," + "Foam," + $"{TrainPointlist[pickernum].x},{TrainPointlist[pickernum].y},{TrainPointlist[pickernum].r}";
+            TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
+            while (true) {
+                if (TriggTTNCamreaready() == "OK") {
+                    break;
+                }
+            }
+            
 
             //飞拍移动到结束位置
             AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
             AkrAction.Current.MoveNoWait(AxisName.FSX, TrainPointlist[pickernum].x, (int)AxisSpeed.FSX);
-
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
             //接受Cognex结果
 
             return true;
@@ -466,7 +493,21 @@ namespace AkribisFAM.WorkStation
 
         public void TrainNozzles()
         {
-
+            try
+            {
+                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                string path = folder + "\\NozzleCalib1.json";
+                string content = File.ReadAllText(path);
+                TrainPointlist = JsonConvert.DeserializeObject<List<TrainPoint>>(content);
+                if (TrainPointlist == null)
+                {
+                    return;
+                }
+            }
+            catch {
+                //配置读取失败
+                return;
+            }
             Task<bool> task = new Task<bool>(() =>
             {
                 for (int i = 0; i < 4; ++i)

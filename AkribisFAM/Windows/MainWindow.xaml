@@ -10,7 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
-          Height="1000" Width="1600">
+        Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -55,7 +55,10 @@
                 <Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
                 <Label Name="NowStateLab" />
 
-                <Label Margin="20,0,0,0" Content="{DynamicResource CTlab}" />
+                <Label Content="" />
+                <Label Name="NowState" />
+
+                <Label Content="{DynamicResource CTlab}" />
                 <Label Name="CtValueLab" />
 
                 <Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
@@ -120,7 +123,14 @@
                  Height="76"  IsChecked="False"
                  Click="ParameterConfigButton_Click"/>
 
-                        <RadioButton  Content="{DynamicResource Parameter Setting}"
+                        <RadioButton Content="{DynamicResource Performance}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="75"   IsChecked="False" 
+                 Click="PerformanceButton_Click"
+                 />
+
+                        <RadioButton Content="{DynamicResource Parameter Setting}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="76"  IsChecked="False"

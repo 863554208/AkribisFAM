@@ -83,11 +83,11 @@ namespace AkribisFAM
     public class AxisParams
     {
         [JsonProperty("AxisSpeedDict")]
-        public Dictionary<string, int> AxisSpeedDict { get; set; }
+        public Dictionary<string, double> AxisSpeedDict { get; set; }
         [JsonProperty("AxisAccDict")]
-        public Dictionary<string, int> AxisAccDict { get; set; }
+        public Dictionary<string, double> AxisAccDict { get; set; }
         [JsonProperty("AxisDecDict")]
-        public Dictionary<string, int> AxisDecDict { get; set; }
+        public Dictionary<string, double> AxisDecDict { get; set; }
     }
 
 
@@ -169,6 +169,8 @@ namespace AkribisFAM
         public List<(double X, double Y)> palletePoints;
 
         public int TotalLaserCount = 48;
+
+        public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
 
         //模拟进板位置有料和无料IO信号
@@ -614,7 +616,5 @@ namespace AkribisFAM
         //轴参数
         public AxisParams axisparams = new AxisParams();
 
-        //count 和 mm 的比例
-        public double coef = 10000.0; 
     }
 }

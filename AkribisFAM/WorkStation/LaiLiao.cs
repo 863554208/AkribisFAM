@@ -112,8 +112,8 @@ namespace AkribisFAM.WorkStation
             foreach (var Point in GlobalManager.Current.laserPoints)
             {
                 //移动
-                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X * 200 ,(int)AxisSpeed.LSX );
-                AkrAction.Current.Move(AxisName.LSY, (int)Point.Y * 200, (int)AxisSpeed.LSY );
+                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)Point.X ,(int)AxisSpeed.LSX );
+                AkrAction.Current.Move(AxisName.LSY, (int)Point.Y, (int)AxisSpeed.LSY );
 
                 //触发测距
                 //sendKDistanceAppend.Clear();
@@ -200,6 +200,7 @@ namespace AkribisFAM.WorkStation
 
             if (ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0)
             {
+                StateManager.Current.TotalInput++;
                 Set("station1_IsBoardInHighSpeed", true);
 
                 //将要板信号清空
@@ -338,14 +339,17 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-
         public override void AutoRun()
         {
-
             try
             {
                 while (true)
                 {
+                    //20250519 测试 【史彦洋】 追加 Start
+                    Console.WriteLine("lailiao ceshi 1");
+                    Thread.Sleep(1000);
+                    continue;
+
 
                     step1: bool ret = Step1();
                         if (GlobalManager.Current.Lailiao_exit) break;

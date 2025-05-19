@@ -5,6 +5,7 @@
     <sys:String x:Key="Main Page">主界面</sys:String>
     <sys:String x:Key="Manual Control">手动控制</sys:String>
     <sys:String x:Key="Parameter Setting">参数配置</sys:String>
+	<sys:String x:Key="Performance">性能指标</sys:String>
     <sys:String x:Key="Internet Config">网络配置</sys:String>
     <sys:String x:Key="Performance">性能指标</sys:String>
     <sys:String x:Key="Log">系统日志</sys:String>
