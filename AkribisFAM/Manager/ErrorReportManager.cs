@@ -117,9 +117,11 @@ namespace AkribisFAM.Manager
                  ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
             });
             //END 
-            if ((int)err > 0x00FF) {
-                StateManager.Current.State = StateManager.StateCode.STOPPED;
-            }
+            //20250519 测试用 【史彦洋】 修改 Start
+            //if ((int)err > 0x00FF)
+            //{
+            //    StateManager.Current.State = StateManager.StateCode.STOPPED;
+            //}
             UpdateErrorCnt?.Invoke();
         }
 

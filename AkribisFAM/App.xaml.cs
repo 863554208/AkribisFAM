@@ -18,6 +18,7 @@ using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
+using static AkribisFAM.Manager.StateManager;
 namespace AkribisFAM
 {
     /// <summary>
@@ -43,8 +44,8 @@ namespace AkribisFAM
             IOManager.Instance.ReadIO_status();
 
             //调试用
-
-
+            StateManager.Current.State = StateCode.IDLE;
+            Console.WriteLine("123123");
             //TODO
             try
             {

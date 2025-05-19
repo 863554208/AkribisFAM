@@ -252,7 +252,7 @@ namespace AkribisFAM.WorkStation
 
         public int SnapFeedar()
         {
-            while (!ReadIO(IO_INFunction_Table.IN4_1Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_5Platform_has_label_feeder2))
+            while (!ReadIO(IO_INFunction_Table.IN4_2Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_6Platform_has_label_feeder2))
             {
                 Thread.Sleep(100);
             }
@@ -295,43 +295,43 @@ namespace AkribisFAM.WorkStation
         public int PickFoam()
         {
             //要把这个替换成实际抓手取料的位置，只用移动一次
-            AkrAction.Current.Move(AxisName.FSX, 10000, (int)AxisSpeed.FSX);
-            AkrAction.Current.Move(AxisName.FSY, 10000, (int)AxisSpeed.FSY);
+            AkrAction.Current.Move(AxisName.FSX, 5, (int)AxisSpeed.FSX);
+            AkrAction.Current.Move(AxisName.FSY, 5, (int)AxisSpeed.FSY);
 
             if (GlobalManager.Current.UsePicker1)
             {
 
-                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
                 SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker2)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 10000, (int?)(int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
                 SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 20000, (int?)(int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker3)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 10000, (int?)(int)AxisSpeed.PICK3_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
                 SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 20000, (int?)(int)AxisSpeed.PICK3_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker4)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 10000, (int?)(int)AxisSpeed.PICK4_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 5, (int?)(int)AxisSpeed.PICK4_Z);
                 SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 20000, (int?)(int)AxisSpeed.PICK4_Z);
+                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 6, (int?)(int)AxisSpeed.PICK4_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
@@ -397,6 +397,7 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
                 GlobalManager.Current.BadFoamCount--;
+                GlobalManager.Current.TotalBadFoam++;
             }
             if (GlobalManager.Current.picker2State == false)
             {
@@ -411,6 +412,7 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
                 GlobalManager.Current.BadFoamCount--;
+                GlobalManager.Current.TotalBadFoam++;
             }
             if (GlobalManager.Current.picker3State == false)
             {
@@ -425,6 +427,7 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
                 GlobalManager.Current.BadFoamCount--;
+                GlobalManager.Current.TotalBadFoam++;
             }
             if (GlobalManager.Current.picker4State == false)
             {
@@ -439,6 +442,7 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 GlobalManager.Current.current_FOAM_Count--;
                 GlobalManager.Current.BadFoamCount--;
+                GlobalManager.Current.TotalBadFoam++;
             }
             return 0;
         }
@@ -786,7 +790,12 @@ namespace AkribisFAM.WorkStation
 
                 while (true)
                 {
-                    step1:
+                    //20250519 测试 【史彦洋】 追加 Start
+                    Console.WriteLine("zuzhuang ceshi 1");
+                    Thread.Sleep(1000);
+                    continue;
+
+                step1:
                         if (!GlobalManager.Current.IO_test2 || board_count != 0)
                         {
                             Thread.Sleep(100);
