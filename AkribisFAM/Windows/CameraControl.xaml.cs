@@ -113,8 +113,20 @@ namespace AkribisFAM.Windows
 
         }
 
+        private void NozzleCalib_Click(object sender, RoutedEventArgs e)
+        {
+            int nozzlenum = NozzleCalibNum.SelectedIndex;
+            Reject.Current.TrainNozzles(nozzlenum);
+        }
+
+        private void Points11Calib_Click(object sender, RoutedEventArgs e)
+        {
+            int nozzlenum = Points11CalibNum.SelectedIndex;
+
+        }
+
         bool Calibstatus_Click = true;
-        private async void Button_Click(object sender, RoutedEventArgs e)     
+        private async void JointCalib_Click(object sender, RoutedEventArgs e)
         {
             if (Calibstatus_Click)
             {
@@ -134,19 +146,9 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void NozzleCalib_Click(object sender, RoutedEventArgs e)
+        private void Points9Calib_Click(object sender, RoutedEventArgs e)
         {
-            Reject.Current.TrainNozzles();
-        }
-
-        private void PointsCalib_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void JointCalib_Click(object sender, RoutedEventArgs e)
-        {
-
+            int calibnum = Points9CalibNum.SelectedIndex;
         }
     }
 }

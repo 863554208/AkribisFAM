@@ -136,12 +136,6 @@
                  Height="76"  IsChecked="False"
                  Click="InternetConfigButton_Click"/>
 
-                        <RadioButton  Content="{DynamicResource Performance}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="75"   IsChecked="False"
-                 />
-
                         <RadioButton Content="{DynamicResource Log}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"

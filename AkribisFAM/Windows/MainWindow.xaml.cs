@@ -68,7 +68,7 @@ namespace AkribisFAM
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
             _timer.Tick += Timer_Tick;
-            _timer.Start();
+            
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
@@ -78,9 +78,12 @@ namespace AkribisFAM
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
             StateManager.Current.State = StateCode.IDLE;
+            StateManager.Current.RunningHourCnt = 0;
             StateManager.Current.TotalInput = 0;
             StateManager.Current.TotalOutputOK = 0;
             StateManager.Current.TotalOutputNG = 0;
+            StateManager.Current.currentUPH = 0;
+            StateManager.Current.currentNG = 0;
             //Add By YXW
             mainContent = new MainContent();
             manualControl = new ManualControl();
@@ -90,8 +93,8 @@ namespace AkribisFAM
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
 
-  
 
+            _timer.Start();
             //END Add
 
         }
@@ -160,6 +163,42 @@ namespace AkribisFAM
                 }
                 if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
                     performance.QUALITYLB.Content = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                }
+                if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600) {
+                    StateManager.Current.RunningHourCnt++;
+                    int UPH = StateManager.Current.TotalOutputOK - StateManager.Current.currentUPH;
+                    StateManager.Current.currentUPH = StateManager.Current.TotalOutputOK;
+                    if (performance.UPHvalues.Count >= 24)
+                    {
+                        performance.UPHvalues.RemoveAt(0);
+                        performance.UPHvalues.Add(UPH);
+                        string head = performance.UPHLabels[0];
+                        performance.UPHLabels.RemoveAt(0);
+                        performance.UPHLabels.Add(head);
+                    }
+                    else
+                    {
+                        performance.UPHvalues.Add(UPH);
+                    }
+                    int NG = StateManager.Current.TotalOutputNG - StateManager.Current.currentNG;
+                    int Yield = 0;
+                    if (UPH + NG > 0)
+                    {
+                        Yield = (int)UPH*100 / (UPH + NG);
+                    }
+                    StateManager.Current.currentNG = StateManager.Current.TotalOutputNG;
+                    if (performance.Yieldvalues.Count >= 24)
+                    {
+                        performance.Yieldvalues.RemoveAt(0);
+                        performance.Yieldvalues.Add(Yield);
+                        string head = performance.YieldLabels[0];
+                        performance.YieldLabels.RemoveAt(0);
+                        performance.YieldLabels.Add(head);
+                    }
+                    else
+                    {
+                        performance.Yieldvalues.Add(Yield);
+                    }
                 }
             }));
         }
