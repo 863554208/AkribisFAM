@@ -7,7 +7,6 @@
     <sys:String x:Key="Parameter Setting">参数配置</sys:String>
 	<sys:String x:Key="Performance">性能指标</sys:String>
     <sys:String x:Key="Internet Config">网络配置</sys:String>
-    <sys:String x:Key="Performance">性能指标</sys:String>
     <sys:String x:Key="Log">系统日志</sys:String>
 
     <sys:String x:Key="UserLab">当前用户:</sys:String>

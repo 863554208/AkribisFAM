@@ -475,26 +475,24 @@ namespace AkribisFAM.Windows
                 string path = folder + "\\AxisParams.json";
 
 
-            try
-            {
                 LoadConfig(path);
                 foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
                 {
                     string speedname = item.Key + "_Speed";
                     TextBox tbspeed = (TextBox)FindObject(speedname);
-                    tbspeed.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                    tbspeed.Text = ((double)item.Value ).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
                 {
                     string accname = item.Key + "_Acc";
                     TextBox tbacc = (TextBox)FindObject(accname);
-                    tbacc.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                    tbacc.Text = ((double)item.Value ).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
                 {
                     string decname = item.Key + "_Dec";
                     TextBox tbdec = (TextBox)FindObject(decname);
-                    tbdec.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                    tbdec.Text = ((double)item.Value ).ToString();
                 }
             }
             catch (Exception)
