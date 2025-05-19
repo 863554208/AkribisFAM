@@ -178,6 +178,7 @@
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DB\dbAccess.cs" />
     <Compile Include="GlobalManager.cs" />
+    <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -383,7 +384,9 @@
   <ItemGroup>
     <Resource Include="Windows\641.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Windows\AKB.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

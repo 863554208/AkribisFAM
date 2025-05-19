@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
+using System.Windows.Documents;
 
 namespace AkribisFAM
 {
@@ -32,6 +33,10 @@ namespace AkribisFAM
         [DataMember]
         public int type { get; set; }
         [DataMember]
+
+        public List<ChildPoint> childList { get; set; }
+        [DataMember]
+
         public int col { get; set; }
         [DataMember]
         public int row { get; set; }
@@ -45,6 +50,20 @@ namespace AkribisFAM
         public int R { get; set; }
 
     }
+
+    [DataContract]
+    public class ChildPoint
+    {
+        [DataMember]
+        public List<string> childName { get; set; }
+
+        [DataMember]
+        public List<int> childPos { get; set; }
+
+    }
+
+
+
     [DataContract]
     public class StationPoints
     {

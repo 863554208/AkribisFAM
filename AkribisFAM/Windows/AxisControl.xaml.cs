@@ -103,25 +103,28 @@ namespace AkribisFAM.Windows
 
         private void updateAxisData(SingleAxis axis)
         {
-            tbNowPos.Text = axis.nowPos.ToString();
-            tbTargetPos.Text = axis.tarpos.ToString();
-            tbAxisVel.Text= axis.vel.ToString();
+            Dispatcher.Invoke(() =>
+            {
+                tbNowPos.Text = axis.nowPos.ToString();
+                tbTargetPos.Text = axis.tarpos.ToString();
+                tbAxisVel.Text = axis.vel.ToString();
 
-            if (axis.AxisStat.Count < statList.Count)
-            {
-                return;
-            }
-            for (int i=0;i< statList.Count;++i)
-            {
-                if (axis.AxisStat[i])
+                if (axis.AxisStat.Count < statList.Count)
                 {
-                    statList[i].Fill = Brushes.Green;
+                    return;
                 }
-                else
+                for (int i = 0; i < statList.Count; ++i)
                 {
-                    statList[i].Fill = Brushes.Gray;
+                    if (axis.AxisStat[i])
+                    {
+                        statList[i].Fill = Brushes.Green;
+                    }
+                    else
+                    {
+                        statList[i].Fill = Brushes.Gray;
+                    }
                 }
-            }
+            });
 
         }
 
@@ -197,6 +200,19 @@ namespace AkribisFAM.Windows
                 //关闭   DisEnable(nowAxisIndex)
             }
         }
+        private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
+            if (btn != null && btn.IsChecked == true)
+            {
+                // 打开逻辑
+                //Todo   AllEnable()
+            }
+            else
+            {
+                //关闭   AllDisEnable()
+            }
+        }
 
         private void FloatTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -240,8 +256,32 @@ namespace AkribisFAM.Windows
         private bool IsValidFloatInput(string input)
         {
             // 支持合法浮点数格式：123、0.5、.5、123.
-            return Regex.IsMatch(input, @"^(\d+(\.\d*)?|\.\d+)?$");
+            return Regex.IsMatch(input, @"^-?(\d+(\.\d*)?|\.\d+)?$");
         }
 
+        private void Grid_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (AxisListBox.Items.Count == 0)
+                return;
+
+            int currentIndex = AxisListBox.SelectedIndex;
+
+            if (e.Delta > 0) // 滚轮向上
+            {
+                currentIndex--;
+            }
+            else if (e.Delta < 0) // 滚轮向下
+            {
+                currentIndex++;
+            }
+
+            // 保证索引在合法范围内
+            currentIndex = Math.Max(0, Math.Min(currentIndex, AxisListBox.Items.Count - 1));
+
+            AxisListBox.SelectedIndex = currentIndex;
+
+            // 防止继续滚动滚动条
+            e.Handled = true;
+        }
     }
 }

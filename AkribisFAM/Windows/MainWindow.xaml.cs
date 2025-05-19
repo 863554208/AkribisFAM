@@ -90,6 +90,8 @@ namespace AkribisFAM
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
 
+  
+
             //END Add
 
         }

@@ -3,14 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="540" Width="960" VerticalAlignment="Top" HorizontalAlignment="Left">
-    <Grid Margin="0,0,-153,0">
-        <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Width="1112">
-            <Grid Height="800" Width="1200">
-                <TabControl Margin="10,10,-10,-10">
-                    <TabItem Header="Params1" HorizontalAlignment="Center" >
+               VerticalAlignment="Stretch" d:DesignHeight="550" d:DesignWidth="1000" HorizontalAlignment="Stretch">
+    <Grid >
+
+        <TabControl Margin="5"  >
+                    <TabItem Header="Params1" HorizontalAlignment="Left"  >
                         <Grid Background="#FFE5E5E5">
                             <GroupBox Header="Axis">
                                 <Grid ShowGridLines="True">
@@ -74,92 +74,103 @@
                                     <Label Grid.Column="4" Content="PRX" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center"/>
                                     <Label Grid.Column="4" Content="PRY" HorizontalAlignment="Center" Grid.Row="11" VerticalAlignment="Center"/>
                                     <Label Grid.Column="4" Content="PRZ" HorizontalAlignment="Center" Grid.Row="12" VerticalAlignment="Center"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSX_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSY_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSX_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSY_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL5_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR5_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL1_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL2_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL3_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL4_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR1_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR2_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR3_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR4_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRX_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRY_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRZ_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSX_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSY_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSX_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSY_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL5_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR5_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL1_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL2_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL3_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL4_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR1_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR2_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR3_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR4_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRX_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRY_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRZ_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSX_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="LSY_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSX_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="FSY_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL5_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR5_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL1_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL2_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL3_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BL4_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR1_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR2_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR3_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="BR4_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRX_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRY_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <TextBox TextAlignment="Center" x:Name="PRZ_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center" Width="100" BorderThickness="0,0,0,0"/>
-                                    <Button x:Name="Apply" Grid.Column="6" Content="Apply" HorizontalAlignment="Center" Grid.Row="14" VerticalAlignment="Center" Height="29" Width="64" Click="Apply_Click"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSX_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSY_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSX_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSY_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL5_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR5_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL1_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL2_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL3_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL4_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR1_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR2_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR3_Speed"  Background="Transparent" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR4_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRX_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRY_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRZ_Speed"  Background="Transparent" Grid.Column="5" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSX_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSY_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSX_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSY_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL5_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR5_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL1_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL2_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL3_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL4_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR1_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR2_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR3_Acc"  Background="Transparent" Grid.Column="2" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR4_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRX_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRY_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRZ_Acc"  Background="Transparent" Grid.Column="6" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSX_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="LSY_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSX_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="FSY_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL5_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR5_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL1_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL2_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL3_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BL4_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR1_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR2_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR3_Dec"  Background="Transparent" Grid.Column="3" HorizontalAlignment="Center" Grid.Row="13" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="BR4_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK1_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="3" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="4" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK2_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="5" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="6" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK3_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="7" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_Z_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="8" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PICK4_T_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRX_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRY_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="11" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <TextBox TextAlignment="Center" x:Name="PRZ_Dec"  Background="Transparent" Grid.Column="7" HorizontalAlignment="Center" Grid.Row="12" TextWrapping="Wrap" VerticalAlignment="Center"  BorderThickness="0,0,0,0"/>
+                                    <Button x:Name="Apply" Grid.Column="6" Content="Apply" HorizontalAlignment="Center" Grid.Row="14" VerticalAlignment="Center"  Click="Apply_Click"/>
                                 </Grid>
                             </GroupBox>
                         </Grid>
                     </TabItem>
                     <TabItem Header="Params2">
-                        <Grid Background="#FFE5E5E5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <!-- TabControl 占满剩余空间 -->
+                        <RowDefinition Height="Auto" />
+                        <!-- 按钮高度自适应 -->
+                    </Grid.RowDefinitions>
 
-                        </Grid>
+                    <TabControl Name="PosTabControl" Grid.Row="0" FontSize="18"/>
 
-                    </TabItem>
+                    <Button Name="SavePosParam" Grid.Row="1" HorizontalAlignment="Right" Style="{StaticResource MaterialDesignRaisedLightButton}" Margin="5" Click="SavePosParam_Click">
+                        保存点位参数
+                    </Button>
+                </Grid>
+
+            </TabItem>
                     <TabItem HorizontalAlignment="Center" Height="19" Header="TabItem" VerticalAlignment="Center" Width="59">
                         <Grid x:Name="action3" Background="#FFE5E5E5" Height="738">
                             <Ellipse HorizontalAlignment="Left" Height="54" Margin="186,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="52"/>
@@ -367,7 +378,7 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
-            </Grid>
-        </ScrollViewer>
+          
+     
     </Grid>
 </UserControl>
