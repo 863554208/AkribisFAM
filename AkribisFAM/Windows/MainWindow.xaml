@@ -22,7 +22,7 @@
     <!--************************************************************************************************************-->
     <!--//Add By YXW 2025-5-16 ************************************************************-->
     <!--************************************************************************************************************-->
-    <Grid x:Name="container" Margin="0,10,0,0" >
+    <Grid x:Name="container" Margin="0" >
         <!-- 定义三行 -->
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -31,50 +31,54 @@
         </Grid.RowDefinitions>
 
         <!-- 第一行，水平 StackPanel -->
-        <Grid Grid.Row="0" Background="LightBlue">
+        <Grid Grid.Row="0" Background="WhiteSmoke">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="5*"/>
                 <!-- 左侧用户状态信息 -->
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="auto"/>
                 <!-- 中间按钮 -->
-                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="auto"/>
                 <!-- 报警按钮 -->
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
                 <!-- 时间显示 -->
             </Grid.ColumnDefinitions>
 
+            <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png"  Grid.Column="0"/>
+            
             <!-- 用户状态标签 -->
-            <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
+            <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
+     
                 <Label Content="{DynamicResource UserLab}" />
                 <Label Name="NowUserLab" />
 
-                <Label Content="{DynamicResource SysStatelab}" />
+                <Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
                 <Label Name="NowStateLab" />
 
-                <Label Content="{DynamicResource CTlab}" />
+                <Label Margin="20,0,0,0" Content="{DynamicResource CTlab}" />
                 <Label Name="CtValueLab" />
 
-                <Label Content="{DynamicResource UPHlab}" />
+                <Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
                 <Label Name="UphValueLab" />
             </StackPanel>
 
             <!-- 按钮区域 -->
-            <StackPanel Margin="150 0 0 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
-                <Button Name="BtnDevice" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnDevice_Click" />
-                <Button Name="BtnScanningGun" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnScanningGun_Click" />
-                <Button Name="BtnRangefinder" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnRangefinder_Click" />
-                <Button Name="BtnCamera1" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera1_Click" />
-                <Button Name="BtnCamera2" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera2_Click" />
-                <Button Name="BtnCamera3" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionLightButton}" Click="BtnCamera3_Click" />
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2">
+                <Button Name="BtnDevice" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnDevice_Click" />
+                <Button Name="BtnScanningGun" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnScanningGun_Click" />
+                <Button Name="BtnRangefinder" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnRangefinder_Click" />
+                <Button Name="BtnCamera1" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera1_Click" />
+                <Button Name="BtnCamera2" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera2_Click" />
+                <Button Name="BtnCamera3" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera3_Click" />
             </StackPanel>
 
             <!-- 报警按钮 -->
-            <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
+            <local:PromptableButton Margin="20,0,20,0" x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
                             Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="2" />
+                            Height="55" Width="72" Grid.Column="3" />
 
             <!-- 当前时间 -->
-            <Border BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="3">
+            <Border Margin="0 0 20 0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="4">
                 <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />
@@ -82,7 +86,7 @@
         </Grid>
 
         <!-- 第二行，水平 StackPanel -->
-        <Grid Grid.Row="1" Background="LightGreen"
+        <Grid Grid.Row="1" Background="#ebe8e8"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -97,30 +101,36 @@
             <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
                 <materialDesign:ColorZone Mode="PrimaryMid" >
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
-                        
-                        <RadioButton Content="{DynamicResource Main Page}"
+
+                        <RadioButton  Content="{DynamicResource Main Page}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="82"   IsChecked="True"
                  Click="MainWindowButton_Click"/>
 
-                        <RadioButton Content="{DynamicResource Manual Control}"
+                        <RadioButton  Content="{DynamicResource Manual Control}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="77"   IsChecked="False"
                  Click="ManualControlButton_Click"/>
 
-                        <RadioButton Content="{DynamicResource Parameter Setting}"
+                        <RadioButton  Content="{DynamicResource Parameter Setting}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="76"  IsChecked="False"
                  Click="ParameterConfigButton_Click"/>
 
-                        <RadioButton Content="{DynamicResource Parameter Setting}"
+                        <RadioButton  Content="{DynamicResource Parameter Setting}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="76"  IsChecked="False"
                  Click="InternetConfigButton_Click"/>
+
+                        <RadioButton  Content="{DynamicResource Performance}"
+                 Style="{StaticResource MaterialDesignTabRadioButton}"
+                 GroupName="NavGroup"
+                 Height="75"   IsChecked="False"
+                 />
 
                         <RadioButton Content="{DynamicResource Log}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
@@ -138,7 +148,7 @@
         </Grid>
 
         <!-- 第三行，水平 StackPanel -->
-        <Grid Grid.Row="2" Background="LightSalmon">
+        <Grid Grid.Row="2" Background="WhiteSmoke">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -146,12 +156,12 @@
 
             <!-- 按钮组放在右边 -->
             <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <Button x:Name="StartAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
-                <Button x:Name="StopAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
-                <Button x:Name="PauseAutoRunButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button x:Name="ResetButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
-                <Button x:Name="IdleButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
-                <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
+                <Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
+                <Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
+                <Button x:Name="PauseAutoRunButton" Background="Yellow" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
+                <Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+                <Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
+                <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

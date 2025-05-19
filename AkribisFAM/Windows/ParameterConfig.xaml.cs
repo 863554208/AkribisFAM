@@ -26,6 +26,7 @@ using System.Windows.Media.Media3D;
 using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM.Windows
 {
@@ -34,12 +35,349 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class ParameterConfig : UserControl
     {
-
+        StationPoints stationPoints;
         public ParameterConfig()
         {
             InitializeComponent();
             ReadAxisParamJson();
+
+            
+            //InitAxisJsonPos();
+
+            // 读取数据并生成 UI
+            //StationPoints stationPoints;
+            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
+            if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+            {
+                InitAxisJsonPos();
+            }
+
+            FileHelper.LoadConfig(jsonFile, out stationPoints);
+            InitTabs(stationPoints);
         }
+
+        //Add By YXW
+        private void InitAxisJsonPos()
+        {
+            StationPoints newStats = new StationPoints
+            {
+                LaiLiaoPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "LL1",
+                        type = 1,
+                        col = 3,
+                        row = 1,
+                        childList = new List<ChildPoint>
+                        {
+                        new ChildPoint { childName = new List<string>{ "LL1-1" }, childPos = new List<int>{ 10, 20, 30, 0 } },
+                        new ChildPoint { childName = new List<string>{ "LL1-2" }, childPos = new List<int>{ 11, 21, 31, 1 } },
+                        new ChildPoint { childName = new List<string>{ "LL1-3" }, childPos = new List<int>{ 12, 22, 32, 2 } }
+                    }
+                },
+                new Point
+                {
+                    name = "LL2",
+                    type = 1,
+                    col = 1,
+                    row = 1,
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "LL2-1" }, childPos = new List<int>{ 15, 25, 35, 5 } }
+                        }
+                    }
+                },
+                ZuZhuangPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "ZZ1",
+                        type = 0,
+                        X = 100,
+                        Y = 200,
+                        Z = 300,
+                        R = 10
+                    }
+                },
+                FuJianPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "FJ1",
+                        type = 1,
+                        col = 2,
+                        row = 1,
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "FJ1-1" }, childPos = new List<int>{ 50, 60, 70, 15 } },
+                        new ChildPoint { childName = new List<string>{ "FJ1-2" }, childPos = new List<int>{ 51, 61, 71, 16 } }
+                    }
+                        },
+                        new Point
+                        {
+                            name = "FJ2",
+                            type = 1,
+                            col = 2,
+                            row = 1,
+                            childList = new List<ChildPoint>
+                            {
+                                new ChildPoint { childName = new List<string>{ "FJ2-1" }, childPos = new List<int>{ 55, 65, 75, 20 } },
+                                new ChildPoint { childName = new List<string>{ "FJ2-2" }, childPos = new List<int>{ 56, 66, 76, 21 } }
+                            }
+                        }
+                 },
+                RejectPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "RJ1",
+                        type = 1,
+                        col = 3,
+                        row = 1,
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "RJ1-1" }, childPos = new List<int>{ 80, 90, 100, 25 } },
+                        new ChildPoint { childName = new List<string>{ "RJ1-2" }, childPos = new List<int>{ 81, 91, 101, 26 } },
+                        new ChildPoint { childName = new List<string>{ "RJ1-3" }, childPos = new List<int>{ 82, 92, 102, 27 } }
+                            }
+                        }
+                    }
+            };
+
+            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
+
+            // 保存到文件
+            bool saveOk = FileHelper.SaveToJson(jsonFile, newStats);
+            MessageBox.Show(saveOk ? "The Json point file cannot be found, and the system automatically generates default point data" : "The automatic generation of the Json point file failed");
+        }
+
+        private void InitTabs(StationPoints points)
+        {
+            if (points == null)
+            {
+                return;
+            }
+            PosTabControl.Items.Clear();
+
+            AddTabIfHasData("LaiLiao", points.LaiLiaoPointList);
+            AddTabIfHasData("ZuZhuang", points.ZuZhuangPointList);
+            AddTabIfHasData("FuJian", points.FuJianPointList);
+        }
+
+        private void AddTabIfHasData(string header, List<Point> pointList)
+        {
+            if (pointList == null || pointList.Count == 0)
+                return;
+
+            var tabItem = new TabItem
+            {
+                Header = header,
+                Content = GenerateContentForPoints(pointList)
+            };
+
+            PosTabControl.Items.Add(tabItem);
+        }
+
+        private void EnsureChildDataValid(ChildPoint child)
+        {
+            int maxCount = Math.Max(
+                child.childName?.Count ?? 0,
+                child.childPos?.Count ?? 0
+            );
+
+            if (child.childName == null)
+                child.childName = new List<string>();
+            while (child.childName.Count < maxCount)
+                child.childName.Add($"ChildPoint{child.childName.Count + 1}");
+
+            if (child.childPos == null)
+                child.childPos = new List<int>();
+            while (child.childPos.Count < maxCount)
+                child.childPos.Add(0);
+        }
+
+
+        private UIElement GenerateContentForPoints(List<Point> pointList)
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(5) };
+
+            foreach (var pt in pointList)
+            {
+                if (pt.type == 0)
+                {
+                    // 单独点，使用 pt 的 X/Y/Z/R
+                    var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 2) };
+
+                    rowPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"名称: {pt.name}",
+                        Width = 100,
+                        VerticalAlignment = VerticalAlignment.Center
+                    });
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X));
+                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y));
+                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z));
+                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R));
+
+                    panel.Children.Add(rowPanel);
+                }
+                else
+                {
+                    // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
+                    int totalPoints = pt.row * pt.col;
+
+                    if (totalPoints > 200)
+                    {
+                        panel.Children.Add(new TextBlock
+                        {
+                            Text = $"矩阵点: {pt.name} 超过最大限制（200 个点），跳过。",
+                            Foreground = new SolidColorBrush(Colors.Red)
+                        });
+                        continue;
+                    }
+
+                    // 初始化并填满 childList
+                    if (pt.childList == null)
+                        pt.childList = new List<ChildPoint>();
+
+                    while (pt.childList.Count < totalPoints)
+                    {
+                        pt.childList.Add(new ChildPoint
+                        {
+                            childName = new List<string> { $"点{pt.childList.Count + 1}" },
+                            childPos = new List<int> { 0, 0, 0, 0 }
+                        });
+                    }
+
+                    // 校验每个子点的内容
+                    foreach (var child in pt.childList)
+                    {
+                        EnsureChildDataValid(child);
+                    }
+
+                    // 绘制 UI
+                    panel.Children.Add(new TextBlock
+                    {
+                        Text = $"矩阵点模板: {pt.name} ({pt.col}列 × {pt.row}行)",
+                        FontWeight = FontWeights.Bold,
+                        Margin = new Thickness(0, 8, 0, 4)
+                    });
+
+                    int childIndex = 0;
+                    for (int r = 0; r < pt.row; r++)
+                    {
+                        var rowPanel = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            Margin = new Thickness(0, 4, 0, 4)
+                        };
+
+                        for (int c = 0; c < pt.col; c++)
+                        {
+                            var child = pt.childList[childIndex++];
+                            string displayName = child.childName[0];
+                            var pos = child.childPos;
+
+                            var pointPanel = new StackPanel
+                            {
+                                Orientation = Orientation.Vertical,
+                                Margin = new Thickness(4),
+                                Width = 180,
+                                Background = new SolidColorBrush(Colors.LightGray),
+                            };
+
+                            pointPanel.Children.Add(new TextBlock
+                            {
+                                Text = $"名称: {displayName}",
+                                Margin = new Thickness(0, 0, 0, 6)
+                            });
+
+                            //回写，用于保存文件
+                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], newText =>
+                            {
+                                if (int.TryParse(newText, out int val)) pos[0] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], newText =>
+                            {
+                                if (int.TryParse(newText, out int val)) pos[1] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], newText =>
+                            {
+                                if (int.TryParse(newText, out int val)) pos[2] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], newText =>
+                            {
+                                if (int.TryParse(newText, out int val)) pos[3] = val;
+                            }));
+
+                            rowPanel.Children.Add(pointPanel);
+                        }
+
+                        panel.Children.Add(rowPanel);
+                    }
+                }
+            }
+
+            return new ScrollViewer { Content = panel };
+        }
+        private FrameworkElement CreateLabeledTextBox(string label, int initialValue, Action<string> onTextChanged = null)
+        {
+            var panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 2, 8, 2),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = label + ":",
+                Width = 25,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            var tb = new TextBox
+            {
+                Width = 130,
+                Text = initialValue.ToString()
+            };
+
+            // 如果有绑定回调，就在文本变更时触发
+            if (onTextChanged != null)
+            {
+                tb.TextChanged += (s, e) =>
+                {
+                    onTextChanged(tb.Text);
+                };
+            }
+
+            panel.Children.Add(tb);
+
+            return panel;
+        }
+
+        private bool SaveAllTabsData(string jsonFilePath)
+        {
+
+            return FileHelper.SaveToJson(jsonFilePath, stationPoints);
+        }
+
+        private void SavePosParam_Click(object sender, RoutedEventArgs e)
+        {
+            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
+            if (SaveAllTabsData(jsonFile))
+                MessageBox.Show("保存点位成功");
+            else
+                MessageBox.Show("保存点位失败");
+        }
+
+        //END ADD
+
 
         private void DoubleText_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -133,24 +471,32 @@ namespace AkribisFAM.Windows
             string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
             string path = folder + "\\AxisParams.json";
 
-            LoadConfig(path);
-            foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
+
+            try
             {
-                string speedname = item.Key + "_Speed";
-                TextBox tbspeed = (TextBox)FindObject(speedname);
-                tbspeed.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                LoadConfig(path);
+                foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
+                {
+                    string speedname = item.Key + "_Speed";
+                    TextBox tbspeed = (TextBox)FindObject(speedname);
+                    tbspeed.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
+                {
+                    string accname = item.Key + "_Acc";
+                    TextBox tbacc = (TextBox)FindObject(accname);
+                    tbacc.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
+                {
+                    string decname = item.Key + "_Dec";
+                    TextBox tbdec = (TextBox)FindObject(decname);
+                    tbdec.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+                }
             }
-            foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
+            catch (Exception)
             {
-                string accname = item.Key + "_Acc";
-                TextBox tbacc = (TextBox)FindObject(accname);
-                tbacc.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
-            }
-            foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
-            {
-                string decname = item.Key + "_Dec";
-                TextBox tbdec = (TextBox)FindObject(decname);
-                tbdec.Text = ((double)item.Value / GlobalManager.Current.coef).ToString();
+
             }
         }
 

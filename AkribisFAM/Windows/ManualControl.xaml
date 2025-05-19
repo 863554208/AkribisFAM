@@ -21,7 +21,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="Tag" Value="Selected">
-                                <Setter TargetName="border" Property="Background" Value="#FF6200EE"/>
+                                <Setter TargetName="border" Property="Background" Value="#a7c0ec"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -49,12 +49,13 @@
                 <Button Content="气动调试" Name="AirDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
                 <Button Content="相机调试" Name="CameraDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
                 <Button Content="IO调试" Name="IoDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
+                <Button Content="流程调试" Name="ProgressDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" />
             </StackPanel>
         </Border>
 
         <!-- 第二行内容显示区域 -->
         <Border Grid.Row="1" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ContentControl Name="ManualControlDisplay" Margin="10"/>
+            <ContentControl Name="ManualControlDisplay" Margin="0"/>
         </Border>
     </Grid>
 </UserControl>
