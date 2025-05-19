@@ -255,7 +255,7 @@ namespace AkribisFAM
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
-            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_3Initialized_feeder1 ,0);
+            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_0Initialized_feeder1 ,0);
 
             
 

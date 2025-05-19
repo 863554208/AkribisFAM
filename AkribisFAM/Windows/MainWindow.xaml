@@ -10,7 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
-        ShowInTaskbar="False"  Height="1000" Width="1600">
+        Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -77,7 +77,7 @@
             <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
                 <materialDesign:ColorZone Mode="PrimaryMid" VerticalAlignment="Center">
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
-                        
+
                         <RadioButton Content="{DynamicResource Main Page}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"

@@ -31,6 +31,7 @@ using AAMotion;
 using static AkribisFAM.Manager.StateManager;
 using static System.Windows.Forms.AxHost;
 using System.Net.Http;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -457,8 +458,14 @@ namespace AkribisFAM
 
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            bool result = false;
 
+            ModbusTCPWorker.GetInstance().Read_Coil((int)IO_INFunction_Table.IN1_0Slowdown_Sign1, ref result);
 
+            bool result2 = result;
+        }
     }
 
     internal class PromptableButton : Button

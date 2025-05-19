@@ -254,7 +254,7 @@ namespace AkribisFAM.WorkStation
 
         public int SnapFeedar()
         {
-            while (!ReadIO(IO_INFunction_Table.IN4_1Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_5Platform_has_label_feeder2))
+            while (!ReadIO(IO_INFunction_Table.IN4_2Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_6Platform_has_label_feeder2))
             {
                 Thread.Sleep(100);
             }
