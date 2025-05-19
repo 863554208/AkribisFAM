@@ -15,6 +15,7 @@ using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using AkribisFAM.NewStation;
 using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM
 {
@@ -40,7 +41,7 @@ namespace AkribisFAM
 
         public AutorunManager()
         {
-            _loopWorker = new Worker(() => AutoRunMain());
+            //_loopWorker = new Worker(() => AutoRunMain());
             hasReseted = false;
         }
 
@@ -58,7 +59,7 @@ namespace AkribisFAM
             return true;
         }
 
-        public async void AutoRunMain()
+        public async void AutoRunMain(CancellationToken token)
         {
             if (!CheckTaskReady())
             {
@@ -74,7 +75,7 @@ namespace AkribisFAM
 
             try
             {
-                Debug.WriteLine("Autorun Process");
+                Trace.WriteLine("Autorun Process");
 
                 try
                 {
@@ -93,6 +94,10 @@ namespace AkribisFAM
                 
                 }
 
+            }
+            catch (OperationCanceledException)
+            {
+                Trace.WriteLine("自动运行被取消。");
             }
             catch (Exception ex) 
             {
@@ -236,6 +241,9 @@ namespace AkribisFAM
 
         public bool Reset()
         {
+            //20250519 测试 【史彦洋】 追加 Start
+            //return true;
+
             //复位气缸和吸嘴IO
             CylinderDown();
 
@@ -245,8 +253,11 @@ namespace AkribisFAM
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
 
+            //把旋转轴的当前位置作为0位置
+            AkrAction.Current.SetZeroAll();
+
             //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
-            if(LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
+            if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor(100);
                 Thread.Sleep(3000);
@@ -262,7 +273,6 @@ namespace AkribisFAM
 
             //激光测距复位(tcp)
 
-
             //相机复位(tcp)
             sendSetStatCamreapositionList.Clear();
             SendSetStatCamreaposition command = new SendSetStatCamreaposition
@@ -272,7 +282,6 @@ namespace AkribisFAM
             };
             sendSetStatCamreapositionList.Add(command);
             Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
-
 
             //程序状态为置0
             GlobalManager.Current.current_Lailiao_step = 0;
@@ -290,5 +299,7 @@ namespace AkribisFAM
 
             return true;
         }
+
+
     }
 }

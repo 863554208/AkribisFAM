@@ -150,6 +150,8 @@ namespace AkribisFAM
         public List<(double X, double Y)> palletePoints;
 
         public int TotalLaserCount = 48;
+
+        public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
 
         //模拟进板位置有料和无料IO信号
