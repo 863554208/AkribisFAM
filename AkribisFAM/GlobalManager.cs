@@ -64,11 +64,11 @@ namespace AkribisFAM
     public class AxisParams
     {
         [JsonProperty("AxisSpeedDict")]
-        public Dictionary<string, int> AxisSpeedDict { get; set; }
+        public Dictionary<string, double> AxisSpeedDict { get; set; }
         [JsonProperty("AxisAccDict")]
-        public Dictionary<string, int> AxisAccDict { get; set; }
+        public Dictionary<string, double> AxisAccDict { get; set; }
         [JsonProperty("AxisDecDict")]
-        public Dictionary<string, int> AxisDecDict { get; set; }
+        public Dictionary<string, double> AxisDecDict { get; set; }
     }
 
 
@@ -597,7 +597,5 @@ namespace AkribisFAM
         //轴参数
         public AxisParams axisparams = new AxisParams();
 
-        //count 和 mm 的比例
-        public double coef = 10000.0; 
     }
 }

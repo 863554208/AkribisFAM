@@ -10,7 +10,7 @@
         <ScrollViewer HorizontalScrollBarVisibility="Visible" HorizontalAlignment="Left" Width="1112">
             <Grid Height="800" Width="1200">
                 <TabControl Margin="10,10,-10,-10">
-                    <TabItem Header="Params1" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="63">
+                    <TabItem Header="Params1" HorizontalAlignment="Center" >
                         <Grid Background="#FFE5E5E5">
                             <GroupBox Header="Axis">
                                 <Grid ShowGridLines="True">

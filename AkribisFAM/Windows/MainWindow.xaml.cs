@@ -32,6 +32,8 @@ using static AkribisFAM.Manager.StateManager;
 using static System.Windows.Forms.AxHost;
 using System.Net.Http;
 using AkribisFAM.CommunicationProtocol;
+using System.Reflection;
+using YamlDotNet.Core.Tokens;
 
 namespace AkribisFAM
 {
@@ -75,7 +77,7 @@ namespace AkribisFAM
             this.DataContext = ViewModel;
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
-            StateManager.Current.State = StateCode.STOPPED;
+            StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.TotalInput = 0;
             StateManager.Current.TotalOutputOK = 0;
             StateManager.Current.TotalOutputNG = 0;
@@ -262,26 +264,32 @@ namespace AkribisFAM
 
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            if (StateManager.Current.State == StateCode.RUNNING)
+            if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
             {
-                if (GlobalManager.Current.IsPause == false)
-                {
-                    GlobalManager.Current.IsPause = true;
-                    //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
-                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
-                }
-                else
-                {
-                    GlobalManager.Current.IsPause = false;
-                    GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
-                    GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
-                    GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                    GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
-                    GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
-                    GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
-                    //AutorunManager.Current.ResumeAutoRun();
-                    //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
-                }
+                GlobalManager.Current.IsPause = true;
+                StateManager.Current.IdleStart = DateTime.Now;
+                StateManager.Current.RunningEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.IDLE;
+                //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
+                //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
+            }
+            else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
+            {
+                GlobalManager.Current.IsPause = false;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.RunningStart = DateTime.Now;
+                StateManager.Current.State = StateCode.RUNNING;
+                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 0;
+                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 0;
+                GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
+                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 0;
+                //AutorunManager.Current.ResumeAutoRun();
+                //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
+            }
+            else { 
+
             }
         }
 
@@ -420,6 +428,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 //要板信号置0
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
                 //当前设备中的板运行结束
                 await Task.Run(() =>
                 {
@@ -436,6 +445,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 //要板信号置0
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
                 //当前设备中的板运行结束
                 await Task.Run(() =>
                 {
