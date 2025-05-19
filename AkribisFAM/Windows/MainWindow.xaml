@@ -51,6 +51,9 @@
                 <Label Content="{DynamicResource SysStatelab}" />
                 <Label Name="NowStateLab" />
 
+                <Label Content="" />
+                <Label Name="NowState" />
+
                 <Label Content="{DynamicResource CTlab}" />
                 <Label Name="CtValueLab" />
 

@@ -181,6 +181,7 @@ namespace AkribisFAM.Manager
                     else if (State == StateCode.STOPPED)
                     {
                         IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 1);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
                         Thread.Sleep(500);
                     }
                 }

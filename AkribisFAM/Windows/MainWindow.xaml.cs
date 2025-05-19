@@ -74,7 +74,7 @@ namespace AkribisFAM
             this.DataContext = ViewModel;
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
-            StateManager.Current.State = StateCode.IDLE;
+            StateManager.Current.State = StateCode.STOPPED;
             StateManager.Current.TotalInput = 0;
             StateManager.Current.TotalOutputOK = 0;
             StateManager.Current.TotalOutputNG = 0;
@@ -109,12 +109,13 @@ namespace AkribisFAM
         {
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            //CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
+            NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
+
                     performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
                 }));
             }
@@ -142,6 +143,20 @@ namespace AkribisFAM
                     performance.IdleTimeLB.Content = StateManager.Current.IdleTime.ToString(@"hh\:mm\:ss");
                 }));
             }
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                performance.INPUTLB.Content = StateManager.Current.TotalInput.ToString();
+                performance.OUTPUT_OKLB.Content = StateManager.Current.TotalOutputOK.ToString();
+                performance.OUTPUT_NGLB.Content = StateManager.Current.TotalOutputNG.ToString();
+                //performance.LOADINGLB.Content = 
+                performance.AVAILABILITYLB.Content = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
+                if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
+                    performance.PERFORMANCELB.Content = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
+                }
+                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
+                    performance.QUALITYLB.Content = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                }
+            }));
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
