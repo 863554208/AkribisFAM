@@ -216,6 +216,7 @@ namespace AkribisFAM.WorkStation
             MoveConveyor(100);
             //等待停止IO
             ret =  WaitIO(9999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
+
             if (CheckState(ret) == 1)
             {
                 return false;
