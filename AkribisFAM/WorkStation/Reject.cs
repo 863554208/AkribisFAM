@@ -342,6 +342,7 @@ namespace AkribisFAM.WorkStation
         {
             if (GlobalManager.Current.isNGPallete)
             {
+                StateManager.Current.TotalOutputNG++;
                 if (!hasNGboard)
                 {
                     //NG位无料
@@ -356,6 +357,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
+                StateManager.Current.TotalOutputOK++;
                 //OK料
                 return ActionOK();
             }

@@ -61,6 +61,15 @@ namespace AkribisFAM.Manager
         public DateTime MaintenanceStart; 
         public DateTime IdleStart;
 
+        public TimeSpan RunningTime;
+        public TimeSpan StoppedTime;
+        public TimeSpan MaintenanceTime;
+        public TimeSpan IdleTime;
+
+        public int TotalInput;
+        public int TotalOutputOK;
+        public int TotalOutputNG;
+
         public void DetectRemainBoard() {
             while (true)
             {

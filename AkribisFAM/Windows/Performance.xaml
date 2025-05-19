@@ -1,0 +1,142 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.Performance"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             d:DesignWidth="1200" Height="660">
+    <Grid Background="#FF87D6DE" Margin="0,0,0,10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38*"/>
+            <RowDefinition Height="203*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="30*"/>
+            <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+        <lvc:CartesianChart Name="UPHChart" Margin="10,46,10,83" LegendLocation="Top" Grid.Column="0" Grid.Row="1">
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Labels="{Binding UPHXLabels}" LabelsRotation="45" >
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="1" StrokeThickness="0"/>
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis MinValue="0" MaxValue="1400" >
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="200" StrokeThickness="0"/>
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+            <lvc:CartesianChart.Series>
+                <lvc:LineSeries x:Name="targetUPH" Values="{Binding TargetUPHValues}" Title="TargetUPH"/>
+                <lvc:LineSeries x:Name="realUPH" Values="{Binding UPHValues}" Title="RealUPH"/>
+            </lvc:CartesianChart.Series>
+        </lvc:CartesianChart>
+        <TextBox x:Name="UDPvalue" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="264,361,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="29"/>
+        <Button Content="add"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="106,361,0,0" VerticalAlignment="Top" Width="46" Height="29" Click="Button_Click"/>
+        <Label Content="UPH"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="264,10,0,0" VerticalAlignment="Top" Height="25" Width="36"/>
+        <lvc:CartesianChart Name="YieldChart" Margin="10,46,14,83" LegendLocation="Top"  Grid.Column="1" Grid.Row="1">
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Labels="7:00,8:00,9:00,10:00,11:00,12:00,13:00,14:00,15:00,16:00,17:00,18:00,19:00,20:00,21:00,22:00,23:00,24:00,1:00,2:00,3:00,4:00,5:00,6:00," LabelsRotation="45" >
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="1" StrokeThickness="0"/>
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis MinValue="0" MaxValue="100" >
+                    <lvc:Axis.Separator>
+                        <lvc:Separator Step="20" StrokeThickness="0"/>
+                    </lvc:Axis.Separator>
+                </lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+            <lvc:CartesianChart.Series>
+                <lvc:LineSeries x:Name="targetYield" Values="{Binding TargetYieldValues}" Title="TargetYield"/>
+                <lvc:LineSeries x:Name="realYield" Values="{Binding YieldValues}" Title="RealYield"/>
+            </lvc:CartesianChart.Series>
+        </lvc:CartesianChart>
+        <Button Content="add" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="104,353,0,0" VerticalAlignment="Top" Width="46" Height="35" Click="Button_Click_1"/>
+        <TextBox x:Name="Yieldvalue" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="180,353,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="33"/>
+        <Label Content="Yield" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="298,10,0,0" VerticalAlignment="Top" Height="25" Width="46"/>
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="RunningTime:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="RunningTimeLB" Grid.Column="1" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="StoppedTime:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="StoppedTimeLB" Grid.Column="3" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="MaintenanceTime:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="MaintenanceTimeLB" Grid.Column="1" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="IdleTime:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="IdleTimeLB" Grid.Column="3" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Label Content="Performance" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="36" Height="56" />
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="INPUT:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="INPUTLB" Grid.Column="1" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="TOSSING:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="TOSSINGLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="OUTPUT OK:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="OUTPUT_OKLB" Grid.Column="1" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="OUTPUT NG:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="OUTPUT_NGLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="LOADING:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="LOADINGLB" Grid.Column="1" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="AVAILABILITY:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="AVAILABILITYLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="PERFORMANCE:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="PERFORMANCELB" Grid.Column="1" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="QUALITY:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label x:Name="QUALITYLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</UserControl>

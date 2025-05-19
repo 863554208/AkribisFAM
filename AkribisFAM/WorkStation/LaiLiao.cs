@@ -200,6 +200,7 @@ namespace AkribisFAM.WorkStation
 
             if (ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0)
             {
+                StateManager.Current.TotalInput++;
                 Set("station1_IsBoardInHighSpeed", true);
 
                 //将要板信号清空

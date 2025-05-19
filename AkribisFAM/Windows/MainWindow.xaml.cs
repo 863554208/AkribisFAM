@@ -53,6 +53,7 @@ namespace AkribisFAM
         MainContent mainContent;
         ManualControl manualControl;
         ParameterConfig parameterConfig;
+        Performance performance;
         InternetConfig internetConfig;
         DebugLog debugLog;
 
@@ -74,11 +75,14 @@ namespace AkribisFAM
 
             ErrorManager.Current.UpdateErrorCnt += UpdateIcon;
             StateManager.Current.State = StateCode.IDLE;
-
+            StateManager.Current.TotalInput = 0;
+            StateManager.Current.TotalOutputOK = 0;
+            StateManager.Current.TotalOutputNG = 0;
             //Add By YXW
             mainContent = new MainContent();
             manualControl = new ManualControl();
             parameterConfig = new ParameterConfig();
+            performance = new Performance();
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
@@ -97,6 +101,8 @@ namespace AkribisFAM
         {
             // 页面加载时立即更新一次时间
             Timer_Tick(this, null);
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
+            layer.Add(new PromptAdorner(button));
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -104,6 +110,38 @@ namespace AkribisFAM
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             //CurrentState.Text = StateManager.Current.StateDict[StateManager.Current.State];
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.STOPPED)
+            {
+                StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.StoppedTimeLB.Content = StateManager.Current.StoppedTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.MAINTENANCE)
+            {
+                StateManager.Current.MaintenanceTime = DateTime.Now - StateManager.Current.MaintenanceStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.MaintenanceTimeLB.Content = StateManager.Current.MaintenanceTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            if (StateManager.Current.State == StateCode.IDLE)
+            {
+                StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    performance.IdleTimeLB.Content = StateManager.Current.IdleTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
         }
 
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
@@ -123,6 +161,11 @@ namespace AkribisFAM
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
             ContentDisplay.Content = parameterConfig; // ManualDebugScreen 是你定义的用户控件或界面
+        }
+        private void PerformanceButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 将 ContentControl 显示的内容更改为 "手动调试" 内容
+            ContentDisplay.Content = performance; // ManualDebugScreen 是你定义的用户控件或界面
         }
         private void InternetConfigButton_Click(object sender, RoutedEventArgs e)
         {
@@ -456,7 +499,6 @@ namespace AkribisFAM
         {
 
         }
-
 
 
     }
