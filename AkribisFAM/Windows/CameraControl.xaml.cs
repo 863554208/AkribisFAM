@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
+using AkribisFAM.WorkStation;
 using Microsoft.Win32;
 
 namespace AkribisFAM.Windows
@@ -131,6 +132,21 @@ namespace AkribisFAM.Windows
                     Calibstatus_Click = true;
                 }
             }
+        }
+
+        private void NozzleCalib_Click(object sender, RoutedEventArgs e)
+        {
+            Reject.Current.TrainNozzles();
+        }
+
+        private void PointsCalib_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void JointCalib_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

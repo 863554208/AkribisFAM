@@ -7,6 +7,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary x:Name="Language" Source="/Dict/AppResource_zh_CN.xaml"/>
+                <ResourceDictionary Source="/Theme/Generic.xaml"/>
                 <materialDesign:CustomColorTheme PrimaryColor="Black" SecondaryColor="Red" BaseTheme="Inherit"/>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml"/>

@@ -342,6 +342,7 @@ namespace AkribisFAM.WorkStation
         {
             if (GlobalManager.Current.isNGPallete)
             {
+                StateManager.Current.TotalOutputNG++;
                 if (!hasNGboard)
                 {
                     //NG位无料
@@ -356,6 +357,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
+                StateManager.Current.TotalOutputOK++;
                 //OK料
                 return ActionOK();
             }
@@ -404,7 +406,7 @@ namespace AkribisFAM.WorkStation
             public int r;
         }
         //1-4结束位置， 5起始位置， 6-9取料位置
-        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(5);
+        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(9);
 
         public bool TrainNozzle(int pickernum)
         {
@@ -463,7 +465,10 @@ namespace AkribisFAM.WorkStation
             //飞拍移动到结束位置
             AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
             AkrAction.Current.MoveNoWait(AxisName.FSX, TrainPointlist[pickernum].x, (int)AxisSpeed.FSX);
-
+            if (CheckState(true) == 1)
+            {
+                return false;
+            }
             //接受Cognex结果
 
             return true;
