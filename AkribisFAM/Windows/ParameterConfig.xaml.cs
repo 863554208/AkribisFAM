@@ -34,6 +34,33 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class ParameterConfig : UserControl
     {
+        private string[] axisarray = new string[] {
+        "LSX",
+        "LSY",
+        "FSX",
+        "FSY",
+        "BL5",
+        "BR5",
+        "BL1",
+        "BL2",
+        "BL3",
+        "BL4",
+        "BR1",
+        "BR2",
+        "BR3",
+        "BR4",
+        "PICK1_Z",
+        "PICK1_T",
+        "PICK2_Z",
+        "PICK2_T",
+        "PICK3_Z",
+        "PICK3_T",
+        "PICK4_Z",
+        "PICK4_T",
+        "PRX",
+        "PRY",
+        "PRZ"
+        };
 
         public ParameterConfig()
         {
@@ -136,7 +163,19 @@ namespace AkribisFAM.Windows
                 string folder = Directory.GetCurrentDirectory(); 
                 string path = folder + "\\AxisParams.json";
 
-                LoadConfig(path);
+                int ret = LoadConfig(path);
+                if (ret != 0)
+                {
+                    GlobalManager.Current.axisparams.AxisSpeedDict = new Dictionary<string, double>();
+                    GlobalManager.Current.axisparams.AxisAccDict = new Dictionary<string, double>();
+                    GlobalManager.Current.axisparams.AxisDecDict = new Dictionary<string, double>();
+                    for (int i = 0; i < 25; ++i)
+                    {
+                        GlobalManager.Current.axisparams.AxisSpeedDict.Add(axisarray[i], 100);
+                        GlobalManager.Current.axisparams.AxisAccDict.Add(axisarray[i], 100);
+                        GlobalManager.Current.axisparams.AxisDecDict.Add(axisarray[i], 100);
+                    }
+                }
                 foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
                 {
                     string speedname = item.Key + "_Speed";
@@ -156,7 +195,9 @@ namespace AkribisFAM.Windows
                     tbdec.Text = ((double)item.Value).ToString();
                 }
             }
-            catch { }
+            catch { 
+
+            }
 
         }
 

@@ -477,7 +477,6 @@ namespace AkribisFAM.WorkStation
                     break;
                 }
             }
-            
 
             //飞拍移动到结束位置
             AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
@@ -487,11 +486,15 @@ namespace AkribisFAM.WorkStation
                 return false;
             }
             //接受Cognex结果
+            string Errcode = TriggTTNCamreaAcceptData(TTNProcessCommand.TTN)[0].Errcode1;
+            if (Errcode != "1") {
+                return false;
+            }
 
             return true;
         }
 
-        public void TrainNozzles()
+        public void TrainNozzles(int nozzlenum)
         {
             try
             {
@@ -510,13 +513,10 @@ namespace AkribisFAM.WorkStation
             }
             Task<bool> task = new Task<bool>(() =>
             {
-                for (int i = 0; i < 4; ++i)
+                bool ret = TrainNozzle(nozzlenum);
+                if (CheckState(ret) == 1)
                 {
-                    bool ret = TrainNozzle(i);
-                    if (CheckState(ret) == 1)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 return true;
             });
