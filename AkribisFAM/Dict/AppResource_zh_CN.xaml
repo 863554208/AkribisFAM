@@ -31,6 +31,7 @@
     <sys:String x:Key="TextNowAxisVel">速度</sys:String>
     <sys:String x:Key="TextNowAxisAcc">加/减速度</sys:String>
     <sys:String x:Key="TextNowAxisEnable">当前轴使能</sys:String>
+    <sys:String x:Key="TextAllAxisEnable">所有轴使能</sys:String>
     <sys:String x:Key="TextAxisStart">运动</sys:String>
     <sys:String x:Key="TextAxisStop">停止</sys:String>
     <sys:String x:Key="TextAxisJog">点动</sys:String>

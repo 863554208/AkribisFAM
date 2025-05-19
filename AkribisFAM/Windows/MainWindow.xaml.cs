@@ -68,7 +68,7 @@ namespace AkribisFAM
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
             _timer.Tick += Timer_Tick;
-            _timer.Start();
+            
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
@@ -93,6 +93,8 @@ namespace AkribisFAM
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
 
+
+            _timer.Start();
             //END Add
 
         }
