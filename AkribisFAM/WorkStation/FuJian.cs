@@ -17,6 +17,7 @@ using System.Data.SQLite;
 using static System.Windows.Forms.AxHost;
 using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
+using System.Diagnostics;
 
 namespace AkribisFAM.WorkStation
 {
@@ -416,6 +417,12 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
+
+                    //20250519 测试 【史彦洋】 追加 Start
+                    Console.WriteLine("zuzhuang ceshi 1");
+                    Thread.Sleep(1000);
+                    continue;
+
                 step1:
                     if (!GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] || board_count != 0)
                     {

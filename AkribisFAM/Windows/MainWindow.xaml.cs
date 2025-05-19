@@ -165,8 +165,6 @@ namespace AkribisFAM
             }
         }
 
-
-
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
@@ -180,16 +178,16 @@ namespace AkribisFAM
 
                 //测试用
                 GlobalManager.Current.isRun = true;
-
+                StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
                 {
                     // 使用 Task.Run 来异步运行 AutoRunMain
-
+                    
                     _cancellationTokenSource = new CancellationTokenSource();
                     CancellationToken token = _cancellationTokenSource.Token;
 
-                    await Task.Run(() => AutorunManager.Current.AutoRunMain());
+                    await Task.Run(() => AutorunManager.Current.AutoRunMain(token));
                     if (AutorunManager.Current.isRunning)
                     {
                         //StartAutoRunButton.IsEnabled = false;
@@ -236,6 +234,8 @@ namespace AkribisFAM
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
+                _cancellationTokenSource?.Cancel();
+
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
@@ -245,10 +245,13 @@ namespace AkribisFAM
                 StateManager.Current.MaintenanceEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
+                _cancellationTokenSource?.Cancel();
+
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
             else {
+                _cancellationTokenSource?.Cancel();
                 return;
             }
         }
@@ -346,11 +349,10 @@ namespace AkribisFAM
 
         }
 
-        //20250514 暂时修改 【史彦洋】 修改 Start
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
-            //layer.Add(new PromptAdorner(button));
+            layer.Add(new PromptAdorner(button));
         }
 
 
