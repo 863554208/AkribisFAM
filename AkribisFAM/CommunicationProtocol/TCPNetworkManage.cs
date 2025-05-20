@@ -31,9 +31,9 @@ namespace AkribisFAM.CommunicationProtocol
     class TCPNetworkManage
     {
         // 添加一个新的映射表：枚举 => (IP, Port)
-        private static ConcurrentDictionary<ClientNames, (string ip, int port)> clientNameToEndpoint = new ConcurrentDictionary<ClientNames, (string, int)>();
+        public static ConcurrentDictionary<ClientNames, (string ip, int port)> clientNameToEndpoint = new ConcurrentDictionary<ClientNames, (string, int)>();
         // 用来存储每个客户端的连接，字典的键是ClientNames，值是 TcpClientWorker 实例
-        private static ConcurrentDictionary<ClientNames, TcpClientWorker> namedClients = new ConcurrentDictionary<ClientNames, TcpClientWorker>();
+        public static ConcurrentDictionary<ClientNames, TcpClientWorker> namedClients = new ConcurrentDictionary<ClientNames, TcpClientWorker>();
 
         /// <summary>
         /// 程序初始化加载IP地址配置文件,并连接所有客户端

@@ -130,7 +130,7 @@
                  Click="PerformanceButton_Click"
                  />
 
-                        <RadioButton Content="{DynamicResource Parameter Setting}"
+                        <RadioButton Content="{DynamicResource Internet Config}"
                  Style="{StaticResource MaterialDesignTabRadioButton}"
                  GroupName="NavGroup"
                  Height="76"  IsChecked="False"

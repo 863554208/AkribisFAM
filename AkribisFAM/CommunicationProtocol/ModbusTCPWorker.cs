@@ -11,7 +11,7 @@ namespace AkribisFAM.CommunicationProtocol
     public class ModbusTCPWorker
     {
         private static ModbusTCPWorker _instance;
-        private bool connect_state = false;
+        public bool connect_state = false;
         private string m_ip = "173.1.1.14";
         private int port;
         private ModbusTcpNet modbus = null;
