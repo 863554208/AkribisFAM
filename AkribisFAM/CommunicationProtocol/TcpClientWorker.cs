@@ -18,7 +18,7 @@ namespace AkribisFAM.CommunicationProtocol
         private Socket socket = null;        // 用来进行TCP连接的Socket对象
         private readonly object socketLock = new object();  // 用于锁定socket，防止并发访问
         private volatile bool isRunning = true;  //控制线程运行,控制客户端是否继续运行
-        
+        public volatile bool isConnected;
        // private 
 
 
@@ -57,6 +57,7 @@ namespace AkribisFAM.CommunicationProtocol
                         //Console.WriteLine($"[{host}:{port}] Connected to {host}!");
                         socket = tempSocket;  // 替换成员变量,确保连接成功后才赋值
                         Task.Run(() => ReceiveLoop());  // 启动接收消息的循环
+                        isConnected = tempSocket.Connected;
                         break;  // 连接成功，跳出循环
                     }
                     catch (Exception ex)
@@ -66,6 +67,7 @@ namespace AkribisFAM.CommunicationProtocol
                         //Console.WriteLine($"[{host}:{port}] Connection failed: {ex.Message}, {retryCount} retry after 2 seconds");
                         tempSocket?.Dispose();  // 确保释放失败的 socket
                         Thread.Sleep(30);  // 如果连接失败，等待2秒后重试
+                        isConnected = tempSocket.Connected;
                     }
                 }
             }
@@ -251,6 +253,7 @@ namespace AkribisFAM.CommunicationProtocol
                         socket.Close();
                     }
                     catch { }
+                    isConnected = socket.Connected;
                     socket = null;  // 清空socket
                 }
             }

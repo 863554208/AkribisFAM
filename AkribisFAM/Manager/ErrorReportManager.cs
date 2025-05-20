@@ -35,6 +35,7 @@ namespace AkribisFAM.Manager
         CCD1DataErr = 0x0400,
         CCD2DataErr = 0x0500,
         CCD3DataErr = 0x0600,
+        TimeOut = 0x0700,
         //process warning
         NoInPallet = 0x0001,
         FeederLow = 0x0002,

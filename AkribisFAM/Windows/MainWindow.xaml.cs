@@ -34,6 +34,7 @@ using System.Net.Http;
 using AkribisFAM.CommunicationProtocol;
 using System.Reflection;
 using YamlDotNet.Core.Tokens;
+using System.Windows.Media.Media3D;
 
 namespace AkribisFAM
 {
@@ -92,7 +93,6 @@ namespace AkribisFAM
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
-
 
             _timer.Start();
             //END Add
@@ -200,9 +200,118 @@ namespace AkribisFAM
                         performance.Yieldvalues.Add(Yield);
                     }
                 }
+                ConnectState();
             }));
         }
 
+        private void ConnectState() {
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Feed))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["camera1_Feed"] = TCPNetworkManage.namedClients[ClientNames.camera1_Feed].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["camera1_Feed"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Runner))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["camera1_Runner"] = TCPNetworkManage.namedClients[ClientNames.camera1_Runner].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["camera1_Runner"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera2))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["camera2"] = TCPNetworkManage.namedClients[ClientNames.camera2].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["camera2"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera3))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["camera3"] = TCPNetworkManage.namedClients[ClientNames.camera3].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["camera3"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.lazer))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["lazer"] = TCPNetworkManage.namedClients[ClientNames.lazer].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["lazer"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.scanner))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["scanner"] = TCPNetworkManage.namedClients[ClientNames.scanner].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["scanner"] = false;
+            }
+            if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.mes))  // 检查字典中是否存在这个客户端连接
+            {
+                internetConfig.connectState["mes"] = TCPNetworkManage.namedClients[ClientNames.mes].isConnected;
+            }
+            else
+            {
+                internetConfig.connectState["mes"] = false;
+            }
+
+            internetConfig.connectState["ModbusTCP"] = ModbusTCPWorker.GetInstance().connect_state;
+            if (internetConfig.connectState["camera1_Feed"] || internetConfig.connectState["camera1_Runner"])
+            {
+                BtnCamera1.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnCamera1.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+            if (internetConfig.connectState["scanner"])
+            {
+                BtnScanningGun.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnScanningGun.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+            if (internetConfig.connectState["lazer"])
+            {
+                BtnRangefinder.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnRangefinder.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+            if (internetConfig.connectState["camera2"])
+            {
+                BtnCamera2.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnCamera2.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+            if (internetConfig.connectState["camera3"])
+            {
+                BtnCamera3.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnCamera3.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+            if (internetConfig.connectState["ModbusTCP"])
+            {
+                BtnDevice.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF60DA68"));
+            }
+            else
+            {
+                BtnDevice.Background = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#bcbfc9"));
+            }
+        }
         private void MainWindowButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "主界面" 内容

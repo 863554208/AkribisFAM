@@ -22,6 +22,7 @@ using static MaterialDesignThemes.Wpf.Theme;
 using System.Text.RegularExpressions;
 using static AkribisFAM.Windows.AxisControl;
 using LiveCharts.Wpf;
+using System.IO;
 
 namespace AkribisFAM.Windows
 {
@@ -37,6 +38,7 @@ namespace AkribisFAM.Windows
 
 
         private List<SingleAxis> _axisDataList = new List<SingleAxis>();
+        //private Dictionary<int, string> _homefileDict = new Dictionary<int, string>();
 
         public List<SingleAxis> AxisDataList
         {
@@ -185,6 +187,19 @@ namespace AkribisFAM.Windows
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
             //Todo Stop(nowAxisIndex)
+        }
+
+        private void BtnHome_Click(object sender, RoutedEventArgs e)
+        {
+            //Todo Home(nowAxisIndex)
+            string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
+            try {
+                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
+            }
+            catch {
+                MessageBox.Show("Home Axis Failed！");
+            }
+            
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)

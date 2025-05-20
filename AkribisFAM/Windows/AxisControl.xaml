@@ -327,6 +327,7 @@
                     <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">-->
                     <Button Margin="10" Name="BtnMove" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisStart}" Click="BtnMove_Click" ></Button>
                     <Button Margin="10" Name="BtnStop" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisStop}" Click="BtnStop_Click"></Button>
+                    <Button Margin="10" Name="BtnHome" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisHome}" Click="BtnHome_Click"></Button>
                     <!--</StackPanel>-->
 
                     <StackPanel Orientation="Horizontal" Margin="10"  Height="35" HorizontalAlignment="Center">
