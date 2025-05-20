@@ -194,42 +194,33 @@ namespace AkribisFAM.Windows
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //Task.Run(new Action(() =>
-            //{
-                this.Dispatcher.BeginInvoke(new Action(() =>
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (device.SelectedIndex == 0)
                 {
-                    if (device.SelectedIndex == 0)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 1)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 2)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.camera2, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 3)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.camera3, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 4)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.lazer, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 5)
-                    {
-                        sendMess(ClientNames.camera1_Feed, Command.Text);
-                        //TCPNetworkManage.InputLoop(ClientNames.scanner, Command.Text);
-                    }
-                }));
-            //}));
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 1)
+                {
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 2)
+                {
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 3)
+                {
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 4)
+                {
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 5)
+                {
+                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                }
+            }));
         }
     }
 }
