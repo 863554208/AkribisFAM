@@ -22,6 +22,10 @@ using static MaterialDesignThemes.Wpf.Theme;
 using System.Text.RegularExpressions;
 using static AkribisFAM.Windows.AxisControl;
 using LiveCharts.Wpf;
+using static AkribisFAM.GlobalManager;
+using AkribisFAM.WorkStation;
+using System.Windows.Threading;
+using System.Reflection;
 
 namespace AkribisFAM.Windows
 {
@@ -31,9 +35,13 @@ namespace AkribisFAM.Windows
     public partial class AxisControl : UserControl
     {
 
-        const int AxisNum = 24;
-        int nowAxisIndex = 0;
+        const int AxisNum = 25;
+        public int nowAxisIndex = 0;
         List<Ellipse> statList = new List<Ellipse>();
+        SingleAxis temp = new SingleAxis();
+        private DispatcherTimer _timer; 
+
+        private bool isJogging = false;
 
 
         private List<SingleAxis> _axisDataList = new List<SingleAxis>();
@@ -72,18 +80,67 @@ namespace AkribisFAM.Windows
     
             DataContext = this;
 
+            AxisDataList.Clear();
+            for (int i = 0; i < 25; i++)
+            {
+                SingleAxis temp = new SingleAxis();
+                AxisDataList.Add(temp);
+            }
+
             //SingleAxis af = new SingleAxis();
             //updateAxisData(af);
 
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(300);
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+
 
         }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (AAmotionFAM.AGM800.Current.controller[0].IsConnected)
+            {
+                if (nowAxisIndex < 0)
+                {
+
+                }
+                else
+                {
+                    #region 获取轴的信息
+                    AxisName axisName = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+                    int agmIndex = (int)axisName / 8;
+                    int axisRefNum = (int)axisName % 8;
+                    var nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
+                    var tarPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).AbsTrgt;
+                    //var vel = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Vel.Value;
+                    bool MotorOn = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MotorOn == 1 ? true : false;
+                    bool inPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat == 4 ? true : false;
+                    bool homing = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat == 4 ? true : false;
+                    //mode2
+                    temp.nowPos = Math.Round(AkrAction.Current.ToMilimeter(axisName, nowPos), 3);
+                    temp.tarpos = Math.Round(AkrAction.Current.ToMilimeter(axisName, tarPos), 3);
+                    //temp.vel = AkrAction.Current.ToMilimeter(axisName, vel);
+                    temp.AxisStat[0] = MotorOn;
+                    temp.AxisStat[1] = inPos;
+                    temp.AxisStat[2] = homing;
+                    #endregion
+                    Console.WriteLine("123123123");
+                    //updateAxisData(temp);
+                    AsyncUpdateAxisData(temp);
+                }
+            }
+        }
+
 
         //由于CboxNowAxis和AxisListBox后台生成，没有用上绑定。切换语言时需要调用。
         private void initAxisUI(string prenName)
         {
             for (int i = 1; i <= AxisNum; i++)
             {
-                string axisName = $"{prenName} {i}";
+                string axisName = GlobalManager.Current.GetAxisStringFromInteger(i);
+
+                //string axisName = $"{prenName} {i}";
 
                 // 添加到 ComboBox（CboxNowAxis）
                 CboxNowAxis.Items.Add(axisName);
@@ -125,8 +182,36 @@ namespace AkribisFAM.Windows
                     }
                 }
             });
-
         }
+
+        private async Task AsyncUpdateAxisData(SingleAxis axis)
+        {
+            // 异步方式更新 UI，避免阻塞 UI 线程
+            await Dispatcher.BeginInvoke(new Action(() =>
+            {
+                tbNowPos.Text = axis.nowPos.ToString();
+                tbTargetPos.Text = axis.tarpos.ToString();
+                tbAxisVel.Text = axis.vel.ToString();
+
+                if (axis.AxisStat.Count < statList.Count)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < statList.Count; ++i)
+                {
+                    if (axis.AxisStat[i])
+                    {
+                        statList[i].Fill = Brushes.Green;
+                    }
+                    else
+                    {
+                        statList[i].Fill = Brushes.Gray;
+                    }
+                }
+            }));
+        }
+
 
         private void setUIAxisData(int index)
         {
@@ -135,6 +220,27 @@ namespace AkribisFAM.Windows
                 return; 
             }
             SingleAxis axis = _axisDataList[index]; // 安全访问
+
+            #region 获取轴的信息
+            AxisName axisName = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            var nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
+            var tarPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).AbsTrgt;
+            //var vel = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Vel.Value;
+            int vel = 0;
+            bool MotorOn = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MotorOn ==1?true:false;
+            bool inPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat == 4 ? true : false;
+            bool homing = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat==100 ? true: false;
+            //mode2
+            axis.nowPos = AkrAction.Current.ToMilimeter(axisName,nowPos);
+            axis.tarpos = AkrAction.Current.ToMilimeter(axisName,tarPos);
+            axis.vel = AkrAction.Current.ToMilimeter(axisName, vel);
+            axis.AxisStat[0] = MotorOn;
+            axis.AxisStat[1] = inPos;
+            axis.AxisStat[2] = homing;
+            #endregion
+
             updateAxisData(axis);
         }
 
@@ -149,7 +255,6 @@ namespace AkribisFAM.Windows
 
             nowAxisIndex = nowAxis;
             setUIAxisData(nowAxis);
-
 
         }
 
@@ -166,12 +271,20 @@ namespace AkribisFAM.Windows
             setUIAxisData(nowAxis);
         }
 
-        private void BtnMove_Click(object sender, RoutedEventArgs e)
+        private async void BtnMove_Click(object sender, RoutedEventArgs e)
         {
-            bool success =
-                double.TryParse(TbTargetPos.Text.Trim(), out double posValue) &&
-                double.TryParse(TbVel.Text.Trim(), out double velValue) &&
-                double.TryParse(TbAccDec.Text.Trim(), out double accValue);
+
+            double posValue, velValue, accValue;
+
+            bool posSuccess = double.TryParse(TbTargetPos.Text.Trim(), out posValue);
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool accSuccess = double.TryParse(TbAccDec.Text.Trim(), out accValue);
+
+            bool success = posSuccess && velSuccess && accSuccess;
+            //bool success =
+            //    double.TryParse(TbTargetPos.Text.Trim(), out double posValue) &&
+            //    double.TryParse(TbVel.Text.Trim(), out double velValue) &&
+            //    double.TryParse(TbAccDec.Text.Trim(), out double accValue);
 
             if (!success)
             {
@@ -180,23 +293,35 @@ namespace AkribisFAM.Windows
             }
 
             //Todo MoveAbs(nowAxisIndex,posValue,velValue,accValue)
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
+            //AkrAction.Current.Move(axis, posValue, velValue, accValue);
+            await Task.Run(() =>
+            {
+                AkrAction.Current.Move(axis, posValue, velValue, accValue);
+            });
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
             //Todo Stop(nowAxisIndex)
+
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             if (btn != null && btn.IsChecked == true)
             {
-                // 打开逻辑
+                AkrAction.Current.axisEnable(axis, true);
                 //Todo   Enable(nowAxisIndex)
             }
             else
             {
+                
+                AkrAction.Current.axisEnable(axis, false);
                 //关闭   DisEnable(nowAxisIndex)
             }
         }
@@ -205,12 +330,11 @@ namespace AkribisFAM.Windows
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             if (btn != null && btn.IsChecked == true)
             {
-                // 打开逻辑
-                //Todo   AllEnable()
+                AkrAction.Current.axisAllEnable(true);
             }
             else
             {
-                //关闭   AllDisEnable()
+                AkrAction.Current.axisAllEnable(false);
             }
         }
 
@@ -274,14 +398,54 @@ namespace AkribisFAM.Windows
             {
                 currentIndex++;
             }
-
-            // 保证索引在合法范围内
-            currentIndex = Math.Max(0, Math.Min(currentIndex, AxisListBox.Items.Count - 1));
-
-            AxisListBox.SelectedIndex = currentIndex;
-
-            // 防止继续滚动滚动条
-            e.Handled = true;
         }
+
+        private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isJogging)
+            {
+                isJogging = true;
+                StartJogging_Forword();
+            }
+        }
+        private void JogForwordButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            isJogging = false;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
+        }
+        private void JogBackwordButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isJogging)
+            {
+                isJogging = true;
+                StartJogging_Backword();
+            }
+        }
+        private void JogBackwordButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            isJogging = false;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
+        }
+        private void StartJogging_Forword()
+        {
+            double velValue;
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool success = velSuccess;
+
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.JogMove(axis,1, velValue);
+        }
+        private void StartJogging_Backword()
+        {
+            double velValue;
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool success = velSuccess;
+
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.JogMove(axis, -1, velValue);
+        }
+
     }
 }

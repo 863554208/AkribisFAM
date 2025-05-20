@@ -343,7 +343,8 @@ namespace AkribisFAM
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
-
+                AkrAction.Current.StopAllAxis();
+                AkrAction.Current.axisAllEnable(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
@@ -354,12 +355,14 @@ namespace AkribisFAM
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
-
+                AkrAction.Current.StopAllAxis();
+                AkrAction.Current.axisAllEnable(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
             else {
-                _cancellationTokenSource?.Cancel();
+                AkrAction.Current.StopAllAxis();
+                AkrAction.Current.axisAllEnable(false);
                 return;
             }
         }
@@ -386,7 +389,7 @@ namespace AkribisFAM
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
         }
 
-        private void ExecuteReset()
+        private async void ExecuteReset()
         {
             if (StateManager.Current.State == StateCode.STOPPED)
             {
@@ -409,7 +412,8 @@ namespace AkribisFAM
                 return;
             }
             MessageBox.Show("开始复位");
-            if (!AutorunManager.Current.Reset())
+            bool resetResult = await Task.Run(() => AutorunManager.Current.Reset());
+            if (!resetResult)
             {
                 Dispatcher.Invoke(() =>
                 {
@@ -419,9 +423,15 @@ namespace AkribisFAM
             }
             else
             {
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("复位成功");
+                });
                 AutorunManager.Current.hasReseted = true;
             }
         }
+
+
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             GlobalManager.Current.current_Lailiao_step = 0;

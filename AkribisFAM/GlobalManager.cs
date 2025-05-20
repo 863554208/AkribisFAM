@@ -442,11 +442,259 @@ namespace AkribisFAM
 
         public AxisRef GetAxisRefFromInteger(int index)
         {
-            string letter = ('A' + index).ToString();
-            Enum.TryParse<AxisRef>(letter, out AxisRef axisRef);
+            switch (index)
+            {
+                    case 0: return AxisRef.A;
+                    case 1: return AxisRef.B;
+                    case 2: return AxisRef.C;
+                    case 3: return AxisRef.D;
+                    case 4: return AxisRef.E;
+                    case 5: return AxisRef.F;            
+                    case 6: return AxisRef.G;
+                    case 7: return AxisRef.H;
+                    default : return AxisRef.A; 
 
-            return axisRef;
+            }
+
+          
         }
+
+        public AxisName GetAxisNameFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return AxisName.LSX;
+
+                case 2:
+                    return AxisName.LSY;
+
+                case 3:
+                    return AxisName.BL1;
+
+                case 4:
+                    return AxisName.BL2;
+
+                case 5:
+                    return AxisName.BL3;
+
+                case 6:
+                    return AxisName.BL4;
+
+                case 7:
+                    return AxisName.BL5;
+
+                case 8:
+                    return AxisName.BR1;
+
+                case 9:
+                    return AxisName.BR2;
+
+                case 10:
+                    return AxisName.BR3;
+
+                case 11:
+                    return AxisName.BR4;
+
+                case 12:
+                    return AxisName.BR5;
+
+                case 13:
+                    return AxisName.FSX;
+
+                case 14:
+                    return AxisName.FSY;
+
+                case 15:
+                    return AxisName.PICK1_Z;
+
+                case 16:
+                    return AxisName.PICK1_T;
+
+                case 17:
+                    return AxisName.PICK2_Z;
+
+                case 18:
+                    return AxisName.PICK2_T;
+
+                case 19:
+                    return AxisName.PICK3_Z;
+
+                case 20:
+                    return AxisName.PICK3_T;
+
+                case 21:
+                    return AxisName.PICK4_Z;
+
+                case 22:
+                    return AxisName.PICK4_T;
+
+                case 23:
+                    return AxisName.PRX;
+
+                case 24:
+                    return AxisName.PRY;
+
+                case 25:
+                    return AxisName.PRZ;
+
+                default:
+                    return AxisName.LSX;
+            }
+
+        }
+
+
+        public AxisName GetAxisNameFromString(string line)
+        {
+            switch (line) 
+            {
+                case "LSX":
+                    return AxisName.LSX;
+
+                case "LSY":
+                    return AxisName.LSY;
+
+                case "FSX":
+                    return AxisName.FSX;
+
+                case "FSY":
+                    return AxisName.FSY;
+
+                case "BL1":
+                    return AxisName.BL1;
+
+                case "BL2":
+                    return AxisName.BL2;
+                case "BL3":
+                    return AxisName.BL3;
+                case "BL4":
+                    return AxisName.BL4;
+                case "BL5":
+                    return AxisName.BL5;
+                case "BR1":
+                    return AxisName.BR1;
+                case "BR2":
+                    return AxisName.BR2;
+                case "BR3":
+                    return AxisName.BR3;
+                case "BR4":
+                    return AxisName.BR4;
+                case "BR5":
+                    return AxisName.BR5;
+                case "PICK1_Z":
+                    return AxisName.PICK1_Z;
+                case "PICK1_T":
+                    return AxisName.PICK1_T;
+                case "PICK2_Z":
+                    return AxisName.PICK2_Z;
+                case "PICK2_T":
+                    return AxisName.PICK2_T;
+                case "PICK3_Z":
+                    return AxisName.PICK3_Z;
+                case "PICK3_T":
+                    return AxisName.PICK3_T;
+                case "PICK4_Z":
+                    return AxisName.PICK4_Z;
+                case "PICK4_T":
+                    return AxisName.PICK4_T;
+                case "PRX":
+                    return AxisName.PRX;
+                case "PRY":
+                    return AxisName.PRY;
+                case "PRZ":
+                    return AxisName.PRZ;
+                default:
+                    return AxisName.PRZ;
+            }
+        }
+
+
+        public string GetAxisStringFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return "LSX";
+
+                case 2:
+                    return "LSY";
+
+                case 3:
+                    return "BL1";
+
+                case 4:
+                    return "BL2";
+
+                case 5:
+                    return "BL3";
+
+                case 6:
+                    return "BL4";
+
+                case 7:
+                    return "BL5";
+
+                case 8:
+                    return "BR1";
+
+                case 9:
+                    return "BR2";
+
+                case 10:
+                    return "BR3";
+
+                case 11:
+                    return "BR4";
+
+                case 12:
+                    return "BR5";
+
+                case 13:
+                    return "FSX";
+
+                case 14:
+                    return "FSY";
+
+                case 15:
+                    return "PICK1_Z";
+
+                case 16:
+                    return "PICK1_T";
+
+                case 17:
+                    return "PICK2_Z";
+
+                case 18:
+                    return "PICK2_T";
+
+                case 19:
+                    return "PICK3_Z";
+
+                case 20:
+                    return "PICK3_T";
+
+                case 21:
+                    return "PICK4_Z";
+
+                case 22:
+                    return "PICK4_T";
+
+                case 23:
+                    return "PRX";
+
+                case 24:
+                    return "PRY";
+
+                case 25:
+                    return "PRZ";
+
+                default:
+                    return "LSX";
+            }
+
+        }
+
 
         #region A,B轴状态
         public void UpdateAStatus()

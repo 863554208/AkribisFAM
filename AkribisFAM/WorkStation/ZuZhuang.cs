@@ -783,7 +783,7 @@ namespace AkribisFAM.WorkStation
 
         }
 
-        public async override void AutoRun()
+        public async override void AutoRun(CancellationToken token)
         {
             try
             {
