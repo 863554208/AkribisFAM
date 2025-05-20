@@ -26,8 +26,6 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.WorkStation;
 using System.Windows.Threading;
 using System.Reflection;
-using System.IO;
-using AkribisFAM.Helper;
 
 namespace AkribisFAM.Windows
 {
