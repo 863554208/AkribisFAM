@@ -49,6 +49,12 @@ namespace AkribisFAM
         [DataMember]
         public int R { get; set; }
 
+        [DataMember]
+        public List<int> generalList { get; set; }
+
+        [DataMember]
+        public int general { get; set; }
+
     }
 
     [DataContract]

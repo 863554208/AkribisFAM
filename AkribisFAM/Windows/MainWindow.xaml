@@ -81,7 +81,7 @@
                             Height="55" Width="72" Grid.Column="3" />
 
             <!-- 当前时间 -->
-            <Border Margin="0 0 20 0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="4">
+            <Border Margin="10 0 20 0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="4">
                 <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />
@@ -102,45 +102,57 @@
 
             <!-- 左侧菜单 -->
             <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
-                <materialDesign:ColorZone Mode="PrimaryMid" >
+                <materialDesign:ColorZone Mode="PrimaryMid">
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
 
-                        <RadioButton  Content="{DynamicResource Main Page}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="82"   IsChecked="True"
-                 Click="MainWindowButton_Click"/>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Main Page}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="82" IsChecked="True"
+                         Click="MainWindowButton_Click"/>
+                        </Border>
 
-                        <RadioButton  Content="{DynamicResource Manual Control}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="77"   IsChecked="False"
-                 Click="ManualControlButton_Click"/>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Manual Control}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="77" IsChecked="False"
+                         Click="ManualControlButton_Click"/>
+                        </Border>
 
-                        <RadioButton  Content="{DynamicResource Parameter Setting}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="76"  IsChecked="False"
-                 Click="ParameterConfigButton_Click"/>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Parameter Setting}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="76" IsChecked="False"
+                         Click="ParameterConfigButton_Click"/>
+                        </Border>
 
-                        <RadioButton Content="{DynamicResource Performance}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="75"   IsChecked="False" 
-                 Click="PerformanceButton_Click"
-                 />
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Performance}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="75" IsChecked="False"
+                         Click="PerformanceButton_Click"/>
+                        </Border>
 
-                        <RadioButton Content="{DynamicResource Internet Config}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="76"  IsChecked="False"
-                 Click="InternetConfigButton_Click"/>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Internet Config}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="76" IsChecked="False"
+                         Click="InternetConfigButton_Click"/>
+                        </Border>
 
-                        <RadioButton Content="{DynamicResource Log}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="75"   IsChecked="False"
-                 Click="DebugLogButton_Click"/>
+                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+                            <RadioButton Content="{DynamicResource Log}"
+                         Style="{StaticResource MaterialDesignTabRadioButton}"
+                         GroupName="NavGroup"
+                         Height="75" IsChecked="False"
+                         Click="DebugLogButton_Click"/>
+                        </Border>
+
                     </StackPanel>
                 </materialDesign:ColorZone>
             </Border>
