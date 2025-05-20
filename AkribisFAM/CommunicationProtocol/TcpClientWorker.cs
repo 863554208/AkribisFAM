@@ -202,7 +202,9 @@ namespace AkribisFAM.CommunicationProtocol
             StrClear();
             if (socket == null || !socket.Connected)
             {
-               Reconnect(); //断连时尝试重连
+                Console.WriteLine("aaaaaaaaaaaaaaaaaaa");
+                Reconnect(); //断连时尝试重连
+                Console.WriteLine("bbbbbbbbbbbbbbbb");
             }
 
             try

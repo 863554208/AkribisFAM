@@ -184,38 +184,35 @@ namespace AkribisFAM.Windows
             ModbusTCPWorker.GetInstance().Disconnect();
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            await Task.Run(() =>
+            this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                if (device.SelectedIndex == 0)
                 {
-                    if (device.SelectedIndex == 0)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 1)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 2)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.camera2, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 3)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.camera3, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 4)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.lazer, Command.Text);
-                    }
-                    else if (device.SelectedIndex == 5)
-                    {
-                        TCPNetworkManage.InputLoop(ClientNames.scanner, Command.Text);
-                    }
-                }));
-            });
+                    TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, Command.Text);
+                }
+                else if (device.SelectedIndex == 1)
+                {
+                    TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, Command.Text);
+                }
+                else if (device.SelectedIndex == 2)
+                {
+                    TCPNetworkManage.InputLoop(ClientNames.camera2, Command.Text);
+                }
+                else if (device.SelectedIndex == 3)
+                {
+                    TCPNetworkManage.InputLoop(ClientNames.camera3, Command.Text);
+                }
+                else if (device.SelectedIndex == 4)
+                {
+                    TCPNetworkManage.InputLoop(ClientNames.lazer, Command.Text);
+                }
+                else if (device.SelectedIndex == 5)
+                {
+                    TCPNetworkManage.InputLoop(ClientNames.scanner, Command.Text);
+                }
+            }));
         }
     }
 }
