@@ -19,7 +19,7 @@
             <TabItem Header="Params1" HorizontalAlignment="Left"  >
                 <Grid Background="#FFE5E5E5">
                     <GroupBox Header="Axis">
-                        <Grid ShowGridLines="True">
+                        <Grid x:Name="AxisGrid" ShowGridLines="True">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
