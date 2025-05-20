@@ -162,13 +162,15 @@ namespace AkribisFAM
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints;
+        public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> feedarPoints;
+        public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> palletePoints;
+        public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
 
         public int TotalLaserCount = 48;
+
+        public StationPoints stationPoints;
 
         public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位

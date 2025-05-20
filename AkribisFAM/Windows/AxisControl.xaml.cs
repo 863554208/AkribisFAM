@@ -26,6 +26,7 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.WorkStation;
 using System.Windows.Threading;
 using System.Reflection;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM.Windows
 {
@@ -252,7 +253,6 @@ namespace AkribisFAM.Windows
             {
                 AxisListBox.SelectedIndex = nowAxis;
             }
-
             nowAxisIndex = nowAxis;
             setUIAxisData(nowAxis);
 
@@ -305,7 +305,7 @@ namespace AkribisFAM.Windows
         {
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
-            //Todo Stop(nowAxisIndex)
+
 
         }
 

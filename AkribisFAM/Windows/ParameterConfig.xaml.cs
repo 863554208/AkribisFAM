@@ -87,6 +87,9 @@ namespace AkribisFAM.Windows
             }
 
             FileHelper.LoadConfig(jsonFile, out stationPoints);
+            //20250520 史彦洋 Start
+            FileHelper.LoadConfig(jsonFile, out GlobalManager.Current.stationPoints);
+            //20250520 史彦洋 End
             InitTabs(stationPoints);
         }
 

@@ -182,15 +182,43 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            position = ToPulse(axisName, position);
-            speed = ToPulse(axisName, speed);
-            accel = ToPulse(axisName, accel);
-            if (decel == null) decel = accel;
-            decel = ToPulse(axisName, decel);
+            if (accel == null)
+            {
+                accel = speed * 3;
+            }
+            if (decel == null)
+            {
+                decel = accel;
+            }
+                
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
 
         }
+
+        public void WaitAxis(GlobalManager.AxisName axisName)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName / 8;
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            {
+                //TODO 加入退出机制
+                Thread.Sleep(500);
+            }
+        }
+
+        public void WaitAxisAll()
+        {
+            AkrAction.Current.WaitAxis(AxisName.FSX);
+            AkrAction.Current.WaitAxis(AxisName.FSY);
+            AkrAction.Current.WaitAxis(AxisName.LSX);
+            AkrAction.Current.WaitAxis(AxisName.LSY);
+            AkrAction.Current.WaitAxis(AxisName.PRX);
+            AkrAction.Current.WaitAxis(AxisName.PRY);
+        }
+
+
+
         public void Move(GlobalManager.AxisName axisName, double? position, double? speed = null, double? accel = null, double? decel = null)
         {
             int agmIndex = (int)axisName / 8;
@@ -209,6 +237,7 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
+            if(decel== null) decel = accel;
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
             //while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
@@ -218,17 +247,17 @@ namespace AkribisFAM.WorkStation
             //}
         }
 
-        public void MoveRelNoWait(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
-        {
-            int agmIndex = (int)axisName / 8;
-            int axisRefNum = (int)axisName % 8;
-            distance = ToPulse(axisName, distance);
-            speed = ToPulse(axisName, speed);
-            accel = ToPulse(axisName, accel);
-            decel = ToPulse(axisName, decel);
-            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
-            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
-        }
+        //public void MoveRelNoWait(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        //{
+        //    int agmIndex = (int)axisName / 8;
+        //    int axisRefNum = (int)axisName % 8;
+        //    distance = ToPulse(axisName, distance);
+        //    speed = ToPulse(axisName, speed);
+        //    accel = ToPulse(axisName, accel);
+        //    decel = ToPulse(axisName, decel);
+        //    AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+        //    AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
+        //}
 
         public void JogMove(GlobalManager.AxisName axisName , int dir , double vel)
         {
@@ -630,6 +659,7 @@ namespace AkribisFAM.WorkStation
 
         public int ToPulse(AxisName axisName ,double? mm)
         {
+            if( mm==null) mm = 0;
             switch (axisName)
             {
                 case AxisName.LSX:
