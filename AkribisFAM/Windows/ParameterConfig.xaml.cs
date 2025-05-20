@@ -78,7 +78,7 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
             ReadAxisParamJson();
-
+            RegisterFloatInputHandlers();
             posFilePre.Add("Station_points1.json");
             posFilePre.Add("Station_points2.json");
             posFilePre.Add("Station_points3.json");
@@ -219,11 +219,6 @@ namespace AkribisFAM.Windows
             AddTabIfHasData("Assembly", points.ZuZhuangPointList);
             AddTabIfHasData("ReCheck", points.FuJianPointList);
 
-            // 延迟注册输入限制，确保控件已经加载
-            //PosTabControl.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
-            //{
-            //    RegisterFloatInputHandlers();
-            //}));
         }
 
         private void AddTabIfHasData(string header, List<Point> pointList)
@@ -487,13 +482,13 @@ namespace AkribisFAM.Windows
         //添加double输入限制-------------------------------------------------------------
         private void RegisterFloatInputHandlers()
         {
-            foreach (var tabObj in PosTabControl.Items)
-            {
-                if (tabObj is TabItem tabItem)
-                {
-                    RegisterHandlersInContainer(tabItem.Content);
-                }
-            }
+            //foreach (var tabObj in AxisGrid)
+            //{
+            //    if (tabObj is TabItem tabItem)
+            //    {
+                    RegisterHandlersInContainer(AxisGrid);
+            //    }
+            //}
         }
 
         private void RegisterHandlersInContainer(object container)

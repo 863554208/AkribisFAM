@@ -36,7 +36,6 @@ namespace AkribisFAM
 
             TCPNetworkManage.TCPInitialize();
             StateManager.Current.DetectTimeDeltaThread();
-
             //启动与AGM800的连接
             StartConnectAGM800();
 
@@ -45,6 +44,7 @@ namespace AkribisFAM
 
             //调试用
             StateManager.Current.State = StateCode.IDLE;
+            StateManager.Current.StateLightThread();
 
             //TODO
             //try

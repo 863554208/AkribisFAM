@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -40,6 +42,7 @@ namespace AkribisFAM.Windows
             connectState.Add("mes", false);
             connectState.Add("ModbusTCP", false);
             Readdevicesjson();
+            RegisterHandlersInContainer(Networkgrid);
         }
         private void Readdevicesjson()//读IP地址和端口号
         {
@@ -115,6 +118,74 @@ namespace AkribisFAM.Windows
                     MessageBox.Show("Save failed:" + ex.Message);
                 }  
             }
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child is T t)
+                        yield return t;
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                        yield return childOfChild;
+                }
+            }
+        }
+
+        private void RegisterHandlersInContainer(object container)
+        {
+            if (container is DependencyObject depObj)
+            {
+                foreach (var child in FindVisualChildren<TextBox>(depObj))
+                {
+                    // 禁用输入法
+                    InputMethod.SetIsInputMethodEnabled(child, false);
+                }
+            }
+        }
+
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            // 使用正则表达式检查输入是否为数字
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void IPAddressTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            string newText = textBox.Text.Insert(textBox.CaretIndex, e.Text);
+
+            // IP地址正则表达式 (简单版本)
+            Regex regex = new Regex(@"^([0-9]{1,3}\.){0,3}[0-9]{0,3}$");
+            e.Handled = !regex.IsMatch(newText);
+        }
+
+        private void IPAddressTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!IsValidIPAddress(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private bool IsValidIPAddress(string ip)
+        {
+            // 更严格的IP地址验证
+            string pattern = @"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+            return Regex.IsMatch(ip, pattern);
         }
 
         private Object FindObject(string name)
