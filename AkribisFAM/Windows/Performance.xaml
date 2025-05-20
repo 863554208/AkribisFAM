@@ -19,7 +19,7 @@
             <RowDefinition Height="30*"/>
             <RowDefinition Height="30*"/>
         </Grid.RowDefinitions>
-        <lvc:CartesianChart Name="UPHChart" Margin="10,46,10,83" LegendLocation="Top" Grid.Column="0" Grid.Row="1">
+        <lvc:CartesianChart Name="UPHChart" Margin="10,46,10,60" LegendLocation="Top" Grid.Column="0" Grid.Row="1">
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis Labels="{Binding UPHXLabels}" LabelsRotation="45" >
                     <lvc:Axis.Separator>
@@ -39,10 +39,8 @@
                 <lvc:LineSeries x:Name="realUPH" Values="{Binding UPHValues}" Title="RealUPH"/>
             </lvc:CartesianChart.Series>
         </lvc:CartesianChart>
-        <TextBox x:Name="UDPvalue" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="264,361,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="29"/>
-        <Button Content="add"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="106,361,0,0" VerticalAlignment="Top" Width="46" Height="29" Click="Button_Click"/>
-        <Label Content="UPH"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" Margin="264,10,0,0" VerticalAlignment="Top" Height="25" Width="36"/>
-        <lvc:CartesianChart Name="YieldChart" Margin="10,46,14,83" LegendLocation="Top"  Grid.Column="1" Grid.Row="1">
+        <Label Content="UPH"  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Height="25" Width="36"/>
+        <lvc:CartesianChart Name="YieldChart" Margin="10,46,14,60" LegendLocation="Top"  Grid.Column="1" Grid.Row="1">
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis Labels="{Binding YieldXLabels}" LabelsRotation="45" >
                     <lvc:Axis.Separator>
@@ -62,9 +60,7 @@
                 <lvc:LineSeries x:Name="realYield" Values="{Binding YieldValues}" Title="RealYield"/>
             </lvc:CartesianChart.Series>
         </lvc:CartesianChart>
-        <Button Content="add" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="104,353,0,0" VerticalAlignment="Top" Width="46" Height="35" Click="Button_Click_1"/>
-        <TextBox x:Name="Yieldvalue" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="180,353,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="33"/>
-        <Label Content="Yield" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left" Margin="298,10,0,0" VerticalAlignment="Top" Height="25" Width="46"/>
+        <Label Content="Yield" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Height="25" Width="46"/>
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>

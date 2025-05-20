@@ -205,8 +205,8 @@ namespace AkribisFAM.CommunicationProtocol
         IN4_9Feeder1_limit_cylinder_retract_InPos,
         IN4_10Feeder2_limit_cylinder_extend_InPos,
         IN4_11Feeder2_limit_cylinder_retract_InPos,
-        IN4_12Backup,
-        IN4_13Reserve,
+        IN4_12Feeder1_drawer_InPos,
+        IN4_13Feeder2_drawer_InPos,
         IN4_14Reserve,
         IN4_15Reserve,
 
@@ -362,7 +362,7 @@ namespace AkribisFAM.CommunicationProtocol
                                 if (initret == false)
                                 {
                                     ErrorManager.Current.Insert(ErrorCode.IODisconnect);
-                                    //MessageBox.Show("Output IO disconnect!", "Error");
+                                    return;
                                 }
                             }
                         }
@@ -391,7 +391,7 @@ namespace AkribisFAM.CommunicationProtocol
                                 if (initret == false)
                                 {
                                     ErrorManager.Current.Insert(ErrorCode.IODisconnect);
-                                    //MessageBox.Show("Input IO disconnect!", "Error");
+                                    return;
                                 }
                             }
                         }

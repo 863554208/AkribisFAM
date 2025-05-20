@@ -50,6 +50,9 @@ namespace AkribisFAM.Manager
 
         public int Guarding;
         public StateCode State;
+        public int  RunningHourCnt;
+        public int currentUPH;
+        public int currentNG;
 
         public DateTime RunningEnd;
         public DateTime StoppedEnd;

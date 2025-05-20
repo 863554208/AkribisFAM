@@ -412,7 +412,7 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public override void AutoRun()
+        public override void AutoRun(CancellationToken token)
         {
             try
             {

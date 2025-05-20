@@ -5,25 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="390" d:DesignWidth="768">
+             d:DesignHeight="600" d:DesignWidth="1200">
     <Grid Background="#FFE5E5E5">
-        <GroupBox Header="Camera View" Margin="0,0,200,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="Camera View" >
             <Grid>
-                <Image x:Name="Imageview" Margin="0,0,233,4"/>
-                <Button Content="Nozzle1Calib" HorizontalAlignment="Left" Margin="402,36,0,0" VerticalAlignment="Top" Height="32" Width="106" Click="Button_Click"/>
+                <Image x:Name="Imageview" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Parameters" Margin="573,0,0,0">
+        <GroupBox Header="Parameters" Grid.Column="1">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition Height="1.5*"/>
+                    <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Label Content="Camera Number:" HorizontalAlignment="Center" VerticalAlignment="Center" Width="163" HorizontalContentAlignment="Center"/>
                 <ComboBox HorizontalAlignment="Center" VerticalAlignment="Center" Width="120" Grid.Row="1">
@@ -34,9 +38,47 @@
                 <Button x:Name="Capturebtn" Content="Capture" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Width="78" Click="Capturebtn_Click"/>
                 <Button x:Name="Loadbtn" Content="Load" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="78" Click="Loadbtn_Click"/>
                 <Button x:Name="Savebtn" Content="Save" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" Width="78" Click="Savebtn_Click"/>
-                <Button x:Name="NozzleCalib" Content="Nozzle Calib" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" Click="NozzleCalib_Click"/>
-                <Button x:Name="PointsCalib" Content="11 Points Calib" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Click="PointsCalib_Click"/>
-                <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Click="JointCalib_Click"/>
+                <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" Grid.Row="8" VerticalAlignment="Center" Click="JointCalib_Click"/>
+
+                <Grid Grid.Row="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="NozzleCalib" Content="Nozzle Calib" HorizontalAlignment="Center" Grid.Row="5" VerticalAlignment="Center" Click="NozzleCalib_Click"/>
+                    <ComboBox x:Name="NozzleCalibNum" HorizontalAlignment="Center" VerticalAlignment="Center" Width="121">
+                        <ComboBoxItem Content="Nozzle 1"/>
+                        <ComboBoxItem Content="Nozzle 2"/>
+                        <ComboBoxItem Content="Nozzle 3"/>
+                        <ComboBoxItem Content="Nozzle 4"/>
+                    </ComboBox>
+                </Grid>
+                <Grid Grid.Row="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Button x:Name="Points9Calib" Content="9 Points Calib" HorizontalAlignment="Center" Grid.Row="6" VerticalAlignment="Center" Click="Points9Calib_Click"/>
+                    <ComboBox x:Name="Points9CalibNum" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120">
+                        <ComboBoxItem Content="Feeder"/>
+                        <ComboBoxItem Content="Conveyor"/>
+                    </ComboBox>
+                </Grid>
+                <Grid Grid.Row="7">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Button x:Name="Points11Calib" Content="11 Points Calib" HorizontalAlignment="Center" Grid.Row="7" VerticalAlignment="Center" Click="Points11Calib_Click"/>
+                        <ComboBox x:Name="Points11CalibNum" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120">
+                            <ComboBoxItem Content="Nozzle 1"/>
+                            <ComboBoxItem Content="Nozzle 2"/>
+                            <ComboBoxItem Content="Nozzle 3"/>
+                            <ComboBoxItem Content="Nozzle 4"/>
+                        </ComboBox>
+                    </Grid>
+                </Grid>
             </Grid>
         </GroupBox>
     </Grid>
