@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
+using System.Windows.Documents;
 
 namespace AkribisFAM
 {
@@ -32,6 +33,10 @@ namespace AkribisFAM
         [DataMember]
         public int type { get; set; }
         [DataMember]
+
+        public List<ChildPoint> childList { get; set; }
+        [DataMember]
+
         public int col { get; set; }
         [DataMember]
         public int row { get; set; }
@@ -45,6 +50,20 @@ namespace AkribisFAM
         public int R { get; set; }
 
     }
+
+    [DataContract]
+    public class ChildPoint
+    {
+        [DataMember]
+        public List<string> childName { get; set; }
+
+        [DataMember]
+        public List<int> childPos { get; set; }
+
+    }
+
+
+
     [DataContract]
     public class StationPoints
     {
@@ -64,11 +83,11 @@ namespace AkribisFAM
     public class AxisParams
     {
         [JsonProperty("AxisSpeedDict")]
-        public Dictionary<string, int> AxisSpeedDict { get; set; }
+        public Dictionary<string, double> AxisSpeedDict { get; set; }
         [JsonProperty("AxisAccDict")]
-        public Dictionary<string, int> AxisAccDict { get; set; }
+        public Dictionary<string, double> AxisAccDict { get; set; }
         [JsonProperty("AxisDecDict")]
-        public Dictionary<string, int> AxisDecDict { get; set; }
+        public Dictionary<string, double> AxisDecDict { get; set; }
     }
 
 
@@ -846,7 +865,5 @@ namespace AkribisFAM
         //轴参数
         public AxisParams axisparams = new AxisParams();
 
-        //count 和 mm 的比例
-        public double coef = 10000.0; 
     }
 }

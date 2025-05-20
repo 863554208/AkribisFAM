@@ -221,6 +221,19 @@ namespace AkribisFAM.Windows
                 //关闭   DisEnable(nowAxisIndex)
             }
         }
+        private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
+            if (btn != null && btn.IsChecked == true)
+            {
+                // 打开逻辑
+                //Todo   AllEnable()
+            }
+            else
+            {
+                //关闭   AllDisEnable()
+            }
+        }
 
         private void FloatTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -264,8 +277,24 @@ namespace AkribisFAM.Windows
         private bool IsValidFloatInput(string input)
         {
             // 支持合法浮点数格式：123、0.5、.5、123.
-            return Regex.IsMatch(input, @"^(\d+(\.\d*)?|\.\d+)?$");
+            return Regex.IsMatch(input, @"^-?(\d+(\.\d*)?|\.\d+)?$");
         }
+
+        private void Grid_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (AxisListBox.Items.Count == 0)
+                return;
+
+            int currentIndex = AxisListBox.SelectedIndex;
+
+            if (e.Delta > 0) // 滚轮向上
+            {
+                currentIndex--;
+            }
+            else if (e.Delta < 0) // 滚轮向下
+            {
+                currentIndex++;
+            }
 
         private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
         {

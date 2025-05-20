@@ -178,6 +178,7 @@
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DB\dbAccess.cs" />
     <Compile Include="GlobalManager.cs" />
+    <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -194,7 +195,6 @@
     <Compile Include="Manager\WarningManager.cs" />
     <Compile Include="NewStation\newStation1.cs" />
     <Compile Include="NewStation\newStation2.cs" />
-    <Compile Include="ShareValues.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
@@ -226,9 +226,6 @@
     <Compile Include="Windows\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\GenrateJson.xaml.cs">
-      <DependentUpon>GenrateJson.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
     </Compile>
@@ -244,14 +241,11 @@
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\PalletPointsWindow.xaml.cs">
-      <DependentUpon>PalletPointsWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Windows\ParameterConfig.xaml.cs">
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\SetPoint.xaml.cs">
-      <DependentUpon>SetPoint.xaml</DependentUpon>
+    <Compile Include="Windows\Performance.xaml.cs">
+      <DependentUpon>Performance.xaml</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
@@ -315,10 +309,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\GenrateJson.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Windows\InternetConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -339,17 +329,13 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\PalletPointsWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Windows\ParameterConfig.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\SetPoint.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Windows\Performance.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -398,7 +384,9 @@
   <ItemGroup>
     <Resource Include="Windows\641.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Windows\AKB.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

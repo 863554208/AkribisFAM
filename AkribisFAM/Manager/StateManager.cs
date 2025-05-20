@@ -50,6 +50,9 @@ namespace AkribisFAM.Manager
 
         public int Guarding;
         public StateCode State;
+        public int  RunningHourCnt;
+        public int currentUPH;
+        public int currentNG;
 
         public DateTime RunningEnd;
         public DateTime StoppedEnd;
@@ -60,6 +63,15 @@ namespace AkribisFAM.Manager
         public DateTime StoppedStart;    
         public DateTime MaintenanceStart; 
         public DateTime IdleStart;
+
+        public TimeSpan RunningTime;
+        public TimeSpan StoppedTime;
+        public TimeSpan MaintenanceTime;
+        public TimeSpan IdleTime;
+
+        public int TotalInput;
+        public int TotalOutputOK;
+        public int TotalOutputNG;
 
         public void DetectRemainBoard() {
             while (true)
@@ -172,6 +184,7 @@ namespace AkribisFAM.Manager
                     else if (State == StateCode.STOPPED)
                     {
                         IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 1);
+                        //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
                         Thread.Sleep(500);
                     }
                 }

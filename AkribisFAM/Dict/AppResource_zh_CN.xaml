@@ -5,6 +5,7 @@
     <sys:String x:Key="Main Page">主界面</sys:String>
     <sys:String x:Key="Manual Control">手动控制</sys:String>
     <sys:String x:Key="Parameter Setting">参数配置</sys:String>
+	<sys:String x:Key="Performance">性能指标</sys:String>
     <sys:String x:Key="Internet Config">网络配置</sys:String>
     <sys:String x:Key="Log">系统日志</sys:String>
 
@@ -30,6 +31,7 @@
     <sys:String x:Key="TextNowAxisVel">速度</sys:String>
     <sys:String x:Key="TextNowAxisAcc">加/减速度</sys:String>
     <sys:String x:Key="TextNowAxisEnable">当前轴使能</sys:String>
+    <sys:String x:Key="TextAllAxisEnable">所有轴使能</sys:String>
     <sys:String x:Key="TextAxisStart">运动</sys:String>
     <sys:String x:Key="TextAxisStop">停止</sys:String>
     <sys:String x:Key="TextAxisJog">点动</sys:String>

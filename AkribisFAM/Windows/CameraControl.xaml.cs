@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
+using AkribisFAM.WorkStation;
 using Microsoft.Win32;
 
 namespace AkribisFAM.Windows
@@ -112,8 +113,20 @@ namespace AkribisFAM.Windows
 
         }
 
+        private void NozzleCalib_Click(object sender, RoutedEventArgs e)
+        {
+            int nozzlenum = NozzleCalibNum.SelectedIndex;
+            Reject.Current.TrainNozzles(nozzlenum);
+        }
+
+        private void Points11Calib_Click(object sender, RoutedEventArgs e)
+        {
+            int nozzlenum = Points11CalibNum.SelectedIndex;
+
+        }
+
         bool Calibstatus_Click = true;
-        private async void Button_Click(object sender, RoutedEventArgs e)     
+        private async void JointCalib_Click(object sender, RoutedEventArgs e)
         {
             if (Calibstatus_Click)
             {
@@ -131,6 +144,11 @@ namespace AkribisFAM.Windows
                     Calibstatus_Click = true;
                 }
             }
+        }
+
+        private void Points9Calib_Click(object sender, RoutedEventArgs e)
+        {
+            int calibnum = Points9CalibNum.SelectedIndex;
         }
     }
 }

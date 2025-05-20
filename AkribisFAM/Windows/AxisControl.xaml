@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows" xmlns:viewmodel="clr-namespace:AkribisFAM.ViewModel" 
              mc:Ignorable="d" 
              d:DesignHeight="790" d:DesignWidth="968">
-    <Grid>
+    <Grid PreviewMouseWheel="Grid_PreviewMouseWheel" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="4*"/>
@@ -16,7 +16,7 @@
 
         <GroupBox Header="{DynamicResource TextAxisList}" Grid.Column="0">
             <ScrollViewer>
-                <ListBox x:Name="AxisListBox" Style="{StaticResource MaterialDesignListBox}" SelectionChanged="AxisListBox_SelectionChanged">
+                <ListBox x:Name="AxisListBox" Style="{StaticResource MaterialDesignListBox}" SelectionChanged="AxisListBox_SelectionChanged" >
 
                 </ListBox>
             </ScrollViewer>
@@ -25,9 +25,7 @@
         <GroupBox Header="{DynamicResource TextAxisStat}" Grid.Column="1">
             <Grid VerticalAlignment="Center" Height="500">
                 <Grid.RowDefinitions>
-                    <!-- 8 rows -->
                     <RowDefinition Height="0.7*"/>
-                    <!-- Header -->
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="0.7*"/>
                     <RowDefinition Height="*"/>
@@ -43,61 +41,185 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Header Row -->
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextAxisName}" Grid.Row="0" Grid.Column="0"  />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisPos}" Grid.Row="0" Grid.Column="1"  />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextTargetAxisPos}" Grid.Row="0" Grid.Column="2"  />
+                <!-- Row 0 (Header) -->
+                <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextAxisName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowAxisPos}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextTargetAxisPos}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
                 <!-- Row 1 -->
-                <TextBlock Name="tbAxisName" Text="" Grid.Row="1" Grid.Column="0" />
-                <TextBlock Name="tbNowPos" Text="" Grid.Row="1" Grid.Column="1" />
-                <TextBlock Name="tbTargetPos" Text="" Grid.Row="1" Grid.Column="2" />
+                <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <TextBlock Name="tbAxisName" Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <TextBlock Name="tbNowPos" Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="1" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <TextBlock Name="tbTargetPos" Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
                 <!-- Row 2 -->
-                <TextBlock VerticalAlignment="Center" Name="tbAxisVel" Text="{DynamicResource TextNowAxisVel}" Grid.Row="2" Grid.Column="0"  />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEN}" Grid.Row="2" Grid.Column="1" />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisInPos}" Grid.Row="2" Grid.Column="2"  />
+                <Border Grid.Row="2" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Name="tbAxisVel" Text="{DynamicResource TextNowAxisVel}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowAxisEN}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowAxisInPos}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
                 <!-- Row 3 -->
-                <TextBlock Text="" Grid.Row="3" Grid.Column="0" />
-                <Viewbox  Stretch="Uniform" Grid.Row="3" Grid.Column="1">
-                    <Ellipse Name="AxisEnStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="2">
-                    <Ellipse Name="AxisInPosStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
+                <Border Grid.Row="3" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <TextBlock Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisEnStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
+                <Border Grid.Row="3" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisInPosStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
 
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisHome}" Grid.Row="4" Grid.Column="0" />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowLimit+}" Grid.Row="4" Grid.Column="1" />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowLimit-}" Grid.Row="4" Grid.Column="2" />
+                <!-- Row 4 -->
+                <Border Grid.Row="4" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowAxisHome}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowLimit+}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="4" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowLimit-}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisErr}" Grid.Row="6" Grid.Column="0" />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowSwLimit+}" Grid.Row="6" Grid.Column="1" />
-                <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowSwLimit-}" Grid.Row="6" Grid.Column="2" />
+                <!-- Row 5 -->
+                <Border Grid.Row="5" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisHomeStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
+                <Border Grid.Row="5" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
+                <Border Grid.Row="5" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
 
-                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="0">
-                    <Ellipse Name="AxisHomeStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="1">
-                    <Ellipse Name="AxisLimitStatP" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="2">
-                    <Ellipse Name="AxisLimitStatN" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
+                <!-- Row 6 -->
+                <Border Grid.Row="6" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowAxisErr}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowSwLimit+}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="6" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                    <TextBlock Text="{DynamicResource TextNowSwLimit-}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-                
-                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="0">
-                    <Ellipse Name="AxisErrStat" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="1">
-                    <Ellipse Name="AxisSwLimitStatP" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="2">
-                    <Ellipse Name="AxisSwLimitStatN" Width="80" Height="80" Fill="Gray" Stroke="Blue" StrokeThickness="2"/>
-                </Viewbox>
-
-
+                <!-- Row 7 -->
+                <Border Grid.Row="7" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisErrStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
+                <Border Grid.Row="7" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisSwLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
+                <Border Grid.Row="7" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
+                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                        <Ellipse Name="AxisSwLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    </Viewbox>
+                </Border>
             </Grid>
+            <!--<Grid VerticalAlignment="Center" Height="500" ShowGridLines="True">
+                <Grid.RowDefinitions>
+                    --><!-- 8 rows --><!--
+                    <RowDefinition Height="0.7*"/>
+                    --><!-- Header --><!--
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="0.7*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                --><!-- Header Row --><!--
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextAxisName}" Grid.Row="0" Grid.Column="0"  />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisPos}" Grid.Row="0" Grid.Column="1"  />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextTargetAxisPos}" Grid.Row="0" Grid.Column="2"  />
+
+                --><!-- Row 1 --><!--
+                <TextBlock HorizontalAlignment="Center" Name="tbAxisName" Text="" Grid.Row="1" Grid.Column="0" />
+                <TextBlock HorizontalAlignment="Center" Name="tbNowPos" Text="" Grid.Row="1" Grid.Column="1" />
+                <TextBlock HorizontalAlignment="Center" Name="tbTargetPos" Text="" Grid.Row="1" Grid.Column="2" />
+
+                --><!-- Row 2 --><!--
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Name="tbAxisVel" Text="{DynamicResource TextNowAxisVel}" Grid.Row="2" Grid.Column="0"  />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEN}" Grid.Row="2" Grid.Column="1" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisInPos}" Grid.Row="2" Grid.Column="2"  />
+
+                --><!-- Row 3 --><!--
+                <TextBlock Text="" Grid.Row="3" Grid.Column="0" />
+                <Viewbox  Stretch="Uniform" Grid.Row="3" Grid.Column="1" Width="50" Height="50">
+                    <Ellipse Name="AxisEnStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" Grid.Row="3" Grid.Column="2" Width="50" Height="50">
+                    <Ellipse Name="AxisInPosStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisHome}" Grid.Row="4" Grid.Column="0" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowLimit+}" Grid.Row="4" Grid.Column="1" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowLimit-}" Grid.Row="4" Grid.Column="2" />
+
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisErr}" Grid.Row="6" Grid.Column="0" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowSwLimit+}" Grid.Row="6" Grid.Column="1" />
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowSwLimit-}" Grid.Row="6" Grid.Column="2" />
+
+                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="0" Width="50" Height="50">
+                    <Ellipse Name="AxisHomeStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="1" Width="50" Height="50">
+                    <Ellipse Name="AxisLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" Grid.Row="5" Grid.Column="2" Width="50" Height="50">
+                    <Ellipse Name="AxisLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+
+
+                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="0" Width="50" Height="50">
+                    <Ellipse Name="AxisErrStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="1" Width="50" Height="50">
+                    <Ellipse Name="AxisSwLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" Grid.Row="7" Grid.Column="2" Width="50" Height="50">
+                    <Ellipse Name="AxisSwLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                </Viewbox>
+
+
+            </Grid>-->
 
         </GroupBox>
 
@@ -106,7 +228,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
+                  
                 </Grid.RowDefinitions>
 
                 <!-- 第1行内容 -->
@@ -133,17 +255,17 @@
 
                     <!-- 第2行 -->
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TextTargetAxisPos}" VerticalAlignment="Center"/>
-                    <TextBox Name="TbTargetPos" Grid.Row="1"   Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
+                    <TextBox Name="TbTargetPos" Text="0"  Grid.Row="1"   Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="1" Grid.Column="2"  Text="mm"  VerticalAlignment="Center"/>
 
                     <!-- 第3行 -->
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource TextNowAxisVel}" VerticalAlignment="Center"/>
-                    <TextBox Name="TbVel" Grid.Row="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
+                    <TextBox Name="TbVel" Text="10" Grid.Row="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="2" Grid.Column="2" Text="mm/s" VerticalAlignment="Center"/>
 
                     <!-- 第4行 -->
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TextNowAxisAcc}" VerticalAlignment="Center"/>
-                    <TextBox Name="TbAccDec" Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="3" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
+                    <TextBox Name="TbAccDec" Text="100"  Style="{StaticResource MaterialDesignFloatingHintTextBox}" Grid.Row="3" Grid.Column="1" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting" InputMethod.IsInputMethodEnabled="False"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" Text="mm/s²" VerticalAlignment="Center"/>
                 </Grid>
                 <!--<StackPanel Orientation="Horizontal">
@@ -171,37 +293,41 @@
 
                  <!-- 第2行内容 -->
                 <StackPanel  Grid.Row="1">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
                         <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEnable}"></TextBlock>
-                        <ToggleButton Margin="20,0,0,0" Name="IsAxisEnable"
+                        <ToggleButton Margin="20,0,0,0"  Height="50" Width="50" Name="IsAxisEnable"
                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                      
                       ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background" Click="ToggleButton_Click" >
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                                <SolidColorBrush
+                                  Color="Green" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                                <SolidColorBrush
+                                   Color="Black" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                        </ToggleButton>
+
+                        <TextBlock VerticalAlignment="Center" Margin="30,0,0,0"  Text="{DynamicResource TextAllAxisEnable}"></TextBlock>
+                        <ToggleButton Margin="20,0,0,0" Name="IsAllAxisEnable" Height="45" Width="45"
+                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                      ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background" Click="ToggleAllButton_Click" >
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                                <SolidColorBrush
+                                  Color="Green" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>
+                            <materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
+                                <SolidColorBrush
+                                   Color="Black" />
+                            </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
                         </ToggleButton>
                     </StackPanel>
-                    <Button Margin="5" Name="BtnMove" Style="{StaticResource MaterialDesignRaisedLightButton}"  Content="{DynamicResource TextAxisStart}" Click="BtnMove_Click" ></Button>
-                    <Button Margin="5" Name="BtnStop" Style="{StaticResource MaterialDesignRaisedLightButton}"  Content="{DynamicResource TextAxisStop}" Click="BtnStop_Click"></Button>
-                </StackPanel>
 
-                <Grid Grid.Row="2" ShowGridLines="True">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- 第一行 -->
-
-                    <Button Grid.Row="0"  Grid.Column="1" >
-                        <Viewbox>
-                        <materialDesign:PackIcon Kind="ArrowUpBoldOutline" />
-                        </Viewbox>
-                    </Button>
-
+                    <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">-->
+                    <Button Margin="10" Name="BtnMove" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisStart}" Click="BtnMove_Click" ></Button>
+                    <Button Margin="10" Name="BtnStop" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisStop}" Click="BtnStop_Click"></Button>
+                    <!--</StackPanel>-->
 
                     <!-- 第二行 -->
                     <Button Grid.Row="1" Grid.Column="0" PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp">
@@ -218,13 +344,7 @@
 
                     <!-- 第三行 -->
 
-                    <Button Grid.Row="2" Grid.Column="1" >
-                        <Viewbox>
-                        <materialDesign:PackIcon Kind="ArrowDownBoldOutline" />
-                        </Viewbox>
-                    </Button>
 
-                </Grid>
 
 
             </Grid>
