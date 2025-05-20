@@ -102,49 +102,6 @@
 
             <!-- 左侧菜单 -->
             <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
-                <!--<materialDesign:ColorZone Mode="PrimaryMid" >
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
-
-                        <RadioButton  Content="{DynamicResource Main Page}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="82"   IsChecked="True"
-                 Click="MainWindowButton_Click"/>
-
-                        <RadioButton  Content="{DynamicResource Manual Control}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="77"   IsChecked="False"
-                 Click="ManualControlButton_Click"/>
-
-                        <RadioButton  Content="{DynamicResource Parameter Setting}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="76"  IsChecked="False"
-                 Click="ParameterConfigButton_Click"/>
-
-                        <RadioButton Content="{DynamicResource Performance}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="75"   IsChecked="False" 
-                 Click="PerformanceButton_Click"
-                 />
-
-                        <RadioButton Content="{DynamicResource Internet Config}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="76"  IsChecked="False"
-                 Click="InternetConfigButton_Click"/>
-
-
-
-                        <RadioButton Content="{DynamicResource Log}"
-                 Style="{StaticResource MaterialDesignTabRadioButton}"
-                 GroupName="NavGroup"
-                 Height="75"   IsChecked="False"
-                 Click="DebugLogButton_Click"/>
-                    </StackPanel>
-                </materialDesign:ColorZone>-->
                 <materialDesign:ColorZone Mode="PrimaryMid">
                     <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
 
@@ -181,7 +138,7 @@
                         </Border>
 
                         <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton Content="{DynamicResource Parameter Setting}"
+                            <RadioButton Content="{DynamicResource Internet Config}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="76" IsChecked="False"

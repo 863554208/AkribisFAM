@@ -64,6 +64,9 @@ namespace AkribisFAM.Windows
         "PRZ"
         };
 
+        List<string> posFilePre = new List<string>();
+        List<string> posFileName = new List<string>();
+
         private StationPoints stationPoints = new StationPoints();
         public StationPoints StationPoints
         {
