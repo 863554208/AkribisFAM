@@ -82,10 +82,10 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current ,token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
 
                     await Task.WhenAll(tasks);
                 }
@@ -116,7 +116,7 @@ namespace AkribisFAM
             return true;
         }
 
-        private void RunAutoStation(WorkStationBase station)
+        private void RunAutoStation(WorkStationBase station , CancellationToken token)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace AkribisFAM
                         continue;
                     }
 
-                    station.AutoRun(); 
+                    station.AutoRun(token); 
 
                     Thread.Sleep(50);
                 }
@@ -242,7 +242,12 @@ namespace AkribisFAM
         public bool Reset()
         {
             //20250519 测试 【史彦洋】 追加 Start
+            //Thread.Sleep(5000);
             //return true;
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+            Thread.Sleep(500);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
             //复位气缸和吸嘴IO
             CylinderDown();
@@ -257,6 +262,16 @@ namespace AkribisFAM
             AkrAction.Current.SetZeroAll();
 
             //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
+            LaiLiao.Current.board_count = 1;
+
+            int agmIndex = (int)AxisName.FSX / 8;
+            int axisRefNum = (int)AxisName.FSX / 8;
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            {
+                //TODO 加入退出机制
+                Thread.Sleep(500);
+            }
+
             if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor(100);
@@ -297,6 +312,9 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
             return true;
         }
 

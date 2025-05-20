@@ -190,16 +190,12 @@ namespace AkribisFAM.WorkStation
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
 
         }
-        public void Move(GlobalManager.AxisName axisName, int position, int? speed = null, int? accel = null, int? decel = null)
+        public void Move(GlobalManager.AxisName axisName, double position, double? speed = null, double? accel = null, double? decel = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            position = ToPalse(axisName, position);
-            speed = ToPalse(axisName, speed);
-            accel = ToPalse(axisName, accel);
-            decel = ToPalse(axisName, decel);
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
-            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(position, speed, accel, decel);
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPalse(axisName, position), ToPalse(axisName, speed), ToPalse(axisName, accel), ToPalse(axisName, decel));
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 //TODO 加入退出机制
@@ -207,16 +203,12 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public void MoveRel(GlobalManager.AxisName axisName, int distance, int? speed = null, int? accel = null, int? decel = null)
+        public void MoveRel(GlobalManager.AxisName axisName, double position, double? speed = null, double? accel = null, double? decel = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            distance = ToPalse(axisName, distance);
-            speed = ToPalse(axisName, speed);
-            accel = ToPalse(axisName, accel);
-            decel = ToPalse(axisName, decel);
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
-            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(ToPalse(axisName, position), ToPalse(axisName, speed), ToPalse(axisName, accel), ToPalse(axisName, decel));
             //while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             //{
             //    //TODO 加入退出机制
@@ -236,12 +228,12 @@ namespace AkribisFAM.WorkStation
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(distance, speed, accel, decel);
         }
 
-        public void JogMove(GlobalManager.AxisName axisName , int dir , int vel)
+        public void JogMove(GlobalManager.AxisName axisName , int dir , double vel)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            vel = ToPalse(axisName, vel);
-            AAMotionAPI.Jog(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), dir * vel);
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAMotionAPI.Jog(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), dir * ToPalse(axisName, vel));
         }
 
         public void Stop(GlobalManager.AxisName axisName)
@@ -286,37 +278,76 @@ namespace AkribisFAM.WorkStation
             Stop(GlobalManager.AxisName.BR5);
             return true;
         }
+        public bool StopAllAxis()
+        {
+            Stop(AxisName.LSX);
+            Stop(AxisName.LSY);
+            Stop(AxisName.FSX);
+            Stop(AxisName.FSY);
+            Stop(AxisName.PICK1_Z);
+            Stop(AxisName.PICK1_T);
+            Stop(AxisName.PICK2_Z);
+            Stop(AxisName.PICK2_T);
+            Stop(AxisName.PICK3_Z);
+            Stop(AxisName.PICK3_T);
+            Stop(AxisName.PICK4_Z);
+            Stop(AxisName.PICK4_T);
+            Stop(AxisName.PRX);
+            Stop(AxisName.PRY);
+            Stop(AxisName.PRZ);
+
+            return true;
+        }
 
         public int axisAllHome(String path)
         {
             try
             {
+                //扩展名
                 string[] fileNames = Directory.GetFiles(path);
+                //var a = "D:\\akribisfam_config\\HomeFile\\LSX_homing.hseq";
+                //string Axisname = "LSX";
+                //int temp = (int)GlobalManager.Current.GetAxisNameFromString(Axisname);
+                //int agmIndex = temp / 8;
+                //int axisRefNum = temp % 8;
+                //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), a);
 
-                //新的回原方式
+                //////新的回原方式
                 foreach (string fileName in fileNames)
                 {
-                    
                     string name = Path.GetFileName(fileName).Trim();
                     string[] parts = name.Split('_');
-                    int numericPart = int.Parse(parts[0]);
-                    int agmIndex = (int)numericPart / 8;
-                    int axisRefNum = (int)numericPart % 8;
-                    if (numericPart == 25) AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), fileName);
-                    while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+                    string Axisname = parts[0];
+                    var temp = (int)GlobalManager.Current.GetAxisNameFromString(Axisname);
+                    int agmIndex = temp / 8;
+                    int axisRefNum = temp % 8;
+
+                    if (Axisname == "PRZ")
                     {
-                        Thread.Sleep(50);
+                        AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), fileName);
+                        while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+                        {
+                            //TODO 加入退出机制
+                            Thread.Sleep(500);
+                        }
+
                     }
+
 
                 }
                 foreach (string fileName in fileNames)
                 {
                     string name = Path.GetFileName(fileName).Trim();
                     string[] parts = name.Split('_');
-                    int numericPart = int.Parse(parts[0]);
-                    int agmIndex = (int)numericPart / 8;
-                    int axisRefNum = (int)numericPart % 8;
-                    if (numericPart != 25) AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[numericPart], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), fileName);
+                    string Axisname = parts[0];
+                    var temp = (int)GlobalManager.Current.GetAxisNameFromString(Axisname);
+                    int agmIndex = temp / 8;
+                    int axisRefNum = temp % 8;
+                    if (Axisname != "PRZ")
+                    {
+                        AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), fileName);
+                    }
+
 
                 }
 
@@ -572,6 +603,9 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
+
+
+
         public int axisEnable(GlobalManager.AxisName axisName, bool enable)
         {
             try
@@ -592,7 +626,7 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-        public int ToPalse(AxisName axisName ,int? mm)
+        public int ToPalse(AxisName axisName ,double? mm)
         {
             switch (axisName)
             {
@@ -609,34 +643,34 @@ namespace AkribisFAM.WorkStation
                     return (int)(10000 * mm);
 
                 case AxisName.BL1:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BL2:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BL3:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BL4:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BL5:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BR1:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BR2:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BR3:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BR4:
-                    return (int)(51200 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.BR5:
-                    return (int)(51200 * mm);
+                    return (int)(51200/78 * mm);
 
                 case AxisName.PICK1_Z:
                     return (int)(2000 * mm);
@@ -648,7 +682,8 @@ namespace AkribisFAM.WorkStation
                     return (int)(2000 * mm);
 
                 case AxisName.PICK2_T:
-                    return (int)(192000 * mm);
+                    return (int)(2 * mm);
+                    //return (int)(192000 * mm);
 
                 case AxisName.PICK3_Z:
                     return (int)(2000 * mm);
@@ -730,14 +765,14 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.BR2, enable);
             ret += axisEnable(AxisName.BR3, enable);
             ret += axisEnable(AxisName.BR4, enable);
-            ret += axisEnable(AxisName.PICK1_Z, enable);
-            ret += axisEnable(AxisName.PICK1_T, enable);
-            ret += axisEnable(AxisName.PICK2_Z, enable);
-            ret += axisEnable(AxisName.PICK2_T, enable);
-            ret += axisEnable(AxisName.PICK3_Z, enable);
-            ret += axisEnable(AxisName.PICK3_T, enable);
-            ret += axisEnable(AxisName.PICK4_Z, enable);
-            ret += axisEnable(AxisName.PICK4_T, enable);
+            //ret += axisEnable(AxisName.PICK1_Z, enable);
+            //ret += axisEnable(AxisName.PICK1_T, enable);
+            //ret += axisEnable(AxisName.PICK2_Z, enable);
+            //ret += axisEnable(AxisName.PICK2_T, enable);
+            //ret += axisEnable(AxisName.PICK3_Z, enable);
+            //ret += axisEnable(AxisName.PICK3_T, enable);
+            //ret += axisEnable(AxisName.PICK4_Z, enable);
+            //ret += axisEnable(AxisName.PICK4_T, enable);
             ret += axisEnable(AxisName.PRX, enable);
             ret += axisEnable(AxisName.PRY, enable);
             ret += axisEnable(AxisName.PRZ, enable);

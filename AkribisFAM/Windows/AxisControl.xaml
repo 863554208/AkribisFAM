@@ -204,15 +204,15 @@
 
 
                     <!-- 第二行 -->
-                    <Button Grid.Row="1" Grid.Column="0">
+                    <Button Grid.Row="1" Grid.Column="0" PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp">
                         <Viewbox>
                         <materialDesign:PackIcon Kind="ArrowLeftBoldOutline" />
                         </Viewbox>
                     </Button>
                     <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Text="{DynamicResource TextAxisJog}" />
-                    <Button Grid.Row="1" Grid.Column="2" >
+                    <Button Grid.Row="1" Grid.Column="2" PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp" >
                         <Viewbox>
-                        <materialDesign:PackIcon Kind="ArrowRightBoldOutline" />
+                        <materialDesign:PackIcon Kind="ArrowRightBoldOutline"  />
                         </Viewbox>
                     </Button>
 

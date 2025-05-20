@@ -338,7 +338,7 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public override void AutoRun()
+        public override void AutoRun(CancellationToken token)
         {
             try
             {
@@ -436,6 +436,7 @@ namespace AkribisFAM.WorkStation
                     System.Threading.Thread.Sleep(100);
                 }
             }
+
             catch (Exception ex)
             {
                 AutorunManager.Current.isRunning = false;

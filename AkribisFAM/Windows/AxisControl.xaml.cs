@@ -22,6 +22,8 @@ using static MaterialDesignThemes.Wpf.Theme;
 using System.Text.RegularExpressions;
 using static AkribisFAM.Windows.AxisControl;
 using LiveCharts.Wpf;
+using static AkribisFAM.GlobalManager;
+using AkribisFAM.WorkStation;
 
 namespace AkribisFAM.Windows
 {
@@ -31,9 +33,11 @@ namespace AkribisFAM.Windows
     public partial class AxisControl : UserControl
     {
 
-        const int AxisNum = 24;
+        const int AxisNum = 25;
         int nowAxisIndex = 0;
         List<Ellipse> statList = new List<Ellipse>();
+
+        private bool isJogging = false;
 
 
         private List<SingleAxis> _axisDataList = new List<SingleAxis>();
@@ -83,7 +87,9 @@ namespace AkribisFAM.Windows
         {
             for (int i = 1; i <= AxisNum; i++)
             {
-                string axisName = $"{prenName} {i}";
+                string axisName = GlobalManager.Current.GetAxisStringFromInteger(i);
+
+                //string axisName = $"{prenName} {i}";
 
                 // 添加到 ComboBox（CboxNowAxis）
                 CboxNowAxis.Items.Add(axisName);
@@ -103,25 +109,28 @@ namespace AkribisFAM.Windows
 
         private void updateAxisData(SingleAxis axis)
         {
-            tbNowPos.Text = axis.nowPos.ToString();
-            tbTargetPos.Text = axis.tarpos.ToString();
-            tbAxisVel.Text= axis.vel.ToString();
+            Dispatcher.Invoke(() =>
+            {
+                tbNowPos.Text = axis.nowPos.ToString();
+                tbTargetPos.Text = axis.tarpos.ToString();
+                tbAxisVel.Text = axis.vel.ToString();
 
-            if (axis.AxisStat.Count < statList.Count)
-            {
-                return;
-            }
-            for (int i=0;i< statList.Count;++i)
-            {
-                if (axis.AxisStat[i])
+                if (axis.AxisStat.Count < statList.Count)
                 {
-                    statList[i].Fill = Brushes.Green;
+                    return;
                 }
-                else
+                for (int i = 0; i < statList.Count; ++i)
                 {
-                    statList[i].Fill = Brushes.Gray;
+                    if (axis.AxisStat[i])
+                    {
+                        statList[i].Fill = Brushes.Green;
+                    }
+                    else
+                    {
+                        statList[i].Fill = Brushes.Gray;
+                    }
                 }
-            }
+            });
 
         }
 
@@ -165,10 +174,18 @@ namespace AkribisFAM.Windows
 
         private void BtnMove_Click(object sender, RoutedEventArgs e)
         {
-            bool success =
-                double.TryParse(TbTargetPos.Text.Trim(), out double posValue) &&
-                double.TryParse(TbVel.Text.Trim(), out double velValue) &&
-                double.TryParse(TbAccDec.Text.Trim(), out double accValue);
+
+            double posValue, velValue, accValue;
+
+            bool posSuccess = double.TryParse(TbTargetPos.Text.Trim(), out posValue);
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool accSuccess = double.TryParse(TbAccDec.Text.Trim(), out accValue);
+
+            bool success = posSuccess && velSuccess && accSuccess;
+            //bool success =
+            //    double.TryParse(TbTargetPos.Text.Trim(), out double posValue) &&
+            //    double.TryParse(TbVel.Text.Trim(), out double velValue) &&
+            //    double.TryParse(TbAccDec.Text.Trim(), out double accValue);
 
             if (!success)
             {
@@ -177,23 +194,30 @@ namespace AkribisFAM.Windows
             }
 
             //Todo MoveAbs(nowAxisIndex,posValue,velValue,accValue)
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
+            AkrAction.Current.Move(axis, posValue, velValue, accValue);
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
             //Todo Stop(nowAxisIndex)
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             if (btn != null && btn.IsChecked == true)
             {
-                // 打开逻辑
+                AkrAction.Current.axisEnable(axis, true);
                 //Todo   Enable(nowAxisIndex)
             }
             else
             {
+                
+                AkrAction.Current.axisEnable(axis, false);
                 //关闭   DisEnable(nowAxisIndex)
             }
         }
@@ -241,6 +265,54 @@ namespace AkribisFAM.Windows
         {
             // 支持合法浮点数格式：123、0.5、.5、123.
             return Regex.IsMatch(input, @"^(\d+(\.\d*)?|\.\d+)?$");
+        }
+
+        private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isJogging)
+            {
+                isJogging = true;
+                StartJogging_Backword();
+                
+            }
+        }
+        private void JogForwordButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            isJogging = false;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
+        }
+        private void JogBackwordButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!isJogging)
+            {
+                isJogging = true;
+                StartJogging_Forword();
+            }
+        }
+        private void JogBackwordButton_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            isJogging = false;
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.Stop(axis);
+        }
+        private void StartJogging_Forword()
+        {
+            double velValue;
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool success = velSuccess;
+
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.JogMove(axis,1, velValue);
+        }
+        private void StartJogging_Backword()
+        {
+            double velValue;
+            bool velSuccess = double.TryParse(TbVel.Text.Trim(), out velValue);
+            bool success = velSuccess;
+
+            AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+            AkrAction.Current.JogMove(axis, -1, velValue);
         }
 
     }

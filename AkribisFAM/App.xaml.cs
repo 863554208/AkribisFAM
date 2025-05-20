@@ -37,6 +37,9 @@ namespace AkribisFAM
             TCPNetworkManage.TCPInitialize();
             //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             StateManager.Current.DetectTimeDeltaThread();
+
+            MessageBox.Show("123");
+
             //启动与AGM800的连接
             StartConnectAGM800();
 
@@ -47,25 +50,25 @@ namespace AkribisFAM
             StateManager.Current.State = StateCode.IDLE;
             Console.WriteLine("123123");
             //TODO
-            try
-            {
-                // 初始化数据库连接
-                DatabaseManager.Initialize();
+            //try
+            //{
+            //    // 初始化数据库连接
+            //    DatabaseManager.Initialize();
 
-                // 插入数据
-                DatabaseManager.Insert("MyDatabase.db");
+            //    // 插入数据
+            //    DatabaseManager.Insert("MyDatabase.db");
 
-                Console.WriteLine("数据插入成功！");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"操作失败: {ex.Message}");
-            }
-            finally
-            {
-                // 关闭数据库连接
-                DatabaseManager.Shutdown();
-            }
+            //    Console.WriteLine("数据插入成功！");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"操作失败: {ex.Message}");
+            //}
+            //finally
+            //{
+            //    // 关闭数据库连接
+            //    DatabaseManager.Shutdown();
+            //}
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
@@ -109,6 +112,7 @@ namespace AkribisFAM
                 {
                     AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
                     AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
+                    
                 }
             }
             catch (Exception ex) { }
