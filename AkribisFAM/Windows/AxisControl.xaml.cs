@@ -75,7 +75,6 @@ namespace AkribisFAM.Windows
             //SingleAxis af = new SingleAxis();
             //updateAxisData(af);
 
-
         }
 
         //由于CboxNowAxis和AxisListBox后台生成，没有用上绑定。切换语言时需要调用。

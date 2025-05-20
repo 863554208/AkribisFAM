@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using AkribisFAM.Helper;
+using System.Windows.Threading;
 
 namespace AkribisFAM.Windows
 {
@@ -35,29 +36,56 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class ParameterConfig : UserControl
     {
-        StationPoints stationPoints;
+        //Add By YXW
+        private StationPoints stationPoints = new StationPoints();
+
+        public StationPoints StationPoints
+        {
+            get { return stationPoints; }
+            set { stationPoints = value; }
+        }
+
+        List<string> posFilePre = new List<string>();
+        List<string> posFileName = new List<string>();
         public ParameterConfig()
         {
             InitializeComponent();
             ReadAxisParamJson();
 
-            
-            //InitAxisJsonPos();
+            posFilePre.Add("Station_points1.json");
+            posFilePre.Add("Station_points2.json");
+            posFilePre.Add("Station_points3.json");
+            posFilePre.Add("Station_points4.json");
+            posFilePre.Add("Station_points5.json");
+
+            for (int z = 0; z < posFilePre.Count; z++)
+            {
+                string nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(posFilePre[z]);
+                CboxNowType.Items.Add(nameWithoutExtension);
+            }
+            CboxNowType.SelectedIndex = 0;
+            CboxNowType.SelectionChanged += CboxNowType_SelectionChanged;
 
             // 读取数据并生成 UI
-            //StationPoints stationPoints;
-            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
-            if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+            for (int i = 0; i < posFilePre.Count; i++)
             {
-                InitAxisJsonPos();
+                string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, posFilePre[i]);
+                posFileName.Add(jsonFile);
+                if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+                {
+                    InitAxisJsonPos(jsonFile);
+                }
             }
 
-            FileHelper.LoadConfig(jsonFile, out stationPoints);
+            FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
             InitTabs(stationPoints);
+
+            
+            //END ADD
         }
 
         //Add By YXW
-        private void InitAxisJsonPos()
+        private void InitAxisJsonPos(string file)
         {
             StationPoints newStats = new StationPoints
             {
@@ -69,6 +97,8 @@ namespace AkribisFAM.Windows
                         type = 1,
                         col = 3,
                         row = 1,
+                        general = 500,
+                        generalList = new List<int>(){123456,456321,78910},
                         childList = new List<ChildPoint>
                         {
                         new ChildPoint { childName = new List<string>{ "LL1-1" }, childPos = new List<int>{ 10, 20, 30, 0 } },
@@ -145,11 +175,9 @@ namespace AkribisFAM.Windows
                     }
             };
 
-            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
-
             // 保存到文件
-            bool saveOk = FileHelper.SaveToJson(jsonFile, newStats);
-            MessageBox.Show(saveOk ? "The Json point file cannot be found, and the system automatically generates default point data" : "The automatic generation of the Json point file failed");
+            bool saveOk = FileHelper.SaveToJson(file, newStats);
+            //MessageBox.Show(saveOk ? "The Json point file cannot be found, and the system automatically generates default point data" : "The automatic generation of the Json point file failed");
         }
 
         private void InitTabs(StationPoints points)
@@ -160,9 +188,15 @@ namespace AkribisFAM.Windows
             }
             PosTabControl.Items.Clear();
 
-            AddTabIfHasData("LaiLiao", points.LaiLiaoPointList);
-            AddTabIfHasData("ZuZhuang", points.ZuZhuangPointList);
-            AddTabIfHasData("FuJian", points.FuJianPointList);
+            AddTabIfHasData("Materials", points.LaiLiaoPointList);
+            AddTabIfHasData("Assembly", points.ZuZhuangPointList);
+            AddTabIfHasData("ReCheck", points.FuJianPointList);
+
+            // 延迟注册输入限制，确保控件已经加载
+            //PosTabControl.Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+            //{
+            //    RegisterFloatInputHandlers();
+            //}));
         }
 
         private void AddTabIfHasData(string header, List<Point> pointList)
@@ -212,18 +246,33 @@ namespace AkribisFAM.Windows
                     rowPanel.Children.Add(new TextBlock
                     {
                         Text = $"名称: {pt.name}",
-                        Width = 100,
+                        //Width = 100,
                         VerticalAlignment = VerticalAlignment.Center
                     });
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X));
-                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y));
-                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z));
-                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R));
+                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
+                    {
+                        if (int.TryParse(newText, out int val)) pt.X = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y, newText =>
+                    {
+                        if (int.TryParse(newText, out int val)) pt.Y = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z, newText =>
+                    {
+                        if (int.TryParse(newText, out int val)) pt.Z = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R, newText =>
+                    {
+                        if (int.TryParse(newText, out int val)) pt.R = val;
+                    }));
 
                     panel.Children.Add(rowPanel);
                 }
-                else
+                else if(pt.type == 1)
                 {
                     // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
                     int totalPoints = pt.row * pt.col;
@@ -246,7 +295,7 @@ namespace AkribisFAM.Windows
                     {
                         pt.childList.Add(new ChildPoint
                         {
-                            childName = new List<string> { $"点{pt.childList.Count + 1}" },
+                            childName = new List<string> { $"Point{pt.childList.Count + 1}" },
                             childPos = new List<int> { 0, 0, 0, 0 }
                         });
                     }
@@ -260,7 +309,7 @@ namespace AkribisFAM.Windows
                     // 绘制 UI
                     panel.Children.Add(new TextBlock
                     {
-                        Text = $"矩阵点模板: {pt.name} ({pt.col}列 × {pt.row}行)",
+                        Text = $"矩阵点: {pt.name} ({pt.col}col × {pt.row}row)",
                         FontWeight = FontWeights.Bold,
                         Margin = new Thickness(0, 8, 0, 4)
                     });
@@ -284,7 +333,7 @@ namespace AkribisFAM.Windows
                             {
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
-                                Width = 180,
+                                Width = 155,
                                 Background = new SolidColorBrush(Colors.LightGray),
                             };
 
@@ -321,6 +370,29 @@ namespace AkribisFAM.Windows
                         panel.Children.Add(rowPanel);
                     }
                 }
+                else
+                {
+                    var rowPanel = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(0, 4, 0, 4)
+                    };
+
+                    //rowPanel.Children.Add(new TextBlock
+                    //{
+                    //    Text = $"名称: {pt.name}",
+                    //    Width = 100,
+                    //    VerticalAlignment = VerticalAlignment.Center
+                    //});
+
+                    // general 输入框 + 回写
+                    rowPanel.Children.Add(CreateLabeledTextBox(pt.name, pt.general, newText =>
+                    {
+                        if (int.TryParse(newText, out int val)) pt.general = val;
+                    }));
+
+                    panel.Children.Add(rowPanel);
+                }
             }
 
             return new ScrollViewer { Content = panel };
@@ -337,15 +409,22 @@ namespace AkribisFAM.Windows
             panel.Children.Add(new TextBlock
             {
                 Text = label + ":",
-                Width = 25,
+                //Width = 25,
                 VerticalAlignment = VerticalAlignment.Center
             });
 
             var tb = new TextBox
             {
-                Width = 130,
+                Width = 110,
                 Text = initialValue.ToString()
             };
+
+            tb.PreviewTextInput += FloatTextBox_PreviewTextInput;
+            tb.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+            DataObject.AddPastingHandler(tb, FloatTextBox_Pasting);
+
+            // 禁用输入法
+            InputMethod.SetIsInputMethodEnabled(tb, false);
 
             // 如果有绑定回调，就在文本变更时触发
             if (onTextChanged != null)
@@ -369,12 +448,100 @@ namespace AkribisFAM.Windows
 
         private void SavePosParam_Click(object sender, RoutedEventArgs e)
         {
-            string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Station_points.json");
+            int selectedIndex = CboxNowType.SelectedIndex;
+            string jsonFile = posFileName[selectedIndex];
             if (SaveAllTabsData(jsonFile))
-                MessageBox.Show("保存点位成功");
+                MessageBox.Show("保存点位成功"+ posFilePre[selectedIndex]);
             else
-                MessageBox.Show("保存点位失败");
+                MessageBox.Show("保存点位失败"+ posFilePre[selectedIndex]);
         }
+
+
+        //添加double输入限制-------------------------------------------------------------
+        private void RegisterFloatInputHandlers()
+        {
+            foreach (var tabObj in PosTabControl.Items)
+            {
+                if (tabObj is TabItem tabItem)
+                {
+                    RegisterHandlersInContainer(tabItem.Content);
+                }
+            }
+        }
+
+        private void RegisterHandlersInContainer(object container)
+        {
+            if (container is DependencyObject depObj)
+            {
+                foreach (var child in FindVisualChildren<TextBox>(depObj))
+                {
+                    child.PreviewTextInput += FloatTextBox_PreviewTextInput;
+                    child.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+                    DataObject.AddPastingHandler(child, FloatTextBox_Pasting);
+
+                    // 禁用输入法
+                    InputMethod.SetIsInputMethodEnabled(child, false);
+                }
+            }
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child is T t)
+                        yield return t;
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                        yield return childOfChild;
+                }
+            }
+        }
+
+        private void FloatTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is System.Windows.Controls.TextBox tb)
+            {
+                string newText = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
+                                       .Insert(tb.SelectionStart, e.Text);
+
+                e.Handled = !IsValidFloatInput(newText);
+            }
+        }
+
+        private void FloatTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!IsValidFloatInput(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private void FloatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // 禁用中文输入法（保险起见）
+            InputMethod.Current.ImeState = InputMethodState.Off;
+        }
+
+        private bool IsValidFloatInput(string input)
+        {
+            // 支持合法浮点数格式：123、0.5、.5、123.
+            return Regex.IsMatch(input, @"^-?(\d+(\.\d*)?|\.\d+)?$");
+        }
+
+
+
 
         //END ADD
 
@@ -2192,6 +2359,17 @@ namespace AkribisFAM.Windows
             {
                 rect.Fill = null;
             }));
+        }
+
+        private void CboxNowType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            if (comboBox != null)
+            {
+                int selectedIndex = comboBox.SelectedIndex;
+                FileHelper.LoadConfig(posFileName[selectedIndex], out stationPoints);   //默认加载第一套参数
+                InitTabs(stationPoints);
+            }
         }
     }
 }
