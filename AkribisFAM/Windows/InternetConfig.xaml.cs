@@ -184,35 +184,52 @@ namespace AkribisFAM.Windows
             ModbusTCPWorker.GetInstance().Disconnect();
         }
 
+        private void sendMess(ClientNames device, string mess) {
+            Task.Run(new Action(() =>
+            {
+                TCPNetworkManage.InputLoop(device, mess);
+            }));
+        }
+
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                if (device.SelectedIndex == 0)
+            //Task.Run(new Action(() =>
+            //{
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, Command.Text);
-                }
-                else if (device.SelectedIndex == 1)
-                {
-                    TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, Command.Text);
-                }
-                else if (device.SelectedIndex == 2)
-                {
-                    TCPNetworkManage.InputLoop(ClientNames.camera2, Command.Text);
-                }
-                else if (device.SelectedIndex == 3)
-                {
-                    TCPNetworkManage.InputLoop(ClientNames.camera3, Command.Text);
-                }
-                else if (device.SelectedIndex == 4)
-                {
-                    TCPNetworkManage.InputLoop(ClientNames.lazer, Command.Text);
-                }
-                else if (device.SelectedIndex == 5)
-                {
-                    TCPNetworkManage.InputLoop(ClientNames.scanner, Command.Text);
-                }
-            }));
+                    if (device.SelectedIndex == 0)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, Command.Text);
+                    }
+                    else if (device.SelectedIndex == 1)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, Command.Text);
+                    }
+                    else if (device.SelectedIndex == 2)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.camera2, Command.Text);
+                    }
+                    else if (device.SelectedIndex == 3)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.camera3, Command.Text);
+                    }
+                    else if (device.SelectedIndex == 4)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.lazer, Command.Text);
+                    }
+                    else if (device.SelectedIndex == 5)
+                    {
+                        sendMess(ClientNames.camera1_Feed, Command.Text);
+                        //TCPNetworkManage.InputLoop(ClientNames.scanner, Command.Text);
+                    }
+                }));
+            //}));
         }
     }
 }
