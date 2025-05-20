@@ -35,10 +35,7 @@ namespace AkribisFAM
             var _agm800 = AAmotionFAM.AGM800.Current;
 
             TCPNetworkManage.TCPInitialize();
-            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             StateManager.Current.DetectTimeDeltaThread();
-
-            MessageBox.Show("123");
 
             //启动与AGM800的连接
             StartConnectAGM800();
@@ -48,7 +45,7 @@ namespace AkribisFAM
 
             //调试用
             StateManager.Current.State = StateCode.IDLE;
-            Console.WriteLine("123123");
+
             //TODO
             //try
             //{

@@ -62,7 +62,14 @@ namespace AkribisFAM.Windows
         "PRY",
         "PRZ"
         };
-        StationPoints stationPoints;
+
+        private StationPoints stationPoints = new StationPoints();
+        public StationPoints StationPoints
+        {
+            get { return stationPoints; }
+            set { stationPoints = value; }
+        }
+
         public ParameterConfig()
         {
             InitializeComponent();

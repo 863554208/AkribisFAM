@@ -444,8 +444,7 @@ namespace AkribisFAM
         {
             switch (index)
             {
-                case 0:
-                    return AxisRef.A;
+                    case 0: return AxisRef.A;
                     case 1: return AxisRef.B;
                     case 2: return AxisRef.C;
                     case 3: return AxisRef.D;

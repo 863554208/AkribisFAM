@@ -147,9 +147,13 @@
             </Grid>
             <!--<Grid VerticalAlignment="Center" Height="500" ShowGridLines="True">
                 <Grid.RowDefinitions>
-                    --><!-- 8 rows --><!--
+                    -->
+            <!-- 8 rows -->
+            <!--
                     <RowDefinition Height="0.7*"/>
-                    --><!-- Header --><!--
+                    -->
+            <!-- Header -->
+            <!--
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="0.7*"/>
                     <RowDefinition Height="*"/>
@@ -165,22 +169,30 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                --><!-- Header Row --><!--
+                -->
+            <!-- Header Row -->
+            <!--
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextAxisName}" Grid.Row="0" Grid.Column="0"  />
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisPos}" Grid.Row="0" Grid.Column="1"  />
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextTargetAxisPos}" Grid.Row="0" Grid.Column="2"  />
 
-                --><!-- Row 1 --><!--
+                -->
+            <!-- Row 1 -->
+            <!--
                 <TextBlock HorizontalAlignment="Center" Name="tbAxisName" Text="" Grid.Row="1" Grid.Column="0" />
                 <TextBlock HorizontalAlignment="Center" Name="tbNowPos" Text="" Grid.Row="1" Grid.Column="1" />
                 <TextBlock HorizontalAlignment="Center" Name="tbTargetPos" Text="" Grid.Row="1" Grid.Column="2" />
 
-                --><!-- Row 2 --><!--
+                -->
+            <!-- Row 2 -->
+            <!--
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Name="tbAxisVel" Text="{DynamicResource TextNowAxisVel}" Grid.Row="2" Grid.Column="0"  />
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEN}" Grid.Row="2" Grid.Column="1" />
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{DynamicResource TextNowAxisInPos}" Grid.Row="2" Grid.Column="2"  />
 
-                --><!-- Row 3 --><!--
+                -->
+            <!-- Row 3 -->
+            <!--
                 <TextBlock Text="" Grid.Row="3" Grid.Column="0" />
                 <Viewbox  Stretch="Uniform" Grid.Row="3" Grid.Column="1" Width="50" Height="50">
                     <Ellipse Name="AxisEnStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
@@ -228,7 +240,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
-                  
+
                 </Grid.RowDefinitions>
 
                 <!-- 第1行内容 -->
@@ -291,7 +303,7 @@
                     </StackPanel>
                 </StackPanel>-->
 
-                 <!-- 第2行内容 -->
+                <!-- 第2行内容 -->
                 <StackPanel  Grid.Row="1">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
                         <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEnable}"></TextBlock>
@@ -329,20 +341,20 @@
                     <Button Margin="10" Name="BtnStop" Style="{StaticResource MaterialDesignRaisedButton}"  Content="{DynamicResource TextAxisStop}" Click="BtnStop_Click"></Button>
                     <!--</StackPanel>-->
 
-                    <!-- 第二行 -->
-                    <Button Grid.Row="1" Grid.Column="0" PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp">
-                        <Viewbox>
-                        <materialDesign:PackIcon Kind="ArrowLeftBoldOutline" />
-                        </Viewbox>
-                    </Button>
-                    <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Text="{DynamicResource TextAxisJog}" />
-                    <Button Grid.Row="1" Grid.Column="2" PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp" >
-                        <Viewbox>
-                        <materialDesign:PackIcon Kind="ArrowRightBoldOutline"  />
-                        </Viewbox>
-                    </Button>
-
-                    <!-- 第三行 -->
+                    <StackPanel Orientation="Horizontal" Margin="10"  Height="35" HorizontalAlignment="Center">
+                        <Button Width="70" PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp">
+                            <Viewbox>
+                                <materialDesign:PackIcon Kind="ArrowLeftBoldOutline" />
+                            </Viewbox>
+                        </Button>
+                        <TextBlock Margin="10"  HorizontalAlignment="Center" VerticalAlignment="Center"  Text="{DynamicResource TextAxisJog}" />
+                        <Button  Width="70" PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp">
+                            <Viewbox>
+                                <materialDesign:PackIcon Kind="ArrowRightBoldOutline" />
+                            </Viewbox>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
 
 
 
