@@ -88,8 +88,8 @@ namespace AkribisFAM
             //Add By YXW
             mainContent = new MainContent();
             manualControl = new ManualControl();
-            parameterConfig = new ParameterConfig();
             performance = new Performance();
+            parameterConfig = new ParameterConfig();
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
