@@ -389,6 +389,9 @@
   <ItemGroup>
     <Resource Include="Windows\AKB.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Properties\ChangeLog.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

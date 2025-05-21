@@ -1,0 +1,3 @@
+﻿======================== CHANGE LOG ========================
+v0.0.0.1 [2025-05-21, Raymond]
+ - Feat: A1-503 Add material control class to monitor and handle logic of switching supply
