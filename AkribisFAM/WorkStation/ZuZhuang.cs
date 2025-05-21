@@ -189,6 +189,10 @@ namespace AkribisFAM.WorkStation
             {
                 Thread.Sleep(100);
             }
+
+            //如果有后续工站在工作，不能下降
+
+
             StopConveyor();
             SetIO(IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend, 0);
             SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, 1);

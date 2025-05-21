@@ -41,13 +41,13 @@ namespace AkribisFAM
         [DataMember]
         public int row { get; set; }
         [DataMember]
-        public double X { get; set; }
+        public int X { get; set; }
         [DataMember]
-        public double Y { get; set; }
+        public int Y { get; set; }
         [DataMember]
-        public double Z { get; set; }
+        public int Z { get; set; }
         [DataMember]
-        public double R { get; set; }
+        public int R { get; set; }
 
     }
 

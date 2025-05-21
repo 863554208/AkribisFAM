@@ -16,7 +16,7 @@ using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using System.CodeDom;
 using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-
+using Microsoft.SqlServer.Server;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -283,16 +283,20 @@ namespace AkribisFAM.WorkStation
             }
 
             //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
-            while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            //while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            //{
+            //    Thread.Sleep(100);
+            //}       
+
+            while(ZuZhuang.Current.board_count != 0)
             {
-                Thread.Sleep(100);
-            }       
+                Thread.Sleep(300);
+            }
 
             //执行气缸放气，下降
             StopConveyor();
             SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
             SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
-
             SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
             SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
@@ -307,15 +311,25 @@ namespace AkribisFAM.WorkStation
             {
                 throw new Exception();
             }
+            //时间预测
             if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, false))
             {
                 throw new Exception();
             }
+            checkState();
             GlobalManager.Current.IO_test1 = true;
             Set("station1_IsBoardOut", false);
             //SetIO(IO.LaiLiao_BoardOut ,true);
             board_count -= 1;
             
+        }
+        public void checkState()
+        {
+            //TODO 检查状态
+            if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, false))
+            {
+                throw new Exception();
+            }
         }
 
         public void CheckState()
