@@ -106,16 +106,17 @@ namespace AkribisFAM.Helper
         /// This saving backup the original file before it overwrite it to avoid file corruption
         /// </summary>
         /// <returns>True: Save success, False : Error or exception thrown</returns>
-        public static bool Load<T>(T deserializeObj) where  T : class
+        public static bool Load<T>(out T deserializeObj) where T : class
         {
-            var rVal = false;
+            deserializeObj = null;
+            bool rVal = false;
             JsonSerializer serializer = null;
             FileStream fStream = null;
             TextReader fReader = null;
             JsonTextReader jread = null;
             try
             {
-                var fn = deserializeObj.GetType().Name;
+                var fn = typeof(T).Name;
                 var fp = Path.Combine($"{fn}.json");
                 var fp_temp = Path.Combine($"{fn}_temp.json");
                 var fp_backup = Path.Combine($"{fn}_backup.json");
@@ -129,20 +130,33 @@ namespace AkribisFAM.Helper
                 jread = new JsonTextReader(fReader);
                 string jsonString = fReader.ReadToEnd();
 
-                deserializeObj = (T)JsonConvert.DeserializeObject(jsonString, deserializeObj.GetType());
+                deserializeObj = JsonConvert.DeserializeObject<T>(jsonString);
+                rVal = true;
             }
             catch (Exception ex)
             {
-                rVal = false;
             }
             finally
             {
                 fReader?.Close();
             }
             return rVal;
+        }
 
+        public static void CopyProperties<T>(T source, T destination)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (destination == null) throw new ArgumentNullException("destination");
 
-
+            var props = typeof(T).GetProperties();
+            foreach (var prop in props)
+            {
+                if (prop.CanRead && prop.CanWrite)
+                {
+                    var value = prop.GetValue(source);
+                    prop.SetValue(destination, value);
+                }
+            }
         }
     }
 }
