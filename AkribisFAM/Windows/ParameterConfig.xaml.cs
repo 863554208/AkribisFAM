@@ -103,8 +103,10 @@ namespace AkribisFAM.Windows
                     InitAxisJsonPos(jsonFile);
                 }
             }
-
-            FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
+            FileHelper.LoadConfig(posFileName[0], out stationPoints);
+            //20250520 史彦洋 Start
+            FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
+            //20250520 史彦洋 End
             InitTabs(stationPoints);
 
             

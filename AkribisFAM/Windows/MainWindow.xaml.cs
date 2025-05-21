@@ -443,6 +443,16 @@ namespace AkribisFAM
             }
         }
 
+        private  void TestBoardIn_Click(object sender, RoutedEventArgs e)
+        {
+            var a = GlobalManager.Current.stationPoints;
+            GlobalManager.Current.IO_test1 = true;
+            TestBoardIn.IsEnabled = false;
+            Thread.Sleep(3000);
+            TestBoardIn.IsEnabled = true;
+            GlobalManager.Current.IO_test1 = false;
+        }
+
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
             if (StateManager.Current.State == StateCode.RUNNING)

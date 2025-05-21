@@ -45,10 +45,10 @@
             </Grid.ColumnDefinitions>
 
             <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png"  Grid.Column="0"/>
-            
+
             <!-- 用户状态标签 -->
             <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
-     
+
                 <Label Content="{DynamicResource UserLab}" />
                 <Label Name="NowUserLab" />
 
@@ -179,6 +179,7 @@
                 <Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
                 <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>
+            <Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
         </Grid>
     </Grid>
 </Window>

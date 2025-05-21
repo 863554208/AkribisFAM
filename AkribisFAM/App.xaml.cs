@@ -42,6 +42,7 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
+            MessageBox.Show("123");
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
