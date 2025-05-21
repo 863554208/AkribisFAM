@@ -1,4 +1,12 @@
-﻿using System;
+﻿using AAMotion;
+using AkribisFAM.AAmotionFAM;
+using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Interfaces;
+using AkribisFAM.Manager;
+using AkribisFAM.Windows;
+using AkribisFAM.WorkStation;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -9,15 +17,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using AAMotion;
-using AkribisFAM.DB;
-using AkribisFAM.Manager;
-using AkribisFAM.Windows;
-using AkribisFAM.WorkStation;
-using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
-using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 namespace AkribisFAM
 {
@@ -26,6 +26,7 @@ namespace AkribisFAM
     /// </summary>
     public partial class App : Application
     {
+        public static IDatabaseManager DbManager { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -49,13 +50,15 @@ namespace AkribisFAM
             //TODO
             try
             {
-                // 初始化数据库连接
-                DatabaseManager.Initialize();
+                DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Database.sqlite");
 
-                // 插入数据
-                DatabaseManager.Insert("MyDatabase.db");
+                //// 初始化数据库连接
+                //DatabaseManager.Initialize();
 
-                Console.WriteLine("数据插入成功！");
+                //// 插入数据
+                //DatabaseManager.Insert("MyDatabase.db");
+
+                //Console.WriteLine("数据插入成功！");
             }
             catch (Exception ex)
             {
@@ -64,7 +67,7 @@ namespace AkribisFAM
             finally
             {
                 // 关闭数据库连接
-                DatabaseManager.Shutdown();
+                //DatabaseManager.Shutdown();
             }
             //ZuZhuang.Current.test();
 
@@ -164,6 +167,14 @@ namespace AkribisFAM
             }
             catch { }
 
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // Dispose of resources
+            DbManager?.Dispose();
+
+            base.OnExit(e); // Always call the base
         }
 
 
