@@ -1,12 +1,4 @@
-﻿using AAMotion;
-using AkribisFAM.AAmotionFAM;
-using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Interfaces;
-using AkribisFAM.Manager;
-using AkribisFAM.Windows;
-using AkribisFAM.WorkStation;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -17,7 +9,15 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using AAMotion;
+using AkribisFAM.DB;
+using AkribisFAM.Manager;
+using AkribisFAM.Windows;
+using AkribisFAM.WorkStation;
+using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
+using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 namespace AkribisFAM
 {
@@ -36,7 +36,6 @@ namespace AkribisFAM
             var _agm800 = AAmotionFAM.AGM800.Current;
 
             TCPNetworkManage.TCPInitialize();
-            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             StateManager.Current.DetectTimeDeltaThread();
             //启动与AGM800的连接
             StartConnectAGM800();
@@ -44,31 +43,31 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
+            MessageBox.Show("123");
             //调试用
             StateManager.Current.State = StateCode.IDLE;
-            Console.WriteLine("123123");
+            StateManager.Current.StateLightThread();
+			DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Database.sqlite");
             //TODO
-            try
-            {
-                DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Database.sqlite");
+            //try
+            //{
+            //    // 初始化数据库连接
+            //    DatabaseManager.Initialize();
 
-                //// 初始化数据库连接
-                //DatabaseManager.Initialize();
+            //    // 插入数据
+            //    DatabaseManager.Insert("MyDatabase.db");
 
-                //// 插入数据
-                //DatabaseManager.Insert("MyDatabase.db");
-
-                //Console.WriteLine("数据插入成功！");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"操作失败: {ex.Message}");
-            }
-            finally
-            {
-                // 关闭数据库连接
-                //DatabaseManager.Shutdown();
-            }
+            //    Console.WriteLine("数据插入成功！");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"操作失败: {ex.Message}");
+            //}
+            //finally
+            //{
+            //    // 关闭数据库连接
+            //    DatabaseManager.Shutdown();
+            //}
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
@@ -112,6 +111,7 @@ namespace AkribisFAM
                 {
                     AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
                     AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
+                    
                 }
             }
             catch (Exception ex) { }
@@ -168,15 +168,14 @@ namespace AkribisFAM
             catch { }
 
         }
-
-        protected override void OnExit(ExitEventArgs e)
+        
+		protected override void OnExit(ExitEventArgs e)
         {
             // Dispose of resources
             DbManager?.Dispose();
 
             base.OnExit(e); // Always call the base
         }
-
 
     }
 }

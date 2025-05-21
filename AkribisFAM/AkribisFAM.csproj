@@ -370,9 +370,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Windows\palletmodel.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Lang\UI.en-US.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>

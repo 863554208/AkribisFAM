@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AkribisFAM.WorkStation
@@ -10,7 +11,7 @@ namespace AkribisFAM.WorkStation
     {
         public abstract string Name { get; }
         public abstract void Initialize();
-        public abstract void AutoRun();
+        public abstract void AutoRun(CancellationToken token);
         public abstract void ReturnZero();
         public abstract bool Ready();
 

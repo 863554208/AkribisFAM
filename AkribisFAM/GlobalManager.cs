@@ -49,6 +49,12 @@ namespace AkribisFAM
         [DataMember]
         public int R { get; set; }
 
+        [DataMember]
+        public List<int> generalList { get; set; }
+
+        [DataMember]
+        public int general { get; set; }
+
     }
 
     [DataContract]
@@ -162,13 +168,15 @@ namespace AkribisFAM
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints;
+        public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> feedarPoints;
+        public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> palletePoints;
+        public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
 
         public int TotalLaserCount = 48;
+
+        public StationPoints stationPoints;
 
         public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
@@ -442,11 +450,259 @@ namespace AkribisFAM
 
         public AxisRef GetAxisRefFromInteger(int index)
         {
-            string letter = ('A' + index).ToString();
-            Enum.TryParse<AxisRef>(letter, out AxisRef axisRef);
+            switch (index)
+            {
+                    case 0: return AxisRef.A;
+                    case 1: return AxisRef.B;
+                    case 2: return AxisRef.C;
+                    case 3: return AxisRef.D;
+                    case 4: return AxisRef.E;
+                    case 5: return AxisRef.F;            
+                    case 6: return AxisRef.G;
+                    case 7: return AxisRef.H;
+                    default : return AxisRef.A; 
 
-            return axisRef;
+            }
+
+          
         }
+
+        public AxisName GetAxisNameFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return AxisName.LSX;
+
+                case 2:
+                    return AxisName.LSY;
+
+                case 3:
+                    return AxisName.BL1;
+
+                case 4:
+                    return AxisName.BL2;
+
+                case 5:
+                    return AxisName.BL3;
+
+                case 6:
+                    return AxisName.BL4;
+
+                case 7:
+                    return AxisName.BL5;
+
+                case 8:
+                    return AxisName.BR1;
+
+                case 9:
+                    return AxisName.BR2;
+
+                case 10:
+                    return AxisName.BR3;
+
+                case 11:
+                    return AxisName.BR4;
+
+                case 12:
+                    return AxisName.BR5;
+
+                case 13:
+                    return AxisName.FSX;
+
+                case 14:
+                    return AxisName.FSY;
+
+                case 15:
+                    return AxisName.PICK1_Z;
+
+                case 16:
+                    return AxisName.PICK1_T;
+
+                case 17:
+                    return AxisName.PICK2_Z;
+
+                case 18:
+                    return AxisName.PICK2_T;
+
+                case 19:
+                    return AxisName.PICK3_Z;
+
+                case 20:
+                    return AxisName.PICK3_T;
+
+                case 21:
+                    return AxisName.PICK4_Z;
+
+                case 22:
+                    return AxisName.PICK4_T;
+
+                case 23:
+                    return AxisName.PRX;
+
+                case 24:
+                    return AxisName.PRY;
+
+                case 25:
+                    return AxisName.PRZ;
+
+                default:
+                    return AxisName.LSX;
+            }
+
+        }
+
+
+        public AxisName GetAxisNameFromString(string line)
+        {
+            switch (line) 
+            {
+                case "LSX":
+                    return AxisName.LSX;
+
+                case "LSY":
+                    return AxisName.LSY;
+
+                case "FSX":
+                    return AxisName.FSX;
+
+                case "FSY":
+                    return AxisName.FSY;
+
+                case "BL1":
+                    return AxisName.BL1;
+
+                case "BL2":
+                    return AxisName.BL2;
+                case "BL3":
+                    return AxisName.BL3;
+                case "BL4":
+                    return AxisName.BL4;
+                case "BL5":
+                    return AxisName.BL5;
+                case "BR1":
+                    return AxisName.BR1;
+                case "BR2":
+                    return AxisName.BR2;
+                case "BR3":
+                    return AxisName.BR3;
+                case "BR4":
+                    return AxisName.BR4;
+                case "BR5":
+                    return AxisName.BR5;
+                case "PICK1_Z":
+                    return AxisName.PICK1_Z;
+                case "PICK1_T":
+                    return AxisName.PICK1_T;
+                case "PICK2_Z":
+                    return AxisName.PICK2_Z;
+                case "PICK2_T":
+                    return AxisName.PICK2_T;
+                case "PICK3_Z":
+                    return AxisName.PICK3_Z;
+                case "PICK3_T":
+                    return AxisName.PICK3_T;
+                case "PICK4_Z":
+                    return AxisName.PICK4_Z;
+                case "PICK4_T":
+                    return AxisName.PICK4_T;
+                case "PRX":
+                    return AxisName.PRX;
+                case "PRY":
+                    return AxisName.PRY;
+                case "PRZ":
+                    return AxisName.PRZ;
+                default:
+                    return AxisName.PRZ;
+            }
+        }
+
+
+        public string GetAxisStringFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return "LSX";
+
+                case 2:
+                    return "LSY";
+
+                case 3:
+                    return "BL1";
+
+                case 4:
+                    return "BL2";
+
+                case 5:
+                    return "BL3";
+
+                case 6:
+                    return "BL4";
+
+                case 7:
+                    return "BL5";
+
+                case 8:
+                    return "BR1";
+
+                case 9:
+                    return "BR2";
+
+                case 10:
+                    return "BR3";
+
+                case 11:
+                    return "BR4";
+
+                case 12:
+                    return "BR5";
+
+                case 13:
+                    return "FSX";
+
+                case 14:
+                    return "FSY";
+
+                case 15:
+                    return "PICK1_Z";
+
+                case 16:
+                    return "PICK1_T";
+
+                case 17:
+                    return "PICK2_Z";
+
+                case 18:
+                    return "PICK2_T";
+
+                case 19:
+                    return "PICK3_Z";
+
+                case 20:
+                    return "PICK3_T";
+
+                case 21:
+                    return "PICK4_Z";
+
+                case 22:
+                    return "PICK4_T";
+
+                case 23:
+                    return "PRX";
+
+                case 24:
+                    return "PRY";
+
+                case 25:
+                    return "PRZ";
+
+                default:
+                    return "LSX";
+            }
+
+        }
+
 
         #region A,B轴状态
         public void UpdateAStatus()
@@ -545,10 +801,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 100000,
-            LSY = 100000,
-            FSX = 100000,
-            FSY = 100000,
+            LSX = 50,
+            LSY = 50,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -563,54 +819,54 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 100000,
-            PICK1_T = 100000,
-            PICK2_Z = 100000,
-            PICK2_T = 100000,
-            PICK3_Z = 100000,
-            PICK3_T = 100000,
-            PICK4_Z = 100000,
-            PICK4_T = 100000,
+            PICK1_Z = 10,
+            PICK1_T = 10,
+            PICK2_Z = 10,
+            PICK2_T = 10,
+            PICK3_Z = 10,
+            PICK3_T = 10,
+            PICK4_Z = 10,
+            PICK4_T = 10,
 
             //AGM800[3]
-            PRX = 100000,
-            PRY = 100000,
-            PRZ = 100000,
+            PRX = 50,
+            PRY = 50,
+            PRZ = 2,
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 1000000,
-            LSY = 1000000,
-            FSX = 1000000,
-            FSY = 1000000,
-            BL5 = 4,
-            BR5 = 5,
+            LSX = 500,
+            LSY = 500,
+            FSX = 500,
+            FSY = 500,
+            BL5 = 500,
+            BR5 = 500,
 
             //AGM800[1]
-            BL1 = 8,
-            BL2 = 9,
-            BL3 = 10,
-            BL4 = 11,
-            BR1 = 12,
-            BR2 = 13,
-            BR3 = 14,
-            BR4 = 15,
+            BL1 = 500,
+            BL2 = 500,
+            BL3 = 500,
+            BL4 = 500,
+            BR1 = 500,
+            BR2 = 500,
+            BR3 = 500,
+            BR4 = 500,
 
             //AGM800[2]
-            PICK1_Z = 1000000,
-            PICK1_T = 1000000,
-            PICK2_Z = 1000000,
-            PICK2_T = 1000000,
-            PICK3_Z = 1000000,
-            PICK3_T = 1000000,
-            PICK4_Z = 1000000,
-            PICK4_T = 1000000,
+            PICK1_Z = 50,
+            PICK1_T = 50,
+            PICK2_Z = 50,
+            PICK2_T = 50,
+            PICK3_Z = 50,
+            PICK3_T = 50,
+            PICK4_Z = 50,
+            PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 1000000,
-            PRY = 1000000,
-            PRZ = 1000000,
+            PRX = 500,
+            PRY = 500,
+            PRZ = 10,
         }
 
         //轴参数

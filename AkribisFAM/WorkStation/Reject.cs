@@ -38,6 +38,7 @@ namespace AkribisFAM.WorkStation
         public event Action OnStopStep2;
         public event Action OnTriggerStep3;
         public event Action OnStopStep3;
+        private ErrorCode errorCode;
 
         int delta = 0;
         public int board_count = 0;
@@ -114,6 +115,7 @@ namespace AkribisFAM.WorkStation
         {
             DateTime time = DateTime.Now;
             bool ret = false;
+            errorCode = ErrorCode.IOErr;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
                 if (ReadIO(index) == value)
@@ -185,6 +187,7 @@ namespace AkribisFAM.WorkStation
             //传送带高速移动
             MoveConveyor((int)AxisSpeed.BL4);
             MoveConveyor((int)AxisSpeed.BR4);
+            errorCode = ErrorCode.AGM800Err;
             if (CheckState(true) == 1)
             {
                 return false;
@@ -336,6 +339,7 @@ namespace AkribisFAM.WorkStation
             else
             {
                 GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 1;
+                ErrorManager.Current.Insert(errorCode);
             }
             GlobalManager.Current.Reject_CheckState();
             WarningManager.Current.WaiReject();
@@ -367,7 +371,7 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public override void AutoRun()
+        public override void AutoRun(CancellationToken token)
         {
 
             try
@@ -494,7 +498,7 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void TrainNozzles(int nozzlenum)
+        public async Task TrainNozzles(int nozzlenum)
         {
             try
             {
@@ -518,11 +522,11 @@ namespace AkribisFAM.WorkStation
                 {
                     return false;
                 }
+
                 return true;
             });
-
             task.Start();
-
+            await task;
         }
     }
 }
