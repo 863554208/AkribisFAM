@@ -32,13 +32,6 @@ namespace AkribisFAM.WorkStation
         private static LaiLiao _instance;
         public override string Name => nameof(LaiLiao);
 
-        public event Action OnTriggerStep1;
-        public event Action OnStopStep1;
-        public event Action OnTriggerStep2;
-        public event Action OnStopStep2;
-        public event Action OnTriggerStep3;
-        public event Action OnStopStep3;
-
         public int board_count = 0;
         int delta = 0;
 
@@ -88,8 +81,19 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
-            return IOManager.Instance.INIO_status[(int)index];
-
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
         }
 
         public void SetIO(IO_OutFunction_Table index , int value)

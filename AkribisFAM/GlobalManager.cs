@@ -433,7 +433,7 @@ namespace AkribisFAM
         public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == (value == 1))
+            while (IOManager.Instance.INIO_status[(int)pos] == value)
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
