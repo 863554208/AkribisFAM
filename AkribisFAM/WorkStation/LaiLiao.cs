@@ -202,6 +202,7 @@ namespace AkribisFAM.WorkStation
             {
                 //低速运动
                 MoveConveyor(10);
+                
             }
             else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
             {
@@ -244,7 +245,6 @@ namespace AkribisFAM.WorkStation
 
                 //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
                 Set("station1_IsBoardInLowSpeed", false);
-                Set("station1_IsBoardIn", false);
                 Set("station1_IsLifting", true);
                 
                 StopConveyor();
@@ -257,6 +257,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
                 
                 Set("station1_IsLifting", false);
+                Set("station1_IsBoardIn", false);
 
                 ResumeConveyor();
 
@@ -275,12 +276,18 @@ namespace AkribisFAM.WorkStation
         {
             Set("station1_IsBoardOut", true);
 
+            while (ZuZhuang.Current.board_count != 0)
+            {
+                Thread.Sleep(300);
+            }
+
             //模拟给下一个工位发进板信号
-            GlobalManager.Current.IO_test2 = true;
             if (GlobalManager.Current.IsByPass)
             {
                 GlobalManager.Current.SendByPassToStation2 = true;
             }
+            GlobalManager.Current.IO_test2 = true;
+
 
             //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
             //while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
@@ -288,10 +295,7 @@ namespace AkribisFAM.WorkStation
             //    Thread.Sleep(100);
             //}       
 
-            while(ZuZhuang.Current.board_count != 0)
-            {
-                Thread.Sleep(300);
-            }
+
 
             //执行气缸放气，下降
             StopConveyor();
@@ -316,10 +320,9 @@ namespace AkribisFAM.WorkStation
             {
                 throw new Exception();
             }
-            checkState();
-            GlobalManager.Current.IO_test1 = true;
+            //checkState();
+            //GlobalManager.Current.IO_test1 = true;
             Set("station1_IsBoardOut", false);
-            //SetIO(IO.LaiLiao_BoardOut ,true);
             board_count -= 1;
             
         }

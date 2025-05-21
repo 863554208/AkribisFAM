@@ -137,7 +137,7 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
             {
                 //低速运动
-                MoveConveyor(100);
+                MoveConveyor(10);
             }
             else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
             {
@@ -192,37 +192,37 @@ namespace AkribisFAM.WorkStation
         {
             bool ret;
             //进入后改回false
-            GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] = false;
+            Set("IO_test3",false);
             Set("station3_IsBoardInHighSpeed", true);
-            Set("IO_test4", false);
+
             //传送带高速移动
             MoveConveyor((int)AxisSpeed.BL3);
-            MoveConveyor((int)AxisSpeed.BR3);
+
             //等待减速IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN1_2Slowdown_Sign3, true);
+            ret = WaitIO(999999, IO_INFunction_Table.IN1_2Slowdown_Sign3, false);
             if (CheckState(ret) == 1) {
                 return false;
             }
-            Set("station3_IsBoardInHighSpeed", false);
+            
             //挡板气缸上气
             SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 1);
             SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 0);
-            Set("station3_IsBoardInLowSpeed", true);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //传送带减速
-            MoveConveyor(100);
-            //等待停止IO
-            ret =  WaitIO(9999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
 
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
+            Set("station3_IsBoardInHighSpeed", false);
+            Set("station3_IsBoardInLowSpeed", true);
+
+
+            //传送带减速
+            MoveConveyor(10);
+            //等待停止IO
+            ret =  WaitIO(999999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
+
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+
             Set("station3_IsBoardInLowSpeed", false);
-            Set("station3_IsBoardIn", false);
             Set("station3_IsLifting", true);
             //停止传送带
             StopConveyor();
@@ -237,6 +237,8 @@ namespace AkribisFAM.WorkStation
             }
             //禁止来料
             Set("station3_IsLifting", false);
+            Set("station3_IsBoardIn", false);
+
             ResumeConveyor();
             board_count += 1;
 
@@ -381,7 +383,27 @@ namespace AkribisFAM.WorkStation
         public bool BoardOut()
         {
             bool ret;
+            
+            Set("station3_IsBoardOut", true);
+
+            while (Reject.Current.board_count != 0)
+            {
+                Thread.Sleep(300);
+            }
+
+            //模拟给下一个工位发进板信号
+            if (GlobalManager.Current.SendByPassToStation3)
+            {
+                GlobalManager.Current.SendByPassToStation4 = true;
+            }
+            GlobalManager.Current.IO_test4 = true;
+
             //顶起气缸下降
+            StopConveyor();
+            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
+
+            Thread.Sleep(100);
             SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
             SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
@@ -397,18 +419,15 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            //挡板气缸下降
-            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
-            //等待挡板下降到位信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, true);
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, false);
             if (CheckState(ret) == 1)
             {
                 return false;
             }
             Set("station3_IsBoardOut", true);
             board_count--;
-            GlobalManager.Current.IO_test4 = true;
             return true;
         }
 
@@ -419,13 +438,8 @@ namespace AkribisFAM.WorkStation
                 while (true)
                 {
 
-                    //20250519 测试 【史彦洋】 追加 Start
-                    Console.WriteLine("zuzhuang ceshi 1");
-                    Thread.Sleep(1000);
-                    continue;
-
                 step1:
-                    if (!GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] || board_count != 0)
+                    if (!GlobalManager.Current.IO_test3 || board_count != 0)
                     {
                         Thread.Sleep(100);
                         continue;
@@ -433,6 +447,11 @@ namespace AkribisFAM.WorkStation
                     GlobalManager.Current.current_FuJian_step = 1;
                     BoardIn();
                     if (GlobalManager.Current.FuJian_exit) break;
+
+                    //20250521 测试 史彦洋
+                    goto step4;
+                    //20250521 测试 史彦洋
+
 
                 step2:
                     GlobalManager.Current.current_FuJian_step = 2;
@@ -444,7 +463,10 @@ namespace AkribisFAM.WorkStation
                     Recheck();
                     if (GlobalManager.Current.FuJian_exit) break;
 
-                BoardOut();
+                //20250521 测试 史彦洋
+                step4:
+                //20250521 测试 史彦洋
+                    BoardOut();
                 }
             }
             catch (Exception ex)

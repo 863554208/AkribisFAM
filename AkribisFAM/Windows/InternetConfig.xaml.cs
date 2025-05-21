@@ -269,27 +269,27 @@ namespace AkribisFAM.Windows
             {
                 if (device.SelectedIndex == 0)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.camera1_Feed, Command.Text + "\r\n");
                 }
                 else if (device.SelectedIndex == 1)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.camera1_Runner, Command.Text + "\r\n");
                 }
                 else if (device.SelectedIndex == 2)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.camera2, Command.Text + "\r\n");
                 }
                 else if (device.SelectedIndex == 3)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.camera3, Command.Text + "\r\n");
                 }
                 else if (device.SelectedIndex == 4)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.lazer, Command.Text);
                 }
                 else if (device.SelectedIndex == 5)
                 {
-                    sendMess(ClientNames.camera1_Feed, Command.Text);
+                    sendMess(ClientNames.scanner, Command.Text);
                 }
             }));
         }

@@ -116,20 +116,14 @@ namespace AkribisFAM.WorkStation
         }
         public bool BoradIn()
         {
-            //20250516 进板改为异步进板 【史彦洋】 修改 Start
-            //if (GlobalManager.Current.IO_test2 && board_count==0)
             if (true)
-            //20250516 进板改为异步进板 【史彦洋】 修改 End
             {
-
                 //将要板信号清空
                 Set("IO_test2", false);
                 Set("station2_IsBoardInHighSpeed", true);
 
                 //传送带高速移动
                 MoveConveyor((int)AxisSpeed.BL1);
-
-                Set("station2_IsBoardInHighSpeed", false);
 
                 //等待减速光电2 , false为感应到
                 if (!WaitIO(999999, IO_INFunction_Table.IN1_1Slowdown_Sign2, false)) throw new Exception();
@@ -150,7 +144,6 @@ namespace AkribisFAM.WorkStation
 
                 //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
                 Set("station2_IsBoardInLowSpeed", false);
-                Set("station2_IsBoardIn", false);
                 Set("station2_IsLifting", true);
 
                 StopConveyor();
@@ -165,7 +158,7 @@ namespace AkribisFAM.WorkStation
                 if (!WaitIO(999999, IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos, true)) throw new Exception();
 
                 Set("station1_IsLifting", false);
-
+                Set("station2_IsBoardIn", false);
                 ResumeConveyor();
 
                 board_count += 1;
@@ -181,14 +174,23 @@ namespace AkribisFAM.WorkStation
         {
             Set("station2_IsBoardOut", true);
 
+            while(FuJian.Current.board_count != 0)
+            {
+                Thread.Sleep(300);
+            }
+
             //模拟给下一个工位发进板信号
+            if (GlobalManager.Current.SendByPassToStation2)
+            {
+                GlobalManager.Current.SendByPassToStation3 = true;
+            }
             GlobalManager.Current.IO_test3 = true;
 
             //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
-            while (GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
-            {
-                Thread.Sleep(100);
-            }
+            //while (GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            //{
+            //    Thread.Sleep(100);
+            //}
 
             //如果有后续工站在工作，不能下降
 
@@ -208,6 +210,14 @@ namespace AkribisFAM.WorkStation
                 throw new Exception();
             }
             ResumeConveyor();
+            if (!WaitIO(9999, IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2, true))
+            {
+                throw new Exception();
+            }
+            if (!WaitIO(9999, IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2, false))
+            {
+                throw new Exception();
+            }
 
             //出板时将穴位信息清空
             GlobalManager.Current.palleteSnaped = false;
@@ -323,7 +333,6 @@ namespace AkribisFAM.WorkStation
                 
                 Thread.Sleep(300);
             }
-            Thread.Sleep(50);
 
             ////接受Cognex的信息
             //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
@@ -827,6 +836,7 @@ namespace AkribisFAM.WorkStation
 
         public async override void AutoRun(CancellationToken token)
         {
+            board_count  = 0;
             try
             {
 

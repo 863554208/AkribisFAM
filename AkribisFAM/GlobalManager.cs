@@ -162,6 +162,7 @@ namespace AkribisFAM
         public bool IsByPass;
         public bool SendByPassToStation2;
         public bool SendByPassToStation3;
+        public bool SendByPassToStation4;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 

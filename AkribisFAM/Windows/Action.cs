@@ -209,10 +209,10 @@ namespace AkribisFAM.WorkStation
 
         public void WaitAxisAll()
         {
-            AkrAction.Current.WaitAxis(AxisName.FSX);
-            Thread.Sleep(2000);
+            //AkrAction.Current.WaitAxis(AxisName.FSX);
             //AkrAction.Current.WaitAxis(AxisName.FSY);
-            //AkrAction.Current.WaitAxis(AxisName.LSX);
+            AkrAction.Current.WaitAxis(AxisName.LSX);
+            Thread.Sleep(5000);
             //AkrAction.Current.WaitAxis(AxisName.LSY);
             //AkrAction.Current.WaitAxis(AxisName.PRX);
             //AkrAction.Current.WaitAxis(AxisName.PRY);
@@ -280,6 +280,15 @@ namespace AkribisFAM.WorkStation
             catch (Exception e) { }
             
         }
+
+        public bool MoveNGConveyor(int vel)
+        {
+            JogMove(GlobalManager.AxisName.BL5, 1, vel);
+            JogMove(GlobalManager.AxisName.BR5, 1, vel);
+            return true;
+        }
+
+
 
         public bool MoveConveyor(int vel)
         {
@@ -709,25 +718,25 @@ namespace AkribisFAM.WorkStation
                     return (int)(2000 * mm);
 
                 case AxisName.PICK1_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000  * mm / 360);
 
                 case AxisName.PICK2_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK2_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PICK3_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK3_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PICK4_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK4_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PRX:
                     return (int)(20000 * mm);
@@ -794,25 +803,25 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK1_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PICK2_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK2_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PICK3_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK3_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)( (pulse / 192000.0) * 360 );
 
                 case AxisName.PICK4_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK4_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PRX:
                     return (double)(pulse / 20000.0);
