@@ -210,11 +210,12 @@ namespace AkribisFAM.WorkStation
         public void WaitAxisAll()
         {
             AkrAction.Current.WaitAxis(AxisName.FSX);
-            AkrAction.Current.WaitAxis(AxisName.FSY);
-            AkrAction.Current.WaitAxis(AxisName.LSX);
-            AkrAction.Current.WaitAxis(AxisName.LSY);
-            AkrAction.Current.WaitAxis(AxisName.PRX);
-            AkrAction.Current.WaitAxis(AxisName.PRY);
+            Thread.Sleep(2000);
+            //AkrAction.Current.WaitAxis(AxisName.FSY);
+            //AkrAction.Current.WaitAxis(AxisName.LSX);
+            //AkrAction.Current.WaitAxis(AxisName.LSY);
+            //AkrAction.Current.WaitAxis(AxisName.PRX);
+            //AkrAction.Current.WaitAxis(AxisName.PRY);
         }
 
 

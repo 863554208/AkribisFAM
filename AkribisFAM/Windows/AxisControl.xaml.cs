@@ -312,13 +312,13 @@ namespace AkribisFAM.Windows
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
             //Todo Home(nowAxisIndex)
-            string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
-            try {
-                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
-            }
-            catch {
-                MessageBox.Show("Home Axis Failed！");
-            }
+            //string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
+            //try {
+            //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
+            //}
+            //catch {
+            //    MessageBox.Show("Home Axis Failed！");
+            //}
             
         }
 

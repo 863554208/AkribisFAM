@@ -102,14 +102,15 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.IsByPass = false;
             //触发扫码枪扫码
 
-            GlobalManager.Current.IsByPass = true;
+            //GlobalManager.Current.IsByPass = true;
             return 0;
         }
 
         public int LaserHeight()
         {
+            GlobalManager.Current.laserPoints.Clear();
             //激光测距
-            if(GlobalManager.Current.stationPoints.LaiLiaoPointList == null)
+            if (GlobalManager.Current.stationPoints.LaiLiaoPointList == null)
             {
                 Console.WriteLine("没有激光测距点位文件");
                 return 1;
@@ -128,8 +129,8 @@ namespace AkribisFAM.WorkStation
             }
             foreach (var point in GlobalManager.Current.laserPoints)
             {
-                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX);
-                AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY);
+                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX ,(int)AxisAcc.LSX);
+                AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
                 //触发测距
                 //sendKDistanceAppend.Clear();
                 //KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
@@ -139,14 +140,14 @@ namespace AkribisFAM.WorkStation
                 //};
                 //sendKDistanceAppend.Add(temp);
                 //string temp = "1,0";
-                Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
+                //Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
 
-                //得到测量结果
-                AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                var res = AcceptKDistanceAppend[0].MeasurData;
-                GlobalManager.Current.currentLasered++;
+                ////得到测量结果
+                //AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
+                //var res = AcceptKDistanceAppend[0].MeasurData;
+                //GlobalManager.Current.currentLasered++;
 
-                Thread.Sleep(50);
+                Thread.Sleep(300);
             }
 
             return 0;
@@ -200,7 +201,7 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station3_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
             {
                 //低速运动
-                MoveConveyor(100);
+                MoveConveyor(10);
             }
             else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
             {
@@ -213,7 +214,7 @@ namespace AkribisFAM.WorkStation
             //给上游发要板信号
             SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
 
-            if ((ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0) || GlobalManager.Current.IO_test1)
+            if ((ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE) && board_count == 0) || (GlobalManager.Current.IO_test1&& board_count==0))
             {
                 StateManager.Current.TotalInput++;
                 Set("station1_IsBoardInHighSpeed", true);
@@ -292,8 +293,25 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
             SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
 
-            ResumeConveyor();
+            SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+            SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
+            SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 1);
 
+            if (!WaitIO(99999,IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos, true))
+            {
+                throw new Exception();
+            }
+            ResumeConveyor();
+            if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, true))
+            {
+                throw new Exception();
+            }
+            if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, false))
+            {
+                throw new Exception();
+            }
+            GlobalManager.Current.IO_test1 = true;
             Set("station1_IsBoardOut", false);
             //SetIO(IO.LaiLiao_BoardOut ,true);
             board_count -= 1;
@@ -370,9 +388,6 @@ namespace AkribisFAM.WorkStation
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;
 
-                    //20250520 史彦洋 Start
-                    continue;
-                    //20250520 史彦洋 End
                     step2: Step2();
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (GlobalManager.Current.IsByPass) goto step4;
