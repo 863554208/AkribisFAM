@@ -179,6 +179,7 @@
     <Compile Include="DB\dbAccess.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\FileRecovery.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -190,6 +191,7 @@
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
     <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />

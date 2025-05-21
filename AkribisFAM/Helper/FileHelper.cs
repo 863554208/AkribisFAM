@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.IO;
+using AkribisFAM.Manager;
 
 namespace AkribisFAM.Helper
 {
@@ -60,6 +61,88 @@ namespace AkribisFAM.Helper
             {
                 return false;
             }
+        }
+
+
+
+        /// <summary>
+        /// Serialize and Save the properties in MaterialManager class into json file
+        /// This saving backup the original file before it overwrite it to avoid file corruption
+        /// </summary>
+        /// <returns>True: Save success, False : Error or exception thrown</returns>
+        public static bool Save<T>(T serializeObj) where T : class
+        {
+            var rVal = false;
+            JsonSerializer serializer = null;
+            try
+            {
+                var fn = serializeObj.GetType().Name;
+                var fp = Path.Combine($"{fn}.json");
+                var fp_temp = Path.Combine($"{fn}_temp.json");
+                var fp_backup = Path.Combine($"{fn}_backup.json");
+                serializer = new JsonSerializer() { Formatting = Formatting.Indented };
+
+                using (StreamWriter fWriter = new StreamWriter(fp_temp, false))
+                {
+                    serializer.Serialize(fWriter, serializeObj);
+                }
+
+                if (File.Exists(fp))
+                    File.Replace(fp_temp, fp, fp_backup);
+                else
+                    File.Move(fp_temp, fp);
+
+                rVal = true;
+            }
+            catch (Exception ex)
+            {
+                rVal = false;
+            }
+            return rVal;
+        }
+
+        /// <summary>
+        /// Deserialize and Load the properties in MaterialManager class into json file
+        /// This saving backup the original file before it overwrite it to avoid file corruption
+        /// </summary>
+        /// <returns>True: Save success, False : Error or exception thrown</returns>
+        public static bool Load<T>(T deserializeObj) where  T : class
+        {
+            var rVal = false;
+            JsonSerializer serializer = null;
+            FileStream fStream = null;
+            TextReader fReader = null;
+            JsonTextReader jread = null;
+            try
+            {
+                var fn = deserializeObj.GetType().Name;
+                var fp = Path.Combine($"{fn}.json");
+                var fp_temp = Path.Combine($"{fn}_temp.json");
+                var fp_backup = Path.Combine($"{fn}_backup.json");
+
+
+                FileRecovery.RecoverFile<MaterialManager>(fp, fp_temp, fp_backup);
+
+                serializer = new JsonSerializer();
+                fStream = new FileStream(fp, FileMode.Open);
+                fReader = new StreamReader(fStream);
+                jread = new JsonTextReader(fReader);
+                string jsonString = fReader.ReadToEnd();
+
+                deserializeObj = (T)JsonConvert.DeserializeObject(jsonString, deserializeObj.GetType());
+            }
+            catch (Exception ex)
+            {
+                rVal = false;
+            }
+            finally
+            {
+                fReader?.Close();
+            }
+            return rVal;
+
+
+
         }
     }
 }
