@@ -26,7 +26,7 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.WorkStation;
 using System.Windows.Threading;
 using System.Reflection;
-using System.IO;
+
 namespace AkribisFAM.Windows
 {
     /// <summary>
@@ -253,7 +253,6 @@ namespace AkribisFAM.Windows
             {
                 AxisListBox.SelectedIndex = nowAxis;
             }
-
             nowAxisIndex = nowAxis;
             setUIAxisData(nowAxis);
 
@@ -306,20 +305,20 @@ namespace AkribisFAM.Windows
         {
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
-            //Todo Stop(nowAxisIndex)
+
 
         }
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
             //Todo Home(nowAxisIndex)
-            string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
-            try {
-                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
-            }
-            catch {
-                MessageBox.Show("Home Axis Failed！");
-            }
+            //string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
+            //try {
+            //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
+            //}
+            //catch {
+            //    MessageBox.Show("Home Axis Failed！");
+            //}
             
         }
 

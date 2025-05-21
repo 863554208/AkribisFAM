@@ -168,13 +168,15 @@ namespace AkribisFAM
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints;
+        public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> feedarPoints;
+        public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
 
-        public List<(double X, double Y)> palletePoints;
+        public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
 
         public int TotalLaserCount = 48;
+
+        public StationPoints stationPoints;
 
         public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
@@ -799,10 +801,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 100000,
-            LSY = 100000,
-            FSX = 100000,
-            FSY = 100000,
+            LSX = 50,
+            LSY = 50,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -817,54 +819,54 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 100000,
-            PICK1_T = 100000,
-            PICK2_Z = 100000,
-            PICK2_T = 100000,
-            PICK3_Z = 100000,
-            PICK3_T = 100000,
-            PICK4_Z = 100000,
-            PICK4_T = 100000,
+            PICK1_Z = 10,
+            PICK1_T = 10,
+            PICK2_Z = 10,
+            PICK2_T = 10,
+            PICK3_Z = 10,
+            PICK3_T = 10,
+            PICK4_Z = 10,
+            PICK4_T = 10,
 
             //AGM800[3]
-            PRX = 100000,
-            PRY = 100000,
-            PRZ = 100000,
+            PRX = 50,
+            PRY = 50,
+            PRZ = 2,
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 1000000,
-            LSY = 1000000,
-            FSX = 1000000,
-            FSY = 1000000,
-            BL5 = 4,
-            BR5 = 5,
+            LSX = 500,
+            LSY = 500,
+            FSX = 500,
+            FSY = 500,
+            BL5 = 500,
+            BR5 = 500,
 
             //AGM800[1]
-            BL1 = 8,
-            BL2 = 9,
-            BL3 = 10,
-            BL4 = 11,
-            BR1 = 12,
-            BR2 = 13,
-            BR3 = 14,
-            BR4 = 15,
+            BL1 = 500,
+            BL2 = 500,
+            BL3 = 500,
+            BL4 = 500,
+            BR1 = 500,
+            BR2 = 500,
+            BR3 = 500,
+            BR4 = 500,
 
             //AGM800[2]
-            PICK1_Z = 1000000,
-            PICK1_T = 1000000,
-            PICK2_Z = 1000000,
-            PICK2_T = 1000000,
-            PICK3_Z = 1000000,
-            PICK3_T = 1000000,
-            PICK4_Z = 1000000,
-            PICK4_T = 1000000,
+            PICK1_Z = 50,
+            PICK1_T = 50,
+            PICK2_Z = 50,
+            PICK2_T = 50,
+            PICK3_Z = 50,
+            PICK3_T = 50,
+            PICK4_Z = 50,
+            PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 1000000,
-            PRY = 1000000,
-            PRZ = 1000000,
+            PRX = 500,
+            PRY = 500,
+            PRZ = 10,
         }
 
         //轴参数
