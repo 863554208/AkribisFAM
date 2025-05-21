@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
-using AkribisFAM.DB;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
@@ -19,6 +18,7 @@ using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
+using AkribisFAM.Interfaces;
 namespace AkribisFAM
 {
     /// <summary>
@@ -27,7 +27,6 @@ namespace AkribisFAM
     public partial class App : Application
     {
         public static IDatabaseManager DbManager { get; private set; }
-
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
