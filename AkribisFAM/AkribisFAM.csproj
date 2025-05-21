@@ -176,9 +176,10 @@
     <Compile Include="CommunicationProtocol\Task_ResetCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
-    <Compile Include="DB\dbAccess.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\SQLiteHelper.cs" />
+    <Compile Include="Interfaces\IDatabaseManager.cs" />
     <Compile Include="Helper\FileRecovery.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -190,11 +191,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="Models\AlarmRecord.cs" />
+    <Compile Include="Models\OeeRecord.cs" />
     <Compile Include="NewStation\newStation1.cs" />
     <Compile Include="NewStation\newStation2.cs" />
     <Compile Include="test.cs" />
@@ -385,6 +389,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Windows\AKB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DB\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Properties\ChangeLog.txt" />
