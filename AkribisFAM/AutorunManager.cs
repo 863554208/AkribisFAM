@@ -82,10 +82,10 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current)));
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current ,token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
 
                     await Task.WhenAll(tasks);
                 }
@@ -116,7 +116,7 @@ namespace AkribisFAM
             return true;
         }
 
-        private void RunAutoStation(WorkStationBase station)
+        private void RunAutoStation(WorkStationBase station , CancellationToken token)
         {
             try
             {
@@ -128,7 +128,7 @@ namespace AkribisFAM
                         continue;
                     }
 
-                    station.AutoRun(); 
+                    station.AutoRun(token); 
 
                     Thread.Sleep(50);
                 }
@@ -188,8 +188,8 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
 
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
 
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
@@ -236,13 +236,18 @@ namespace AkribisFAM
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos, 1);
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos, 1);
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, 1);
-            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
+            //GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
         }
 
         public bool Reset()
         {
             //20250519 测试 【史彦洋】 追加 Start
+            //Thread.Sleep(5000);
             //return true;
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+            Thread.Sleep(500);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
             //复位气缸和吸嘴IO
             CylinderDown();
@@ -253,10 +258,15 @@ namespace AkribisFAM
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
 
+            AkrAction.Current.WaitAxisAll();
+
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 
             //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
+            LaiLiao.Current.board_count = 1;
+
+
             if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor(100);
@@ -269,7 +279,6 @@ namespace AkribisFAM
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
-            GlobalManager.Current.WaitIO(IO_INFunction_Table.IN4_0Initialized_feeder1 ,0);
 
             //激光测距复位(tcp)
 
@@ -297,6 +306,13 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
             return true;
         }
 

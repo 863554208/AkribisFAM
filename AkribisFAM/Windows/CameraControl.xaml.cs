@@ -23,9 +23,11 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class CameraControl : UserControl
     {
+        private bool Calibstatus_Click;
         public CameraControl()
         {
             InitializeComponent();
+            Calibstatus_Click = true;
         }
 
         // 按钮点击事件处理
@@ -113,19 +115,50 @@ namespace AkribisFAM.Windows
 
         }
 
-        private void NozzleCalib_Click(object sender, RoutedEventArgs e)
+        
+        private async void NozzleCalib_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = NozzleCalibNum.SelectedIndex;
-            Reject.Current.TrainNozzles(nozzlenum);
+            if (nozzlenum < 0 || nozzlenum >=4) {
+                return;
+            }
+            if (Calibstatus_Click)
+            {
+                Calibstatus_Click = false;
+                try
+                {
+                    await Reject.Current.TrainNozzles(nozzlenum);   
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred during the Nozzle calibration process:" + ex.Message);
+                }
+                Calibstatus_Click = true;
+            }
         }
 
-        private void Points11Calib_Click(object sender, RoutedEventArgs e)
+        private async void Points11Calib_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = Points11CalibNum.SelectedIndex;
-
+            if (nozzlenum < 0 || nozzlenum >= 4)
+            {
+                return;
+            }
+            if (Calibstatus_Click)
+            {
+                Calibstatus_Click = false;
+                try
+                {
+                    await CamerCalibProcess.Instance.Point11Calibprocess((NozzleNumber)nozzlenum);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred during the Points11 calibration process:" + ex.Message);
+                }
+                Calibstatus_Click = true;
+            }
         }
 
-        bool Calibstatus_Click = true;
         private async void JointCalib_Click(object sender, RoutedEventArgs e)
         {
             if (Calibstatus_Click)
@@ -139,16 +172,30 @@ namespace AkribisFAM.Windows
                 {
                     MessageBox.Show("An error occurred during the joint calibration process:" + ex.Message);
                 }
-                finally
-                {
-                    Calibstatus_Click = true;
-                }
+                Calibstatus_Click = true;
             }
         }
 
-        private void Points9Calib_Click(object sender, RoutedEventArgs e)
+        private async void Points9Calib_Click(object sender, RoutedEventArgs e)
         {
             int calibnum = Points9CalibNum.SelectedIndex;
+            if (calibnum < 0 || calibnum >= 2)
+            {
+                return;
+            }
+            if (Calibstatus_Click)
+            {
+                Calibstatus_Click = false;
+                try
+                {
+                    await CamerCalibProcess.Instance.Point9Calibprocess((MovingCameraCalibposition)calibnum);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred during the Points9 calibration process:" + ex.Message);
+                }
+                Calibstatus_Click = true;
+            }
         }
     }
 }

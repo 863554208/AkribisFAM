@@ -35,6 +35,7 @@ namespace AkribisFAM.Manager
         CCD1DataErr = 0x0400,
         CCD2DataErr = 0x0500,
         CCD3DataErr = 0x0600,
+        TimeOut = 0x0700,
         //process warning
         NoInPallet = 0x0001,
         FeederLow = 0x0002,
@@ -118,7 +119,7 @@ namespace AkribisFAM.Manager
             });
             //END 
             //20250519 测试用 【史彦洋】 修改 Start
-            //if ((int)err > 0x00FF)
+            //if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
             //{
             //    StateManager.Current.State = StateManager.StateCode.STOPPED;
             //}

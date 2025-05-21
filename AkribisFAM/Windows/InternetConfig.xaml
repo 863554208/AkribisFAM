@@ -5,44 +5,142 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Button Content="InternetConfig" HorizontalAlignment="Left" Margin="667,15,0,0" VerticalAlignment="Top" Height="81" Width="109"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,92,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera1_Runner_IP" HorizontalAlignment="Left" Height="29" Margin="110,102,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera1_Runner_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,89,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera1_Runner_Port" HorizontalAlignment="Left" Height="29" Margin="506,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera1_Runner_Port_TextChanged"/>
-        <Label Content="camera2" HorizontalAlignment="Left" Margin="11,133,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="99" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera2_IP" HorizontalAlignment="Left" Height="29" Margin="110,165,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera2_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,148,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera2_Port" HorizontalAlignment="Left" Height="29" Margin="506,158,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera2_Port_TextChanged"/>
-        <Label Content="camera3" HorizontalAlignment="Left" Margin="11,198,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="99" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera3_IP" HorizontalAlignment="Left" Height="29" Margin="110,231,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera3_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,213,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera3_Port" HorizontalAlignment="Left" Height="29" Margin="506,223,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera3_Port_TextChanged"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,157,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,222,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="lazer" HorizontalAlignment="Left" Margin="11,261,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="99" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,279,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="lazer_IP" HorizontalAlignment="Left" Height="29" Margin="110,287,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="lazer_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,276,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="lazer_Port" HorizontalAlignment="Left" Height="29" Margin="506,286,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="lazer_Port_TextChanged"/>
-        <Label Content="scanner&#xD;&#xA;" HorizontalAlignment="Left" Margin="11,316,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="94" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,334,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="scanner_IP" HorizontalAlignment="Left" Height="29" Margin="110,344,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="scanner_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,331,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="scanner_Port" HorizontalAlignment="Left" Height="29" Margin="506,341,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="scanner_Port_TextChanged"/>
-        <Label Content="mes" HorizontalAlignment="Left" Margin="11,366,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="99" Height="35" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="73,384,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="42" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="mes_IP" HorizontalAlignment="Left" Height="28" Margin="110,393,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="Mes_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="365,381,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="42" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="mes_Port" HorizontalAlignment="Left" Height="28" Margin="506,390,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="Mes_Port_TextChanged"/>
-        <Label Content="camera1-Feed" HorizontalAlignment="Left" Margin="4,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="169" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <Label Content="IP:" HorizontalAlignment="Left" Margin="71,27,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="37" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera1_Feed_IP" HorizontalAlignment="Left" Height="29" Margin="108,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera1_Feed_IP_TextChanged"/>
-        <Label Content="Por number:" HorizontalAlignment="Left" Margin="363,24,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="141" Height="44" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Name="camera1_Feed_Port" HorizontalAlignment="Left" Height="29" Margin="504,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="128" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TextChanged="camera1_Feed_Port_Changed"/>
-        <Label Content="camera1-Runner" HorizontalAlignment="Left" Margin="4,67,0,0" VerticalAlignment="Top" RenderTransformOrigin="-3.104,0.148" Width="192" Height="36" FontFamily="Microsoft YaHei" FontSize="20" FontWeight="Bold" FontStyle="Normal" Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-
+             d:DesignHeight="600" d:DesignWidth="1200" Background="#FF70E3BC">
+    <Grid x:Name="Networkgrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="13*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Content="IP:" Grid.Row="2" Grid.Column="1"  HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera1_Runner_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera1_Runner_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="camera2" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera2_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera2_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="camera3" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera3_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera3_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="IP:" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="lazer" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="lazer_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="lazer_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="scanner" Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="scanner_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="scanner_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="6" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="MES" Grid.Row="7" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="mes_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="mes_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="7" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Label Content="camera1-Feed" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera1_Feed_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" />
+        <Label Content="Port number:" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="camera1_Feed_Port" PreviewTextInput="NumberValidationTextBox" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0" Grid.Row="1"/>
+        <Label Content="camera1-Runner" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="ModbusTCP" Grid.Row="8" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <Label Content="IP:" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="ModbusTCP_IP" PreviewTextInput="IPAddressTextBox_PreviewTextInput" DataObject.Pasting="IPAddressTextBox_Pasting" Grid.Row="8" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="NoWrap" VerticalAlignment="Center" Width="210"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center"/>
+        <Label Content="Port number:" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"   Foreground="Black" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Name="ModbusTCP_Port" PreviewTextInput="NumberValidationTextBox" Grid.Row="8" Grid.Column="2" HorizontalAlignment="Left" TextWrapping="NoWrap" VerticalAlignment="Center" Width="120"   Foreground="Black" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Margin="171,0,0,0"/>
+        <Button x:Name="Apply" Grid.Column="3" Content="Apply" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center" Height="47" Width="92" Click="Apply_Click"/>
+        <Grid Grid.Column="3" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_camera1_Feed" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_camera1_Feed" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_camera1_Runner" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_camera1_Runner" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_camera2" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_camera2" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_camera3" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_camera3" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_lazer" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_lazer" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_scanner" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_scanner" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="7">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_mes" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Connect_Click"/>
+            <Button x:Name="Disconnect_mes" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Disonnect_Click"/>
+        </Grid>
+        <Grid Grid.Column="3" Grid.Row="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="Connect_ModbusTCP" Content="Connect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ModbusTCPConnect_Click"/>
+            <Button x:Name="Disconnect_ModbusTCP" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ModbusTCPDisonnect_Click"/>
+        </Grid>
+        <ComboBox x:Name="device" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" Width="150">
+            <ComboBoxItem Content="camera1_Feed"/>
+            <ComboBoxItem Content="camera1_Runner"/>
+            <ComboBoxItem Content="camera2"/>
+            <ComboBoxItem Content="camera3"/>
+            <ComboBoxItem Content="lazer"/>
+            <ComboBoxItem Content="scanner"/>
+        </ComboBox>
+        <TextBox x:Name="Command" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="9" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="580" Grid.ColumnSpan="2" Height="40"/>
+        <Button Grid.Column="3" Content="send" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" Click="Button_Click"/>
+        <Label Grid.Column="1" Content="Network" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Grid.ColumnSpan="2"/>
     </Grid>
 </UserControl>

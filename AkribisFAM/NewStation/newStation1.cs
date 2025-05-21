@@ -57,7 +57,7 @@ namespace AkribisFAM.NewStation
         }
 
 
-        public override void AutoRun()
+        public override void AutoRun(CancellationToken token)
         {
             while (true)
             {
