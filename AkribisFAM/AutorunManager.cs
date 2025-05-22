@@ -259,7 +259,8 @@ namespace AkribisFAM
             Logger.WriteLog("4444");
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
-            Logger.WriteLog("5555");
+            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
+
             AkrAction.Current.WaitAxisAll();
             Logger.WriteLog("66666");
             //把旋转轴的当前位置作为0位置
