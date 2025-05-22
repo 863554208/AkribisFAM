@@ -44,7 +44,7 @@
                         <ComboBox Name="CboxNowType"
                           Style="{StaticResource MaterialDesignFilledComboBox}"
                           HorizontalAlignment="Left"
-                          Width="160"
+                          Width="180"
                           VerticalAlignment="Center"
                           Grid.Column="0" >
                         </ComboBox>
