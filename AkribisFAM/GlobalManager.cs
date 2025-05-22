@@ -198,6 +198,7 @@ namespace AkribisFAM
 
         public StationPoints stationPoints;
 
+
         public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
 

@@ -186,7 +186,7 @@ namespace AkribisFAM.WorkStation
             //}
         }
 
-        const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
+        const int modulenum = 12;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
         [JsonObject]
         public class FuJianPoint
         {
@@ -198,7 +198,7 @@ namespace AkribisFAM.WorkStation
             public double z { get; set; }
         }
 
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//modulenum
+        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//modulenum26
 
         public StationPoints stationPoints = new StationPoints();
         public void readPointJson() {
@@ -299,20 +299,20 @@ namespace AkribisFAM.WorkStation
             for(int i = 0; i < modulenum; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //移动z轴下降
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //夹爪气缸打开
-                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);            
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
                 ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
