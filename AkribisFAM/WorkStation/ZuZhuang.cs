@@ -167,7 +167,6 @@ namespace AkribisFAM.WorkStation
             Logger.WriteLog("组装工站执行完成");
             AkrAction.Current.MoveNoWait(AxisName.FSX, (double)3.0, (int)AxisSpeed.FSX);
             AkrAction.Current.Move(AxisName.FSY, (double)3.0, (int)AxisSpeed.FSY);
-            Thread.Sleep(5000);
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
             #region 使用新的传送带控制逻辑
             Set("station2_IsBoardOut", true);
@@ -683,12 +682,7 @@ namespace AkribisFAM.WorkStation
             //进板
             //if (!BoradIn())
             //    return false;
-            while (GlobalManager.Current.flag_assembleTrayArrived != 1)
-            {
-                Thread.Sleep(300);
-            }
-            GlobalManager.Current.flag_assembleTrayArrived = 0;
-            Logger.WriteLog("组装工位开始");
+
             GlobalManager.Current.current_Zuzhuang_step = 1;
 
             //将当前穴位信息清空
@@ -879,7 +873,6 @@ namespace AkribisFAM.WorkStation
                         //飞达上拍料;
                         Step2();
                         if (GlobalManager.Current.Zuzhuang_exit) break;
-                        goto step8;
 
 
                     step3:
@@ -907,9 +900,16 @@ namespace AkribisFAM.WorkStation
 
                     step6:
                         if (GlobalManager.Current.palleteSnaped) goto step7;
+
+                        while (GlobalManager.Current.flag_assembleTrayArrived != 1)
+                        {
+                            Thread.Sleep(300);
+                        }
+                        GlobalManager.Current.flag_assembleTrayArrived = 0;
+                        Logger.WriteLog("组装工位开始飞拍");
                         //拍料盘                        
                         Step6();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
+                            if (GlobalManager.Current.Zuzhuang_exit) break;
 
                     step7:
                         //放料
