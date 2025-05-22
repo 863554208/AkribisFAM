@@ -354,14 +354,10 @@ namespace AkribisFAM.WorkStation
                     IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
                     IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
                     IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
-                    //Logger.WriteLog("in_10:" + IN1_10.ToString());
-                    //Logger.WriteLog("IN1_11:" + IN1_11.ToString());
-                    //Logger.WriteLog("IN6_6:" + IN6_6.ToString());
 
                     System.Threading.Thread.Sleep(50);
 
                 }
-              
 
                 Logger.WriteLog("皮带任务_再次禁止上游设备送料盘");
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);

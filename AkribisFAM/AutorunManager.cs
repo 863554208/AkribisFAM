@@ -258,6 +258,7 @@ namespace AkribisFAM
 
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
             AkrAction.Current.WaitAxisAll();
 
