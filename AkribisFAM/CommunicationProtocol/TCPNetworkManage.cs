@@ -25,7 +25,9 @@ namespace AkribisFAM.CommunicationProtocol
         
         scanner,
         
-        mes
+        mes,
+
+        ModbusTCP
     }
 
     class TCPNetworkManage
@@ -58,6 +60,7 @@ namespace AkribisFAM.CommunicationProtocol
             clientNameToEndpoint.TryAdd(ClientNames.lazer, ((string ip, int port))((obj["lazer"]["IP"]).ToString(), (obj["lazer"]["Port"])));
             clientNameToEndpoint.TryAdd(ClientNames.scanner, ((string ip, int port))((obj["scanner"]["IP"]).ToString(), (obj["scanner"]["Port"])));
             clientNameToEndpoint.TryAdd(ClientNames.mes, ((string ip, int port))((obj["mes"]["IP"]).ToString(), (obj["mes"]["Port"])));
+            clientNameToEndpoint.TryAdd(ClientNames.ModbusTCP, ((string ip, int port))((obj["ModbusTCP"]["IP"]).ToString(), (obj["ModbusTCP"]["Port"])));
             // 其他客户端可以继续添加
         }
         /// <summary>

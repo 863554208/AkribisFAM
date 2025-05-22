@@ -227,7 +227,7 @@ namespace AkribisFAM.CommunicationProtocol
         private static bool CalibReadcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
         {
             VisionAcceptCommand = null;
-            int timeoutMs = 1000;//1秒之后超时
+            int timeoutMs = 999999999;//1秒之后超时
             int pollIntervalMs = 50;//50毫秒线程延时
             var sw = System.Diagnostics.Stopwatch.StartNew();
 

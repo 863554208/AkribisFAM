@@ -18,6 +18,10 @@ using static System.Windows.Forms.AxHost;
 using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using static AkribisFAM.WorkStation.Reject;
+using System.IO;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM.WorkStation
 {
@@ -183,14 +187,53 @@ namespace AkribisFAM.WorkStation
         }
 
         const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
-        public struct FuJianPoint
+        [JsonObject]
+        public class FuJianPoint
         {
-            public double x;
-            public double y;
-            public double z;
+            [JsonProperty("X")]
+            public double x { get; set; }
+            [JsonProperty("Y")]
+            public double y { get; set; }
+            [JsonProperty("Z")]
+            public double z { get; set; }
         }
 
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>(modulenum);
+        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//modulenum
+
+        public StationPoints stationPoints = new StationPoints();
+        public void readPointJson() {
+            try
+            {
+                //string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                //string path = folder + "\\FuJianPoints.json";
+                //string content = File.ReadAllText(path);
+                //Pointlist = JsonConvert.DeserializeObject<List<FuJianPoint>>(content);
+                //if (Pointlist == null)
+                //{
+                //    return;
+                //}
+                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                string path = folder + "\\Station_points5.json";
+                FileHelper.LoadConfig<StationPoints>(path, out stationPoints);
+                for(int i = 0; i < stationPoints.FuJianPointList.Count; ++i)
+                {
+                    FuJianPoint fuJianPoint = new FuJianPoint();
+                    fuJianPoint.x = stationPoints.FuJianPointList[i].X;
+                    fuJianPoint.y = stationPoints.FuJianPointList[i].Y;
+                    fuJianPoint.z = stationPoints.FuJianPointList[i].Z;
+                    Pointlist.Add(fuJianPoint);
+                }
+                if (stationPoints == null)
+                {
+                    return;
+                }
+            }
+            catch
+            {
+                //配置读取失败
+                return;
+            }
+        }
 
         public bool BoardIn()
         {
@@ -287,18 +330,18 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //移动撕膜
-                AkrAction.Current.MoveRel(AxisName.PRY, 2000, 100000);
-                AkrAction.Current.MoveRel(AxisName.PRZ, 2000, 100000);
+                AkrAction.Current.MoveRel(AxisName.PRY, 10, 10);
+                AkrAction.Current.MoveRel(AxisName.PRZ, 10, 10);
                 //Z轴上升
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[26].z);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[26].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //移动到蓝膜收集处
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[12].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[12].z);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[12].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[12].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -335,10 +378,10 @@ namespace AkribisFAM.WorkStation
             for (int i = modulenum + 1; i < modulenum*2+1; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
+                AkrAction.Current.SetSingleEvent(AxisName.PRZ, Pointlist[i].z, 1);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -428,6 +471,7 @@ namespace AkribisFAM.WorkStation
 
         public override void AutoRun(CancellationToken token)
         {
+            GlobalManager.Current.flag_RecheckTrayArrived = 0;
             try
             {
                 while (true)
@@ -439,7 +483,6 @@ namespace AkribisFAM.WorkStation
                     //    Thread.Sleep(100);
                     //    continue;
                     //}
-                    GlobalManager.Current.current_FuJian_step = 1;
 
                     //BoardIn();
                     while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
@@ -447,6 +490,7 @@ namespace AkribisFAM.WorkStation
                         Thread.Sleep(300);
                     }
                     GlobalManager.Current.flag_RecheckTrayArrived = 0;
+                    GlobalManager.Current.current_FuJian_step = 1;
                     Thread.Sleep(5000);
                     if (GlobalManager.Current.FuJian_exit) break;
 
