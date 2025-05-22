@@ -269,117 +269,127 @@ namespace AkribisFAM.Windows
         private void Save9points_Click(object sender, RoutedEventArgs e)
         {
             int calibnum = Points9CalibNum.SelectedIndex;
-            if (calibnum == 0) {
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-                string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-                JObject obj = JObject.Parse(json);
-                var MoveCameraCalibmoveAxisNozzle = obj["MoveCameraCalibMoveAxisCalibposition"]?[MovingCameraCalibposition.FeedDischarging.ToString()] as JArray;//获取轴Nozzle 数组 
-                
-                double XstepV = double.Parse(Xstep.Text);
-                double YstepV = double.Parse(Ystep.Text);
-                double RstepV = double.Parse(Rstep.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][0] = double.Parse(Xpos.Text)+ XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][0] = double.Parse(Xpos.Text) + XstepV*2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][0] = double.Parse(Xpos.Text) + XstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][0] = double.Parse(Xpos.Text) + XstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][0] = double.Parse(Xpos.Text) + XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][3] = double.Parse(Rpos.Text);
-
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][0] = double.Parse(Xpos.Text) + XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][3] = double.Parse(Rpos.Text);
-                File.WriteAllText(filePath, obj.ToString());
-            }
-            if (calibnum == 1)
+            try
             {
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-                string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-                JObject obj = JObject.Parse(json);
-                var MoveCameraCalibmoveAxisNozzle = obj["MoveCameraCalibMoveAxisCalibposition"]?[MovingCameraCalibposition.FeedDischarging.ToString()] as JArray;//获取轴Nozzle 数组 
+                if (calibnum == 0)
+                {
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
+                    string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+                    JObject obj = JObject.Parse(json);
+                    var MoveCameraCalibmoveAxisNozzle = obj["MoveCameraCalibMoveAxisCalibposition"]?[MovingCameraCalibposition.FeedDischarging.ToString()] as JArray;//获取轴Nozzle 数组 
 
-                double XstepV = double.Parse(Xstep.Text);
-                double YstepV = double.Parse(Ystep.Text);
-                double RstepV = double.Parse(Rstep.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][3] = double.Parse(Rpos.Text);
+                    double XstepV = double.Parse(Xstep.Text);
+                    double YstepV = double.Parse(Ystep.Text);
+                    double RstepV = double.Parse(Rstep.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][0][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][0] = double.Parse(Xpos.Text) + XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][1][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][0] = double.Parse(Xpos.Text) + XstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][1] = double.Parse(Ypos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][2][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][0] = double.Parse(Xpos.Text) + XstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][3][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][0] = double.Parse(Xpos.Text) + XstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][4][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][0] = double.Parse(Xpos.Text) + XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][5][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][1] = double.Parse(Ypos.Text) + YstepV * 2;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][6][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][0] = double.Parse(Xpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][3] = double.Parse(Rpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][7][3] = double.Parse(Rpos.Text);
 
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][0] = double.Parse(Xpos.Text) + XstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][1] = double.Parse(Ypos.Text) + YstepV;
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][2] = double.Parse(Zpos.Text);
-                obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][3] = double.Parse(Rpos.Text);
-                File.WriteAllText(filePath, obj.ToString());
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["FeedDischarging"][8][3] = double.Parse(Rpos.Text);
+                    File.WriteAllText(filePath, obj.ToString());
+                }
+                if (calibnum == 1)
+                {
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
+                    string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+                    JObject obj = JObject.Parse(json);
+                    var MoveCameraCalibmoveAxisNozzle = obj["MoveCameraCalibMoveAxisCalibposition"]?[MovingCameraCalibposition.FeedDischarging.ToString()] as JArray;//获取轴Nozzle 数组 
+
+                    double XstepV = double.Parse(Xstep.Text);
+                    double YstepV = double.Parse(Ystep.Text);
+                    double RstepV = double.Parse(Rstep.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][0][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][1][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][1] = double.Parse(Ypos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][2][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][3][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][0] = double.Parse(Xpos.Text) + XstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][4][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][5][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][1] = double.Parse(Ypos.Text) + YstepV * 2;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][6][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][0] = double.Parse(Xpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][7][3] = double.Parse(Rpos.Text);
+
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][0] = double.Parse(Xpos.Text) + XstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][1] = double.Parse(Ypos.Text) + YstepV;
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][2] = double.Parse(Zpos.Text);
+                    obj["MoveCameraCalibMoveAxisCalibposition"]["Vehicles"][8][3] = double.Parse(Rpos.Text);
+                    File.WriteAllText(filePath, obj.ToString());
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Save failed! :" + ex.Message);
+                return;
+            }
+
         }
 
         private Dictionary<int, string> nozzlepair = new Dictionary<int, string>() {
@@ -391,74 +401,81 @@ namespace AkribisFAM.Windows
 
         private void Save11points_Click(object sender, RoutedEventArgs e)
         {
-            int nozzlenum = Points11CalibNum.SelectedIndex;
-            string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-            string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-            JObject obj = JObject.Parse(json);
-            double X = double.Parse(Xpos.Text);
-            double Y = double.Parse(Ypos.Text);
-            double Z = double.Parse(Zpos.Text);
-            double R = double.Parse(Rpos.Text);
-            double XstepV = double.Parse(Xstep.Text);
-            double YstepV = double.Parse(Ystep.Text);
-            double RstepV = double.Parse(Rstep.Text);
+            try
+            {
+                int nozzlenum = Points11CalibNum.SelectedIndex;
+                string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
+                string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+                JObject obj = JObject.Parse(json);
+                double X = double.Parse(Xpos.Text);
+                double Y = double.Parse(Ypos.Text);
+                double Z = double.Parse(Zpos.Text);
+                double R = double.Parse(Rpos.Text);
+                double XstepV = double.Parse(Xstep.Text);
+                double YstepV = double.Parse(Ystep.Text);
+                double RstepV = double.Parse(Rstep.Text);
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][0] = X;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][1] = Y;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][0] = X;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][1] = Y;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][0] = X + XstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][1] = Y;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][0] = X + XstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][1] = Y;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][0] = X + XstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][1] = Y;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][0] = X + XstepV*2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][1] = Y;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][0] = X + XstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][1] = Y + YstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][0] = X + XstepV * 2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][1] = Y + YstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][0] = X + XstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][1] = Y + YstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][0] = X + XstepV * 2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][1] = Y + YstepV * 2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][0] = X + XstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][1] = Y + YstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][0] = X + XstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][1] = Y + YstepV * 2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][0] = X;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][1] = Y + YstepV * 2;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][0] = X;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][1] = Y + YstepV * 2;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][0] = X;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][1] = Y + YstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][0] = X;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][1] = Y + YstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][0] = X + XstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][1] = Y + YstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][3] = R;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][0] = X + XstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][1] = Y + YstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][3] = R;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][0] = X + XstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][1] = Y + YstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][3] = R + RstepV;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][0] = X + XstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][1] = Y + YstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][3] = R + RstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][0] = X + XstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][1] = Y + YstepV;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][2] = Z;
+                obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][3] = R - RstepV;
 
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][0] = X + XstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][1] = Y + YstepV;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][2] = Z;
-            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][3] = R - RstepV;
-
-            File.WriteAllText(filePath, obj.ToString());
+                File.WriteAllText(filePath, obj.ToString());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Save failed! :" + ex.Message);
+                return;
+            }
         }
 
         private Dictionary<int, string> jointpair = new Dictionary<int, string>() {
@@ -471,20 +488,28 @@ namespace AkribisFAM.Windows
         };
         private void JointCalibSave_Click(object sender, RoutedEventArgs e)
         {
-            int pointnum = JointBox.SelectedIndex;
-            string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-            string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-            JObject obj = JObject.Parse(json);
-            double X = double.Parse(Xpos.Text);
-            double Y = double.Parse(Ypos.Text);
-            double Z = double.Parse(Zpos.Text);
-            double R = double.Parse(Rpos.Text);
+            try
+            {
+                int pointnum = JointBox.SelectedIndex;
+                string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
+                string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+                JObject obj = JObject.Parse(json);
+                double X = double.Parse(Xpos.Text);
+                double Y = double.Parse(Ypos.Text);
+                double Z = double.Parse(Zpos.Text);
+                double R = double.Parse(Rpos.Text);
 
-            obj["CombineCalibProcessposition"][jointpair[pointnum]][0] = X;
-            obj["CombineCalibProcessposition"][jointpair[pointnum]][1] = Y;
-            obj["CombineCalibProcessposition"][jointpair[pointnum]][2] = Z;
-            obj["CombineCalibProcessposition"][jointpair[pointnum]][3] = R;
-            File.WriteAllText(filePath, obj.ToString());
+                obj["CombineCalibProcessposition"][jointpair[pointnum]][0] = X;
+                obj["CombineCalibProcessposition"][jointpair[pointnum]][1] = Y;
+                obj["CombineCalibProcessposition"][jointpair[pointnum]][2] = Z;
+                obj["CombineCalibProcessposition"][jointpair[pointnum]][3] = R;
+                File.WriteAllText(filePath, obj.ToString());
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Save failed! :" + ex.Message);
+                return;
+            }
+ 
         }
     }
 }

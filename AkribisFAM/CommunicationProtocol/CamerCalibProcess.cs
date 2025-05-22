@@ -166,7 +166,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             await Task.Run(new Action(() =>
             {
                 //吸嘴吸气
-                NozzleInhale(nozzleNumber);
+                //NozzleInhale(nozzleNumber);
                 //标定开始
                 if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, nozzleNumber,"Alonestart"))
                 {
@@ -183,7 +183,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //吸嘴停止吸气
-                NozzleStopInhale(nozzleNumber);
+               // NozzleStopInhale(nozzleNumber);
                 //此次标定结束
                 CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.processend, nozzleNumber,"processend");
             }));
@@ -275,7 +275,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //移动到拍照位
                 MoveAxis(i, nozzleNumber);
 
-                Thread.Sleep(800);
+                Thread.Sleep(1000);
 
                 var PointArray = DownCameramoveAxisNozzle[i] as JArray;//第几个移动点
                 if (PointArray == null)
@@ -298,18 +298,39 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                         }
                         break;
                     case NozzleNumber.Nozzle2:
-                        break;
-                    case NozzleNumber.Nozzle3:
-                        break;
-                    case NozzleNumber.Nozzle4:
-                        break;
-                    default:
                         {
                             //单独标定
                             if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
                             {
                                 return false;
                             }
+                            break;
+                        }
+                    case NozzleNumber.Nozzle3:
+                        {
+                            //单独标定
+                            if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
+                            {
+                                return false;
+                            }
+                        }
+                        break;
+                    case NozzleNumber.Nozzle4:
+                        {
+                            //单独标定
+                            if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
+                            {
+                                return false;
+                            }
+                        }
+                        break;
+                    default:
+                        {
+                            ////单独标定
+                            //if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
+                            //{
+                            //    return false;
+                            //}
                         }
                         break;
                 }
@@ -462,8 +483,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
         private void MoveAxisDirectControl(double x, double y, double z, double r, NozzleNumber nozzleNumber)//直接控制轴运动，及到位判断
         {
-            AkrAction.Current.Move(GlobalManager.AxisName.FSX, Convert.ToInt32(x * 10000), (int)AxisSpeed.FSX);//x轴运动x
-            AkrAction.Current.Move(GlobalManager.AxisName.FSY, Convert.ToInt32(y * 10000), (int)AxisSpeed.FSY);//y轴运动y
+            AkrAction.Current.Move(GlobalManager.AxisName.FSX,x, (int)AxisSpeed.FSX);//x轴运动x
+            AkrAction.Current.Move(GlobalManager.AxisName.FSY,y , (int)AxisSpeed.FSY);//y轴运动y
 
             switch (nozzleNumber)
             {

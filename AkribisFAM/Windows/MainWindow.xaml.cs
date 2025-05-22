@@ -93,7 +93,7 @@ namespace AkribisFAM
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
-
+            FuJian.Current.readPointJson();
             _timer.Start();
             //END Add
            
