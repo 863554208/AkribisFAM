@@ -441,7 +441,6 @@ namespace AkribisFAM.WorkStation
                     //}
                     GlobalManager.Current.current_FuJian_step = 1;
 
-
                     //BoardIn();
                     while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
                     {

@@ -258,10 +258,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 5;
-        const int Zuzhuang_stepnum = 5;
-        const int FuJian_stepnum = 4;
-        const int Reject_stepnum = 3;
+        const int Lailiao_stepnum = 8;
+        const int Zuzhuang_stepnum = 10;
+        const int FuJian_stepnum = 5;
+        const int Reject_stepnum = 5;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
@@ -823,10 +823,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 50,
-            LSY = 50,
-            FSX = 50,
-            FSY = 50,
+            LSX = 100,
+            LSY = 100,
+            FSX = 100,
+            FSY = 100,
             BL5 = 100,
             BR5 = 100,
 
@@ -858,10 +858,10 @@ namespace AkribisFAM
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 500,
-            LSY = 500,
-            FSX = 500,
-            FSY = 500,
+            LSX = 1000,
+            LSY = 1000,
+            FSX = 1000,
+            FSY = 1000,
             BL5 = 500,
             BR5 = 500,
 

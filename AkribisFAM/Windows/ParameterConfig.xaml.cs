@@ -279,13 +279,29 @@ namespace AkribisFAM.Windows
                     // 单独点，使用 pt 的 X/Y/Z/R
                     var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
+                    // 添加 ID 标签
                     rowPanel.Children.Add(new TextBlock
                     {
-                        Text = $"ID: {pt.name}",
-                        //Width = 100,
-                        Margin = new Thickness(0, 0, 15, 0),
+                        Text = "ID:",
+                        Margin = new Thickness(0, 0, 5, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     });
+
+                    // 添加可编辑的 ID 输入框
+                    var idTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        Width = 100,
+                        Margin = new Thickness(0, 0, 15, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+
+                    // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                    idTextBox.TextChanged += (s, edc) =>
+                    {
+                        pt.name = idTextBox.Text;
+                    };
+                    rowPanel.Children.Add(idTextBox);
 
                     rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
                     {
@@ -2650,13 +2666,29 @@ namespace AkribisFAM.Windows
                 // 单独点，使用 pt 的 X/Y/Z/R
                 var rowPanel = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
+                // 添加 ID 标签
                 rowPanel.Children.Add(new TextBlock
                 {
-                    Text = $"ID:",
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(0, 0, 15, 0),
+                    Text = "ID:",
+                    Margin = new Thickness(0, 0, 5, 0),
+                    VerticalAlignment = VerticalAlignment.Center
                 });
-                pt.name = $"New";
+
+                // 添加可编辑的 ID 输入框
+                var idTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    Width = 100,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                idTextBox.TextChanged += (s, edc) =>
+                {
+                    pt.name = idTextBox.Text;
+                };
+                rowPanel.Children.Add(idTextBox);
 
                 rowPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
                 {
