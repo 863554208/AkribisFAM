@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,11 +68,13 @@ namespace AkribisFAM.Util
             return logFilePath;
         }
 
-        public static void WriteLog(string message)
+        public static void WriteLog(string message,
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
         {
             string timeStamp = DateTime.Now.ToString("yyyyMMdd_HH:mm:ss.fff");
             string threadId = Thread.CurrentThread.ManagedThreadId.ToString();
-            string logEntry = $"Thread:{threadId}  {timeStamp}  {message}";
+            string logEntry = $"Thread:{threadId}  {timeStamp}  {Path.GetFileName(filePath)}: {lineNumber} - {message}";
             _logQueue.Add(logEntry);
         }
 
