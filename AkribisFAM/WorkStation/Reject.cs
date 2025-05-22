@@ -414,62 +414,62 @@ namespace AkribisFAM.WorkStation
         public class TrainPoint
         {
             [JsonProperty("X")]
-            public int x { get; set; }
+            public double x { get; set; }
             [JsonProperty("Y")]
-            public int y { get; set; }
+            public double y { get; set; }
             [JsonProperty("Z")]
-            public int z { get; set; }
+            public double z { get; set; }
             [JsonProperty("R")]
-            public int r { get; set; }
+            public double r { get; set; }
         }
 
-        //1-4结束位置， 5起始位置， 6-9取料位置
-        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(9);
+        //1-4结束位置， 5起始位置
+        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(5);
 
         public bool TrainNozzle(int pickernum)
         {
-            bool ret;
-            //移动取料
-            AkrAction.Current.Move(AxisName.FSX, TrainPointlist[pickernum + 5].x, (int)AxisSpeed.FSX);
-            AkrAction.Current.Move(AxisName.FSY, TrainPointlist[pickernum + 5].y, (int)AxisSpeed.FSY);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //picker 取料
-            AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
-            if (pickernum == 0)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true);
-            }
-            else if (pickernum == 1)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true);
-            }
-            else if (pickernum == 2) {
-                SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback, true);
-            }
-            else if (pickernum == 3)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback, true);
-            }
-            else
-            {
-                ret = false;
-            }
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
+            //bool ret;
+            ////移动取料
+            //AkrAction.Current.Move(AxisName.FSX, TrainPointlist[pickernum + 5].x, (int)AxisSpeed.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, TrainPointlist[pickernum + 5].y, (int)AxisSpeed.FSY);
+            //if (CheckState(true) == 1)
+            //{
+            //    return false;
+            //}
+            ////picker 取料
+            //AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
+            //if (pickernum == 0)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 1)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 2) {
+            //    SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 3)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback, true);
+            //}
+            //else
+            //{
+            //    ret = false;
+            //}
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+            //AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
             //移动到飞拍起始位置
             AkrAction.Current.Move(AxisName.FSX, TrainPointlist[4].x, (int)AxisSpeed.FSX);
             AkrAction.Current.Move(AxisName.FSY, TrainPointlist[4].y, (int)AxisSpeed.FSY);
@@ -480,14 +480,18 @@ namespace AkribisFAM.WorkStation
             //给Cognex发拍照信息
             string command = "SN" + "123456," + $"+{pickernum}," + "Foam," + $"{TrainPointlist[pickernum].x},{TrainPointlist[pickernum].y},{TrainPointlist[pickernum].r}";
             TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
+            int cnt = 0;
             while (true) {
-                if (TriggTTNCamreaready() == "OK") {
+                if (TriggTTNCamreaready() == "OK" || cnt == 200) {
                     break;
                 }
+                cnt++;
+                Thread.Sleep(50);
             }
 
             //飞拍移动到结束位置
-            AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
+            int pulse = (int)(TrainPointlist[pickernum].x * 10000.0);
+            AkrAction.Current.SetSingleEvent(AxisName.FSX, pulse, 1);
             AkrAction.Current.MoveNoWait(AxisName.FSX, TrainPointlist[pickernum].x, (int)AxisSpeed.FSX);
             if (CheckState(true) == 1)
             {

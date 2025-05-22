@@ -129,10 +129,13 @@ namespace AkribisFAM.CommunicationProtocol
                     var worker = new TcpClientWorker(ip, port);// 创建新的TcpClientWorker实例
                     namedClients[clientName] = worker;
                     // 输出正在等待当前客户端连接的信息
-                //    Console.WriteLine("Waiting for all clients to connect...");
+                    //    Console.WriteLine("Waiting for all clients to connect...");
                     worker.ConnectAsync().Wait();// 等待这个客户端的连接
-                    // 当前客户端连接完成后，输出成功信息
-                  //  Console.WriteLine("All clients connected!");
+                                                 // 当前客户端连接完成后，输出成功信息
+                                                 //  Console.WriteLine("All clients connected!");
+                }
+                else {
+                    namedClients[clientName].ConnectAsync().Wait();
                 }
             }
             ));
@@ -153,7 +156,7 @@ namespace AkribisFAM.CommunicationProtocol
                     clientworker.Stop();  // 停止每个客户端的连接
                    // Logger.WriteLog($"Stop {clientname.ToString()}connection");
                 }
-                namedClients.Clear();
+                //namedClients.Clear();
             }
         }
 
@@ -167,7 +170,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 namedClients[clientName].Stop();  // 停止单独客户端的连接
                 //Logger.WriteLog($"Stop {clientName.ToString()}connection");
-                namedClients.TryRemove(clientName, out _);
+                //namedClients.TryRemove(clientName, out _);
             }
         }
 

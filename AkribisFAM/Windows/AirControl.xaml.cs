@@ -199,7 +199,7 @@ namespace AkribisFAM.Windows
                             }));
                         }
                     }
-                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table> entry in InputCylinderPairs)
+                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table> entry in InputNozzlePairs)
                     {
                         if (IOManager.Instance.INIO_status[(int)entry.Value] == 0)
                         {
