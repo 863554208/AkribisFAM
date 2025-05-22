@@ -209,13 +209,13 @@ namespace AkribisFAM.WorkStation
 
         public void WaitAxisAll()
         {
-            //AkrAction.Current.WaitAxis(AxisName.FSX);
+            AkrAction.Current.WaitAxis(AxisName.FSX);
             //AkrAction.Current.WaitAxis(AxisName.FSY);
-            AkrAction.Current.WaitAxis(AxisName.LSX);
-            Thread.Sleep(5000);
+            //AkrAction.Current.WaitAxis(AxisName.LSX);
             //AkrAction.Current.WaitAxis(AxisName.LSY);
             //AkrAction.Current.WaitAxis(AxisName.PRX);
             //AkrAction.Current.WaitAxis(AxisName.PRY);
+            Thread.Sleep(5000);
         }
 
 
@@ -907,6 +907,27 @@ namespace AkribisFAM.WorkStation
 
         }
 
+        public int axisAllZAxisEnable(bool enable)
+        {
+            int ret = 0;
+
+            ret += axisEnable(AxisName.PICK1_Z, enable);
+            ret += axisEnable(AxisName.PICK1_T, enable);
+            ret += axisEnable(AxisName.PICK2_Z, enable);
+            ret += axisEnable(AxisName.PICK2_T, enable);
+            ret += axisEnable(AxisName.PICK3_Z, enable);
+            ret += axisEnable(AxisName.PICK3_T, enable);
+            ret += axisEnable(AxisName.PICK4_Z, enable);
+            ret += axisEnable(AxisName.PICK4_T, enable);
+
+
+            if (ret != 0)
+            {
+                return (int)ACTTION_ERR.GTOUPERR;
+            }
+            return (int)ACTTION_ERR.NONE;
+        }
+
 
         public int axisAllEnable(bool enable)
         {
@@ -925,14 +946,14 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.BR2, enable);
             ret += axisEnable(AxisName.BR3, enable);
             ret += axisEnable(AxisName.BR4, enable);
-            //ret += axisEnable(AxisName.PICK1_Z, enable);
-            //ret += axisEnable(AxisName.PICK1_T, enable);
-            //ret += axisEnable(AxisName.PICK2_Z, enable);
-            //ret += axisEnable(AxisName.PICK2_T, enable);
-            //ret += axisEnable(AxisName.PICK3_Z, enable);
-            //ret += axisEnable(AxisName.PICK3_T, enable);
-            //ret += axisEnable(AxisName.PICK4_Z, enable);
-            //ret += axisEnable(AxisName.PICK4_T, enable);
+            ret += axisEnable(AxisName.PICK1_Z, enable);
+            ret += axisEnable(AxisName.PICK1_T, enable);
+            ret += axisEnable(AxisName.PICK2_Z, enable);
+            ret += axisEnable(AxisName.PICK2_T, enable);
+            ret += axisEnable(AxisName.PICK3_Z, enable);
+            ret += axisEnable(AxisName.PICK3_T, enable);
+            ret += axisEnable(AxisName.PICK4_Z, enable);
+            ret += axisEnable(AxisName.PICK4_T, enable);
             ret += axisEnable(AxisName.PRX, enable);
             ret += axisEnable(AxisName.PRY, enable);
             ret += axisEnable(AxisName.PRZ, enable);

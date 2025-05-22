@@ -16,6 +16,7 @@ using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using AkribisFAM.NewStation;
 using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 using static AkribisFAM.GlobalManager;
+using AkribisFAM.Util;
 
 namespace AkribisFAM
 {
@@ -246,22 +247,31 @@ namespace AkribisFAM
             //Thread.Sleep(5000);
             //return true;
 
+            //单独对Z轴下使能
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            AkrAction.Current.axisAllZAxisEnable(true);
+            Thread.Sleep(1000);
+            AkrAction.Current.axisAllZAxisEnable(false);
+            Thread.Sleep(1000);
+
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
             Thread.Sleep(500);
             //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
-
+            Logger.WriteLog("2222");
             //复位气缸和吸嘴IO
             CylinderDown();
-
+            Logger.WriteLog("3333");
             //轴使能
             AkrAction.Current.axisAllEnable(true);
-
+            Logger.WriteLog("4444");
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
             AkrAction.Current.WaitAxisAll();
-
+            Logger.WriteLog("66666");
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 
@@ -319,10 +329,9 @@ namespace AkribisFAM
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
-
-
-
-
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
             return true;
         }

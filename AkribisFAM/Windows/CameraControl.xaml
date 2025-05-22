@@ -160,6 +160,16 @@
                         </Grid>
                     </Grid>
                 </Grid>
+                <Grid Grid.Row="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
             </Grid>
         </GroupBox>
         
