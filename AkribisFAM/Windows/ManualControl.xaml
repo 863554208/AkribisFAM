@@ -4,20 +4,58 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="45" Margin="10,0,0,0" VerticalAlignment="Top" Width="456">
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                <Button Content="轴调试" Width="69" Click="AxisConfigure_Click"/>
-                <Button Content="气动调试" Width="74" Click="AirControl_Click"/>
-                <Button Content="相机调试" Width="69"/>
-                <Button Content="IO调试" Width="65"/>
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851">
+    <UserControl.Resources>
+        <Style x:Key="SelectableButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="Selected">
+                                <Setter TargetName="border" Property="Background" Value="#a7c0ec"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#FFE0E0E0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="5">
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- 第一行：自适应内容高度 -->
+            <RowDefinition Height="*"/>
+            <!-- 第二行：占满剩余空间 -->
+        </Grid.RowDefinitions>
 
+        <!-- 第一行按钮区域 -->
+        <Border Grid.Row="0" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="轴调试"  Name="AxisDebug" Style="{StaticResource SelectableButtonStyle}"  Width="80" Click="AxisConfigure_Click"/>
+                <Button Content="气动调试" Name="AirDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
+                <Button Content="相机调试" Name="CameraDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
+                <Button Content="IO调试" Name="IoDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
+                <Button Content="流程调试" Name="ProgressDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" />
             </StackPanel>
         </Border>
-        <Border BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="390" Margin="10,50,0,0" VerticalAlignment="Top" Width="768" >
-            <ContentControl Name="ManualControlDisplay" />
+
+        <!-- 第二行内容显示区域 -->
+        <Border Grid.Row="1" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ContentControl Name="ManualControlDisplay" Margin="0"/>
         </Border>
     </Grid>
 </UserControl>

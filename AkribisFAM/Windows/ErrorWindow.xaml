@@ -1,0 +1,20 @@
+﻿<Window x:Class="AkribisFAM.Windows.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AkribisFAM.Windows"
+        mc:Ignorable="d"
+        Title="ErrorWindow" Height="450" Width="800">
+    <Grid>
+        <DataGrid x:Name="ErrorData" AutoGenerateColumns="False"  ItemsSource="{Binding ErrorInfos}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="DateTime" Binding="{Binding DateTime}"/>
+                <DataGridTextColumn Header="User"  Binding="{Binding User}"/>
+                <DataGridTextColumn Header="ErrorCode" Binding="{Binding ErrorCode}" />
+                <DataGridTextColumn Header="Level" Binding="{Binding Level}" />
+                <DataGridTextColumn Header="Info" Binding="{Binding Info}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
