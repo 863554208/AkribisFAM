@@ -26,7 +26,7 @@ namespace AkribisFAM
     /// </summary>
     public partial class App : Application
     {
-
+        public static DirectoryManager DirManager;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -46,7 +46,7 @@ namespace AkribisFAM
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
-
+            DirManager = new DirectoryManager();
             //TODO
             //try
             //{
