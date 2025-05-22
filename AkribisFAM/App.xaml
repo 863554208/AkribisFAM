@@ -16,6 +16,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.CheckBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <!-- 全局字体设置 --><!--
@@ -46,42 +47,4 @@
 </Application>
 
     
-    
-    
-<!--<Application x:Class="AkribisFAM.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             ShutdownMode="OnExplicitShutdown">
-    <Application.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                --><!-- 本地化资源 --><!--
-                <ResourceDictionary x:Name="Language" Source="/Dict/AppResource_zh_CN.xaml" />
-
-                --><!-- 自定义主色 -->
-                <!-- 移除 DeepPurple 预设，改为自定义色 --><!--
-                <Color x:Key="PrimaryColor">#FF01AFEB</Color>
-                <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="{StaticResource PrimaryColor}" />
-                <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="White" />
-                <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#FF4DD8F2" />
-                <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="Black" />
-                <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#FF018EBA" />
-                <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="White" />
-
-                --><!-- Material Design 基础样式 --><!--
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
-
-                --><!-- 控件样式 --><!--
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.RadioButton.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ListBox.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TabControl.xaml" />
-
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Application.Resources>
-</Application>-->
     
