@@ -27,6 +27,8 @@ namespace AkribisFAM
     public partial class App : Application
     {
         public static IDatabaseManager DbManager { get; private set; }
+        public static DirectoryManager DirManager;
+        
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -47,6 +49,7 @@ namespace AkribisFAM
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
 			DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Alpha_FAM_Database.sqlite");
+            DirManager = new DirectoryManager();
             //TODO
             //try
             //{
