@@ -419,13 +419,41 @@ namespace AkribisFAM.Windows
                     // 单独点，使用 pt 的 X/Y/Z/R
                     var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
+                    //rowPanel.Children.Add(new TextBlock
+                    //{
+                    //    Text = $"ID: {pt.name}",
+                    //    //Width = 100,
+                    //    Margin = new Thickness(0, 0, 15, 0),
+                    //    VerticalAlignment = VerticalAlignment.Center
+                    //});
+
+
+
+                    // 添加 ID 标签
                     rowPanel.Children.Add(new TextBlock
                     {
-                        Text = $"ID: {pt.name}",
-                        //Width = 100,
-                        Margin = new Thickness(0, 0, 15, 0),
+                        Text = "ID:",
+                        FontWeight = FontWeights.Bold,
+                        Margin = new Thickness(0, 0, 5, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     });
+
+                    // 添加可编辑的 ID 输入框
+                    var idTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        Width = 100,
+                        Margin = new Thickness(0, 0, 15, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+
+                    // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                    idTextBox.TextChanged += (s, edc) =>
+                    {
+                        pt.name = idTextBox.Text;
+                    };
+                    rowPanel.Children.Add(idTextBox);
+
 
                     rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
                     {
@@ -487,13 +515,52 @@ namespace AkribisFAM.Windows
                     }
 
                     // 绘制 UI
-                    panel.Children.Add(new TextBlock
+                    var rowGrid = new Grid
                     {
-                        Text = $"{MatrixPointPrefix}: {pt.name} ({pt.col}col × {pt.row}row)",
+                        Margin = new Thickness(0, 8, 0, 4),
+                        Tag = "MatrixHeader"  // 关键标记
+                    };
+
+                    // 定义三列：标签、输入框、说明文本
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+
+                    // ID: 标签
+                    var idLabel = new TextBlock
+                    {
+                        Text = "ID:",
                         FontWeight = FontWeights.Bold,
-                        Tag = pt.row, //把行数存进 Tag
-                        Margin = new Thickness(0, 8, 0, 4)
-                    });
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    };
+                    Grid.SetColumn(idLabel, 0);
+                    rowGrid.Children.Add(idLabel);
+
+                    // 可编辑的 ID 输入框
+                    var matrixIdTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    matrixIdTextBox.TextChanged += (s, e) => pt.name = matrixIdTextBox.Text;
+                    Grid.SetColumn(matrixIdTextBox, 1);
+                    rowGrid.Children.Add(matrixIdTextBox);
+
+                    // 显示 col × row 信息
+                    var matrixInfoText = new TextBlock
+                    {
+                        Text = $"({pt.col}col × {pt.row}row)",
+                        FontWeight = FontWeights.Bold,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(10, 0, 0, 0)
+                    };
+                    Grid.SetColumn(matrixInfoText, 2);
+                    rowGrid.Children.Add(matrixInfoText);
+
+                    // 添加整行到主 panel
+                    panel.Children.Add(rowGrid);
+
 
                     int childIndex = 0;
                     for (int r = 0; r < pt.row; r++)
@@ -563,15 +630,54 @@ namespace AkribisFAM.Windows
                     {
                         Tag = "SinglePoint",
                         Orientation = Orientation.Horizontal,
-                        Margin = new Thickness(0, 4, 0, 4)
+                        Margin = new Thickness(0, 4, 10, 4)
                     };
 
-                    // general 输入框 + 回写
-                    rowPanel.Children.Add(CreateLabeledTextBox(pt.name, pt.general, newText =>
-                    {
-                        if (double.TryParse(newText, out double val)) pt.general = val;
-                    }));
+                    //pt.name = "New";
 
+                    // 添加 ID 标签
+                    rowPanel.Children.Add(new TextBlock
+                    {
+                        Text = "ID:",
+                        FontWeight = FontWeights.Bold,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    });
+
+                    // 添加 ID 输入框（回写 pt.name）
+                    var idTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        Width = 100,
+                        Margin = new Thickness(0, 0, 15, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
+                    rowPanel.Children.Add(idTextBox);
+
+                    // 添加 General 标签
+                    rowPanel.Children.Add(new TextBlock
+                    {
+                        Text = "Data:",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    });
+
+                    // 添加 General 输入框（回写 pt.general）
+                    var genTextBox = new TextBox
+                    {
+                        Text = pt.general.ToString(),
+                        Width = 100,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    genTextBox.TextChanged += (s, edc) =>
+                    {
+                        if (double.TryParse(genTextBox.Text, out double val))
+                            pt.general = val;
+                    };
+                    rowPanel.Children.Add(genTextBox);
+
+                    // 添加到主容器
                     panel.Children.Add(rowPanel);
                 }
             }
@@ -588,7 +694,7 @@ namespace AkribisFAM.Windows
             var panel = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
-                Margin = new Thickness(0, 2, 12, 2),
+                Margin = new Thickness(0, 2, 10, 2),
                 VerticalAlignment = VerticalAlignment.Center
             };
 
@@ -790,40 +896,59 @@ namespace AkribisFAM.Windows
                         return;
                     }
 
-                    // 先检查最后一个元素是不是单点的 StackPanel
                     if (mainPanel.Children[lastIndex] is StackPanel lastPanel &&
                         lastPanel.Tag as string == "SinglePoint")
                     {
-                        // 只删最后一个单点行
                         mainPanel.Children.RemoveAt(lastIndex);
                         ReMoveStationData(listIndex);
                         MessageBox.Show("Single point deleted", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        // 不是单点，尝试查找矩阵点标题 TextBlock 索引
-                        int matrixStartIndex = -1;
-
+                        // 查找最后一个矩阵头的位置（Tag == "MatrixHeader"）
+                        int matrixHeaderIndex = -1;
                         for (int i = lastIndex; i >= 0; i--)
                         {
-                            if (mainPanel.Children[i] is TextBlock tb && tb.Text.StartsWith(MatrixPointPrefix))
+                            if (mainPanel.Children[i] is FrameworkElement fe &&
+                                fe.Tag as string == "MatrixHeader")
                             {
-                                matrixStartIndex = i;
+                                matrixHeaderIndex = i;
                                 break;
                             }
                         }
 
-                        if (matrixStartIndex >= 0)
+                        if (matrixHeaderIndex >= 0)
                         {
-                            // 删除从矩阵标题开始，到最后一个元素之间的所有控件
-                            int countToRemove = lastIndex - matrixStartIndex + 1;
-                            for (int i = 0; i < countToRemove; i++)
+                            // 从矩阵头开始，删除它和后面所有 "MatrixRow"
+                            int removeCount = 0;
+                            int currentIndex = matrixHeaderIndex;
+
+                            while (currentIndex < mainPanel.Children.Count)
                             {
-                                mainPanel.Children.RemoveAt(matrixStartIndex);
+                                var child = mainPanel.Children[currentIndex] as FrameworkElement;
+                                string tag = child?.Tag as string;
+
+                                if (tag == "MatrixHeader" || tag == "MatrixRow")
+                                {
+                                    mainPanel.Children.RemoveAt(currentIndex);
+                                    removeCount++;
+                                    // 删除后元素会自动往前移，不要 ++ currentIndex
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
 
-                            ReMoveStationData(listIndex);
-                            MessageBox.Show("Matrix point deleted", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+                            if (removeCount > 0)
+                            {
+                                ReMoveStationData(listIndex);
+                                MessageBox.Show("Matrix point deleted", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("No matrix rows found to delete", "Tip", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
                         }
                         else
                         {
@@ -936,13 +1061,30 @@ namespace AkribisFAM.Windows
                 // 单独点，使用 pt 的 X/Y/Z/R
                 var rowPanel = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
+                // 添加 ID 标签
                 rowPanel.Children.Add(new TextBlock
                 {
-                    Text = $"ID:",
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Margin = new Thickness(0, 0, 15, 0),
+                    Text = "ID:",
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(0, 0, 5, 0),
+                    VerticalAlignment = VerticalAlignment.Center
                 });
-                pt.name = $"New";
+
+                // 添加可编辑的 ID 输入框
+                var idTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    Width = 100,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
+                // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                idTextBox.TextChanged += (s, edc) =>
+                {
+                    pt.name = idTextBox.Text;
+                };
+                rowPanel.Children.Add(idTextBox);
 
                 rowPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
                 {
@@ -1006,13 +1148,52 @@ namespace AkribisFAM.Windows
                 //}
 
                 // 绘制 UI
-                mainPanel.Children.Add(new TextBlock
+                var rowGrid = new Grid
                 {
-                    Text = $"{MatrixPointPrefix}: NewMatrix ({col}col × {row}row)",
+                    Margin = new Thickness(0, 8, 0, 4),
+                    Tag = row // 可选：将行数存储在 Tag 中
+                };
+
+                // 定义三列：标签、输入框、说明文本
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+
+                // ID: 标签
+                var idLabel = new TextBlock
+                {
+                    Text = "ID:",
                     FontWeight = FontWeights.Bold,
-                    Tag = row, //把行数存进 Tag
-                    Margin = new Thickness(0, 8, 0, 4)
-                });
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                };
+                Grid.SetColumn(idLabel, 0);
+                rowGrid.Children.Add(idLabel);
+
+                // 可编辑的 ID 输入框
+                var matrixIdTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                matrixIdTextBox.TextChanged += (s, ede) => pt.name = matrixIdTextBox.Text;
+                Grid.SetColumn(matrixIdTextBox, 1);
+                rowGrid.Children.Add(matrixIdTextBox);
+
+                // 显示 col × row 信息
+                var matrixInfoText = new TextBlock
+                {
+                    Text = $"({col}col × {row}row)",
+                    FontWeight = FontWeights.Bold,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+                Grid.SetColumn(matrixInfoText, 2);
+                rowGrid.Children.Add(matrixInfoText);
+
+                mainPanel.Children.Add(rowGrid);
+
+
 
                 int childIndex = 0;
                 for (int r = 0; r < row; r++)
@@ -1083,14 +1264,51 @@ namespace AkribisFAM.Windows
                     Orientation = Orientation.Horizontal,
                     Margin = new Thickness(0, 4, 10, 4)
                 };
-                pt.name = $"New General";
 
-                // general 输入框 + 回写
-                rowPanel.Children.Add(CreateLabeledTextBox(pt.name, 0, newText =>
+                //pt.name = "New";
+
+                // 添加 ID 标签
+                rowPanel.Children.Add(new TextBlock
                 {
-                    if (double.TryParse(newText, out double val)) pt.general = val;
-                }));
+                    Text = "ID:",
+                    FontWeight = FontWeights.Bold,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                });
 
+                // 添加 ID 输入框（回写 pt.name）
+                var idTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    Width = 100,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
+                rowPanel.Children.Add(idTextBox);
+
+                // 添加 General 标签
+                rowPanel.Children.Add(new TextBlock
+                {
+                    Text = "Data:",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                });
+
+                // 添加 General 输入框（回写 pt.general）
+                var genTextBox = new TextBox
+                {
+                    Width = 100,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                genTextBox.TextChanged += (s, edc) =>
+                {
+                    if (double.TryParse(genTextBox.Text, out double val))
+                        pt.general = val;
+                };
+                rowPanel.Children.Add(genTextBox);
+
+                // 添加到主容器
                 mainPanel.Children.Add(rowPanel);
                 AddStationData(selectIndex, pt);
             }

@@ -246,7 +246,16 @@ namespace AkribisFAM
             //20250519 测试 【史彦洋】 追加 Start
             //Thread.Sleep(5000);
             //return true;
-            Logger.WriteLog("1111");
+
+            //单独对Z轴下使能
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            AkrAction.Current.axisAllZAxisEnable(true);
+            Thread.Sleep(1000);
+            AkrAction.Current.axisAllZAxisEnable(false);
+            Thread.Sleep(1000);
+
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
             Thread.Sleep(500);
             //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
@@ -320,10 +329,9 @@ namespace AkribisFAM
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
-
-
-
-
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
             return true;
         }
