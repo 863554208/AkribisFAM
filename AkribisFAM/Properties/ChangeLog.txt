@@ -1,0 +1,13 @@
+=========================== CHANGE LOG ===========================
+
+v0.0.0.1 [2024-05-22, Paul]
+ - Feat: A1-511 Add Directory Manager
+
+
+
+============ FORMAT ============
+[VersionNo] [yyyy-MM-dd, Author]
+ - [Type]: [Changes]
+ - [Type]: [Changes]
+   [Details] (if necessary)
+================================
