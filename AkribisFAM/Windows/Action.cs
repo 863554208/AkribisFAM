@@ -172,11 +172,11 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
-        public void SetSingleEvent(GlobalManager.AxisName axisName , int pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        public void SetSingleEvent(GlobalManager.AxisName axisName , double? pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),pos,eventSelect,eventPulseRes, eventPulseWid);
+            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName,pos), eventSelect,eventPulseRes, eventPulseWid);
         }
         public void MoveNoWait(GlobalManager.AxisName axisName, double? position, double? speed = null, double? accel = null, double? decel = null)
         {
@@ -210,12 +210,12 @@ namespace AkribisFAM.WorkStation
         public void WaitAxisAll()
         {
             AkrAction.Current.WaitAxis(AxisName.FSX);
-            Thread.Sleep(2000);
             //AkrAction.Current.WaitAxis(AxisName.FSY);
             //AkrAction.Current.WaitAxis(AxisName.LSX);
             //AkrAction.Current.WaitAxis(AxisName.LSY);
             //AkrAction.Current.WaitAxis(AxisName.PRX);
             //AkrAction.Current.WaitAxis(AxisName.PRY);
+            Thread.Sleep(5000);
         }
 
 
@@ -280,6 +280,15 @@ namespace AkribisFAM.WorkStation
             catch (Exception e) { }
             
         }
+
+        public bool MoveNGConveyor(int vel)
+        {
+            JogMove(GlobalManager.AxisName.BL5, 1, vel);
+            JogMove(GlobalManager.AxisName.BR5, 1, vel);
+            return true;
+        }
+
+
 
         public bool MoveConveyor(int vel)
         {
@@ -382,6 +391,9 @@ namespace AkribisFAM.WorkStation
 
 
                 }
+
+
+
 
                 #region 老的回原点方式
                 //先对Z轴回原
@@ -493,6 +505,37 @@ namespace AkribisFAM.WorkStation
                 #endregion
             }
             catch (Exception e) { }
+
+            return (int)ACTTION_ERR.NONE;
+        }
+
+        public int axisAllTHome(String path)
+        {
+            int agmIndex;
+            int axisRefNum;
+            int temp;
+            string[] fileNames = Directory.GetFiles(path);
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_T");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK1_T_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_T");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK2_T_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_T");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK3_T_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_T");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK4_T_homing.hseq");
+
 
             return (int)ACTTION_ERR.NONE;
         }
@@ -709,25 +752,25 @@ namespace AkribisFAM.WorkStation
                     return (int)(2000 * mm);
 
                 case AxisName.PICK1_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000  * mm / 360);
 
                 case AxisName.PICK2_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK2_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PICK3_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK3_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PICK4_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK4_T:
-                    return (int)(192000 * mm);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PRX:
                     return (int)(20000 * mm);
@@ -755,7 +798,7 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 20000.0);
 
                 case AxisName.FSX:
-                    return (double)(pulse / 20000.0);
+                    return (double)(pulse / 10000.0);
 
                 case AxisName.FSY:
                     return (double)(pulse / 10000.0);
@@ -794,25 +837,25 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK1_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PICK2_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK2_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PICK3_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK3_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)( (pulse / 192000.0) * 360 );
 
                 case AxisName.PICK4_Z:
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK4_T:
-                    return (double)(pulse / 192000.0);
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PRX:
                     return (double)(pulse / 20000.0);
@@ -864,6 +907,27 @@ namespace AkribisFAM.WorkStation
 
         }
 
+        public int axisAllZAxisEnable(bool enable)
+        {
+            int ret = 0;
+
+            ret += axisEnable(AxisName.PICK1_Z, enable);
+            ret += axisEnable(AxisName.PICK1_T, enable);
+            ret += axisEnable(AxisName.PICK2_Z, enable);
+            ret += axisEnable(AxisName.PICK2_T, enable);
+            ret += axisEnable(AxisName.PICK3_Z, enable);
+            ret += axisEnable(AxisName.PICK3_T, enable);
+            ret += axisEnable(AxisName.PICK4_Z, enable);
+            ret += axisEnable(AxisName.PICK4_T, enable);
+
+
+            if (ret != 0)
+            {
+                return (int)ACTTION_ERR.GTOUPERR;
+            }
+            return (int)ACTTION_ERR.NONE;
+        }
+
 
         public int axisAllEnable(bool enable)
         {
@@ -882,14 +946,14 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.BR2, enable);
             ret += axisEnable(AxisName.BR3, enable);
             ret += axisEnable(AxisName.BR4, enable);
-            //ret += axisEnable(AxisName.PICK1_Z, enable);
-            //ret += axisEnable(AxisName.PICK1_T, enable);
-            //ret += axisEnable(AxisName.PICK2_Z, enable);
-            //ret += axisEnable(AxisName.PICK2_T, enable);
-            //ret += axisEnable(AxisName.PICK3_Z, enable);
-            //ret += axisEnable(AxisName.PICK3_T, enable);
-            //ret += axisEnable(AxisName.PICK4_Z, enable);
-            //ret += axisEnable(AxisName.PICK4_T, enable);
+            ret += axisEnable(AxisName.PICK1_Z, enable);
+            ret += axisEnable(AxisName.PICK1_T, enable);
+            ret += axisEnable(AxisName.PICK2_Z, enable);
+            ret += axisEnable(AxisName.PICK2_T, enable);
+            ret += axisEnable(AxisName.PICK3_Z, enable);
+            ret += axisEnable(AxisName.PICK3_T, enable);
+            ret += axisEnable(AxisName.PICK4_Z, enable);
+            ret += axisEnable(AxisName.PICK4_T, enable);
             ret += axisEnable(AxisName.PRX, enable);
             ret += axisEnable(AxisName.PRY, enable);
             ret += axisEnable(AxisName.PRZ, enable);

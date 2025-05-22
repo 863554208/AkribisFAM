@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
-using AkribisFAM.DB;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
@@ -19,6 +18,8 @@ using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
+using AkribisFAM.Interfaces;
+using System.IO;
 namespace AkribisFAM
 {
     /// <summary>
@@ -26,7 +27,9 @@ namespace AkribisFAM
     /// </summary>
     public partial class App : Application
     {
-
+        public static IDatabaseManager DbManager { get; private set; }
+        public static DirectoryManager DirManager;
+        
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -46,7 +49,8 @@ namespace AkribisFAM
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
-
+            DirManager = new DirectoryManager();
+			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
             //TODO
             //try
             //{
@@ -167,7 +171,14 @@ namespace AkribisFAM
             catch { }
 
         }
+        
+		protected override void OnExit(ExitEventArgs e)
+        {
+            // Dispose of resources
+            DbManager?.Dispose();
 
+            base.OnExit(e); // Always call the base
+        }
 
     }
 }

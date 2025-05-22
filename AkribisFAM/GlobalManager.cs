@@ -41,19 +41,19 @@ namespace AkribisFAM
         [DataMember]
         public int row { get; set; }
         [DataMember]
-        public int X { get; set; }
+        public double X { get; set; }
         [DataMember]
-        public int Y { get; set; }
+        public double Y { get; set; }
         [DataMember]
-        public int Z { get; set; }
+        public double Z { get; set; }
         [DataMember]
-        public int R { get; set; }
+        public double R { get; set; }
 
         [DataMember]
-        public List<int> generalList { get; set; }
+        public List<int> axisMap { get; set; }
 
         [DataMember]
-        public int general { get; set; }
+        public double general { get; set; }
 
     }
 
@@ -64,7 +64,7 @@ namespace AkribisFAM
         public List<string> childName { get; set; }
 
         [DataMember]
-        public List<int> childPos { get; set; }
+        public List<double> childPos { get; set; }
 
     }
 
@@ -101,6 +101,8 @@ namespace AkribisFAM
     public class GlobalManager
     {
 
+
+
         // 单例模式，确保全局只有一个实例
         private static GlobalManager _current;
 
@@ -116,6 +118,23 @@ namespace AkribisFAM
         public long current_APos = 0;
 
         public string username;
+
+        //传送带到位标志位
+        public int flag_RangeFindingTrayArrived;  //测距位料盘到位
+        public int flag_assembleTrayArrived;      //贴装位料盘到位
+        public int flag_RecheckTrayArrived;       //复检位料盘到位
+
+        public int flag_TrayProcessCompletedNumber;
+
+        public int flag_TrayArrivedNumber;
+
+        public int flag_NGStationAllowTrayEnter;
+
+        public int flag_RecheckStationHaveTray;
+
+        public int flag_RecheckStationRequestOutflowTray;
+        public int flag_Bypass;
+
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -162,6 +181,7 @@ namespace AkribisFAM
         public bool IsByPass;
         public bool SendByPassToStation2;
         public bool SendByPassToStation3;
+        public bool SendByPassToStation4;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
@@ -171,6 +191,8 @@ namespace AkribisFAM
         public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
 
         public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
+
+        public List<(double X, double Y)> ccd2Points = new List<(double X, double Y)>();
 
         public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
 
@@ -236,10 +258,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 5;
-        const int Zuzhuang_stepnum = 5;
-        const int FuJian_stepnum = 4;
-        const int Reject_stepnum = 3;
+        const int Lailiao_stepnum = 8;
+        const int Zuzhuang_stepnum = 10;
+        const int FuJian_stepnum = 5;
+        const int Reject_stepnum = 5;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
@@ -435,7 +457,11 @@ namespace AkribisFAM
         public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == (value == 1))
+            int val = 0;
+            if (value == 0) {
+                val = 1;
+            }
+            while (IOManager.Instance.INIO_status[(int)pos] == val)
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
@@ -801,10 +827,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 50,
-            LSY = 50,
-            FSX = 50,
-            FSY = 50,
+            LSX = 100,
+            LSY = 100,
+            FSX = 100,
+            FSY = 100,
             BL5 = 100,
             BR5 = 100,
 
@@ -836,10 +862,10 @@ namespace AkribisFAM
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 500,
-            LSY = 500,
-            FSX = 500,
-            FSY = 500,
+            LSX = 1000,
+            LSY = 1000,
+            FSX = 1000,
+            FSY = 1000,
             BL5 = 500,
             BR5 = 500,
 

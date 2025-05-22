@@ -18,6 +18,10 @@ using static System.Windows.Forms.AxHost;
 using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using static AkribisFAM.WorkStation.Reject;
+using System.IO;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM.WorkStation
 {
@@ -26,13 +30,6 @@ namespace AkribisFAM.WorkStation
 
         private static FuJian _instance;
         public override string Name => nameof(FuJian);
-
-        public event Action OnTriggerStep1;
-        public event Action OnStopStep1;
-        public event Action OnTriggerStep2;
-        public event Action OnStopStep2;
-        public event Action OnTriggerStep3;
-        public event Action OnStopStep3;
 
         int delta = 0;
         public int board_count = 0;
@@ -81,8 +78,19 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
-            return IOManager.Instance.INIO_status[(int)index];
-
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
         }
 
         public void SetIO(IO_OutFunction_Table index , int value)
@@ -137,7 +145,7 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
             {
                 //低速运动
-                MoveConveyor(100);
+                MoveConveyor(10);
             }
             else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
             {
@@ -179,50 +187,89 @@ namespace AkribisFAM.WorkStation
         }
 
         const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
-        public struct FuJianPoint
+        [JsonObject]
+        public class FuJianPoint
         {
-            public double x;
-            public double y;
-            public double z;
+            [JsonProperty("X")]
+            public double x { get; set; }
+            [JsonProperty("Y")]
+            public double y { get; set; }
+            [JsonProperty("Z")]
+            public double z { get; set; }
         }
 
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>(modulenum);
+        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//modulenum
+
+        public StationPoints stationPoints = new StationPoints();
+        public void readPointJson() {
+            try
+            {
+                //string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                //string path = folder + "\\FuJianPoints.json";
+                //string content = File.ReadAllText(path);
+                //Pointlist = JsonConvert.DeserializeObject<List<FuJianPoint>>(content);
+                //if (Pointlist == null)
+                //{
+                //    return;
+                //}
+                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                string path = folder + "\\Station_points5.json";
+                FileHelper.LoadConfig<StationPoints>(path, out stationPoints);
+                for(int i = 0; i < stationPoints.FuJianPointList.Count; ++i)
+                {
+                    FuJianPoint fuJianPoint = new FuJianPoint();
+                    fuJianPoint.x = stationPoints.FuJianPointList[i].X;
+                    fuJianPoint.y = stationPoints.FuJianPointList[i].Y;
+                    fuJianPoint.z = stationPoints.FuJianPointList[i].Z;
+                    Pointlist.Add(fuJianPoint);
+                }
+                if (stationPoints == null)
+                {
+                    return;
+                }
+            }
+            catch
+            {
+                //配置读取失败
+                return;
+            }
+        }
 
         public bool BoardIn()
         {
             bool ret;
             //进入后改回false
-            GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] = false;
+            Set("IO_test3",false);
             Set("station3_IsBoardInHighSpeed", true);
-            Set("IO_test4", false);
+
             //传送带高速移动
             MoveConveyor((int)AxisSpeed.BL3);
-            MoveConveyor((int)AxisSpeed.BR3);
+
             //等待减速IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN1_2Slowdown_Sign3, true);
+            ret = WaitIO(999999, IO_INFunction_Table.IN1_2Slowdown_Sign3, false);
             if (CheckState(ret) == 1) {
                 return false;
             }
-            Set("station3_IsBoardInHighSpeed", false);
+            
             //挡板气缸上气
             SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 1);
             SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 0);
-            Set("station3_IsBoardInLowSpeed", true);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //传送带减速
-            MoveConveyor(100);
-            //等待停止IO
-            ret =  WaitIO(9999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
 
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
+            Set("station3_IsBoardInHighSpeed", false);
+            Set("station3_IsBoardInLowSpeed", true);
+
+
+            //传送带减速
+            MoveConveyor(10);
+            //等待停止IO
+            ret =  WaitIO(999999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
+
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+
             Set("station3_IsBoardInLowSpeed", false);
-            Set("station3_IsBoardIn", false);
             Set("station3_IsLifting", true);
             //停止传送带
             StopConveyor();
@@ -237,6 +284,8 @@ namespace AkribisFAM.WorkStation
             }
             //禁止来料
             Set("station3_IsLifting", false);
+            Set("station3_IsBoardIn", false);
+
             ResumeConveyor();
             board_count += 1;
 
@@ -281,18 +330,18 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //移动撕膜
-                AkrAction.Current.MoveRel(AxisName.PRY, 2000, 100000);
-                AkrAction.Current.MoveRel(AxisName.PRZ, 2000, 100000);
+                AkrAction.Current.MoveRel(AxisName.PRY, 10, 10);
+                AkrAction.Current.MoveRel(AxisName.PRZ, 10, 10);
                 //Z轴上升
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[26].z);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[26].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //移动到蓝膜收集处
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[12].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[12].z);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[12].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[12].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -329,10 +378,10 @@ namespace AkribisFAM.WorkStation
             for (int i = modulenum + 1; i < modulenum*2+1; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
+                AkrAction.Current.SetSingleEvent(AxisName.PRZ, Pointlist[i].z, 1);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -364,75 +413,91 @@ namespace AkribisFAM.WorkStation
             }
             return true;
         }
-        public bool Step3()
+
+        public void BoardOut()
         {
-            Console.WriteLine("step3");
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
+            GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
+            GlobalManager.Current.flag_TrayProcessCompletedNumber++;
+            #region 使用新的传送带控制逻辑
+            //bool ret;
+            
+            //Set("station3_IsBoardOut", true);
 
-            GlobalManager.Current.current_FuJian_step = 3;
+            //while (Reject.Current.board_count != 0)
+            //{
+            //    Thread.Sleep(300);
+            //}
 
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
+            ////模拟给下一个工位发进板信号
+            //if (GlobalManager.Current.SendByPassToStation3)
+            //{
+            //    GlobalManager.Current.SendByPassToStation4 = true;
+            //}
+            //GlobalManager.Current.IO_test4 = true;
 
-            return true;
-        }
+            ////顶起气缸下降
+            //StopConveyor();
+            //SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
 
-        public bool BoardOut()
-        {
-            bool ret;
-            //顶起气缸下降
-            SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
-            SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //等待顶起气缸下降信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
-            ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            //挡板气缸下降
-            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
-            //等待挡板下降到位信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            Set("station3_IsBoardOut", true);
-            board_count--;
-            GlobalManager.Current.IO_test4 = true;
-            return true;
+            //Thread.Sleep(100);
+            //SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
+            //SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
+            //if (CheckState(true) == 1)
+            //{
+            //    return false;
+            //}
+            ////等待顶起气缸下降信号
+            //ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
+            //ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+
+            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, true);
+            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, false);
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+            //Set("station3_IsBoardOut", true);
+            //board_count--;
+            //return true;
+            #endregion
         }
 
         public override void AutoRun(CancellationToken token)
         {
+            GlobalManager.Current.flag_RecheckTrayArrived = 0;
             try
             {
                 while (true)
                 {
 
-                    //20250519 测试 【史彦洋】 追加 Start
-                    Console.WriteLine("zuzhuang ceshi 1");
-                    Thread.Sleep(1000);
-                    continue;
-
                 step1:
-                    if (!GlobalManager.Current.IOTable[(int)IO.FuJian_BoardIn] || board_count != 0)
+                    //if (!GlobalManager.Current.IO_test3 || board_count != 0)
+                    //{
+                    //    Thread.Sleep(100);
+                    //    continue;
+                    //}
+
+                    //BoardIn();
+                    while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
                     {
-                        Thread.Sleep(100);
-                        continue;
+                        Thread.Sleep(300);
                     }
+                    GlobalManager.Current.flag_RecheckTrayArrived = 0;
                     GlobalManager.Current.current_FuJian_step = 1;
-                    BoardIn();
+                    Thread.Sleep(5000);
                     if (GlobalManager.Current.FuJian_exit) break;
+
+                    //20250521 测试 史彦洋
+                    goto step4;
+                    //20250521 测试 史彦洋
+
 
                 step2:
                     GlobalManager.Current.current_FuJian_step = 2;
@@ -444,7 +509,10 @@ namespace AkribisFAM.WorkStation
                     Recheck();
                     if (GlobalManager.Current.FuJian_exit) break;
 
-                BoardOut();
+                //20250521 测试 史彦洋
+                step4:
+                //20250521 测试 史彦洋
+                    BoardOut();
                 }
             }
             catch (Exception ex)

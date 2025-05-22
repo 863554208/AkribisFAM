@@ -32,12 +32,6 @@ namespace AkribisFAM.WorkStation
         private static Reject _instance;
         public override string Name => nameof(Reject);
 
-        public event Action OnTriggerStep1;
-        public event Action OnStopStep1;
-        public event Action OnTriggerStep2;
-        public event Action OnStopStep2;
-        public event Action OnTriggerStep3;
-        public event Action OnStopStep3;
         private ErrorCode errorCode;
 
         int delta = 0;
@@ -86,8 +80,18 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
-            return IOManager.Instance.INIO_status[(int)index];
-
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
         }
 
         public void SetIO(IO_OutFunction_Table index , int value)
@@ -98,6 +102,11 @@ namespace AkribisFAM.WorkStation
         public void MoveConveyor(int vel)
         {
             AkrAction.Current.MoveConveyor(vel);
+        }
+
+        public void MoveNGConveyor(int vel)
+        {
+            AkrAction.Current.MoveNGConveyor(vel);
         }
 
         public void StopConveyor()
@@ -181,38 +190,32 @@ namespace AkribisFAM.WorkStation
         {
             bool ret;
             //进入后改回false
-            GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] = false;
+            Set("IO_test4", false);
             Set("station4_IsBoardInHighSpeed", true);
-            //Set("IO_test4", false);
+            
             //传送带高速移动
             MoveConveyor((int)AxisSpeed.BL4);
-            MoveConveyor((int)AxisSpeed.BR4);
+            MoveNGConveyor((int)AxisSpeed.BL4);
+
             errorCode = ErrorCode.AGM800Err;
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
+            if (CheckState(true) == 1) return false;
+
             //等待减速IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
-            Set("station4_IsBoardInHighSpeed", false);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
+            ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
             //挡板气缸上气
             SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
             SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+
+            Set("station4_IsBoardInHighSpeed", false);
+
             Set("station4_IsBoardInLowSpeed", true);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
+            if (CheckState(ret) == 1)   return false;
+        
             //传送带减速
-            MoveConveyor(100);
+            MoveConveyor(10);
             //等待停止IO
             ret = WaitIO(9999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
-            Set("station4_IsBoardInLowSpeed", false);
-            Set("station4_IsBoardIn", false);
+            Set("station4_IsBoardInLowSpeed", false); 
             Set("station4_IsLifting", true);
             if (CheckState(ret) == 1)
             {
@@ -225,7 +228,8 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            Set("station4_IsBoardOut", true);
+            Set("station4_IsLifting", false);
+            Set("station4_IsBoardIn", false);
             return true;
         }
 
@@ -235,17 +239,20 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
             Set("station4_IsLifting", false);
-            ResumeConveyor();
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //NG位感应IO
+            //先等待有信号，再等待没信号
             ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            //ResumeConveyor();
             if (CheckState(ret) == 1)
             {
                 return false;
             }
+            Thread.Sleep(300);
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
+            if (CheckState(ret) == 1)
+            {
+                return false;
+            }
+            Thread.Sleep(1000);
             //顶起气缸下降
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
@@ -269,11 +276,12 @@ namespace AkribisFAM.WorkStation
             board_count -= 1;
             hasNGboard = true;
 
-            Task<bool> task = new Task<bool>(() =>
-            {
-                return DetectNG();
-            });
-            task.Start();
+            DetectNG();
+            //Task<bool> task = new Task<bool>(() =>
+            //{
+            //    return DetectNG();
+            //});
+            //task.Start();
             return true;
         }
 
@@ -282,12 +290,14 @@ namespace AkribisFAM.WorkStation
             bool ret;
             //发送出料信号
             SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
+
             if (CheckState(true) == 1)
             {
                 return false;
             }
             //等待允许出料信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            ret = WaitIO(999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -373,22 +383,29 @@ namespace AkribisFAM.WorkStation
 
         public override void AutoRun(CancellationToken token)
         {
-
+            GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
             try
             {
                 while (true)
                 {
-                    //20250519 测试 【史彦洋】 追加 Start
-                    Console.WriteLine("zuzhuang ceshi 1");
-                    Thread.Sleep(1000);
-                    continue;
-
-                    step1:
-                        if (!GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] || board_count != 0) {
-                            Thread.Sleep(100);
-                            continue;
+                step1:
+                        //if (!GlobalManager.Current.IO_test4 || board_count != 0) {
+                        //    Thread.Sleep(100);
+                        //    continue;
+                        //}
+                        GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
+                        Debug.WriteLine("NG工位第一步");
+                        while (GlobalManager.Current.flag_RecheckStationRequestOutflowTray != 1)
+                        {
+                            Thread.Sleep(50);
                         }
+                        GlobalManager.Current.flag_NGStationAllowTrayEnter = 0;
+                        GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
+                        Thread.Sleep(10000);
+                        continue;
+
                         GlobalManager.Current.current_Reject_step = 1;
+                        Console.WriteLine("第四个工位进板");
                         BoardIn();
                         if (GlobalManager.Current.Reject_exit) break;
 
@@ -410,62 +427,62 @@ namespace AkribisFAM.WorkStation
         public class TrainPoint
         {
             [JsonProperty("X")]
-            public int x { get; set; }
+            public double x { get; set; }
             [JsonProperty("Y")]
-            public int y { get; set; }
+            public double y { get; set; }
             [JsonProperty("Z")]
-            public int z { get; set; }
+            public double z { get; set; }
             [JsonProperty("R")]
-            public int r { get; set; }
+            public double r { get; set; }
         }
 
-        //1-4结束位置， 5起始位置， 6-9取料位置
-        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(9);
+        //1-4结束位置， 5起始位置
+        public List<TrainPoint> TrainPointlist = new List<TrainPoint>(5);
 
         public bool TrainNozzle(int pickernum)
         {
-            bool ret;
-            //移动取料
-            AkrAction.Current.Move(AxisName.FSX, TrainPointlist[pickernum + 5].x, (int)AxisSpeed.FSX);
-            AkrAction.Current.Move(AxisName.FSY, TrainPointlist[pickernum + 5].y, (int)AxisSpeed.FSY);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //picker 取料
-            AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
-            if (pickernum == 0)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true);
-            }
-            else if (pickernum == 1)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true);
-            }
-            else if (pickernum == 2) {
-                SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback, true);
-            }
-            else if (pickernum == 3)
-            {
-                SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
-                ret = WaitIO(999999, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback, true);
-            }
-            else
-            {
-                ret = false;
-            }
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
+            //bool ret;
+            ////移动取料
+            //AkrAction.Current.Move(AxisName.FSX, TrainPointlist[pickernum + 5].x, (int)AxisSpeed.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, TrainPointlist[pickernum + 5].y, (int)AxisSpeed.FSY);
+            //if (CheckState(true) == 1)
+            //{
+            //    return false;
+            //}
+            ////picker 取料
+            //AkrAction.Current.Move(AxisName.PICK1_Z, 10000, (int)AxisSpeed.PICK1_Z);
+            //if (pickernum == 0)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 1)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 2) {
+            //    SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback, true);
+            //}
+            //else if (pickernum == 3)
+            //{
+            //    SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
+            //    SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
+            //    ret = WaitIO(999999, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback, true);
+            //}
+            //else
+            //{
+            //    ret = false;
+            //}
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+            //AkrAction.Current.Move(AxisName.PICK1_Z, 20000, (int)AxisSpeed.PICK1_Z);
             //移动到飞拍起始位置
             AkrAction.Current.Move(AxisName.FSX, TrainPointlist[4].x, (int)AxisSpeed.FSX);
             AkrAction.Current.Move(AxisName.FSY, TrainPointlist[4].y, (int)AxisSpeed.FSY);
@@ -476,14 +493,18 @@ namespace AkribisFAM.WorkStation
             //给Cognex发拍照信息
             string command = "SN" + "123456," + $"+{pickernum}," + "Foam," + $"{TrainPointlist[pickernum].x},{TrainPointlist[pickernum].y},{TrainPointlist[pickernum].r}";
             TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
+            int cnt = 0;
             while (true) {
-                if (TriggTTNCamreaready() == "OK") {
+                if (TriggTTNCamreaready() == "OK" || cnt == 200) {
                     break;
                 }
+                cnt++;
+                Thread.Sleep(50);
             }
 
             //飞拍移动到结束位置
-            AkrAction.Current.SetSingleEvent(AxisName.FSX, TrainPointlist[pickernum].x, 1);
+            int pulse = (int)(TrainPointlist[pickernum].x * 10000.0);
+            AkrAction.Current.SetSingleEvent(AxisName.FSX, pulse, 1);
             AkrAction.Current.MoveNoWait(AxisName.FSX, TrainPointlist[pickernum].x, (int)AxisSpeed.FSX);
             if (CheckState(true) == 1)
             {

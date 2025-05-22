@@ -25,7 +25,9 @@ namespace AkribisFAM.CommunicationProtocol
         
         scanner,
         
-        mes
+        mes,
+
+        ModbusTCP
     }
 
     class TCPNetworkManage
@@ -58,6 +60,7 @@ namespace AkribisFAM.CommunicationProtocol
             clientNameToEndpoint.TryAdd(ClientNames.lazer, ((string ip, int port))((obj["lazer"]["IP"]).ToString(), (obj["lazer"]["Port"])));
             clientNameToEndpoint.TryAdd(ClientNames.scanner, ((string ip, int port))((obj["scanner"]["IP"]).ToString(), (obj["scanner"]["Port"])));
             clientNameToEndpoint.TryAdd(ClientNames.mes, ((string ip, int port))((obj["mes"]["IP"]).ToString(), (obj["mes"]["Port"])));
+            clientNameToEndpoint.TryAdd(ClientNames.ModbusTCP, ((string ip, int port))((obj["ModbusTCP"]["IP"]).ToString(), (obj["ModbusTCP"]["Port"])));
             // 其他客户端可以继续添加
         }
         /// <summary>
@@ -129,10 +132,13 @@ namespace AkribisFAM.CommunicationProtocol
                     var worker = new TcpClientWorker(ip, port);// 创建新的TcpClientWorker实例
                     namedClients[clientName] = worker;
                     // 输出正在等待当前客户端连接的信息
-                //    Console.WriteLine("Waiting for all clients to connect...");
+                    //    Console.WriteLine("Waiting for all clients to connect...");
                     worker.ConnectAsync().Wait();// 等待这个客户端的连接
-                    // 当前客户端连接完成后，输出成功信息
-                  //  Console.WriteLine("All clients connected!");
+                                                 // 当前客户端连接完成后，输出成功信息
+                                                 //  Console.WriteLine("All clients connected!");
+                }
+                else {
+                    namedClients[clientName].ConnectAsync().Wait();
                 }
             }
             ));
@@ -153,7 +159,7 @@ namespace AkribisFAM.CommunicationProtocol
                     clientworker.Stop();  // 停止每个客户端的连接
                    // Logger.WriteLog($"Stop {clientname.ToString()}connection");
                 }
-                namedClients.Clear();
+                //namedClients.Clear();
             }
         }
 
@@ -167,7 +173,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 namedClients[clientName].Stop();  // 停止单独客户端的连接
                 //Logger.WriteLog($"Stop {clientName.ToString()}connection");
-                namedClients.TryRemove(clientName, out _);
+                //namedClients.TryRemove(clientName, out _);
             }
         }
 

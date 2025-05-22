@@ -53,6 +53,8 @@ namespace AkribisFAM.Manager
         public string ErrorCode { get; set; }
         public int Level { get; set; }
 
+        public string Info { get; set; }
+
         public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
         {
             DateTime = dT.ToString();
@@ -70,6 +72,7 @@ namespace AkribisFAM.Manager
             {
                 Level = 3;
             }
+            Info = eC.ToString();
         }
         //End Modify
     }
