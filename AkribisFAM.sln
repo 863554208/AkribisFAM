@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35913.81
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkribisFAM", "AkribisFAM\AkribisFAM.csproj", "{60FD594B-F0EA-4004-A310-865FF776EBD2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkribisFAM.UnitTests", "AkribisFAM.UnitTests\AkribisFAM.UnitTests.csproj", "{0F854B0F-5768-4CB1-BB27-373CE3474C15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,14 @@ Global
 		{60FD594B-F0EA-4004-A310-865FF776EBD2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{60FD594B-F0EA-4004-A310-865FF776EBD2}.Release|x64.ActiveCfg = Release|x64
 		{60FD594B-F0EA-4004-A310-865FF776EBD2}.Release|x64.Build.0 = Release|x64
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Debug|x64.Build.0 = Debug|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Release|x64.ActiveCfg = Release|Any CPU
+		{0F854B0F-5768-4CB1-BB27-373CE3474C15}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
