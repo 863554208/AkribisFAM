@@ -9,10 +9,11 @@ namespace AkribisFAM.Interfaces
 {
     public interface IDatabaseManager : IDisposable
     {
-        void AddAlarm(AlarmRecord alarm);
+        bool AddAlarm(AlarmRecord alarm);
+        bool AddOeeRecord(OeeRecord oee);
 
-        // Add more methods as needed, e.g.
-        // AlarmRecord GetAlarmById(int id);
-        // List<AlarmRecord> GetUnresolvedAlarms();
+        List<AlarmRecord> GetAlarms(/*DateTime from, DateTime to*/); // TODO: search with filter
+        List<OeeRecord> GetOeeRecords(/*DateTime from, DateTime to*/); // TODO: search with filter
+
     }
 }

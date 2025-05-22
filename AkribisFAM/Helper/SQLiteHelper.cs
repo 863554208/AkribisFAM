@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.IO;
 
 namespace AkribisFAM.Helper
 {
@@ -26,11 +27,16 @@ namespace AkribisFAM.Helper
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SQLiteHelper"/> class with the specified database path.
+        /// Initializes a new instance of the SQLiteHelper class with the specified database path.
         /// </summary>
         /// <param name="databasePath">The full path to the SQLite database file.</param>
         public SQLiteHelper(string databasePath)
         {
+            if (!File.Exists(databasePath))
+            {
+                SQLiteConnection.CreateFile(databasePath);
+            }
+
             _connectionString = $"Data Source={databasePath};Version=3;";
             _connection = new SQLiteConnection(_connectionString);
         }
@@ -44,7 +50,7 @@ namespace AkribisFAM.Helper
         #region Private Methods
 
         /// <summary>
-        /// Adds parameters to a <see cref="SQLiteCommand"/> if provided.
+        /// Adds parameters to a SQLiteCommand if provided.
         /// </summary>
         /// <param name="cmd">The command to which parameters will be added.</param>
         /// <param name="parameters">The parameters dictionary.</param>
@@ -68,7 +74,9 @@ namespace AkribisFAM.Helper
         public void OpenConnection()
         {
             if (_connection.State != ConnectionState.Open)
+            {
                 _connection.Open();
+            }
         }
 
         /// <summary>
@@ -77,7 +85,9 @@ namespace AkribisFAM.Helper
         public void CloseConnection()
         {
             if (_connection.State != ConnectionState.Closed)
+            {
                 _connection.Close();
+            }
         }
 
         /// <summary>
@@ -131,98 +141,201 @@ namespace AkribisFAM.Helper
         }
 
         /// <summary>
-        /// Inserts an OEE record into the database.
+        /// Adds a new OEE (Overall Equipment Effectiveness) record to the database.
         /// </summary>
-        /// <param name="record">The OEE record containing all relevant data.</param>
-        public void InsertOeeRecord(OeeRecord record)
+        /// <param name="oee">The <see cref="OeeRecord"/> containing OEE data.</param>
+        /// <returns>True if the record is successfully inserted; otherwise, false.</returns>
+        public bool AddOeeRecord(OeeRecord oee)
         {
-            using (var connection = new SQLiteConnection(_connectionString))
+            const string query = @"
+        INSERT INTO Oee_History (
+            StartDateTime, EndDateTime, GoodProducts,
+            GoodVision1, GoodVision2, GoodVision3,
+            RejectVision1, RejectVision2, RejectVision3,
+            AlarmsCount, PlannedUPH, PlannedProductionTime,
+            UpTimeHr, DownTimeHr, IdleTimeHr, TotalTimeHr,
+            ProductiveTimeHr, MTBF, MTTR,
+            Availability, Performance, Quality, Oee
+        )
+        VALUES (
+            @startDateTime, @endDateTime, @goodProducts,
+            @goodVision1, @goodVision2, @goodVision3,
+            @rejectVision1, @rejectVision2, @rejectVision3,
+            @alarmsCount, @plannedUPH, @plannedProductionTime,
+            @upTimeHr, @downTimeHr, @idleTimeHr, @totalTimeHr,
+            @productiveTimeHr, @mtbf, @mttr,
+            @availability, @performance, @quality, @oee
+        );";
+
+            try
             {
-                connection.Open();
-                string query = @"INSERT INTO OEERecords (
-                            StartDateTime, EndDateTime, GoodProducts, GoodVision1, GoodVision2, GoodVision3,
-                            RejectVision1, RejectVision2, RejectVision3, AlarmsCount,
-                            PlannedUPH, PlannedProductionTime, UpTimeHr, DownTimeHr, IdleTimeHr,
-                            TotalTimeHr, ProductiveTimeHr, MTBF, MTTR, Availability, Performance, Quality, OEE
-                        )
-                        VALUES (
-                            @StartDateTime, @EndDateTime, @GoodProducts, @GoodVision1, @GoodVision2, @GoodVision3,
-                            @RejectVision1, @RejectVision2, @RejectVision3, @AlarmsCount,
-                            @PlannedUPH, @PlannedProductionTime, @UpTimeHr, @DownTimeHr, @IdleTimeHr,
-                            @TotalTimeHr, @ProductiveTimeHr, @MTBF, @MTTR, @Availability, @Performance, @Quality, @OEE
-                        );";
-
-                using (var command = new SQLiteCommand(query, connection))
+                using (var connection = new SQLiteConnection(_connectionString))
                 {
-                    command.Parameters.AddWithValue("@StartDateTime", record.StartDateTime);
-                    command.Parameters.AddWithValue("@EndDateTime", record.EndDateTime);
-                    command.Parameters.AddWithValue("@GoodProducts", record.GoodProducts);
-                    command.Parameters.AddWithValue("@GoodVision1", record.GoodVision1);
-                    command.Parameters.AddWithValue("@GoodVision2", record.GoodVision2);
-                    command.Parameters.AddWithValue("@GoodVision3", record.GoodVision3);
-                    command.Parameters.AddWithValue("@RejectVision1", record.RejectVision1);
-                    command.Parameters.AddWithValue("@RejectVision2", record.RejectVision2);
-                    command.Parameters.AddWithValue("@RejectVision3", record.RejectVision3);
-                    command.Parameters.AddWithValue("@AlarmsCount", record.AlarmsCount);
-                    command.Parameters.AddWithValue("@PlannedUPH", record.PlannedUPH);
-                    command.Parameters.AddWithValue("@PlannedProductionTime", record.PlannedProductionTime);
-                    command.Parameters.AddWithValue("@UpTimeHr", record.UpTimeHr);
-                    command.Parameters.AddWithValue("@DownTimeHr", record.DownTimeHr);
-                    command.Parameters.AddWithValue("@IdleTimeHr", record.IdleTimeHr);
-                    command.Parameters.AddWithValue("@TotalTimeHr", record.TotalTimeHr);
-                    command.Parameters.AddWithValue("@ProductiveTimeHr", record.ProductiveTimeHr);
-                    command.Parameters.AddWithValue("@MTBF", record.MTBF);
-                    command.Parameters.AddWithValue("@MTTR", record.MTTR);
-                    command.Parameters.AddWithValue("@Availability", record.Availability);
-                    command.Parameters.AddWithValue("@Performance", record.Performance);
-                    command.Parameters.AddWithValue("@Quality", record.Quality);
-                    command.Parameters.AddWithValue("@OEE", record.Oee);
+                    connection.Open();
+                    using (var command = new SQLiteCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@startDateTime", oee.StartDateTime);
+                        command.Parameters.AddWithValue("@endDateTime", oee.EndDateTime);
+                        command.Parameters.AddWithValue("@goodProducts", oee.GoodProducts);
+                        command.Parameters.AddWithValue("@goodVision1", oee.GoodVision1);
+                        command.Parameters.AddWithValue("@goodVision2", oee.GoodVision2);
+                        command.Parameters.AddWithValue("@goodVision3", oee.GoodVision3);
+                        command.Parameters.AddWithValue("@rejectVision1", oee.RejectVision1);
+                        command.Parameters.AddWithValue("@rejectVision2", oee.RejectVision2);
+                        command.Parameters.AddWithValue("@rejectVision3", oee.RejectVision3);
+                        command.Parameters.AddWithValue("@alarmsCount", oee.AlarmsCount);
+                        command.Parameters.AddWithValue("@plannedUPH", oee.PlannedUPH);
+                        command.Parameters.AddWithValue("@plannedProductionTime", oee.PlannedProductionTime);
+                        command.Parameters.AddWithValue("@upTimeHr", oee.UpTimeHr);
+                        command.Parameters.AddWithValue("@downTimeHr", oee.DownTimeHr);
+                        command.Parameters.AddWithValue("@idleTimeHr", oee.IdleTimeHr);
+                        command.Parameters.AddWithValue("@totalTimeHr", oee.TotalTimeHr);
+                        command.Parameters.AddWithValue("@productiveTimeHr", oee.ProductiveTimeHr);
+                        command.Parameters.AddWithValue("@mtbf", oee.MTBF);
+                        command.Parameters.AddWithValue("@mttr", oee.MTTR);
+                        command.Parameters.AddWithValue("@availability", oee.Availability);
+                        command.Parameters.AddWithValue("@performance", oee.Performance);
+                        command.Parameters.AddWithValue("@quality", oee.Quality);
+                        command.Parameters.AddWithValue("@oee", oee.Oee);
 
-                    command.ExecuteNonQuery();
+                        return command.ExecuteNonQuery() > 0;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                // Log exception as needed
+                return false;
             }
         }
 
-
         /// <summary>
-        /// Inserts a new alarm event into the database.
+        /// Adds a new alarm record to the database.
         /// </summary>
-        /// <param name="alarm">The alarm record object containing all relevant information.</param>
-        public void InsertAlarm(AlarmRecord alarm)
+        /// <param name="alarm">The <see cref="AlarmRecord"/> containing alarm details.</param>
+        /// <returns>True if the insert was successful; otherwise, false.</returns>
+        public bool AddAlarm(AlarmRecord alarm)
         {
-            string sql = @"INSERT INTO Alarm_Log 
-                   (AlarmLevel, AlarmCode, AlarmMessage, LodID, TimeOccurred, TimeResolved, UserID)
-                   VALUES 
-                   (@level, @code, @msg, @lot, @occur, @resolve, @user)";
+            const string query = @"
+        INSERT INTO Alarm_History (AlarmLevel, AlarmCode, AlarmMessage, LotID, TimeOccurred, TimeResolved, UserID)
+        VALUES (@level, @code, @message, @lot, @occur, @resolve, @user);";
 
-            ExecuteNonQuery(sql, new Dictionary<string, object>
+            try
             {
-                { "@level", alarm.AlarmLevel },
-                { "@code", alarm.AlarmCode },
-                { "@msg", alarm.AlarmMessage },
-                { "@lot", alarm.LotID },
-                { "@occur", alarm.TimeOccurred },
-                { "@resolve", (object)alarm.TimeResolved ?? DBNull.Value },
-                { "@user", alarm.UserID }
-            });
+                using (var connection = new SQLiteConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@level", alarm.AlarmLevel);
+                        command.Parameters.AddWithValue("@code", alarm.AlarmCode);
+                        command.Parameters.AddWithValue("@message", alarm.AlarmMessage);
+                        command.Parameters.AddWithValue("@lot", alarm.LotID); // corrected here
+                        command.Parameters.AddWithValue("@occur", alarm.TimeOccurred);
+                        command.Parameters.AddWithValue("@resolve", (object)alarm.TimeResolved ?? DBNull.Value);
+                        command.Parameters.AddWithValue("@user", alarm.UserID);
+
+                        return command.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception as needed
+                return false;
+            }
         }
 
         /// <summary>
-        /// Inserts a new error event into the database.
+        /// Retrieves a list of OEE records from the database.
         /// </summary>
-        /// <param name="source">The source or module where the error occurred.</param>
-        /// <param name="description">The error description.</param>
-        /// <param name="timestamp">The time the error occurred.</param>
-        public void InsertError(string source, string description, DateTime timestamp)
+        /// <returns>List of OeeRecord objects retrieved from the database.</returns>
+        public List<OeeRecord> GetOeeRecords()
         {
-            string sql = @"INSERT INTO Error_Log (Source, Description, Timestamp)
-                           VALUES (@src, @desc, @ts)";
-            ExecuteNonQuery(sql, new Dictionary<string, object>
+            var records = new List<OeeRecord>();
+
+            using (var connection = new SQLiteConnection(_connectionString))
             {
-                { "@src", source },
-                { "@desc", description },
-                { "@ts", timestamp }
-            });
+                connection.Open();
+
+                string query = "SELECT * FROM Oee_History";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var record = new OeeRecord
+                        {
+                            StartDateTime = reader.GetDateTime(reader.GetOrdinal("StartDateTime")),
+                            EndDateTime = reader.GetDateTime(reader.GetOrdinal("EndDateTime")),
+                            GoodProducts = reader.GetInt32(reader.GetOrdinal("GoodProducts")),
+                            GoodVision1 = reader.GetInt32(reader.GetOrdinal("GoodVision1")),
+                            GoodVision2 = reader.GetInt32(reader.GetOrdinal("GoodVision2")),
+                            GoodVision3 = reader.GetInt32(reader.GetOrdinal("GoodVision3")),
+                            RejectVision1 = reader.GetInt32(reader.GetOrdinal("RejectVision1")),
+                            RejectVision2 = reader.GetInt32(reader.GetOrdinal("RejectVision2")),
+                            RejectVision3 = reader.GetInt32(reader.GetOrdinal("RejectVision3")),
+                            AlarmsCount = reader.GetInt32(reader.GetOrdinal("AlarmsCount")),
+                            PlannedUPH = reader.GetDouble(reader.GetOrdinal("PlannedUPH")),
+                            PlannedProductionTime = reader.GetDouble(reader.GetOrdinal("PlannedProductionTime")),
+                            UpTimeHr = reader.GetDouble(reader.GetOrdinal("UpTimeHr")),
+                            DownTimeHr = reader.GetDouble(reader.GetOrdinal("DownTimeHr")),
+                            IdleTimeHr = reader.GetDouble(reader.GetOrdinal("IdleTimeHr")),
+                            TotalTimeHr = reader.GetDouble(reader.GetOrdinal("TotalTimeHr")),
+                            ProductiveTimeHr = reader.GetDouble(reader.GetOrdinal("ProductiveTimeHr")),
+                            MTBF = reader.GetDouble(reader.GetOrdinal("MTBF")),
+                            MTTR = reader.GetDouble(reader.GetOrdinal("MTTR")),
+                            Availability = reader.GetDouble(reader.GetOrdinal("Availability")),
+                            Performance = reader.GetDouble(reader.GetOrdinal("Performance")),
+                            Quality = reader.GetDouble(reader.GetOrdinal("Quality")),
+                            Oee = reader.GetDouble(reader.GetOrdinal("Oee"))
+                        };
+
+                        records.Add(record);
+                    }
+                }
+            }
+
+            return records;
+        }
+
+        /// <summary>
+        /// Retrieves a list of alarm records from the database.
+        /// </summary>
+        /// <returns>List of AlarmRecord objects retrieved from the database.</returns>
+        public List<AlarmRecord> GetAlarms()
+        {
+            var records = new List<AlarmRecord>();
+
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM Alarm_History";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var record = new AlarmRecord
+                        {
+                            AlarmLevel = reader.GetString(reader.GetOrdinal("AlarmLevel")),
+                            AlarmCode = reader.GetString(reader.GetOrdinal("AlarmCode")),
+                            AlarmMessage = reader.GetString(reader.GetOrdinal("AlarmMessage")),
+                            LotID = reader.GetString(reader.GetOrdinal("LotID")),
+                            TimeOccurred = reader.GetDateTime(reader.GetOrdinal("TimeOccurred")),
+                            TimeResolved = reader.IsDBNull(reader.GetOrdinal("TimeResolved"))
+                                ? (DateTime?)null
+                                : reader.GetDateTime(reader.GetOrdinal("TimeResolved")),
+                            UserID = reader.GetString(reader.GetOrdinal("UserID"))
+                        };
+
+                        records.Add(record);
+                    }
+                }
+            }
+
+            return records;
         }
 
         /// <summary>
