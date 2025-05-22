@@ -19,6 +19,7 @@ using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
+using System.IO;
 namespace AkribisFAM
 {
     /// <summary>
@@ -48,8 +49,8 @@ namespace AkribisFAM
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
-			DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Alpha_FAM_Database.sqlite");
             DirManager = new DirectoryManager();
+			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
             //TODO
             //try
             //{

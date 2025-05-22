@@ -22,6 +22,7 @@ namespace AkribisFAM.Manager
         Recipes,
         Stats,
         Logs,
+        Database,
         Materials
     }
 
