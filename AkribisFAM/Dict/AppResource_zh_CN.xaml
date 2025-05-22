@@ -47,4 +47,10 @@
     <sys:String x:Key="TextNowSwLimit+">软限位+</sys:String>
     <sys:String x:Key="TextNowAxisErr">报警</sys:String>
 
+
+
+    <sys:String x:Key="BtnAddPos">添加点位</sys:String>
+    <sys:String x:Key="BtnDeletPos">删除点位</sys:String>
+    <sys:String x:Key="BtnSavePos">保存参数</sys:String>
+
 </ResourceDictionary>

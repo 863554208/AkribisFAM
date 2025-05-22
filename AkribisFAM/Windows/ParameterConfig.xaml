@@ -8,6 +8,74 @@
              mc:Ignorable="d" 
                VerticalAlignment="Stretch" d:DesignHeight="550" d:DesignWidth="1000" HorizontalAlignment="Stretch" >
 
+    <UserControl.Resources>
+
+        <!-- 自定义 TabItem 样式 -->
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="Background" Value="Transparent" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="5"
+                            Padding="{TemplateBinding Padding}"
+                                        BorderBrush="Black"
+                            BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          ContentSource="Header"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#E0E0E0"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#a7c0ec"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TabControl 圆角设置 -->
+        <Style TargetType="TabControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid ClipToBounds="True" SnapsToDevicePixels="True">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel x:Name="HeaderPanel"
+                                  Grid.Row="0"
+                                  IsItemsHost="True"
+                                  Margin="2"
+                                  Panel.ZIndex="1"
+                                  Background="WhiteSmoke" />
+                            <Border Grid.Row="1"
+                                Background="White"
+                                BorderBrush="Gray"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Padding="10">
+                                <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Margin="0"
+                                              ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
     <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="268*"/>
@@ -15,7 +83,7 @@
         </Grid.ColumnDefinitions>
 
 
-        <TabControl Margin="5,5,5,5" Grid.ColumnSpan="2"  >
+        <TabControl Margin="5,5,5,5" Grid.ColumnSpan="2">
             <TabItem Header="Params1" HorizontalAlignment="Left"  >
                 <Grid Background="#FFE5E5E5">
                     <GroupBox Header="Axis">
@@ -174,6 +242,8 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <ComboBox Name="CboxNowType"
@@ -184,19 +254,33 @@
                           Grid.Column="0" >
                         </ComboBox>
 
+                        <Button Name="AddPosParam"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="{DynamicResource BtnAddPos}"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Grid.Column="1" Click="AddPosParam_Click" />
+                        <Button Name="deletePosParam"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="{DynamicResource BtnDeletPos}"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Grid.Column="2" Click="deletePosParam_Click" />
                         <Button Name="SavePosParam"
-            Style="{StaticResource MaterialDesignRaisedButton}"
-            Content="保存点位参数"
-            Margin="10,0,0,0"
-            Click="SavePosParam_Click"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Right"
-            Grid.Column="1" />
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="{DynamicResource BtnSavePos}"
+                        Margin="10,0,0,0"
+                        Click="SavePosParam_Click"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        Grid.Column="3" />
                     </Grid>
                 </Grid>
 
             </TabItem>
-            <TabItem HorizontalAlignment="Center" Height="19" Header="TabItem" VerticalAlignment="Center" Width="59">
+            <TabItem   Header="TabItem"  >
                 <Grid x:Name="action3" Background="#FFE5E5E5" Height="738">
                     <Ellipse HorizontalAlignment="Left" Height="54" Margin="186,110,0,0" Stroke="Black" VerticalAlignment="Top" Width="52"/>
                     <Path x:Name="arrow1" Canvas.Top="50" Canvas.Left="90" Stroke="Black" StrokeThickness="2">
