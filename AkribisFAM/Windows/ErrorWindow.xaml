@@ -13,6 +13,7 @@
                 <DataGridTextColumn Header="User"  Binding="{Binding User}"/>
                 <DataGridTextColumn Header="ErrorCode" Binding="{Binding ErrorCode}" />
                 <DataGridTextColumn Header="Level" Binding="{Binding Level}" />
+                <DataGridTextColumn Header="Info" Binding="{Binding Info}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

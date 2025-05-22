@@ -149,11 +149,11 @@ namespace AkribisFAM.Windows
             {
                 string name = "Cylinder" + i.ToString();
                 Button b1 = (Button)FindObject(name);
-                if (IOManager.Instance.INIO_status[(int)OutputCylinderExtendPairs[name]])
+                if (IOManager.Instance.INIO_status[(int)OutputCylinderExtendPairs[name]] == 0)
                 {
                     b1.Content = "Retract";
                 }
-                if (IOManager.Instance.INIO_status[(int)OutputCylinderRetractPairs[name]])
+                if (IOManager.Instance.INIO_status[(int)OutputCylinderRetractPairs[name]] == 0)
                 {
                     b1.Content = "Extend";
                 }
@@ -162,24 +162,17 @@ namespace AkribisFAM.Windows
             {
                 string name1 = "Suctionnozzle" + i.ToString();
                 Button b1 = (Button)FindObject(name1);
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleSupplyPairs[name1]])
+                if (IOManager.Instance.INIO_status[(int)OutputNozzleSupplyPairs[name1]] == 0)
                 {
                     b1.Content = "Release";
                 }
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleReleasePairs[name1]])
+                if (IOManager.Instance.INIO_status[(int)OutputNozzleReleasePairs[name1]] == 0)
                 {
                     b1.Content = "Supply";
                 }
                 string name2 = "Suctionnozzle" + i.ToString() + "1";
                 Button b2 = (Button)FindObject(name2);
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleBlowPairs[name2]])
-                {
-                    b2.Content = "Release";
-                }
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleNoBlowPairs[name2]])
-                {
-                    b2.Content = "Blow";
-                }
+                b2.Content = "Blow";
             }
         }
 
@@ -191,7 +184,7 @@ namespace AkribisFAM.Windows
                 {
                     foreach (KeyValuePair<Ellipse, IO_INFunction_Table > entry in InputCylinderPairs)
                     {
-                        if (IOManager.Instance.INIO_status[(int)entry.Value])
+                        if (IOManager.Instance.INIO_status[(int)entry.Value] == 0)
                         {
                             this.Dispatcher.BeginInvoke(new Action(() =>
                             {
@@ -206,9 +199,9 @@ namespace AkribisFAM.Windows
                             }));
                         }
                     }
-                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table> entry in InputCylinderPairs)
+                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table> entry in InputNozzlePairs)
                     {
-                        if (IOManager.Instance.INIO_status[(int)entry.Value])
+                        if (IOManager.Instance.INIO_status[(int)entry.Value] == 0)
                         {
                             this.Dispatcher.BeginInvoke(new Action(() =>
                             {
@@ -245,30 +238,18 @@ namespace AkribisFAM.Windows
             Ellipse p2 = (Ellipse)FindObject(p2name);
             int index = int.Parse(button.Name.ToString().Substring(8, button.Name.ToString().Length - 8));
 
-            if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == false)
+            if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == 1)
             {
                 IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 1);
                 IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 0);
                 button.Content = "Retract";
             }
-            else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == true)
+            else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == 0)
             {
                 IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 0);
                 IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 1);
                 button.Content = "Extend";
             }
-
-            //if (f[index - 1] == 1)
-            //{
-            //    p1.Fill = new SolidColorBrush(Colors.LightGreen);
-            //    p2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-            //    f[index - 1] = 0;
-            //}
-            //else {
-            //    p1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-            //    p2.Fill = new SolidColorBrush(Colors.LightGreen);
-            //    f[index - 1] = 1;
-            //}
         }
 
         private int[] n = new int[4];
@@ -276,47 +257,32 @@ namespace AkribisFAM.Windows
         {
             Button button = sender as Button;
             int index = int.Parse(button.Name.ToString().Substring(13, 1));
-            if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == false)
+            if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == 1)
             {
                 IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 1);
                 IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 0);
                 button.Content = "Release";
             }
-            else if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == true)
+            else if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == 0)
             {
                 IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 0);
-                IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 1);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 0);
                 button.Content = "Supply";
             }
-
-            //string p1name = "SN" + button.Name.ToString().Substring(13, button.Name.ToString().Length - 13) + "negativepressure";
-            //Ellipse p1 = (Ellipse)FindObject(p1name);
-            //if (n[index - 1] == 1)
-            //{
-            //    p1.Fill = new SolidColorBrush(Colors.LightGreen);
-            //    n[index - 1] = 0;
-            //}
-            //else
-            //{
-            //    p1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-            //    n[index - 1] = 1;
-            //}
         }
 
         private void Suctionnozzle11_Click(object sender, RoutedEventArgs e)
         {
             Button button = sender as Button;
             int index = int.Parse(button.Name.ToString().Substring(13, 1));
-            if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == false)
+            if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == 1)
             {
                 IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 1);
                 IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
                 button.Content = "Release";
-            }
-            else if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == true)
-            {
+                Thread.Sleep(50);
                 IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 0);
-                IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 1);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
                 button.Content = "Blow";
             }
         }

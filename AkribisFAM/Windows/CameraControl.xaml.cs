@@ -13,11 +13,16 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
 using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static AkribisFAM.GlobalManager;
+using static AkribisFAM.WorkStation.Reject;
 
 namespace AkribisFAM.Windows
 {
@@ -74,6 +79,17 @@ namespace AkribisFAM.Windows
             FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
             InitTabs(stationPoints);
             //END ADD
+            try
+            {
+                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                string path = folder + "\\NozzleCalib1.json";
+                string content = File.ReadAllText(path);
+                Reject.Current.TrainPointlist = JsonConvert.DeserializeObject<List<TrainPoint>>(content);
+            }
+            catch
+            {
+
+            }
         }
 
         // 按钮点击事件处理

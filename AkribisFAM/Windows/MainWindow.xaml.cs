@@ -96,7 +96,7 @@ namespace AkribisFAM
 
             _timer.Start();
             //END Add
-
+           
         }
 
         private void UpdateIcon()
@@ -117,6 +117,7 @@ namespace AkribisFAM
         {
             // 更新 TextBlock 显示当前日期和时间
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (StateManager.Current.State == StateCode.RUNNING)
             {
@@ -157,12 +158,15 @@ namespace AkribisFAM
                 performance.OUTPUT_OKLB.Content = StateManager.Current.TotalOutputOK.ToString();
                 performance.OUTPUT_NGLB.Content = StateManager.Current.TotalOutputNG.ToString();
                 //performance.LOADINGLB.Content = 
-                performance.AVAILABILITYLB.Content = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
+                double availability = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
+                performance.AVAILABILITYLB.Content = availability.ToString("0.000");
                 if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
-                    performance.PERFORMANCELB.Content = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
+                    double perform = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
+                    performance.PERFORMANCELB.Content = perform.ToString("0.000");
                 }
                 if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
-                    performance.QUALITYLB.Content = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                    double quality = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                    performance.QUALITYLB.Content = quality.ToString("0.000");
                 }
                 if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600) {
                     StateManager.Current.RunningHourCnt++;
@@ -387,6 +391,8 @@ namespace AkribisFAM
                 //AkrAction.Current.axisAllEnable(true);
                 //GlobalManager.Current.InitializeAxisMode();
 
+                GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
+
                 //测试用
                 GlobalManager.Current.isRun = true;
                 StartAutoRunButton.IsEnabled = false;
@@ -442,6 +448,28 @@ namespace AkribisFAM
 
             }
         }
+
+        private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
+        {
+            var a = GlobalManager.Current.stationPoints;
+            GlobalManager.Current.IO_test1 = true;
+            TestBoardIn.IsEnabled = false;
+
+            // 等待 1 秒而不阻塞 UI 线程
+            await Task.Delay(1000);
+
+            TestBoardIn.IsEnabled = true;
+        }
+
+        //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var a = GlobalManager.Current.stationPoints;
+        //    GlobalManager.Current.IO_test1 = true;
+        //    TestBoardIn.IsEnabled = false;
+        //    Thread.Sleep(1000);
+        //    TestBoardIn.IsEnabled = true;
+        //    GlobalManager.Current.IO_test1 = false;
+        //}
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {

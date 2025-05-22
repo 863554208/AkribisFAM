@@ -110,8 +110,13 @@ namespace AkribisFAM.Windows
                 }
             }
             stationPoints = new StationPoints();
-            FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
-            InitTabs(stationPoints);      
+            FileHelper.LoadConfig(posFileName[0], out stationPoints);
+            //20250520 史彦洋 Start
+            FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
+            //20250520 史彦洋 End
+            InitTabs(stationPoints);
+
+            
             //END ADD
         }
 
@@ -563,13 +568,13 @@ namespace AkribisFAM.Windows
         //添加double输入限制-------------------------------------------------------------
         private void RegisterFloatInputHandlers()
         {
-            foreach (var tabObj in PosTabControl.Items)
-            {
-                if (tabObj is TabItem tabItem)
-                {
-                    RegisterHandlersInContainer(tabItem.Content);
-                }
-            }
+            //foreach (var tabObj in AxisGrid)
+            //{
+            //    if (tabObj is TabItem tabItem)
+            //    {
+                    RegisterHandlersInContainer(AxisGrid);
+            //    }
+            //}
         }
 
         private void RegisterHandlersInContainer(object container)

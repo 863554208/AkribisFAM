@@ -53,6 +53,8 @@ namespace AkribisFAM.Manager
         public string ErrorCode { get; set; }
         public int Level { get; set; }
 
+        public string Info { get; set; }
+
         public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
         {
             DateTime = dT.ToString();
@@ -70,6 +72,7 @@ namespace AkribisFAM.Manager
             {
                 Level = 3;
             }
+            Info = eC.ToString();
         }
         //End Modify
     }
@@ -119,7 +122,7 @@ namespace AkribisFAM.Manager
             });
             //END 
             //20250519 测试用 【史彦洋】 修改 Start
-            //if ((int)err > 0x00FF)
+            //if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
             //{
             //    StateManager.Current.State = StateManager.StateCode.STOPPED;
             //}

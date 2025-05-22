@@ -11,6 +11,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="5*"/>
             <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
         <GroupBox Header="Camera View" >
             <Grid Name="CameraGrid">
@@ -129,6 +130,14 @@
                         <ComboBoxItem Content="Feeder"/>
                         <ComboBoxItem Content="Conveyor"/>
                     </ComboBox>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="Points9Calib" Content="9 Points Calib" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Points9Calib_Click"/>
+                        <Button x:Name="Save9points" Grid.Column="1" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Save9points_Click"/>
+                    </Grid>
                 </Grid>
                 <Grid Grid.Row="7">
                     <Grid>
@@ -143,8 +152,70 @@
                             <ComboBoxItem Content="Nozzle 3"/>
                             <ComboBoxItem Content="Nozzle 4"/>
                         </ComboBox>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="Points11Calib" Content="11 Points Calib" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Points11Calib_Click" Grid.Column="0" />
+                            <Button x:Name="Save11points" Grid.Column="1" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Save11points_Click"/>
+                        </Grid>
                     </Grid>
                 </Grid>
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="Point Set" Grid.Column="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="X:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Label Content="Y:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                <Label Content="Z:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                <Label Content="R:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="3"/>
+                <Label Content="Xstep:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="4"/>
+                <Label Content="Ystep:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="5"/>
+                <Label Content="Rstep:" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="6"/>
+                <TextBox x:Name="Xpos" Grid.Column="1" Grid.Row="0" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Ypos" Grid.Column="1" Grid.Row="1" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Zpos" Grid.Column="1" Grid.Row="2" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Rpos" Grid.Column="1" Grid.Row="3" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Xstep" Grid.Column="1" Grid.Row="4" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Ystep" Grid.Column="1" Grid.Row="5" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <TextBox x:Name="Rstep" Grid.Column="1" Grid.Row="6" TextWrapping="Wrap" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" VerticalAlignment="Center"/>
+                <Button x:Name="Train1" Content="Train1" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" Click="Train_Click"/>
+                <Button x:Name="Train2" Content="Train2" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="9" VerticalAlignment="Center" Click="Train2_Click"/>
+                <Button x:Name="Train3" Content="Train3" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center"/>
+                <Button x:Name="Train4" Content="Train4" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center"/>
+                <Button x:Name="Train5" Content="Train5" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="11" VerticalAlignment="Center"/>
+                <Button x:Name="Train6" Content="Train6" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="11" VerticalAlignment="Center"/>
+                <Button x:Name="Train7" Content="Train7" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="12" VerticalAlignment="Center"/>
+                <Button x:Name="Train8" Content="Train8" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="12" VerticalAlignment="Center"/>
+                <Button x:Name="Train9" Content="Train9" Grid.Column="0" HorizontalAlignment="Center" Grid.Row="13" VerticalAlignment="Center"/>
+
             </Grid>
         </GroupBox>
     </Grid>
