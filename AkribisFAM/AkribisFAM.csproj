@@ -109,6 +109,9 @@
     <Reference Include="System.Data.SQLite.EF6, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.EF6.1.0.119.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data.SQLite.EF6.Migrations, Version=1.0.113.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.Migrations.1.0.113\lib\System.Data.SQLite.EF6.Migrations.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.SQLite.Linq, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.119.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
     </Reference>
@@ -195,9 +198,16 @@
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
+    <Compile Include="Manager\MyDBContext.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
+    <Compile Include="Manager\UserManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="Migrations\202505220332515_InitialCreate.cs" />
+    <Compile Include="Migrations\202505220332515_InitialCreate.designer.cs">
+      <DependentUpon>202505220332515_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AlarmRecord.cs" />
     <Compile Include="Models\OeeRecord.cs" />
     <Compile Include="NewStation\newStation1.cs" />
@@ -205,8 +215,11 @@
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="ViewModel\AKBMessageBoxVM.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
+    <Compile Include="ViewModel\UserVM.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
@@ -225,6 +238,9 @@
     </Compile>
     <Compile Include="Windows\CameraControl.xaml.cs">
       <DependentUpon>CameraControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CommonWindow\AKBMessageBox.xaml.cs">
+      <DependentUpon>AKBMessageBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\DebugLog.xaml.cs">
       <DependentUpon>DebugLog.xaml</DependentUpon>
@@ -246,6 +262,9 @@
     </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\UserLogin.xaml.cs">
+      <DependentUpon>UserLogin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ParameterConfig.xaml.cs">
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
@@ -274,6 +293,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Theme\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\CommonWindow\AKBMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -341,6 +364,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\UserLogin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\ParameterConfig.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -393,6 +420,9 @@
     <EmbeddedResource Include="Lang\UI.zh-CHS.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>UI.zh-CHS.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505220332515_InitialCreate.resx">
+      <DependentUpon>202505220332515_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

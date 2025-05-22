@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
-using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.AAmotionFAM;
-using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
+using System.Data.Entity.Migrations;
+
 namespace AkribisFAM
 {
     /// <summary>
@@ -30,6 +23,8 @@ namespace AkribisFAM
         public static IDatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
         
+        public static UserManager userManager { get; private set; } = new UserManager();
+        public static UserLogin userPage = new UserLogin(userManager);
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -45,7 +40,11 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
-            MessageBox.Show("123");
+            // Force apply migrations to database on startup
+            var migrator = new DbMigrator(new Migrations.Configuration());
+            migrator.Update(); // Applies all pending migrations
+
+            //MessageBox.Show("123");
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
@@ -77,10 +76,12 @@ namespace AkribisFAM
             LoadLaserPoints();
             SetLanguage("en-US");
 
-
-            if (new LoginViewModel().ShowDialog() == true)
+            userManager.Initialize();
+            if (new UserLogin(userManager).ShowDialog() == true)
             {
-                new MainWindow().ShowDialog();
+                MainWindow main = new MainWindow();
+                Application.Current.MainWindow = main;
+                main.ShowDialog();
             }
 
             //关闭与AGM800进行通讯的AACommonServer进程

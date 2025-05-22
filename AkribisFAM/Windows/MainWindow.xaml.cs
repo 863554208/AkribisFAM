@@ -2,39 +2,23 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
 using AkribisFAM.Util;
 using System.Globalization;
 using System.Windows.Markup;
-using WpfExtensions.Xaml;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using AkribisFAM.WorkStation;
-using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
-using AAMotion;
 using static AkribisFAM.Manager.StateManager;
-using static System.Windows.Forms.AxHost;
-using System.Net.Http;
 using AkribisFAM.CommunicationProtocol;
-using System.Reflection;
-using YamlDotNet.Core.Tokens;
-using System.Windows.Media.Media3D;
 
 namespace AkribisFAM
 {
@@ -74,6 +58,8 @@ namespace AkribisFAM
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
 
+            App.userManager.UserLoggedIn += UserManager_UserLoggedIn;
+
             ViewModel = new ErrorIconViewModel();
             this.DataContext = ViewModel;
 
@@ -99,6 +85,46 @@ namespace AkribisFAM
            
         }
 
+        private void UserManager_UserLoggedIn(object sender, EventArgs e)
+        {
+            bool Enable = true;
+            User currentUser = App.userManager.CurrentUser;
+            List<UserRight> userRights = null;
+            if (currentUser == null)
+            {
+                Enable = false;
+            }
+            else
+            {
+                userRights = currentUser.UserLevel.UserRights;
+                var hasRight = userRights.Any(x => x.Name == "CalibrationSet");
+            }
+            // Define a dictionary to map button names to lists of required user rights
+            Dictionary<UIElement, List<string>> buttonRequiredRights = new Dictionary<UIElement, List<string>>
+                {
+                    { btnHome, new List<string> { "Overview" } },
+                    { gridControl, new List<string> { "Overview" } },
+                    { btnStatistics, new List<string> { "StatisticsView" } },
+                    { btnControl, new List<string> { "IOControl", "IOView", "ManualProcess", "DeviceControl", "VisionControl" , "Calibration" } },
+                    { btnLog, new List<string> { "LogView" } },
+                    { btnSetting, new List<string> { "Setting" } },
+                    { btnNetwork, new List<string> { "Setting" } },
+                };
+
+            // Iterate over the dictionary and set IsEnabled property for each button
+            foreach (var kvp in buttonRequiredRights)
+            {
+                kvp.Key.IsEnabled = Enable && kvp.Value.Any(requiredRight => userRights.Any(x => x.Name == requiredRight));
+            }
+
+
+            if (btnHome.IsEnabled)
+            {
+                MainWindowButton_Click(btnHome, null);
+            }
+
+        }
+
         private void UpdateIcon()
         {
             // 使用 Dispatcher 来确保在 UI 线程上更新 UI
@@ -119,6 +145,14 @@ namespace AkribisFAM
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
+
+            if (App.userManager.CurrentUser!=null)
+            {
+
+                ViewModel.CurrentUser = App.userManager.CurrentUser.Username;
+                ViewModel.CurrentUserLevel = App.userManager.CurrentUser.UserLevel.Name;
+            }
+
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
@@ -723,6 +757,21 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Read_Coil((int)IO_INFunction_Table.IN1_0Slowdown_Sign1, ref result);
 
             bool result2 = result;
+        }
+
+        private void Label_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnUser_Click(object sender, RoutedEventArgs e)
+        {
+
+            new UserLogin(App.userManager).ShowDialog();
         }
     }
 
