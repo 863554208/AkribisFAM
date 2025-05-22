@@ -1,4 +1,12 @@
-﻿using System;
+﻿using AAMotion;
+using AkribisFAM.AAmotionFAM;
+using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Interfaces;
+using AkribisFAM.Manager;
+using AkribisFAM.Windows;
+using AkribisFAM.WorkStation;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -9,17 +17,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using AAMotion;
-using AkribisFAM.Manager;
-using AkribisFAM.Windows;
-using AkribisFAM.WorkStation;
-using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.AAmotionFAM;
 using static AkribisFAM.GlobalManager;
-using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.Interfaces;
-using System.IO;
 namespace AkribisFAM
 {
     /// <summary>
@@ -28,8 +27,7 @@ namespace AkribisFAM
     public partial class App : Application
     {
         public static IDatabaseManager DbManager { get; private set; }
-        public static DirectoryManager DirManager;
-        
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -49,9 +47,31 @@ namespace AkribisFAM
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
-            DirManager = new DirectoryManager();
-			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
+
             //TODO
+<<<<<<< HEAD
+            try
+            {
+                DbManager = new DatabaseManager(@"C:\Alpha\FAM\Database\Database.sqlite");
+
+                //// 初始化数据库连接
+                //DatabaseManager.Initialize();
+
+                //// 插入数据
+                //DatabaseManager.Insert("MyDatabase.db");
+
+                //Console.WriteLine("数据插入成功！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"操作失败: {ex.Message}");
+            }
+            finally
+            {
+                // 关闭数据库连接
+                //DatabaseManager.Shutdown();
+            }
+=======
             //try
             //{
             //    // 初始化数据库连接
@@ -71,6 +91,7 @@ namespace AkribisFAM
             //    // 关闭数据库连接
             //    DatabaseManager.Shutdown();
             //}
+>>>>>>> origin/dev
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
@@ -171,14 +192,15 @@ namespace AkribisFAM
             catch { }
 
         }
-        
-		protected override void OnExit(ExitEventArgs e)
+
+        protected override void OnExit(ExitEventArgs e)
         {
             // Dispose of resources
             DbManager?.Dispose();
 
             base.OnExit(e); // Always call the base
         }
+
 
     }
 }

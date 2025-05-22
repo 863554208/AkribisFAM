@@ -1,3 +1,21 @@
-﻿======================== CHANGE LOG ========================
-v0.0.0.1 [2025-05-21, Raymond]
+﻿=========================== CHANGE LOG ===========================
+v0.0.0.4 [2025-05-21, Raymond]
  - Feat: A1-503 Add material control class to monitor and handle logic of switching supply
+
+v0.0.0.3 [2024-05-22, Paul]
+ - Fix: A1-512 Fix Database Directory using Directory Manager
+
+v0.0.0.2 [2024-05-22, Paul]
+ - Feat: A1-511 Add Database Manager
+
+v0.0.0.1 [2024-05-22, Paul]
+ - Feat: A1-511 Add Directory Manager
+
+
+
+============ FORMAT ============
+[VersionNo] [yyyy-MM-dd, Author]
+ - [Type]: [Changes]
+ - [Type]: [Changes]
+   [Details] (if necessary)
+================================

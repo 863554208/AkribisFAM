@@ -27,7 +27,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -192,6 +192,7 @@
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
     <Compile Include="Manager\DatabaseManager.cs" />
+    <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
@@ -251,6 +252,12 @@
     </Compile>
     <Compile Include="Windows\Performance.xaml.cs">
       <DependentUpon>Performance.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SelectPointType.xaml.cs">
+      <DependentUpon>SelectPointType.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\TeachingWindow.xaml.cs">
+      <DependentUpon>TeachingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\Conveyor.cs" />
@@ -342,6 +349,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\SelectPointType.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\TeachingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -352,9 +367,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="devices.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="IOPoint.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
