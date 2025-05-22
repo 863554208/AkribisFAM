@@ -188,8 +188,8 @@
         "IN4_9Feeder1_limit_cylinder_retract_InPos": 57,
         "IN4_10Feeder2_limit_cylinder_extend_InPos": 58,
         "IN4_11Feeder2_limit_cylinder_retract_InPos": 59,
-        "IN4_12Backup": 60,
-        "IN4_13Reserve": 61,
+        "IN4_12Feeder1_drawer_InPos": 60,
+        "IN4_13Feeder2_drawer_InPos": 61,
         "IN4_14Reserve": 62,
         "IN4_15Reserve": 63,
 

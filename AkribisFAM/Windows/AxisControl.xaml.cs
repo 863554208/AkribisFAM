@@ -26,6 +26,8 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.WorkStation;
 using System.Windows.Threading;
 using System.Reflection;
+using System.IO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace AkribisFAM.Windows
 {
@@ -131,6 +133,47 @@ namespace AkribisFAM.Windows
                     AsyncUpdateAxisData(temp);
                 }
             }
+            _pressProgress += 300;
+
+            if (_pressProgress >= PressDuration * 1000 && Home_trigger == 1)
+            {
+                MessageBoxResult result = MessageBox.Show("Start Homing?", "Confirming", MessageBoxButton.OKCancel);
+                AxisName axisName = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
+                if (result == MessageBoxResult.OK)
+                {
+                    string path = Directory.GetCurrentDirectory() + "\\homming\\" + axisName.ToString() + "_homing.hseq";
+                    int agmIndex = (int)axisName / 8;
+                    int axisRefNum = (int)axisName % 8;
+                    try
+                    {
+                        AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), path);
+                    }
+                    catch(Exception ex)
+                    {
+                        MessageBox.Show("Home Axis Failed！:" + ex.Message);
+                    }
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+
+                }
+
+                Home_trigger = 0;
+            }
+        }
+
+        private int _pressProgress;
+        private const int PressDuration = 3; // 3秒
+        private int Home_trigger = 0;
+        private void Button_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _pressProgress = 0;
+            Home_trigger = 1;
+        }
+
+        private void Button_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
         }
 
 
@@ -312,14 +355,8 @@ namespace AkribisFAM.Windows
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
             //Todo Home(nowAxisIndex)
-            //string path = Directory.GetCurrentDirectory() + $"\\Home_{nowAxisIndex}.txt";
-            //try {
-            //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[nowAxisIndex], GlobalManager.Current.GetAxisRefFromInteger(nowAxisIndex), path);
-            //}
-            //catch {
-            //    MessageBox.Show("Home Axis Failed！");
-            //}
-            
+
+
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)

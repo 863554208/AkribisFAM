@@ -101,6 +101,8 @@ namespace AkribisFAM
     public class GlobalManager
     {
 
+
+
         // 单例模式，确保全局只有一个实例
         private static GlobalManager _current;
 
@@ -116,6 +118,23 @@ namespace AkribisFAM
         public long current_APos = 0;
 
         public string username;
+
+        //传送带到位标志位
+        public int flag_RangeFindingTrayArrived;  //测距位料盘到位
+        public int flag_assembleTrayArrived;      //贴装位料盘到位
+        public int flag_RecheckTrayArrived;       //复检位料盘到位
+
+        public int flag_TrayProcessCompletedNumber;
+
+        public int flag_TrayArrivedNumber;
+
+        public int flag_NGStationAllowTrayEnter;
+
+        public int flag_RecheckStationHaveTray;
+
+        public int flag_RecheckStationRequestOutflowTray;
+        public int flag_Bypass;
+
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -162,6 +181,7 @@ namespace AkribisFAM
         public bool IsByPass;
         public bool SendByPassToStation2;
         public bool SendByPassToStation3;
+        public bool SendByPassToStation4;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
@@ -435,7 +455,7 @@ namespace AkribisFAM
         public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == (value == 1))
+            while (IOManager.Instance.INIO_status[(int)pos] == value)
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;

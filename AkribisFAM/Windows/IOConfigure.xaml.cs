@@ -18,7 +18,6 @@ using System.Windows.Shapes;
 using AkribisFAM.CommunicationProtocol;
 using static System.Windows.Forms.AxHost;
 using System.Collections;
-using AkribisFAM.CommunicationProtocol;
 using System.ComponentModel.Design;
 using System.Reflection;
 using System.Windows.Threading;
@@ -41,8 +40,6 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
 
-
-
             // 初始化字典
             OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
             foreach (IO_OutFunction_Table outitem in Enum.GetValues(typeof(IO_OutFunction_Table)))
@@ -56,8 +53,46 @@ namespace AkribisFAM.Windows
                 InputIOPairs.Add($"IN{(int)initem}", (int)initem);
             }
 
+
             Task task1 = new Task(UpdateUI_IO);
             task1.Start();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 创建样式
+            Style derivedStyle = new Style(typeof(Button), (Style)FindResource("RoundCornerButton"));
+            // 遍历窗口中的所有按钮并应用样式
+            ApplyStyleToButtons(this, derivedStyle);
+        }
+
+        private void ApplyStyleToButtons(DependencyObject parent, Style style)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is Button button)
+                {
+                    button.Style = style;
+                    button.Width = double.NaN;
+                    button.Height = 55;
+                    button.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    button.VerticalAlignment = VerticalAlignment.Center;
+                }
+
+                if (child is TextBlock textblock)
+                {
+                    textblock.Width = 120;
+                    textblock.Height = 50;
+                    textblock.HorizontalAlignment = HorizontalAlignment.Center;
+                    textblock.VerticalAlignment = VerticalAlignment.Center;
+                    textblock.TextAlignment = TextAlignment.Justify;
+                }
+
+                // 递归查找子元素
+                ApplyStyleToButtons(child, style);
+            }
         }
 
         private void UpdateUI_IO()
@@ -68,14 +103,14 @@ namespace AkribisFAM.Windows
                 {
                     var inbuttonname = Inkvp.Key;
                     var InputIOPairskey = Inkvp.Value;
-                    ShowChangeInIOState(inbuttonname, IOManager.Instance.INIO_status[InputIOPairskey] ? 1 : 0);
+                    ShowChangeInIOState(inbuttonname, IOManager.Instance.INIO_status[InputIOPairskey]);
                 }
 
                 foreach (var Outkvp in OutputIOPairs)//ShowOutputIO
                 {
                     var buttonname = Outkvp.Key;
                     var OutputIOPairsvalue = Outkvp.Value;
-                    ShowChangeOutIOState(buttonname, IOManager.Instance.OutIO_status[OutputIOPairsvalue] ? 1 : 0);
+                    ShowChangeOutIOState(buttonname, IOManager.Instance.OutIO_status[OutputIOPairsvalue]);
                 }
                 Thread.Sleep(200);
             }
@@ -86,13 +121,13 @@ namespace AkribisFAM.Windows
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 Button button = this.FindName(inbuttonname) as Button;
-                if (state == 1)
+                if (state == 0)
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGreen);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF4ECE4E"));//#FF4ECE4E
                 }
                 else
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGray);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF919791"));//#FF919791
                 }
             }));
         }
@@ -102,13 +137,13 @@ namespace AkribisFAM.Windows
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 Button button = this.FindName(ButtonName) as Button;
-                if (state == 1)
+                if (state == 0)
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGreen);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF4ECE4E"));//#FF4ECE4E
                 }
                 else
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGray);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF919791"));//#FF919791
                 }
             }));
         }
@@ -170,8 +205,7 @@ namespace AkribisFAM.Windows
                         IO_OutFunction_Table outEnum = (IO_OutFunction_Table)Enum.ToObject(typeof(IO_OutFunction_Table), index);
                         try
                         {
-                            bool currentStatus = IOManager.Instance.OutIO_status[(int)outEnum];
-                            IOManager.Instance.IO_ControlStatus(outEnum, currentStatus ? 0 : 1);
+                            IOManager.Instance.IO_ControlStatus(outEnum, IOManager.Instance.OutIO_status[(int)outEnum]);
                             return;
                         }
                         catch (Exception ex)

@@ -86,6 +86,7 @@ namespace AkribisFAM
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
                     await Task.WhenAll(tasks);
                 }
@@ -257,6 +258,7 @@ namespace AkribisFAM
 
             //轴回原点
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
             AkrAction.Current.WaitAxisAll();
 
@@ -306,6 +308,9 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
+            //把所有阻挡气缸伸出
+            Conveyor.Current.AllWorkStopCylinderAct(1, 0);
+
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
@@ -313,6 +318,12 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+
+
+
+
+
+
             return true;
         }
 
