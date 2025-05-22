@@ -289,6 +289,10 @@ namespace AkribisFAM.WorkStation
 
         public int SnapFeedar()
         {
+            //移动到飞达拍照起始位
+            //AkrAction.Current.MoveNoWait(AxisName.FSX, (int)Point.X, (int)AxisSpeed.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
+
             //feedar信号
             //while (!ReadIO(IO_INFunction_Table.IN4_2Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_6Platform_has_label_feeder2))
             //{
@@ -315,24 +319,26 @@ namespace AkribisFAM.WorkStation
             //Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
 
             GlobalManager.Current.feedarPoints.Clear();
-            //激光测距
-            if (GlobalManager.Current.stationPoints.ZuZhuangPointList == null)
-            {
-                Console.WriteLine("没有feedar拍照点位文件");
-                return 1;
-            }
-            foreach (var point in GlobalManager.Current.stationPoints.ZuZhuangPointList)
-            {
-                if (point.type == 0)
-                {
-                    GlobalManager.Current.feedarPoints.Add((point.X, point.Y));
-                }
-            }
-            if (GlobalManager.Current.feedarPoints.Count == 0)
-            {
-                Console.WriteLine("feedar点位为空");
-                return 1;
-            }
+
+            //if (GlobalManager.Current.stationPoints.ZuZhuangPointList == null)
+            //{
+            //    Console.WriteLine("没有feedar拍照点位文件");
+            //    return 1;
+            //}
+            //foreach (var point in GlobalManager.Current.stationPoints.ZuZhuangPointList)
+            //{
+            //    if (point.type == 0)
+            //    {
+            //        GlobalManager.Current.feedarPoints.Add((point.X, point.Y));
+            //    }
+            //}
+            //if (GlobalManager.Current.feedarPoints.Count == 0)
+            //{
+            //    Console.WriteLine("feedar点位为空");
+            //    return 1;
+            //}
+            GlobalManager.Current.feedarPoints.Add((59,234));
+            GlobalManager.Current.feedarPoints.Add((109, 234));
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
                 AkrAction.Current.SetSingleEvent(AxisName.FSX, (int)AxisSpeed.FSX,1);
@@ -341,6 +347,11 @@ namespace AkribisFAM.WorkStation
                 
                 Thread.Sleep(300);
             }
+
+            //移动到飞达拍照结束位
+
+            //AkrAction.Current.Move(AxisName.FSX, (int)Point.X, (int)AxisSpeed.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
 
             Thread.Sleep(1000);
             ////接受Cognex的信息
@@ -354,44 +365,44 @@ namespace AkribisFAM.WorkStation
 
         public int PickFoam()
         {
-            //要把这个替换成实际抓手取料的位置，只用移动一次
+            //移动到取料位
             AkrAction.Current.Move(AxisName.FSX, 5, (int)AxisSpeed.FSX);
             AkrAction.Current.Move(AxisName.FSY, 5, (int)AxisSpeed.FSY);
 
             if (GlobalManager.Current.UsePicker1)
             {
 
-                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
+                AkrAction.Current.Move(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
                 SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
+                AkrAction.Current.Move(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker2)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
                 SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 5, (int?)(int)AxisSpeed.PICK2_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker3)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
+                AkrAction.Current.Move(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
                 SetIO(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
+                AkrAction.Current.Move(AxisName.PICK3_Z, 5, (int?)(int)AxisSpeed.PICK3_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker4)
             {
-                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 5, (int?)(int)AxisSpeed.PICK4_Z);
+                AkrAction.Current.Move(AxisName.PICK4_Z, 5, (int?)(int)AxisSpeed.PICK4_Z);
                 SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
-                AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 6, (int?)(int)AxisSpeed.PICK4_Z);
+                AkrAction.Current.Move(AxisName.PICK4_Z, 6, (int?)(int)AxisSpeed.PICK4_Z);
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
@@ -400,7 +411,10 @@ namespace AkribisFAM.WorkStation
 
         public int LowerCCD()
         {
-            
+            //移动到CCD2拍照起始位
+            //AkrAction.Current.MoveNoWait(AxisName.FSX, (int)Point.X, (int)AxisSpeed.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, (int)Point.Y, (int)AxisSpeed.FSY);
+
             ccd2SnapPath.Clear();
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
@@ -438,6 +452,9 @@ namespace AkribisFAM.WorkStation
             //接受Cognex信息
             List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
             AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+
+            //移动到CCD2拍照结束位
+
 
             return 0;
         }
@@ -776,72 +793,6 @@ namespace AkribisFAM.WorkStation
             CheckState();
 
             return true;
-        }
-
-        #region 测试用
-        public void Step1Test()
-        {
-            Thread.Sleep(5000);
-            Debug.WriteLine("step1");
-        }
-
-        public void Step2Test()
-        {
-            Thread.Sleep(1000);
-            Debug.WriteLine("step2");
-        }
-        public void Step3Test()
-        {
-            Thread.Sleep(1000);
-            Debug.WriteLine("step3");
-        }
-        public void Step4Test()
-        {
-            Thread.Sleep(1000);
-            Debug.WriteLine("step4");
-        }
-        public void Step5Test()
-        {
-            Thread.Sleep(1000);
-            Debug.WriteLine("step5");
-        }
-
-        #endregion
-
-        public async void test()
-        {
-            //有前机要板信号
-            bool has_pre_info = true;
-            bool is_First = false;
-            int current_foam = 0;
-            int current_assembled = 0;
-            int total = 20;
-            while (true)
-            {
-                Step1:
-                    if (!has_pre_info) continue;                   
-                    var task1 = Task.Run(() => Step1Test());
-                    if (current_foam > 0) goto Step4;
-
-                Step2:
-                    Step2Test();
-
-                Step3:
-                    Step3Test();
-
-                Step4:
-                    Step4Test();
-
-                Step5:
-                    await task1;
-                    Step5Test();
-                    current_assembled += 4;
-                    if (current_assembled < 20)
-                    {
-                        goto Step2;
-                    }
-            }
-
         }
 
         public async override void AutoRun(CancellationToken token)

@@ -192,6 +192,8 @@ namespace AkribisFAM
 
         public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
 
+        public List<(double X, double Y)> ccd2Points = new List<(double X, double Y)>();
+
         public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
 
         public int TotalLaserCount = 48;
