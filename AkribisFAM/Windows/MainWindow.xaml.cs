@@ -387,6 +387,8 @@ namespace AkribisFAM
                 //AkrAction.Current.axisAllEnable(true);
                 //GlobalManager.Current.InitializeAxisMode();
 
+                GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
+
                 //测试用
                 GlobalManager.Current.isRun = true;
                 StartAutoRunButton.IsEnabled = false;
@@ -443,15 +445,27 @@ namespace AkribisFAM
             }
         }
 
-        private  void TestBoardIn_Click(object sender, RoutedEventArgs e)
+        private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
         {
             var a = GlobalManager.Current.stationPoints;
             GlobalManager.Current.IO_test1 = true;
             TestBoardIn.IsEnabled = false;
-            Thread.Sleep(3000);
+
+            // 等待 1 秒而不阻塞 UI 线程
+            await Task.Delay(1000);
+
             TestBoardIn.IsEnabled = true;
-            GlobalManager.Current.IO_test1 = false;
         }
+
+        //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var a = GlobalManager.Current.stationPoints;
+        //    GlobalManager.Current.IO_test1 = true;
+        //    TestBoardIn.IsEnabled = false;
+        //    Thread.Sleep(1000);
+        //    TestBoardIn.IsEnabled = true;
+        //    GlobalManager.Current.IO_test1 = false;
+        //}
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {

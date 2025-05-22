@@ -17,6 +17,7 @@ using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using System.CodeDom;
 using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
 using Microsoft.SqlServer.Server;
+using AkribisFAM.Util;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -202,6 +203,7 @@ namespace AkribisFAM.WorkStation
             {
                 //低速运动
                 MoveConveyor(10);
+                
             }
             else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
             {
@@ -218,6 +220,7 @@ namespace AkribisFAM.WorkStation
             {
                 StateManager.Current.TotalInput++;
                 Set("station1_IsBoardInHighSpeed", true);
+
 
                 //将要板信号清空
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
@@ -244,7 +247,6 @@ namespace AkribisFAM.WorkStation
 
                 //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
                 Set("station1_IsBoardInLowSpeed", false);
-                Set("station1_IsBoardIn", false);
                 Set("station1_IsLifting", true);
                 
                 StopConveyor();
@@ -257,6 +259,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
                 
                 Set("station1_IsLifting", false);
+                Set("station1_IsBoardIn", false);
 
                 ResumeConveyor();
 
@@ -273,55 +276,63 @@ namespace AkribisFAM.WorkStation
 
         public void Boardout()
         {
-            Set("station1_IsBoardOut", true);
+            Logger.WriteLog(" 测距工站执行加一");
+            GlobalManager.Current.flag_TrayProcessCompletedNumber++;
 
-            //模拟给下一个工位发进板信号
-            GlobalManager.Current.IO_test2 = true;
-            if (GlobalManager.Current.IsByPass)
-            {
-                GlobalManager.Current.SendByPassToStation2 = true;
-            }
+            #region 使用新的传送带控制逻辑
+            //Set("station1_IsBoardOut", true);
 
-            //如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
-            //while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            //while (ZuZhuang.Current.board_count != 0)
             //{
-            //    Thread.Sleep(100);
-            //}       
+            //    Thread.Sleep(300);
+            //}
 
-            while(ZuZhuang.Current.board_count != 0)
-            {
-                Thread.Sleep(300);
-            }
+            ////模拟给下一个工位发进板信号
+            //if (GlobalManager.Current.IsByPass)
+            //{
+            //    GlobalManager.Current.SendByPassToStation2 = true;
+            //}
+            //GlobalManager.Current.IO_test2 = true;
 
-            //执行气缸放气，下降
-            StopConveyor();
-            SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
-            SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
-            SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 1);
 
-            if (!WaitIO(99999,IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos, true))
-            {
-                throw new Exception();
-            }
-            ResumeConveyor();
-            if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, true))
-            {
-                throw new Exception();
-            }
-            //时间预测
-            if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, false))
-            {
-                throw new Exception();
-            }
-            checkState();
-            GlobalManager.Current.IO_test1 = true;
-            Set("station1_IsBoardOut", false);
-            //SetIO(IO.LaiLiao_BoardOut ,true);
-            board_count -= 1;
-            
+            ////如果后续工站正在执行出站，就不要让该工位的气缸放气和下降
+            ////while (GlobalManager.Current.station2_IsBoardOut || GlobalManager.Current.station3_IsBoardOut || GlobalManager.Current.station4_IsBoardOut)
+            ////{
+            ////    Thread.Sleep(100);
+            ////}       
+
+
+
+            ////执行气缸放气，下降
+            //StopConveyor();
+            //SetIO(IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract, 1);
+            //SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 1);
+            //SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 1);
+
+            //if (!WaitIO(99999,IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos, true))
+            //{
+            //    throw new Exception();
+            //}
+            //ResumeConveyor();
+            //if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, true))
+            //{
+            //    throw new Exception();
+            //}
+            ////时间预测
+            //if (!WaitIO(9999, IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1, false))
+            //{
+            //    throw new Exception();
+            //}
+            ////checkState();
+            ////GlobalManager.Current.IO_test1 = true;
+            //Set("station1_IsBoardOut", false);
+            //board_count -= 1;
+
+            #endregion
+
         }
         public void checkState()
         {
@@ -341,12 +352,16 @@ namespace AkribisFAM.WorkStation
 
         public bool Step1()
         {            
-            Debug.WriteLine("LaiLiao.Current.Step1()");
+            //Debug.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
-            if (!BoradIn())
-                return false;
-
+            //if (!BoradIn())
+            //    return false;
+            while (GlobalManager.Current.flag_RangeFindingTrayArrived != 1)
+            {
+                Thread.Sleep(300);
+            }
+            GlobalManager.Current.flag_RangeFindingTrayArrived = 0;
             GlobalManager.Current.currentLasered = 0;
 
             Thread.Sleep(500);
