@@ -1,0 +1,77 @@
+﻿<Window x:Class="AkribisFAM.Windows.TeachingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AkribisFAM.Windows"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Teaching" Height="480" Width="850" FontSize="17">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <!-- 第一行：水平栈布局，居中 -->
+        <StackPanel Grid.Row="0" Margin="10 0 0 0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <TextBlock Text="Now Position" Margin="0 0 30 0" VerticalAlignment="Center" />
+            <TextBlock Text="X:" VerticalAlignment="Center" />
+            <TextBlock Name="TbXData" Text="1" VerticalAlignment="Center" Width="95" TextAlignment="Center" />
+
+            <TextBlock Margin="20 0 0 0" Text="Y:" VerticalAlignment="Center" />
+            <TextBlock Name="TbYData" Text="22" VerticalAlignment="Center" Width="95" TextAlignment="Center" />
+
+            <TextBlock Margin="20 0 0 0" Text="Z:" VerticalAlignment="Center" />
+            <TextBlock Name="TbZData" Text="333" VerticalAlignment="Center" Width="95" TextAlignment="Center" />
+
+            <TextBlock Margin="20 0 0 0" Text="R:" VerticalAlignment="Center" />
+            <TextBlock Name="TbRData" Text="0" VerticalAlignment="Center" Width="95" TextAlignment="Center" />
+            <Button Content="Get Teaching" Name="BtnGetTeaching" Style="{StaticResource MaterialDesignRaisedButton}" Margin="20 0 0 0" Click="BtnGetTeaching_Click"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1">
+            <TextBlock Text="Target Position" Margin="0 0 30 0" VerticalAlignment="Center" />
+            <TextBlock Text="X:" VerticalAlignment="Center" />
+            <TextBox Name="TbXInput" Text="0"  Width="95" HorizontalContentAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
+
+            <TextBlock Margin="20 0 0 0" Text="Y:" VerticalAlignment="Center" />
+            <TextBox Name="TbYInput" Text="0" Width="95" HorizontalContentAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
+
+            <TextBlock Margin="20 0 0 0" Text="Z:" VerticalAlignment="Center" />
+            <TextBox Name="TbZInput" Text="0" Width="95" HorizontalContentAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
+
+            <TextBlock Margin="20 0 0 0" Text="R:" VerticalAlignment="Center" />
+            <TextBox Name="TbRInput" Text="0" Width="95" HorizontalContentAlignment="Center" VerticalAlignment="Center" Margin="2,0,0,0" />
+        </StackPanel>
+
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <TextBlock Text="轴选择" Margin="0 0 20 0" VerticalAlignment="Center" />
+            <RadioButton Name="RaBtnX" Content="X" Width="60" IsChecked="True" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
+            <RadioButton Name="RaBtnY" Content="Y" Width="60" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
+            <RadioButton Name="RaBtnZ" Content="Z" Width="60" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
+            <RadioButton Name="RaBtnR" Content="R" Width="60" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Button x:Name="btnEnable" Content="Enable" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnEnable_Click"/>
+            <Button x:Name="btnDisable" Content="Disable" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnDisable_Click"/>
+            <Button x:Name="btnHome" Content="Home" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnHome_Click"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Button x:Name="btnMoveAbs" Content="MoveAbs" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnMoveAbs_Click"/>
+            <Button x:Name="btnMoveRel" Content="MoveRel" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnMoveRel_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" Click="btnStop_Click"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Button x:Name="btnJogPlus" Content="JOG+" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5"/>
+            <Button x:Name="btnJogMinus" Content="JOG-" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5"/>
+        </StackPanel>
+    </Grid>
+</Window>

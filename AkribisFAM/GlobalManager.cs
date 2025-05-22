@@ -41,19 +41,19 @@ namespace AkribisFAM
         [DataMember]
         public int row { get; set; }
         [DataMember]
-        public int X { get; set; }
+        public double X { get; set; }
         [DataMember]
-        public int Y { get; set; }
+        public double Y { get; set; }
         [DataMember]
-        public int Z { get; set; }
+        public double Z { get; set; }
         [DataMember]
-        public int R { get; set; }
+        public double R { get; set; }
 
         [DataMember]
-        public List<int> generalList { get; set; }
+        public List<int> axisMap { get; set; }
 
         [DataMember]
-        public int general { get; set; }
+        public double general { get; set; }
 
     }
 
@@ -64,7 +64,7 @@ namespace AkribisFAM
         public List<string> childName { get; set; }
 
         [DataMember]
-        public List<int> childPos { get; set; }
+        public List<double> childPos { get; set; }
 
     }
 
