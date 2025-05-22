@@ -199,7 +199,6 @@
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
-    <Compile Include="ViewModel\ColorChangeViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
@@ -383,6 +382,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Windows\AKB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Windows\001.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />

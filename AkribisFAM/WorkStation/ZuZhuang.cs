@@ -22,15 +22,6 @@ namespace AkribisFAM.WorkStation
         private static ZuZhuang _instance;
         public override string Name => nameof(ZuZhuang);
 
-        public event Action OnTriggerStep1;
-        public event Action OnStopStep1;
-        public event Action OnTriggerStep2;
-        public event Action OnStopStep2;
-        public event Action OnTriggerStep3;
-        public event Action OnStopStep3;
-        public event Action OnTriggerStep4;
-        public event Action OnStopStep4;
-
         int delta = 0;
         public int board_count = 0;
 
@@ -277,8 +268,19 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
-            return IOManager.Instance.INIO_status[(int)index];
-
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
         }
 
         public void SetIO(IO_OutFunction_Table index, int value)

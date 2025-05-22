@@ -269,13 +269,18 @@ namespace AkribisFAM.CommunicationProtocol
     {
         private Dictionary<IO_OutFunction_Table, int> IO_OutFunctionnames = new Dictionary<IO_OutFunction_Table, int>();
         private Dictionary<IO_INFunction_Table, int> IO_INFunctionnames = new Dictionary<IO_INFunction_Table, int>();
-        public bool[] OutIO_status = new bool[200];
-        public bool[] INIO_status = new bool[200];
+        public int[] OutIO_status = new int[200];
+        public int[] INIO_status = new int[200];
 
         private static IOManager _instance;
         private IOManager()
         {
             LoadIOPoint();
+            for (int i = 0; i < 200; i++)
+            {
+                OutIO_status[i] = -1;
+                INIO_status[i] = -1;
+            }
         }
 
         public static IOManager Instance
@@ -350,20 +355,31 @@ namespace AkribisFAM.CommunicationProtocol
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
-                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref OutIO_status[(int)IOnamekey]);
+                        bool IOstatus = false;
+                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
                         if (ret == false)
                         {
+                            OutIO_status[(int)IOnamekey] = -1;
                             ErrorManager.Current.ModbusErrCnt++;
                             if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit)
                             {
                                 ModbusTCPWorker.GetInstance().Disconnect();
-                                Thread.Sleep(5000);
+                                Thread.Sleep(1000);
                                 bool initret = ModbusTCPWorker.GetInstance().Initializate();
                                 if (initret == false)
                                 {
                                     ErrorManager.Current.Insert(ErrorCode.IODisconnect);
                                     return;
                                 }
+                            }
+                        }
+                        else {
+                            if (IOstatus)
+                            {
+                                OutIO_status[(int)IOnamekey] = 0;
+                            }
+                            else {
+                                OutIO_status[(int)IOnamekey] = 1;
                             }
                         }
                     }
@@ -379,20 +395,32 @@ namespace AkribisFAM.CommunicationProtocol
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
-                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref INIO_status[(int)IOnamekey]);
+                        bool IOstatus = false;
+                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
                         if (ret == false)
                         {
+                            INIO_status[(int)IOnamekey] = -1;
                             ErrorManager.Current.ModbusErrCnt++;
                             if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit)
                             {
                                 ModbusTCPWorker.GetInstance().Disconnect();
-                                Thread.Sleep(5000);
+                                Thread.Sleep(1000);
                                 bool initret = ModbusTCPWorker.GetInstance().Initializate();
                                 if (initret == false)
                                 {
                                     ErrorManager.Current.Insert(ErrorCode.IODisconnect);
                                     return;
                                 }
+                            }
+                        }
+                        else {
+                            if (IOstatus)
+                            {
+                                INIO_status[(int)IOnamekey] = 0;
+                            }
+                            else
+                            {
+                                INIO_status[(int)IOnamekey] = 1;
                             }
                         }
                     }
@@ -405,7 +433,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (writestatus == 1)
             {
-                if (!OutIO_status[(int)iO_OutFunction_Table])//写IO状态为True
+                if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
                 {
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
                     if (!Sucessstatus)
@@ -413,7 +441,7 @@ namespace AkribisFAM.CommunicationProtocol
                         return false;
                     }
 
-                    OutIO_status[(int)iO_OutFunction_Table] = true;
+                    OutIO_status[(int)iO_OutFunction_Table] = 0;
                     return true;
                 }
                 return true;
@@ -421,14 +449,14 @@ namespace AkribisFAM.CommunicationProtocol
 
             if (writestatus == 0)
             {
-                if (OutIO_status[(int)iO_OutFunction_Table])//写IO状态为False
+                if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
                 {
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
                     if (!Sucessstatus)
                     {
                         return false;
                     }
-                    OutIO_status[(int)iO_OutFunction_Table] = false;
+                    OutIO_status[(int)iO_OutFunction_Table] = 1;
                     return true;
                 }
                 return true;

@@ -27,13 +27,6 @@ namespace AkribisFAM.WorkStation
         private static FuJian _instance;
         public override string Name => nameof(FuJian);
 
-        public event Action OnTriggerStep1;
-        public event Action OnStopStep1;
-        public event Action OnTriggerStep2;
-        public event Action OnStopStep2;
-        public event Action OnTriggerStep3;
-        public event Action OnStopStep3;
-
         int delta = 0;
         public int board_count = 0;
 
@@ -81,8 +74,19 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
-            return IOManager.Instance.INIO_status[(int)index];
-
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
         }
 
         public void SetIO(IO_OutFunction_Table index , int value)
@@ -364,19 +368,6 @@ namespace AkribisFAM.WorkStation
             {
                 GlobalManager.Current.isNGPallete = true;
             }
-            return true;
-        }
-        public bool Step3()
-        {
-            Console.WriteLine("step3");
-            //触发 UI 动画
-            OnTriggerStep3?.Invoke();
-
-            GlobalManager.Current.current_FuJian_step = 3;
-
-            //触发 UI 动画
-            OnStopStep3?.Invoke();
-
             return true;
         }
 
