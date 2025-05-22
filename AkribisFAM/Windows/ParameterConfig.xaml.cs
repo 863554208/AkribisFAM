@@ -286,14 +286,8 @@ namespace AkribisFAM.Windows
                         FontWeight = FontWeights.Bold,
                         Margin = new Thickness(0, 0, 5, 0),
                         VerticalAlignment = VerticalAlignment.Center
-                    };
+                    });
 
-                    // 注册 TextChanged 事件，将用户输入回写到 pt.name
-                    idTextBox.TextChanged += (s, edc) =>
-                    {
-                        pt.name = idTextBox.Text;
-                    };
-                    rowPanel.Children.Add(idTextBox);
 
                     // 添加可编辑的 ID 输入框
                     var idTextBox = new TextBox
@@ -310,6 +304,7 @@ namespace AkribisFAM.Windows
                         pt.name = idTextBox.Text;
                     };
                     rowPanel.Children.Add(idTextBox);
+
 
 
                     rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
