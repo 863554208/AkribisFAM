@@ -380,55 +380,59 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public bool BoardOut()
+        public void BoardOut()
         {
-            bool ret;
+            GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
+            GlobalManager.Current.flag_TrayProcessCompletedNumber++;
+            #region 使用新的传送带控制逻辑
+            //bool ret;
             
-            Set("station3_IsBoardOut", true);
+            //Set("station3_IsBoardOut", true);
 
-            while (Reject.Current.board_count != 0)
-            {
-                Thread.Sleep(300);
-            }
+            //while (Reject.Current.board_count != 0)
+            //{
+            //    Thread.Sleep(300);
+            //}
 
-            //模拟给下一个工位发进板信号
-            if (GlobalManager.Current.SendByPassToStation3)
-            {
-                GlobalManager.Current.SendByPassToStation4 = true;
-            }
-            GlobalManager.Current.IO_test4 = true;
+            ////模拟给下一个工位发进板信号
+            //if (GlobalManager.Current.SendByPassToStation3)
+            //{
+            //    GlobalManager.Current.SendByPassToStation4 = true;
+            //}
+            //GlobalManager.Current.IO_test4 = true;
 
-            //顶起气缸下降
-            StopConveyor();
-            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
+            ////顶起气缸下降
+            //StopConveyor();
+            //SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
 
-            Thread.Sleep(100);
-            SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
-            SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
-            SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
-            //等待顶起气缸下降信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
-            ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
+            //Thread.Sleep(100);
+            //SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
+            //SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
+            //SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
+            //if (CheckState(true) == 1)
+            //{
+            //    return false;
+            //}
+            ////等待顶起气缸下降信号
+            //ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
+            //ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
 
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, true);
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, false);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            Set("station3_IsBoardOut", true);
-            board_count--;
-            return true;
+            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, true);
+            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, false);
+            //if (CheckState(ret) == 1)
+            //{
+            //    return false;
+            //}
+            //Set("station3_IsBoardOut", true);
+            //board_count--;
+            //return true;
+            #endregion
         }
 
         public override void AutoRun(CancellationToken token)
@@ -439,13 +443,21 @@ namespace AkribisFAM.WorkStation
                 {
 
                 step1:
-                    if (!GlobalManager.Current.IO_test3 || board_count != 0)
-                    {
-                        Thread.Sleep(100);
-                        continue;
-                    }
+                    //if (!GlobalManager.Current.IO_test3 || board_count != 0)
+                    //{
+                    //    Thread.Sleep(100);
+                    //    continue;
+                    //}
                     GlobalManager.Current.current_FuJian_step = 1;
-                    BoardIn();
+
+
+                    //BoardIn();
+                    while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
+                    {
+                        Thread.Sleep(300);
+                    }
+                    GlobalManager.Current.flag_RecheckTrayArrived = 0;
+                    Thread.Sleep(5000);
                     if (GlobalManager.Current.FuJian_exit) break;
 
                     //20250521 测试 史彦洋

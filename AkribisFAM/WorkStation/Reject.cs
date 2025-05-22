@@ -201,7 +201,9 @@ namespace AkribisFAM.WorkStation
             //挡板气缸上气
             SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
             SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+
             Set("station4_IsBoardInHighSpeed", false);
+
             Set("station4_IsBoardInLowSpeed", true);
             if (CheckState(ret) == 1)   return false;
         
@@ -233,17 +235,20 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
             Set("station4_IsLifting", false);
-            ResumeConveyor();
+            //先等待有信号，再等待没信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            //ResumeConveyor();
             if (CheckState(true) == 1)
             {
                 return false;
             }
-            //NG位感应IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            Thread.Sleep(300);
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
             if (CheckState(ret) == 1)
             {
                 return false;
             }
+            Thread.Sleep(1000);
             //顶起气缸下降
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
@@ -267,11 +272,12 @@ namespace AkribisFAM.WorkStation
             board_count -= 1;
             hasNGboard = true;
 
-            Task<bool> task = new Task<bool>(() =>
-            {
-                return DetectNG();
-            });
-            task.Start();
+            DetectNG();
+            //Task<bool> task = new Task<bool>(() =>
+            //{
+            //    return DetectNG();
+            //});
+            //task.Start();
             return true;
         }
 
@@ -280,12 +286,14 @@ namespace AkribisFAM.WorkStation
             bool ret;
             //发送出料信号
             SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
+
             if (CheckState(true) == 1)
             {
                 return false;
             }
             //等待允许出料信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            ret = WaitIO(999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -376,11 +384,22 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-                    step1:
-                        if (!GlobalManager.Current.IO_test4 || board_count != 0) {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                step1:
+                    //if (!GlobalManager.Current.IO_test4 || board_count != 0) {
+                    //    Thread.Sleep(100);
+                    //    continue;
+                    //}
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
+                    Debug.WriteLine("NG工位第一步");
+                    while (GlobalManager.Current.flag_RecheckStationRequestOutflowTray != 1)
+                    {
+                        Thread.Sleep(50);
+                    }
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 0;
+                    GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
+                    Thread.Sleep(10000);
+                    continue;
+
                         GlobalManager.Current.current_Reject_step = 1;
                         Console.WriteLine("第四个工位进板");
                         BoardIn();

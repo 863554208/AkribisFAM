@@ -13,6 +13,7 @@ using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using System.Windows.Controls;
+using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
 {
@@ -172,9 +173,15 @@ namespace AkribisFAM.WorkStation
         }
         public void BoardOut()
         {
+            Logger.WriteLog("组装工站执行完成");
+            AkrAction.Current.MoveNoWait(AxisName.FSX, (double)3.0, (int)AxisSpeed.FSX);
+            AkrAction.Current.Move(AxisName.FSY, (double)3.0, (int)AxisSpeed.FSY);
+            Thread.Sleep(5000);
+            GlobalManager.Current.flag_TrayProcessCompletedNumber++;
+            #region 使用新的传送带控制逻辑
             Set("station2_IsBoardOut", true);
-
-            while(FuJian.Current.board_count != 0)
+            
+            while (FuJian.Current.board_count != 0)
             {
                 Thread.Sleep(300);
             }
@@ -224,7 +231,7 @@ namespace AkribisFAM.WorkStation
 
             Set("station2_IsBoardOut", false);
             board_count--;
-
+            #endregion
         }
 
         public void WaitConveyor(int type)
@@ -334,6 +341,7 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(300);
             }
 
+            Thread.Sleep(1000);
             ////接受Cognex的信息
             //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
             //msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
@@ -668,11 +676,17 @@ namespace AkribisFAM.WorkStation
         public bool Step1()
         {
             //测试用
-            Debug.WriteLine("ZuZhuang.Current.Step1()");
-            
-            if (!BoradIn())
-                return false;
+            Logger.WriteLog("等待组装工位");
 
+            //进板
+            //if (!BoradIn())
+            //    return false;
+            while (GlobalManager.Current.flag_assembleTrayArrived != 1)
+            {
+                Thread.Sleep(300);
+            }
+            GlobalManager.Current.flag_assembleTrayArrived = 0;
+            Logger.WriteLog("组装工位开始");
             GlobalManager.Current.current_Zuzhuang_step = 1;
 
             //将当前穴位信息清空
@@ -844,12 +858,14 @@ namespace AkribisFAM.WorkStation
                 {
 
                     step1:
-                        if (!GlobalManager.Current.IO_test2 || board_count != 0)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                        //if (!GlobalManager.Current.IO_test2 || board_count != 0)
+                        //{
+                        //    Thread.Sleep(100);
+                        //    continue;
+                        //}
+
                          Step1();
+
                         //var task1 = Task.Run(() => Step1());
                         
                         if (GlobalManager.Current.SendByPassToStation2) goto step9;

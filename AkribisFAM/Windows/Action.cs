@@ -764,7 +764,7 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 20000.0);
 
                 case AxisName.FSX:
-                    return (double)(pulse / 20000.0);
+                    return (double)(pulse / 10000.0);
 
                 case AxisName.FSY:
                     return (double)(pulse / 10000.0);
