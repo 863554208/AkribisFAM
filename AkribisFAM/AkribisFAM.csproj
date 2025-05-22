@@ -247,12 +247,12 @@
       <DependentUpon>Performance.xaml</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
+    <Compile Include="WorkStation\Conveyor.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
     <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\TestStation1.cs" />
-    <Compile Include="WorkStation\TestStation2.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="Dict\AppResource_en_US.xaml">
       <Generator>MSBuild:Compile</Generator>

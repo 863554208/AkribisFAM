@@ -104,6 +104,11 @@ namespace AkribisFAM.WorkStation
             AkrAction.Current.MoveConveyor(vel);
         }
 
+        public void MoveNGConveyor(int vel)
+        {
+            AkrAction.Current.MoveNGConveyor(vel);
+        }
+
         public void StopConveyor()
         {
             AkrAction.Current.StopConveyor();
@@ -185,38 +190,32 @@ namespace AkribisFAM.WorkStation
         {
             bool ret;
             //进入后改回false
-            GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] = false;
+            Set("IO_test4", false);
             Set("station4_IsBoardInHighSpeed", true);
-            //Set("IO_test4", false);
+            
             //传送带高速移动
             MoveConveyor((int)AxisSpeed.BL4);
-            MoveConveyor((int)AxisSpeed.BR4);
+            MoveNGConveyor((int)AxisSpeed.BL4);
+
             errorCode = ErrorCode.AGM800Err;
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
+            if (CheckState(true) == 1) return false;
+
             //等待减速IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
-            Set("station4_IsBoardInHighSpeed", false);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
+            ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
             //挡板气缸上气
             SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
             SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+
+            Set("station4_IsBoardInHighSpeed", false);
+
             Set("station4_IsBoardInLowSpeed", true);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
+            if (CheckState(ret) == 1)   return false;
+        
             //传送带减速
-            MoveConveyor(100);
+            MoveConveyor(10);
             //等待停止IO
             ret = WaitIO(9999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
-            Set("station4_IsBoardInLowSpeed", false);
-            Set("station4_IsBoardIn", false);
+            Set("station4_IsBoardInLowSpeed", false); 
             Set("station4_IsLifting", true);
             if (CheckState(ret) == 1)
             {
@@ -229,7 +228,8 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            Set("station4_IsBoardOut", true);
+            Set("station4_IsLifting", false);
+            Set("station4_IsBoardIn", false);
             return true;
         }
 
@@ -239,17 +239,20 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
             Set("station4_IsLifting", false);
-            ResumeConveyor();
+            //先等待有信号，再等待没信号
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            //ResumeConveyor();
             if (CheckState(true) == 1)
             {
                 return false;
             }
-            //NG位感应IO
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
+            Thread.Sleep(300);
+            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
             if (CheckState(ret) == 1)
             {
                 return false;
             }
+            Thread.Sleep(1000);
             //顶起气缸下降
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
@@ -273,11 +276,12 @@ namespace AkribisFAM.WorkStation
             board_count -= 1;
             hasNGboard = true;
 
-            Task<bool> task = new Task<bool>(() =>
-            {
-                return DetectNG();
-            });
-            task.Start();
+            DetectNG();
+            //Task<bool> task = new Task<bool>(() =>
+            //{
+            //    return DetectNG();
+            //});
+            //task.Start();
             return true;
         }
 
@@ -286,12 +290,14 @@ namespace AkribisFAM.WorkStation
             bool ret;
             //发送出料信号
             SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
+
             if (CheckState(true) == 1)
             {
                 return false;
             }
             //等待允许出料信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            ret = WaitIO(999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+            
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -382,17 +388,24 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-                    //20250519 测试 【史彦洋】 追加 Start
-                    Console.WriteLine("zuzhuang ceshi 1");
-                    Thread.Sleep(1000);
+                step1:
+                    //if (!GlobalManager.Current.IO_test4 || board_count != 0) {
+                    //    Thread.Sleep(100);
+                    //    continue;
+                    //}
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
+                    Debug.WriteLine("NG工位第一步");
+                    while (GlobalManager.Current.flag_RecheckStationRequestOutflowTray != 1)
+                    {
+                        Thread.Sleep(50);
+                    }
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 0;
+                    GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
+                    Thread.Sleep(10000);
                     continue;
 
-                    step1:
-                        if (!GlobalManager.Current.IOTable[(int)IO.Reject_BoardIn] || board_count != 0) {
-                            Thread.Sleep(100);
-                            continue;
-                        }
                         GlobalManager.Current.current_Reject_step = 1;
+                        Console.WriteLine("第四个工位进板");
                         BoardIn();
                         if (GlobalManager.Current.Reject_exit) break;
 
