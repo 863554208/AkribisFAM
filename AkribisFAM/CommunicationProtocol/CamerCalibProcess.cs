@@ -72,12 +72,12 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //移动到载具标定拍照位
-                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3]);
+                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3], NozzleNumber.Nozzle1);
 
                 //移动到预取标定片位
-                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3]);
+                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3], NozzleNumber.Nozzle1);
                 //移动到取标定片位
-                MoveAxisDirectControl(Movepickmylar[0], Movepickmylar[1], Movepickmylar[2], Movepickmylar[3]);
+                MoveAxisDirectControl(Movepickmylar[0], Movepickmylar[1], Movepickmylar[2], Movepickmylar[3], NozzleNumber.Nozzle1);
 
                 Thread.Sleep(500);//延时
                 //取标定片指令发送
@@ -86,10 +86,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //移动到预取标定片位
-                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3]);
+                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3], NozzleNumber.Nozzle1);
 
                 //移动到载具标定拍照位
-                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3]);
+                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3], NozzleNumber.Nozzle1);
 
 
                 Thread.Sleep(500);//延时
@@ -99,10 +99,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //移动到预取标定片位
-                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3]);
+                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3], NozzleNumber.Nozzle1);
 
                 //移动到取标定片位
-                MoveAxisDirectControl(Movepickmylar[0], Movepickmylar[1], Movepickmylar[2], Movepickmylar[3]);
+                MoveAxisDirectControl(Movepickmylar[0], Movepickmylar[1], Movepickmylar[2], Movepickmylar[3], NozzleNumber.Nozzle1);
 
                 Thread.Sleep(500);//延时
                                   //吸嘴吸气
@@ -110,10 +110,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 Thread.Sleep(500);//延时
 
                 //移动到预取标定片位
-                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3]);
+                MoveAxisDirectControl(MoveReservepickmylar[0], MoveReservepickmylar[1], MoveReservepickmylar[2], MoveReservepickmylar[3], NozzleNumber.Nozzle1);
 
                 //移动到载具标定拍照位
-                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3]);
+                MoveAxisDirectControl(MoveVehiclesPhotoposition[0], MoveVehiclesPhotoposition[1], MoveVehiclesPhotoposition[2], MoveVehiclesPhotoposition[3], NozzleNumber.Nozzle1);
 
                 //进入11点位置循环
                 if (!Point11Calibongoing(NozzleNumber.Nozzle1))
@@ -121,13 +121,13 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //移动到飞达标定拍照位
-                MoveAxisDirectControl(MoveFeedPhotoposition[0], MoveFeedPhotoposition[1], MoveFeedPhotoposition[2], MoveFeedPhotoposition[3]);
+                MoveAxisDirectControl(MoveFeedPhotoposition[0], MoveFeedPhotoposition[1], MoveFeedPhotoposition[2], MoveFeedPhotoposition[3], NozzleNumber.Nozzle1);
 
                 //移动到预放标定片位
-                MoveAxisDirectControl(MoveReservePutmylar[0], MoveReservePutmylar[1], MoveReservePutmylar[2], MoveReservePutmylar[3]);
+                MoveAxisDirectControl(MoveReservePutmylar[0], MoveReservePutmylar[1], MoveReservePutmylar[2], MoveReservePutmylar[3], NozzleNumber.Nozzle1);
 
                 //移动到放标定片位
-                MoveAxisDirectControl(Moveputmylar[0], Moveputmylar[1], Moveputmylar[2], Moveputmylar[3]);
+                MoveAxisDirectControl(Moveputmylar[0], Moveputmylar[1], Moveputmylar[2], Moveputmylar[3], NozzleNumber.Nozzle1);
 
                 Thread.Sleep(500);
                 //吸嘴停止吸气
@@ -139,10 +139,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //移动到预放标定片位
-                MoveAxisDirectControl(MoveReservePutmylar[0], MoveReservePutmylar[1], MoveReservePutmylar[2], MoveReservePutmylar[3]);
+                MoveAxisDirectControl(MoveReservePutmylar[0], MoveReservePutmylar[1], MoveReservePutmylar[2], MoveReservePutmylar[3], NozzleNumber.Nozzle1);
 
                 //移动到飞达标定拍照位
-                MoveAxisDirectControl(MoveFeedPhotoposition[0], MoveFeedPhotoposition[1], MoveFeedPhotoposition[2], MoveFeedPhotoposition[3]);
+                MoveAxisDirectControl(MoveFeedPhotoposition[0], MoveFeedPhotoposition[1], MoveFeedPhotoposition[2], MoveFeedPhotoposition[3],NozzleNumber.Nozzle1);
 
 
                 Thread.Sleep(500);
@@ -225,7 +225,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                             return false;
                         }
                         //移动到拍照位
-                        MoveAxisDirectControl(values[0], values[1], values[2], values[3]);//x,y,z,r
+                        MoveAxisDirectControl(values[0], values[1], values[2], values[3], NozzleNumber.Nozzle1);//x,y,z,r
 
 
                         Thread.Sleep(800);
@@ -273,7 +273,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             for (int i = 0; i < DownCameramoveAxisNozzle.Count; i++)
             {
                 //移动到拍照位
-                MoveAxis(i);
+                MoveAxis(i, nozzleNumber);
 
                 Thread.Sleep(800);
 
@@ -317,7 +317,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             return true;
         }
 
-        private void MoveAxis(int Index)//移动轴到目标点位
+        private void MoveAxis(int Index, NozzleNumber nozzleNumber)//移动轴到目标点位
         {
             var PointArray = DownCameramoveAxisNozzle[Index] as JArray;//第几个移动点
             double[] values = PointArray.Select(x => (double)x).ToArray();//x,y,z,r
@@ -327,7 +327,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 MessageBox.Show($"{PointArray}点位空");
                 return;
             }
-            MoveAxisDirectControl(values[0], values[1], values[2], values[3]);
+            MoveAxisDirectControl(values[0], values[1], values[2], values[3], nozzleNumber);
         }
 
         private bool CamerCombinePhotoCalib(CombineCalibProcess combineCalibProcess, string Data)//联合标定拍照判断
@@ -460,12 +460,47 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }
         }
 
-        private void MoveAxisDirectControl(double x, double y, double z, double r)//直接控制轴运动，及到位判断
+        private void MoveAxisDirectControl(double x, double y, double z, double r, NozzleNumber nozzleNumber)//直接控制轴运动，及到位判断
         {
-            AkrAction.Current.Move(GlobalManager.AxisName.PRX, Convert.ToInt32(x * 10000), (int)AxisSpeed.PRX);//x轴运动x
-            AkrAction.Current.Move(GlobalManager.AxisName.PRY, Convert.ToInt32(y * 10000), (int)AxisSpeed.PRY);//y轴运动y
-            AkrAction.Current.Move(GlobalManager.AxisName.PRZ, Convert.ToInt32(z * 10000), (int)AxisSpeed.PRZ); //z轴运动z
-            AkrAction.Current.Move(GlobalManager.AxisName.PICK1_T, Convert.ToInt32(r * 10000), (int)AxisSpeed.PICK1_T); //r轴运动r
+            AkrAction.Current.Move(GlobalManager.AxisName.FSX, Convert.ToInt32(x * 10000), (int)AxisSpeed.FSX);//x轴运动x
+            AkrAction.Current.Move(GlobalManager.AxisName.FSY, Convert.ToInt32(y * 10000), (int)AxisSpeed.FSY);//y轴运动y
+
+            switch (nozzleNumber)
+            {
+                case NozzleNumber.Nozzle1:
+                    {
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, z, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_T, r, (int)AxisSpeed.PICK1_T); //r轴运动r
+                    }
+                    break;
+                case NozzleNumber.Nozzle2:
+                    {
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, z, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK2_T, r, (int)AxisSpeed.PICK2_T); //r轴运动r
+
+                    }
+                    break;
+                case NozzleNumber.Nozzle3:
+                    {
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, z, (int)AxisSpeed.PICK3_Z); //z轴运动z
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK3_T, r, (int)AxisSpeed.PICK3_T); //r轴运动r
+
+                    }
+                    break;
+                case NozzleNumber.Nozzle4:
+                    {
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, z, (int)AxisSpeed.PICK4_Z); //z轴运动z
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK4_T, r, (int)AxisSpeed.PICK4_T); //r轴运动r
+
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+
+
+
         }
     }
 

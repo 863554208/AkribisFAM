@@ -39,7 +39,6 @@
                 <Button x:Name="Capturebtn" Content="Capture" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Width="78" Click="Capturebtn_Click"/>
                 <Button x:Name="Loadbtn" Content="Load" HorizontalAlignment="Center" Grid.Row="3" VerticalAlignment="Center" Width="78" Click="Loadbtn_Click"/>
                 <Button x:Name="Savebtn" Content="Save" HorizontalAlignment="Center" Grid.Row="4" VerticalAlignment="Center" Width="78" Click="Savebtn_Click"/>
-                <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" Grid.Row="8" VerticalAlignment="Center" Click="JointCalib_Click"/>
 
                 <Grid Grid.Row="5">
                     <Grid.RowDefinitions>
@@ -93,6 +92,26 @@
                             <Button x:Name="Save11points" Grid.Column="1" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Save11points_Click"/>
                         </Grid>
                     </Grid>
+                </Grid>
+                <Grid Grid.Row="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" VerticalAlignment="Center" Click="JointCalib_Click" Grid.Row="1" />
+                    <Button x:Name="Save" Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Click="JointCalibSave_Click" Grid.Row="1" Grid.Column="1" />
+                    <ComboBox x:Name="JointBox" Grid.ColumnSpan="2" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="120">
+                        <ComboBoxItem Content="MoveVehiclesPhotoposition"/>
+                        <ComboBoxItem Content="MoveReservepickmylar"/>
+                        <ComboBoxItem Content="Movepickmylar"/>
+                        <ComboBoxItem Content="MoveFeedPhotoposition"/>
+                        <ComboBoxItem Content="MoveReservePutmylar"/>
+                        <ComboBoxItem Content="Moveputmylar"/>
+                    </ComboBox>
                 </Grid>
             </Grid>
         </GroupBox>

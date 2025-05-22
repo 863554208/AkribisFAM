@@ -382,16 +382,109 @@ namespace AkribisFAM.Windows
             }
         }
 
+        private Dictionary<int, string> nozzlepair = new Dictionary<int, string>() {
+        { 0,"Nozzle1" },
+        { 1,"Nozzle2" },
+        { 2,"Nozzle3" },
+        { 3,"Nozzle4" },
+        };
+
         private void Save11points_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = Points11CalibNum.SelectedIndex;
             string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
             string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
             JObject obj = JObject.Parse(json);
+            double X = double.Parse(Xpos.Text);
+            double Y = double.Parse(Ypos.Text);
+            double Z = double.Parse(Zpos.Text);
+            double R = double.Parse(Rpos.Text);
             double XstepV = double.Parse(Xstep.Text);
             double YstepV = double.Parse(Ystep.Text);
             double RstepV = double.Parse(Rstep.Text);
 
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][0] = X;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][1] = Y;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][0][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][0] = X + XstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][1] = Y;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][1][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][0] = X + XstepV*2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][1] = Y;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][2][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][0] = X + XstepV * 2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][1] = Y + YstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][3][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][0] = X + XstepV * 2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][1] = Y + YstepV * 2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][4][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][0] = X + XstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][1] = Y + YstepV * 2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][5][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][0] = X;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][1] = Y + YstepV * 2;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][6][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][0] = X;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][1] = Y + YstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][7][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][0] = X + XstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][1] = Y + YstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][8][3] = R;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][0] = X + XstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][1] = Y + YstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][9][3] = R + RstepV;
+
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][0] = X + XstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][1] = Y + YstepV;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][2] = Z;
+            obj["DownCameraMoveAxisCalibposition"][nozzlepair[nozzlenum]][10][3] = R - RstepV;
+
+            File.WriteAllText(filePath, obj.ToString());
+        }
+
+        private Dictionary<int, string> jointpair = new Dictionary<int, string>() {
+            {0, "MoveVehiclesPhotoposition" },
+            {1, "MoveReservepickmylar" },
+            {2, "Movepickmylar" },
+            {3, "MoveFeedPhotoposition" },
+            {4, "MoveReservePutmylar" },
+            {5, "Moveputmylar" },
+        };
+        private void JointCalibSave_Click(object sender, RoutedEventArgs e)
+        {
+            int pointnum = JointBox.SelectedIndex;
+            string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
+            string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+            JObject obj = JObject.Parse(json);
+            double X = double.Parse(Xpos.Text);
+            double Y = double.Parse(Ypos.Text);
+            double Z = double.Parse(Zpos.Text);
+            double R = double.Parse(Rpos.Text);
+
+            obj["CombineCalibProcessposition"][jointpair[pointnum]][0] = X;
+            obj["CombineCalibProcessposition"][jointpair[pointnum]][1] = Y;
+            obj["CombineCalibProcessposition"][jointpair[pointnum]][2] = Z;
+            obj["CombineCalibProcessposition"][jointpair[pointnum]][3] = R;
+            File.WriteAllText(filePath, obj.ToString());
         }
     }
 }
