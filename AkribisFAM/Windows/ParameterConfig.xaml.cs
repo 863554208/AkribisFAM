@@ -270,7 +270,7 @@ namespace AkribisFAM.Windows
 
             foreach (var Node in GlobalManager.Current.stationPoints.FuJianPointList)
             {
-                if (Node.name.Equals("Tearing Points"))
+                if (Node.name != null && Node.name.Equals("Tearing Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -284,7 +284,7 @@ namespace AkribisFAM.Windows
                         GlobalManager.Current.tearingPoints.Add(temp);
                     }
                 }
-                if (Node.name.Equals("Recheck Points"))
+                if (Node.name != null && Node.name.Equals("Recheck Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {

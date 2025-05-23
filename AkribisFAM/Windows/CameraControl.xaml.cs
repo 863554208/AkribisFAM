@@ -434,7 +434,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 90,
+                        Width = 100,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -763,7 +763,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 90,
+                        Width = 100,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -1194,7 +1194,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 90,
+                    Width = 100,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -1511,7 +1511,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 90,
+                    Width = 100,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
