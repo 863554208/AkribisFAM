@@ -23,7 +23,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <!--<Label Content="{Binding}" Grid.Column="0" HorizontalAlignment="Left"/>-->
-                    <Button x:Name="btnMoveToPosLaserCheckAll" Grid.Column="1" Margin="10 0" Content="Move and check all" HorizontalAlignment="Right"/>
+                    <Button x:Name="btnMoveToPosLaserCheckAll" Grid.Column="1" Margin="10 0" Content="Move and check all" HorizontalAlignment="Right"
+                            Click="btnMoveToPosLaserCheckAll_Click"/>
                 </Grid>
             </Border>
             <ScrollViewer Grid.Row="1">

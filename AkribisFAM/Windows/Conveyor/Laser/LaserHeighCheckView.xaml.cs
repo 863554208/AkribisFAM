@@ -1,10 +1,14 @@
 ﻿using AkribisFAM.Manager;
+using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
+using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.Windows
 {
@@ -13,6 +17,8 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class LaserHeighCheckView : UserControl
     {
+        LaserHeighCheckVM vm;
+        bool stopAllMotion = false;
         public class LaserHeighCheckVM
         {
 
@@ -115,6 +121,40 @@ namespace AkribisFAM.Windows
 
             //Points = new ObservableCollection<SinglePoint>(GlobalManager.Current.laserPoints);
             //DataContext = Points;
+        }
+
+        private void btnCheckAllTeachPoint_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            stopAllMotion = false;
+            if (vm != null)
+            {
+                Task.Run(() =>
+                {
+                    foreach (var pts in vm.Points)
+                    {
+                        foreach (var pt in pts)
+                        {
+                            if (!stopAllMotion)
+                            {
+                                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+                                AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                                App.laser.Measure(out int readout);
+                                Thread.Sleep(50);
+                            }
+                        }
+                    }
+
+                });
+            }
+        }
+
+        private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            stopAllMotion = true;
+            Task.Run(() =>
+            {
+                AkrAction.Current.StopAllAxis();
+            });
         }
     }
 }

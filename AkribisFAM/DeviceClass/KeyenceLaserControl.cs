@@ -29,12 +29,23 @@ namespace AkribisFAM.DeviceClass
             };
             string req = "1,0" + "\r";
             sendKDistanceAppend.Add(temp);
-            Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
+            if (!Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req))
+            {
+                Logger.WriteLog("Failed to send MS Data");
+                return false;
+            }
 
             //得到测量结果
             AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
+            if (AcceptKDistanceAppend != null)
+            {
+                Logger.WriteLog("Failed to receive MS response");
+                return false;
+            }
+
             var res = AcceptKDistanceAppend[0].MeasurData;
             Logger.WriteLog("激光测距结果:" + res);
+
             return true;
         }
     }

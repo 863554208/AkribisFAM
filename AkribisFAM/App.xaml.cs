@@ -21,6 +21,7 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.Helper;
+using AkribisFAM.DeviceClass;
 
 namespace AkribisFAM
 {
@@ -32,6 +33,7 @@ namespace AkribisFAM
         public static IDatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
         public static RecipeManager recipeManager;
+        public static KeyenceLaserControl laser;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -56,6 +58,7 @@ namespace AkribisFAM
 			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
 
             recipeManager = new RecipeManager();
+            laser = new KeyenceLaserControl();
 
 
             //TODO
