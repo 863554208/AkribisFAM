@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using static AkribisFAM.GlobalManager;
 
@@ -63,7 +64,7 @@ namespace AkribisFAM.Manager
 
             if (GlobalManager.Current.IsPause)
             {
-                Console.WriteLine("执行暂停");
+                Logger.WriteLog("来料部分执行暂停");
                 GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 999999;
             }
 

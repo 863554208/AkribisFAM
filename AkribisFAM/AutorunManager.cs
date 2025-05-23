@@ -17,6 +17,7 @@ using AkribisFAM.NewStation;
 using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
+using AkribisFAM.Windows;
 
 namespace AkribisFAM
 {
@@ -60,6 +61,40 @@ namespace AkribisFAM
             return true;
         }
 
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
+        }
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
+            {
+                if (ReadIO(index) == value)
+                {
+                    ret = true;
+                    break;
+                }
+                Thread.Sleep(50);
+            }
+
+            return ret;
+        }
+
         public async void AutoRunMain(CancellationToken token)
         {
             if (!CheckTaskReady())
@@ -77,6 +112,8 @@ namespace AkribisFAM
             try
             {
                 Trace.WriteLine("Autorun Process");
+
+                ParameterConfig.LoadPoints();
 
                 try
                 {
@@ -247,6 +284,16 @@ namespace AkribisFAM
             //Thread.Sleep(5000);
             //return true;
 
+            //飞达复位
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
+
+            //需要这两个信号都是0，代表电机可以复位，安全门也可以复位
+            if(!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, false) && !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, false))
+            {
+                return false;
+            }
+
+
             //单独对Z轴下使能
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
@@ -263,20 +310,29 @@ namespace AkribisFAM
             //复位气缸和吸嘴IO
             CylinderDown();
             Logger.WriteLog("3333");
+
+
+            //再次吸嘴上气
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+            Thread.Sleep(20);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+            Thread.Sleep(20);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
+            Thread.Sleep(20);
+
             //轴使能
             AkrAction.Current.axisAllEnable(true);
-            Logger.WriteLog("4444");
+ 
             //轴回原点
+
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
 
             AkrAction.Current.WaitAxisAll();
-            Logger.WriteLog("66666");
+ 
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
-
-            //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
-            LaiLiao.Current.board_count = 1;
 
 
             if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
@@ -287,9 +343,6 @@ namespace AkribisFAM
 
             //传送带停止
             AkrAction.Current.StopConveyor();
-
-            //飞达复位
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
 
             //激光测距复位(tcp)
@@ -332,6 +385,11 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            //让飞达送料
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1 , 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+            Thread.Sleep(20);
 
             return true;
         }

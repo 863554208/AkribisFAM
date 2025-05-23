@@ -76,7 +76,7 @@ namespace AkribisFAM
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
-            LoadLaserPoints();
+            //LoadLaserPoints();
             SetLanguage("en-US");
 
 
@@ -168,7 +168,7 @@ namespace AkribisFAM
                         }
                     }
                 }
-                GlobalManager.Current.laserPoints = flatList;
+                //GlobalManager.Current.laserPoints = flatList;
             }
             catch { }
 

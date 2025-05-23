@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using static AkribisFAM.WorkStation.Reject;
 using System.IO;
 using AkribisFAM.Helper;
+using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
 {
@@ -186,7 +187,7 @@ namespace AkribisFAM.WorkStation
             //}
         }
 
-        const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
+        const int modulenum = 12;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
         [JsonObject]
         public class FuJianPoint
         {
@@ -198,35 +199,35 @@ namespace AkribisFAM.WorkStation
             public double z { get; set; }
         }
 
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//modulenum
+        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//26
 
         public StationPoints stationPoints = new StationPoints();
         public void readPointJson() {
             try
             {
-                //string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                //string path = folder + "\\FuJianPoints.json";
-                //string content = File.ReadAllText(path);
-                //Pointlist = JsonConvert.DeserializeObject<List<FuJianPoint>>(content);
-                //if (Pointlist == null)
-                //{
-                //    return;
-                //}
                 string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                string path = folder + "\\Station_points5.json";
-                FileHelper.LoadConfig<StationPoints>(path, out stationPoints);
-                for(int i = 0; i < stationPoints.FuJianPointList.Count; ++i)
-                {
-                    FuJianPoint fuJianPoint = new FuJianPoint();
-                    fuJianPoint.x = stationPoints.FuJianPointList[i].X;
-                    fuJianPoint.y = stationPoints.FuJianPointList[i].Y;
-                    fuJianPoint.z = stationPoints.FuJianPointList[i].Z;
-                    Pointlist.Add(fuJianPoint);
-                }
-                if (stationPoints == null)
+                string path = folder + "\\FuJianPoints.json";
+                string content = File.ReadAllText(path);
+                Pointlist = JsonConvert.DeserializeObject<List<FuJianPoint>>(content);
+                if (Pointlist == null)
                 {
                     return;
                 }
+                //string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
+                //string path = folder + "\\Station_points5.json";
+                //FileHelper.LoadConfig<StationPoints>(path, out stationPoints);
+                //for(int i = 0; i < stationPoints.FuJianPointList.Count; ++i)
+                //{
+                //    FuJianPoint fuJianPoint = new FuJianPoint();
+                //    fuJianPoint.x = stationPoints.FuJianPointList[i].X;
+                //    fuJianPoint.y = stationPoints.FuJianPointList[i].Y;
+                //    fuJianPoint.z = stationPoints.FuJianPointList[i].Z;
+                //    Pointlist.Add(fuJianPoint);
+                //}
+                //if (stationPoints == null)
+                //{
+                //    return;
+                //}
             }
             catch
             {
@@ -296,26 +297,31 @@ namespace AkribisFAM.WorkStation
         {
             bool ret;
             //撕膜
-            for(int i = 0; i < modulenum; ++i)
+            for(int i = 0; i < 3; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
+                Logger.WriteLog("开始执行撕膜X");
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                Logger.WriteLog("开始执行撕膜Y");
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //移动z轴下降
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
+                Logger.WriteLog("AAAAAAAAAAAAA");
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
+                Logger.WriteLog("BBBBBBBBBBBBBB");
                 //夹爪气缸打开
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
                 ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                Logger.WriteLog("CCCCCCCCCCCC");
                 if (CheckState(ret) == 1)
                 {
                     return false;
@@ -325,23 +331,37 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
                 //检测到位信号
                 ret = WaitIO(9999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+                Logger.WriteLog("DDDDDDDDDDDDDD");
                 if (CheckState(ret) == 1)
                 {
                     return false;
                 }
+                Thread.Sleep(500);
                 //移动撕膜
-                AkrAction.Current.MoveRel(AxisName.PRY, 10, 10);
-                AkrAction.Current.MoveRel(AxisName.PRZ, 10, 10);
+                AkrAction.Current.MoveRel(AxisName.PRY, 5, 10);
+                AkrAction.Current.MoveRel(AxisName.PRZ, -0.5, 10);
+                Logger.WriteLog("EEEEEEEEEEEEEE");
                 //Z轴上升
-                AkrAction.Current.Move(AxisName.PRZ, Pointlist[26].z);
+                //TODO 
+                int agmIndex = (int)AxisName.PRZ / 8;
+                int axisRefNum = (int)AxisName.PRZ % 8;
+                while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+                {
+                    //TODO 加入退出机制
+                    Thread.Sleep(50);
+                }
+                Logger.WriteLog("ASDDDDDDDDDDDDDE");
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[25].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
+                Logger.WriteLog("QQQQQQQQQQQQQQQQQQ");
                 //移动到蓝膜收集处
-                AkrAction.Current.Move(AxisName.PRX, Pointlist[12].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y);
-                AkrAction.Current.Move(AxisName.PRZ, Pointlist[12].z);
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[12].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[12].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                Logger.WriteLog("EEEEEEEEEEEEEEEEEEEESADSAD");
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -358,9 +378,10 @@ namespace AkribisFAM.WorkStation
                 //蓝膜收集吸气
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
                 SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 1);
+                AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
                 {
                     return false;
@@ -375,42 +396,47 @@ namespace AkribisFAM.WorkStation
         {
             //复检
             int cnt = 0;
-            for (int i = modulenum + 1; i < modulenum*2+1; ++i)
+            for (int i = 12 + 1; i < 12+3+1; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.SetSingleEvent(AxisName.PRZ, Pointlist[i].z, 1);
-                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y);
-                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z);
+                Logger.WriteLog("EEEE123213ADSAD");
+                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
+                Logger.WriteLog("EEEEEE12312312321EDSAD");
+                AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 //康耐视复检
-                string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
-                TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+                //string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
+                //TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
 
-                //获取康耐视数据
-                string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
-                int cogres;
-                bool ret = int.TryParse(Errcode, out cogres);
-                if (CheckState(ret) == 1)
-                {
-                    return false;
-                }
-                if (cogres != 1)
-                {
-                    //康耐视报错
-                    CheckState(false);
-                }
-                string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
+                ////获取康耐视数据
+                //string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
+                //int cogres;
+                //bool ret = int.TryParse(Errcode, out cogres);
+                //if (CheckState(ret) == 1)
+                //{
+                //    return false;
+                //}
+                //if (cogres != 1)
+                //{
+                //    //康耐视报错
+                //    CheckState(false);
+                //}
+                //string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
                 
                 cnt = cnt + modulestate[i - (modulenum + 1)];
             }
-            if (cnt < modulenum)
-            {
-                GlobalManager.Current.isNGPallete = true;
-            }
+            //20250522 修改 【史彦洋】 追加 
+            GlobalManager.Current.isNGPallete = true;
+            //if (cnt < modulenum)
+            //{
+            //    GlobalManager.Current.isNGPallete = true;
+            //}
+            //20250522 修改 【史彦洋】 End
             return true;
         }
 
@@ -418,9 +444,12 @@ namespace AkribisFAM.WorkStation
         {
             GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
+
+            AkrAction.Current.Move(AxisName.PRX, 39, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+            AkrAction.Current.Move(AxisName.PRY, 50, (int)AxisSpeed.PRY, (int)AxisAcc.PRX);
             #region 使用新的传送带控制逻辑
             //bool ret;
-            
+
             //Set("station3_IsBoardOut", true);
 
             //while (Reject.Current.board_count != 0)
@@ -491,13 +520,7 @@ namespace AkribisFAM.WorkStation
                     }
                     GlobalManager.Current.flag_RecheckTrayArrived = 0;
                     GlobalManager.Current.current_FuJian_step = 1;
-                    Thread.Sleep(5000);
                     if (GlobalManager.Current.FuJian_exit) break;
-
-                    //20250521 测试 史彦洋
-                    goto step4;
-                    //20250521 测试 史彦洋
-
 
                 step2:
                     GlobalManager.Current.current_FuJian_step = 2;
