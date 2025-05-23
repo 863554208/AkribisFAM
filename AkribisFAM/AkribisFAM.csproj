@@ -178,6 +178,7 @@
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DeviceClass\KeyenceLaserControl.cs" />
     <Compile Include="GlobalManager.cs" />
+    <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />

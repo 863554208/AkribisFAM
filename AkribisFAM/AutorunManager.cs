@@ -327,7 +327,7 @@ namespace AkribisFAM
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+
 
             AkrAction.Current.WaitAxisAll();
  
@@ -371,6 +371,7 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
 

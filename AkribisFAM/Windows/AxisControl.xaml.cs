@@ -288,6 +288,18 @@ namespace AkribisFAM.Windows
             updateAxisData(axis);
         }
 
+        private bool CheckConn()
+        {
+            foreach (var item in AAmotionFAM.AGM800.Current.controller)
+            {
+                if (!item.IsConnected)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private void CboxNowAxis_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int nowAxis = CboxNowAxis.SelectedIndex;
@@ -297,6 +309,9 @@ namespace AkribisFAM.Windows
                 AxisListBox.SelectedIndex = nowAxis;
             }
             nowAxisIndex = nowAxis;
+
+            if (!CheckConn()) return;
+
             setUIAxisData(nowAxis);
 
         }
@@ -311,6 +326,9 @@ namespace AkribisFAM.Windows
             }
 
             nowAxisIndex = nowAxis;
+
+            if (!CheckConn()) return;
+
             setUIAxisData(nowAxis);
         }
 
@@ -335,6 +353,8 @@ namespace AkribisFAM.Windows
                 return;
             }
 
+            if (!CheckConn()) return;
+
             //Todo MoveAbs(nowAxisIndex,posValue,velValue,accValue)
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             //AkrAction.Current.Move(axis, posValue, velValue, accValue);
@@ -346,6 +366,8 @@ namespace AkribisFAM.Windows
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
+
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
 
@@ -354,29 +376,28 @@ namespace AkribisFAM.Windows
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             //Todo Home(nowAxisIndex)
-
 
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             if (btn != null && btn.IsChecked == true)
             {
                 AkrAction.Current.axisEnable(axis, true);
-                //Todo   Enable(nowAxisIndex)
             }
             else
             {
-                
                 AkrAction.Current.axisEnable(axis, false);
-                //关闭   DisEnable(nowAxisIndex)
             }
         }
         private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             if (btn != null && btn.IsChecked == true)
             {
@@ -452,6 +473,8 @@ namespace AkribisFAM.Windows
 
         private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             if (!isJogging)
             {
                 isJogging = true;
@@ -460,12 +483,16 @@ namespace AkribisFAM.Windows
         }
         private void JogForwordButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             isJogging = false;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
         }
         private void JogBackwordButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             if (!isJogging)
             {
                 isJogging = true;
@@ -474,6 +501,8 @@ namespace AkribisFAM.Windows
         }
         private void JogBackwordButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             isJogging = false;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
