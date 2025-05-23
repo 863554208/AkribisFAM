@@ -163,6 +163,9 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, retractValue);
             SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, extendValue);
             SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, retractValue);
+            //SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, extendValue);
+            //SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, retractValue);
+
 
             if (extendValue == 1)
             {
@@ -244,7 +247,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
 
                 Logger.WriteLog("皮带任务_皮带低速运行");
-                MoveConveyor(10);
+                MoveConveyor(20);
 
             STEP_WaitStopSig1:
                 Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
@@ -337,27 +340,28 @@ namespace AkribisFAM.WorkStation
                 bool IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
                 Logger.WriteLog("皮带任务_等待任一料盘触发流出阻挡气缸光电信号");
-                while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
-                {
-                    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
-                    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
-                    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
+                System.Threading.Thread.Sleep(3000);
+                //while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
+                //{
+                //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
+                //    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
+                //    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
-                    System.Threading.Thread.Sleep(300);
+                //    System.Threading.Thread.Sleep(300);
 
-                }
+                //}
 
                 Logger.WriteLog("皮带任务_等待所有料盘流出阻挡气缸光电信号");
                 //如果上游设备延迟给料太晚，此次会有bug，后续再想方案处理TODO
-                while (IN1_10 == true || IN1_11 == true || IN6_6 == true)     //所有料盘流出此光电后，退出循环
-                {
-                    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
-                    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
-                    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
+                //while (IN1_10 == true || IN1_11 == true || IN6_6 == true)     //所有料盘流出此光电后，退出循环
+                //{
+                //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
+                //    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
+                //    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
-                    System.Threading.Thread.Sleep(50);
+                //    System.Threading.Thread.Sleep(50);
 
-                }
+                //}
 
                 Logger.WriteLog("皮带任务_再次禁止上游设备送料盘");
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
@@ -380,7 +384,7 @@ namespace AkribisFAM.WorkStation
                 }
             STEP_BeltSlowDown:
                 Logger.WriteLog("皮带任务_皮带减速");
-                MoveConveyor(10);
+                MoveConveyor(20);
 
             STEP_WaitAnyTrayArrived:
 

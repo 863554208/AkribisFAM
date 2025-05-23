@@ -210,7 +210,7 @@ namespace AkribisFAM.WorkStation
         public void WaitAxisAll()
         {
             AkrAction.Current.WaitAxis(AxisName.FSX);
-            //AkrAction.Current.WaitAxis(AxisName.FSY);
+            AkrAction.Current.WaitAxis(AxisName.FSY);
             //AkrAction.Current.WaitAxis(AxisName.LSX);
             //AkrAction.Current.WaitAxis(AxisName.LSY);
             //AkrAction.Current.WaitAxis(AxisName.PRX);
@@ -288,6 +288,12 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public bool StopNGConveyor()
+        {
+            Stop(GlobalManager.AxisName.BL5);
+            Stop(GlobalManager.AxisName.BR5);
+            return true;
+        }
 
 
         public bool MoveConveyor(int vel)
@@ -505,6 +511,37 @@ namespace AkribisFAM.WorkStation
                 #endregion
             }
             catch (Exception e) { }
+
+            return (int)ACTTION_ERR.NONE;
+        }
+
+        public int axisAllZHome(String path)
+        {
+            int agmIndex;
+            int axisRefNum;
+            int temp;
+            string[] fileNames = Directory.GetFiles(path);
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK1_Z_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK2_Z_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK3_Z_homing.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK4_Z_homing.hseq");
+
 
             return (int)ACTTION_ERR.NONE;
         }
