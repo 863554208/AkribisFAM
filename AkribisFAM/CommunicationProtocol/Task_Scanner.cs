@@ -43,7 +43,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
        
-        public static string TriggScannerAcceptData(string SN)//扫码返回SN
+        public static string TriggScannerAcceptData()//扫码返回SN
         {
             try
             {
