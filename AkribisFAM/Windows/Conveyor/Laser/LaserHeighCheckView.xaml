@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.LaserHeighCheckView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+        </Grid.RowDefinitions>
+        <Grid Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5"/>
+            <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
+        </Grid>
+        <local:ProductXYPointsView Grid.Row="1" Margin="10"/>
+
+    </Grid>
+</UserControl>

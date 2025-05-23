@@ -3,17 +3,13 @@
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// Interaction logic for ManualControl.xaml
+    /// Interaction logic for PointXYMoveView.xaml
     /// </summary>
-    public partial class ManualControl : UserControl
+    public partial class PointXYMoveView : UserControl
     {
-        public ManualControl()
+        public PointXYMoveView()
         {
             InitializeComponent();
         }
-
-
-
-
     }
 }

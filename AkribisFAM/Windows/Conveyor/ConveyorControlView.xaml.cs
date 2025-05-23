@@ -3,17 +3,13 @@
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// Interaction logic for ManualControl.xaml
+    /// Interaction logic for ConveyorControlView.xaml
     /// </summary>
-    public partial class ManualControl : UserControl
+    public partial class ConveyorControlView : UserControl
     {
-        public ManualControl()
+        public ConveyorControlView()
         {
             InitializeComponent();
         }
-
-
-
-
     }
 }

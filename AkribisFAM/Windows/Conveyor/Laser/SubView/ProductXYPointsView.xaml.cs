@@ -3,17 +3,13 @@
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// Interaction logic for ManualControl.xaml
+    /// Interaction logic for ProductXYPointsView.xaml
     /// </summary>
-    public partial class ManualControl : UserControl
+    public partial class ProductXYPointsView : UserControl
     {
-        public ManualControl()
+        public ProductXYPointsView()
         {
             InitializeComponent();
         }
-
-
-
-
     }
 }

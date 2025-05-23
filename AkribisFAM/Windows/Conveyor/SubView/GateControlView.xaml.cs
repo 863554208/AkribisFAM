@@ -3,17 +3,13 @@
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// Interaction logic for ManualControl.xaml
+    /// Interaction logic for GateControlView.xaml
     /// </summary>
-    public partial class ManualControl : UserControl
+    public partial class GateControlView : UserControl
     {
-        public ManualControl()
+        public GateControlView()
         {
             InitializeComponent();
         }
-
-
-
-
     }
 }

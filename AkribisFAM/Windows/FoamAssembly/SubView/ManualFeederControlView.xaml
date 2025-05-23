@@ -1,0 +1,119 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.ManualFeederControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="800">
+    <Border BorderThickness="1" CornerRadius="3" BorderBrush="Black">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="5" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Border BorderBrush="Black" BorderThickness="0 0 0 1" Opacity=".5" Margin="10">
+                <Label Content="{Binding station}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14"/>
+            </Border>
+            <StackPanel Orientation="Vertical" Grid.Row="1">
+                <Label Content="Vision CCD1 Motion" Width="150" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left"  Margin="20 0 ">
+                    <RadioButton x:Name="btnMoveStandby" Content="Move to Standby Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
+                </StackPanel>
+                <Button x:Name="btnVis1OTF" Content="On the fly capture" Width="200" Margin="20 10"  Style="{StaticResource MaterialDesignPaperButton}" HorizontalAlignment="Left"/>
+                <StackPanel Orientation="Vertical" Margin="20 0">
+                    <!--<StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsApproaching"/>
+                    </StackPanel>-->
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Row="2" >
+                <Label Content="APC Pickers Motion" Width="150" FontWeight="Bold"  FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <ListBox x:Name="RadioButtonGroupChoiceChipPrimaryOutline" IsEnabled="{Binding MotionButtonEnable}" Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBox}" Margin="0 0 0 10">
+                    <ListBoxItem x:Name="btnPicker1" Content="Picker1" Selected="btnBin_Selected"/>
+                    <ListBoxItem x:Name="btnPicker2" Content="Picker2" Selected="btnBin_Selected"/>
+                    <ListBoxItem x:Name="btnPicker3" Content="Picker3" Selected="btnBin_Selected"/>
+                    <ListBoxItem x:Name="btnPicker4" Content="Picker4" Selected="btnBin_Selected"/>
+                </ListBox>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="20 0 ">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="btnLiftUp" Content="ZUp" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                        <RadioButton x:Name="btnLiftDown" Content="ZDown" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="25 0">
+                        <Button x:Name="btnVacOn" Content="Vac On" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                        <Button x:Name="btnPurge" Content="Purge" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                        <Button x:Name="btnOff" Content="Off" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="25 10">
+                    <Button x:Name="btnMoveToPos1" Content="Move To Foam 1" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnMoveToPos2" Content="Move To Foam 2" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnMoveToPos3" Content="Move To Foam 3" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnMoveToPos4" Content="Move To Foam 4" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="25 5">
+                    <Button x:Name="btnPickPos1" Content="Pick Foam 1" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnPickPos2" Content="Pick Foam 2" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnPickPos3" Content="Pick Foam 3" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                    <Button x:Name="btnPickPos4" Content="Pick Foam 4" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="25 5">
+                    <Button x:Name="btnPickFour" Content="Pick 4 Foams" Width="150" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="20 0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsVacOk"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsVacOk2"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsVacOk3"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsVacOk4"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Row="3">
+                <Label Content="Feeder" Width="150" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left" Margin="20 0 ">
+                    <Button x:Name="btnIndex" Content="Index" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}"/>
+                 </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="20 0">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsInit"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsReady"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Label Content="IsError"/>
+                    </StackPanel>
+
+                </StackPanel>
+
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</UserControl>
