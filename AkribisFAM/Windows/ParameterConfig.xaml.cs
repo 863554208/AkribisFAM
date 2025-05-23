@@ -111,13 +111,205 @@ namespace AkribisFAM.Windows
             }
             stationPoints = new StationPoints();
             FileHelper.LoadConfig(posFileName[0], out stationPoints);
-            //20250520 史彦洋 Start
-            FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
-            //20250520 史彦洋 End
+            //20250523 点位从json文件里读取 【史彦洋】 Start
+            
+            LoadPoints();
+            //20250523 点位从json文件里读取 【史彦洋】 Start
             InitTabs(stationPoints);
 
             
             //END ADD
+        }
+
+        public static void LoadPoints()
+        {
+            List<string> posFilePre = new List<string>();
+            List<string> posFileName = new List<string>();
+
+            posFilePre.Add("Station_points1.json");
+            posFilePre.Add("Station_points2.json");
+            posFilePre.Add("Station_points3.json");
+            posFilePre.Add("Station_points4.json");
+            posFilePre.Add("Station_points5.json");
+
+            for (int i = 0; i < posFilePre.Count; i++)
+            {
+                string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, posFilePre[i]);
+                posFileName.Add(jsonFile);
+                if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+                {
+                }
+            }
+
+            FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
+            foreach (var Node in GlobalManager.Current.stationPoints.LaiLiaoPointList)
+            {
+                if (Node.name!=null && Node.name.Equals("Laser Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.laserPoints.Add(temp);
+                    }
+                }
+            }
+
+            foreach (var Node in GlobalManager.Current.stationPoints.ZuZhuangPointList)
+            {
+                if (Node.name != null && Node.name.Equals("Feedar1 Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.feedar1Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Feedar2 Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.feedar2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("PickFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.pickFoamPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("LowerCCD Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.lowerCCDPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("DropBadFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.dropBadFoamPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("SnapPallete Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.snapPalletePoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("PlaceFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.placeFoamPoints.Add(temp);
+                    }
+                }
+            }
+
+            foreach (var Node in GlobalManager.Current.stationPoints.FuJianPointList)
+            {
+                if (Node.name != null && Node.name.Equals("Tearing Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.tearingPoints.Add(temp);
+                    }
+                }
+                if (Node.name != null && Node.name.Equals("Recheck Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.recheckPoints.Add(temp);
+                    }
+                }
+            }
+            var c = GlobalManager.Current.laserPoints;
+            var a = GlobalManager.Current.feedar1Points;
+            var b = GlobalManager.Current.feedar2Points;
+            var d = GlobalManager.Current.pickFoamPoints;
+            var e = GlobalManager.Current.lowerCCDPoints;
+            var f = GlobalManager.Current.dropBadFoamPoints;
+            var g = GlobalManager.Current.snapPalletePoints;
+            var h = GlobalManager.Current.placeFoamPoints;
+            var ii = GlobalManager.Current.tearingPoints;
+            var j = GlobalManager.Current.recheckPoints;
+
         }
 
         //Add By YXW
@@ -293,7 +485,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -383,7 +575,7 @@ namespace AkribisFAM.Windows
 
                     // 定义三列：标签、输入框、说明文本
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                     // ID: 标签
@@ -442,7 +634,7 @@ namespace AkribisFAM.Windows
                             {
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
-                                Width = 140,
+                                Width = 120,
                                 Background = new SolidColorBrush(Colors.LightGray),
                             };
 
@@ -524,7 +716,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -543,7 +735,7 @@ namespace AkribisFAM.Windows
                     var genTextBox = new TextBox
                     {
                         Text = pt.general.ToString(),
-                        Width = 100,
+                        Width = 90,
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     genTextBox.TextChanged += (s, edc) =>
@@ -579,7 +771,7 @@ namespace AkribisFAM.Windows
 
             var tb = new TextBox
             {
-                Width = 110,
+                Width = 90,
                 Text = initialValue.ToString()
             };
 
@@ -611,8 +803,8 @@ namespace AkribisFAM.Windows
             {
                 ToolTip = "Teaching point",
                 Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
-                Width = 36,
-                Height = 36,
+                Width = 30,
+                Height = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 0, 5),
@@ -2806,7 +2998,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -2898,7 +3090,7 @@ namespace AkribisFAM.Windows
 
                 // 定义三列：标签、输入框、说明文本
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                 // ID: 标签
@@ -2957,7 +3149,7 @@ namespace AkribisFAM.Windows
                         {
                             Orientation = System.Windows.Controls.Orientation.Vertical,
                             Margin = new Thickness(4),
-                            Width = 140,
+                            Width = 120,
                             Background = new SolidColorBrush(Colors.LightGray),
                         };
 
@@ -3039,7 +3231,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -3057,7 +3249,7 @@ namespace AkribisFAM.Windows
                 // 添加 General 输入框（回写 pt.general）
                 var genTextBox = new TextBox
                 {
-                    Width = 100,
+                    Width = 90,
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 genTextBox.TextChanged += (s, edc) =>

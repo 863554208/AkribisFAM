@@ -20,6 +20,8 @@ using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
+using AkribisFAM.Helper;
+
 namespace AkribisFAM
 {
     /// <summary>
@@ -45,7 +47,7 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_status();
 
-            MessageBox.Show("123");
+
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
@@ -74,7 +76,7 @@ namespace AkribisFAM
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
-            LoadLaserPoints();
+            //LoadLaserPoints();
             SetLanguage("en-US");
 
 
@@ -166,7 +168,7 @@ namespace AkribisFAM
                         }
                     }
                 }
-                GlobalManager.Current.laserPoints = flatList;
+                //GlobalManager.Current.laserPoints = flatList;
             }
             catch { }
 

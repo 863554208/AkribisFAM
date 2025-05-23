@@ -444,9 +444,12 @@ namespace AkribisFAM.WorkStation
         {
             GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
+
+            AkrAction.Current.Move(AxisName.PRX, 39, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+            AkrAction.Current.Move(AxisName.PRY, 50, (int)AxisSpeed.PRY, (int)AxisAcc.PRX);
             #region 使用新的传送带控制逻辑
             //bool ret;
-            
+
             //Set("station3_IsBoardOut", true);
 
             //while (Reject.Current.board_count != 0)
@@ -509,9 +512,7 @@ namespace AkribisFAM.WorkStation
                     //    Thread.Sleep(100);
                     //    continue;
                     //}
-                    AkrAction.Current.Move(AxisName.PRX, 39 ,(int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-                    Logger.WriteLog("开始执行撕膜Y");
-                    AkrAction.Current.Move(AxisName.PRY, 50, (int)AxisSpeed.PRY, (int)AxisAcc.PRX);
+
                     //BoardIn();
                     while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
                     {

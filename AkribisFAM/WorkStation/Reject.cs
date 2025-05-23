@@ -419,59 +419,102 @@ namespace AkribisFAM.WorkStation
             {
                 while (true)
                 {
-                    step1:
-                    //if (!GlobalManager.Current.IO_test4 || board_count != 0) {
-                    //    Thread.Sleep(100);
-                    //    continue;
-                    //}
-                         Debug.WriteLine("NG工位允许进料盘");
-                         GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
-                      
+                step1:
+                    Debug.WriteLine("NG工位阻挡气缸上升");
+                    SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
+                    SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+                    WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
 
-                        SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
-                        SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract,0);
+                    Debug.WriteLine("NG工位允许进料盘");
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
 
-                        Debug.WriteLine("NG工位等待请求进料盘");
-                        while (GlobalManager.Current.flag_RecheckStationRequestOutflowTray != 1)
-                            {
-                                Thread.Sleep(50);
-                            }
-                        GlobalManager.Current.flag_NGStationAllowTrayEnter = 0;
-                        GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
+                    Debug.WriteLine("NG工位等待请求进料盘");
+                    while (GlobalManager.Current.flag_RecheckStationRequestOutflowTray != 1)
+                    {
+                        Thread.Sleep(50);
+                    }
+                    GlobalManager.Current.flag_NGStationAllowTrayEnter = 0;
+                    GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
 
-                        bool temp_isNG =  GlobalManager.Current.isNGPallete;
-                        GlobalManager.Current.isNGPallete = false;
-                        GlobalManager.Current.current_Reject_step = 1;
-                        Console.WriteLine("NG工位皮带高速运行");
+                    bool temp_isNG = false;
+                    //先判断是否为bypass料  TODO
+                    if (GlobalManager.Current.flag_Bypass == 1)
+                    {
+                        temp_isNG = true;
+                        GlobalManager.Current.flag_Bypass = 0;
+                        goto step2;
+                    }
 
-                        MoveNGConveyor((int)AxisSpeed.BL4);
-                        WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
-                        Thread.Sleep(200);
-                        WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
+                    //获取当前料盘是否NG
+                    temp_isNG = GlobalManager.Current.isNGPallete;
+                    GlobalManager.Current.isNGPallete = false;
+                    GlobalManager.Current.current_Reject_step = 1;
+
+                step2:
+                    Console.WriteLine("NG工位皮带高速运行");
+                    MoveNGConveyor((int)AxisSpeed.BL4);
+                    WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
+                    Thread.Sleep(200);
+                    WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
+
+                    Console.WriteLine("NG工位皮带低速运行");
+                    Thread.Sleep(GlobalManager.Current.NGTrayDelaytime);
+                    MoveNGConveyor(30);
+                    WaitIO(999999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
+                    StopNGConveyor();
+
+                step3:
+
+                    if (temp_isNG)
+                    {
+                        //需要等到上次的NG料盘已经被取走。再进行顶起当前NG料盘的动作。TODO
+                        //NG料盘顶起
+                        SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
+                        SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
+                        WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
+
                         Thread.Sleep(1000);
-                        MoveNGConveyor(30);
-                        WaitIO(999999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
-                        StopNGConveyor();
-                        if (temp_isNG)
-                        {
-                            //NG料盘顶起
-                            SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
-                            SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
-                            WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
-                            SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
-                            SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
-                            WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
+                        SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
+                        SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
+                        WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
 
-                        }
+                        //设置标志位，通知操作员取出NG料盘。需要启动另外一个线程来做提示TODO
+
+                        goto step1;
+                    }
+
+                step4:
+
+                    Console.WriteLine("NG工位向下游设备请求送料盘");
+                    SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
+                    WaitIO(9999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+                    Console.WriteLine("等到下游设备允许送板信号");
+                    SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 0);
+
+                    Console.WriteLine("NG工位出料阻挡气缸下降");
+                    SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 0);
+                    SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
+                    WaitIO(9999999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, true);
+
+                    MoveNGConveyor((int)AxisSpeed.BL4);
+
+                    //确保料盘送入下游设备
+                    Console.WriteLine("等待NG工位料盘流出信号被触发");
+                    WaitIO(9999999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, true);
+                    Console.WriteLine("等待NG工位料盘流出信号消失");
+                    WaitIO(9999999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, false);
+                    StopConveyor();
+                    goto step1;
+
 
                     //BoardIn(temp_isNG);
-                        if (GlobalManager.Current.Reject_exit) break;
+                    if (GlobalManager.Current.Reject_exit) break;
 
                     //step2:
                     //    GlobalManager.Current.current_Reject_step = 2;
                     //    Step2();
                     //    if (GlobalManager.Current.Reject_exit) break;
-                            
+
                 }
             }
             catch (Exception ex)

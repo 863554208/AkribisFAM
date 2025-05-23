@@ -50,6 +50,18 @@ namespace AkribisFAM
         public double R { get; set; }
 
         [DataMember]
+        public double spacingX { get; set; }
+
+        [DataMember]
+        public double spacingY { get; set; }
+
+        [DataMember]
+        public double offer10{ get; set; }
+
+        [DataMember]
+        public double offer11 { get; set; }
+
+        [DataMember]
         public List<int> axisMap { get; set; }
 
         [DataMember]
@@ -58,6 +70,8 @@ namespace AkribisFAM
     }
 
     [DataContract]
+
+
     public class ChildPoint
     {
         [DataMember]
@@ -185,16 +199,32 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+        public bool UseFeedar1 = true;
+        public bool UseFeedar2 = false;
+
+        public int NGTrayDelaytime = 1000;
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
+        public List<SinglePoint> laserPoints = new List<SinglePoint>();
 
-        public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
+        public List<SinglePoint> feedar1Points = new List<SinglePoint>();
 
-        public List<(double X, double Y)> ccd2Points = new List<(double X, double Y)>();
+        public List<SinglePoint> feedar2Points = new List<SinglePoint>();
 
-        public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
+        public List<SinglePoint> pickFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> dropBadFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> snapPalletePoints = new List<SinglePoint>();
+
+        public List<SinglePoint> placeFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> recheckPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> tearingPoints = new List<SinglePoint>();
 
         public int TotalLaserCount = 48;
 
@@ -900,4 +930,16 @@ namespace AkribisFAM
         public AxisParams axisparams = new AxisParams();
 
     }
+}
+[DataContract]
+public class SinglePoint
+{
+    [DataMember]
+    public double X { get; set; }
+    [DataMember]
+    public double Y { get; set; }
+    [DataMember]
+    public double Z { get; set; }
+    [DataMember]
+    public double R { get; set; }
 }
