@@ -126,7 +126,7 @@ namespace AkribisFAM.WorkStation
             {
                 if(point.type == 0)
                 {
-                    GlobalManager.Current.laserPoints.Add((point.X,point.Y));
+                    //GlobalManager.Current.laserPoints.Add((point.X,point.Y));
                 }
             }
             if(GlobalManager.Current.laserPoints.Count == 0)

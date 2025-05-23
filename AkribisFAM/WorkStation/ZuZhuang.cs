@@ -298,10 +298,10 @@ namespace AkribisFAM.WorkStation
             AkrAction.Current.Move(AxisName.FSY, 418, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
             GlobalManager.Current.feedarPoints.Clear();
-            GlobalManager.Current.feedarPoints.Add((79, 418));
-            GlobalManager.Current.feedarPoints.Add((99, 418));
-            GlobalManager.Current.feedarPoints.Add((119, 418));
-            GlobalManager.Current.feedarPoints.Add((139, 418));
+            //GlobalManager.Current.feedarPoints.Add((79, 418));
+            //GlobalManager.Current.feedarPoints.Add((99, 418));
+            //GlobalManager.Current.feedarPoints.Add((119, 418));
+            //GlobalManager.Current.feedarPoints.Add((139, 418));
 
             //feedar信号
             //while (!ReadIO(IO_INFunction_Table.IN4_2Platform_has_label_feeder1) && !ReadIO(IO_INFunction_Table.IN4_6Platform_has_label_feeder2))
@@ -485,10 +485,10 @@ namespace AkribisFAM.WorkStation
             //Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand.TLN, ccd2SnapPath);
 
             GlobalManager.Current.feedarPoints.Clear();
-            GlobalManager.Current.feedarPoints.Add((235, 370));
-            GlobalManager.Current.feedarPoints.Add((215, 370));
-            GlobalManager.Current.feedarPoints.Add((195, 370));
-            GlobalManager.Current.feedarPoints.Add((175, 370));
+            //GlobalManager.Current.feedarPoints.Add((235, 370));
+            //GlobalManager.Current.feedarPoints.Add((215, 370));
+            //GlobalManager.Current.feedarPoints.Add((195, 370));
+            //GlobalManager.Current.feedarPoints.Add((175, 370));
             //foreach (var Point in GlobalManager.Current.feedarPoints)
             //{
             //    AkrAction.Current.SetSingleEvent(AxisName.FSX, (int)Point.X, 1);
@@ -606,18 +606,18 @@ namespace AkribisFAM.WorkStation
             //Task_AssUpCameraFunction.TriggAssUpCamreaTLTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT, palletePath);
             Logger.WriteLog("33333333");
             GlobalManager.Current.feedarPoints.Clear();
-            GlobalManager.Current.feedarPoints.Add((164,47));
+            //GlobalManager.Current.feedarPoints.Add((164,47));
             //GlobalManager.Current.feedarPoints.Add((214, 47));
             //GlobalManager.Current.feedarPoints.Add((264, 47));
-            GlobalManager.Current.feedarPoints.Add((314, 47));
-            GlobalManager.Current.feedarPoints.Add((314, 87));
+            //GlobalManager.Current.feedarPoints.Add((314, 47));
+            //GlobalManager.Current.feedarPoints.Add((314, 87));
             //GlobalManager.Current.feedarPoints.Add((264, 87));
             //GlobalManager.Current.feedarPoints.Add((214, 87));
-            GlobalManager.Current.feedarPoints.Add((164, 87));
-            GlobalManager.Current.feedarPoints.Add((164, 127));
+            //GlobalManager.Current.feedarPoints.Add((164, 87));
+            //GlobalManager.Current.feedarPoints.Add((164, 127));
             //GlobalManager.Current.feedarPoints.Add((214, 127));
             //GlobalManager.Current.feedarPoints.Add((264, 127));
-            GlobalManager.Current.feedarPoints.Add((314, 127));
+            //GlobalManager.Current.feedarPoints.Add((314, 127));
             Logger.WriteLog("4444444444");
             foreach (var Point in GlobalManager.Current.feedarPoints)
             {
@@ -646,18 +646,18 @@ namespace AkribisFAM.WorkStation
         {
             Logger.WriteLog("33333333");
             GlobalManager.Current.feedarPoints.Clear();
-            GlobalManager.Current.feedarPoints.Add((190, 116));
-            GlobalManager.Current.feedarPoints.Add((250, 116));
-            GlobalManager.Current.feedarPoints.Add((310, 116));
-            GlobalManager.Current.feedarPoints.Add((370, 116));
-            GlobalManager.Current.feedarPoints.Add((370, 156));
-            GlobalManager.Current.feedarPoints.Add((310, 156));
-            GlobalManager.Current.feedarPoints.Add((250, 156));
-            GlobalManager.Current.feedarPoints.Add((190, 156));
-            GlobalManager.Current.feedarPoints.Add((190, 196));
-            GlobalManager.Current.feedarPoints.Add((250, 196));
-            GlobalManager.Current.feedarPoints.Add((310, 196));
-            GlobalManager.Current.feedarPoints.Add((370, 196));
+            //GlobalManager.Current.feedarPoints.Add((190, 116));
+            //GlobalManager.Current.feedarPoints.Add((250, 116));
+            //GlobalManager.Current.feedarPoints.Add((310, 116));
+            //GlobalManager.Current.feedarPoints.Add((370, 116));
+            //GlobalManager.Current.feedarPoints.Add((370, 156));
+            //GlobalManager.Current.feedarPoints.Add((310, 156));
+            //GlobalManager.Current.feedarPoints.Add((250, 156));
+            //GlobalManager.Current.feedarPoints.Add((190, 156));
+            //GlobalManager.Current.feedarPoints.Add((190, 196));
+            //GlobalManager.Current.feedarPoints.Add((250, 196));
+            //GlobalManager.Current.feedarPoints.Add((310, 196));
+            //GlobalManager.Current.feedarPoints.Add((370, 196));
             Logger.WriteLog("4444444444");
 
             GlobalManager.Current.picker1State = true;

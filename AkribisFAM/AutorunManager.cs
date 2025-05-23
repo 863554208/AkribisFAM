@@ -17,6 +17,7 @@ using AkribisFAM.NewStation;
 using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
+using AkribisFAM.Windows;
 
 namespace AkribisFAM
 {
@@ -77,6 +78,8 @@ namespace AkribisFAM
             try
             {
                 Trace.WriteLine("Autorun Process");
+
+                ParameterConfig.LoadPoints();
 
                 try
                 {
