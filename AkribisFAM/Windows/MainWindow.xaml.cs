@@ -35,6 +35,7 @@ using AkribisFAM.CommunicationProtocol;
 using System.Reflection;
 using YamlDotNet.Core.Tokens;
 using System.Windows.Media.Media3D;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM
 {
@@ -96,8 +97,9 @@ namespace AkribisFAM
             FuJian.Current.readPointJson();
             Logger.WriteLog("MainWindow init");
             _timer.Start();
+
             //END Add
-           
+
         }
 
         private void UpdateIcon()
