@@ -7,27 +7,27 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="800">
-    <Border BorderThickness="1" CornerRadius="3" BorderBrush="Black">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="5" Opacity="0.5"/>
-        </Border.Effect>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Content="X" Width="20" Grid.Column="0" FontWeight="Bold" FontSize="16" Foreground="DarkBlue" VerticalAlignment="Center"/>
-            <Label Content="{Binding XPos}" Grid.Column="1" FontSize="16" Foreground="DarkBlue" VerticalAlignment="Center"/>
-            <Label Content="Y" Width="20"  Grid.Column="2" FontWeight="Bold" FontSize="16" Foreground="DarkRed" VerticalAlignment="Center"/>
-            <Label Content="{Binding YPos}" Grid.Column="3" Width="20" FontSize="16" Foreground="DarkRed" VerticalAlignment="Center"/>
-            <Button x:Name="btnMoveToPos" Grid.Column="4" Margin="10 0" Content="Move"/>
-            <Button x:Name="btnLaserCheck" Grid.Column="5" Margin="10 0" Content="Check"/>
-            <Button x:Name="btnMoveToPosLaserCheck" Grid.Column="6" Margin="10 0" Content="Move + Check"/>
-        </Grid>
-      </Border>
+    <materialDesign:Card BorderThickness="1" BorderBrush="Black" Height="40" >
+
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Border BorderThickness="1" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="Black" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="X : "  Grid.Column="0" FontWeight="Bold" FontSize="16" Foreground="DarkBlue" VerticalAlignment="Center"/>
+                    <Label Content="{Binding X}"  FontSize="16" Foreground="DarkBlue" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <Border BorderThickness="1" Grid.Row="1" Grid.ColumnSpan="2" BorderBrush="Black" VerticalAlignment="Top">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Y : "  Grid.Column="0" FontWeight="Bold" FontSize="16" Foreground="DarkRed" VerticalAlignment="Center"/>
+                    <Label Content="{Binding Y}"  FontSize="16" Foreground="DarkRed" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <Button x:Name="btnMoveToPos"  Content="Move"  VerticalAlignment="Top" Margin="5 0"  Style="{StaticResource MaterialDesignPaperLightButton}" Click="btnMoveToPos_Click"/>
+            <!--<Button x:Name="btnLaserCheck" Grid.Column="5" Margin="10 0" Content="Check"/>-->
+            <Button x:Name="btnMoveToPosLaserCheck" Content="Move and check"  VerticalAlignment="Top"  Margin="5 0"  Style="{StaticResource MaterialDesignPaperLightButton}" Click="btnMoveToPosLaserCheck_Click"/>
+
+        </StackPanel>
+
+
+    </materialDesign:Card>
 </UserControl>

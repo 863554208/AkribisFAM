@@ -11,5 +11,15 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
         }
+
+        private void btnMoveToPos_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnMoveToPosLaserCheck_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
     }
 }

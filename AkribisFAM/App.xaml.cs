@@ -29,6 +29,7 @@ namespace AkribisFAM
     {
         public static IDatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
+        public static RecipeManager recipeManager;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -51,6 +52,10 @@ namespace AkribisFAM
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
 			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
+
+            recipeManager = new RecipeManager();
+
+
             //TODO
             //try
             //{

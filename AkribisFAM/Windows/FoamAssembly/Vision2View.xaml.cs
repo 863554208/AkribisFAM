@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
+using AkribisFAM.Manager;
 
 namespace AkribisFAM.Windows
 {
@@ -10,14 +12,7 @@ namespace AkribisFAM.Windows
         public Vision2View()
         {
             InitializeComponent();
-            cbxTrayType.ItemsSource = new string[]
-            {
-                "PAM_230_144",
-                "RIM_292_120",
-                "SLAW_360_260",
-                "VAM_300_220",
-                "RUM_300_200",
-            };
+            cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
         }
     }

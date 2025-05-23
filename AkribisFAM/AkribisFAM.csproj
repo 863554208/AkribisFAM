@@ -176,6 +176,7 @@
     <Compile Include="CommunicationProtocol\Task_ResetCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
+    <Compile Include="DeviceClass\KeyenceLaserControl.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
@@ -195,6 +196,7 @@
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
+    <Compile Include="Manager\RecipeManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />

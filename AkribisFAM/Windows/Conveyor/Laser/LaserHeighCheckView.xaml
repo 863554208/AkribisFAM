@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             IsVisibleChanged="UserControl_IsVisibleChanged"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -24,7 +25,22 @@
             <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>
             <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
         </Grid>
-        <local:ProductXYPointsView Grid.Row="1" Margin="10"/>
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding Points}">
+                <ItemsControl.ItemsPanel>
+
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ProductXYPointsView  />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
     </Grid>
 </UserControl>
