@@ -61,6 +61,40 @@ namespace AkribisFAM
             return true;
         }
 
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
+        }
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
+            {
+                if (ReadIO(index) == value)
+                {
+                    ret = true;
+                    break;
+                }
+                Thread.Sleep(50);
+            }
+
+            return ret;
+        }
+
         public async void AutoRunMain(CancellationToken token)
         {
             if (!CheckTaskReady())
@@ -253,6 +287,10 @@ namespace AkribisFAM
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
+            if(!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, true) || !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, true))
+            {
+                return false;
+            }
 
 
             //单独对Z轴下使能
@@ -281,12 +319,9 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
             Thread.Sleep(20);
 
-
-
-
             //轴使能
             AkrAction.Current.axisAllEnable(true);
-            Logger.WriteLog("4444");
+ 
             //轴回原点
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
@@ -294,12 +329,9 @@ namespace AkribisFAM
             AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
 
             AkrAction.Current.WaitAxisAll();
-            Logger.WriteLog("66666");
+ 
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
-
-            //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
-            LaiLiao.Current.board_count = 1;
 
 
             if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
@@ -310,8 +342,6 @@ namespace AkribisFAM
 
             //传送带停止
             AkrAction.Current.StopConveyor();
-
-
 
 
             //激光测距复位(tcp)

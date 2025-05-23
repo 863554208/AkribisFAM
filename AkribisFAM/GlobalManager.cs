@@ -190,6 +190,7 @@ namespace AkribisFAM
         public bool UseFeedar1 = true;
         public bool UseFeedar2 = false;
 
+        public int NGTrayDelaytime = 1000;
         //测试用
         public bool isRun = false;
 
