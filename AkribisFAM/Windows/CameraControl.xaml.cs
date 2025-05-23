@@ -79,17 +79,7 @@ namespace AkribisFAM.Windows
             FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
             InitTabs(stationPoints);
             //END ADD
-            try
-            {
-                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                string path = folder + "\\NozzleCalib1.json";
-                string content = File.ReadAllText(path);
-                Reject.Current.TrainPointlist = JsonConvert.DeserializeObject<List<TrainPoint>>(content);
-            }
-            catch
-            {
 
-            }
         }
 
         // 按钮点击事件处理
@@ -186,10 +176,16 @@ namespace AkribisFAM.Windows
             }
             if (Calibstatus_Click)
             {
+                FileHelper.LoadConfig(posFileName[2], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 5)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
-                    await Reject.Current.TrainNozzles(nozzlenum);   
+                    await CamerCalibProcess.Instance.TrainNozzles(nozzlenum);   
                 }
                 catch (Exception ex)
                 {
@@ -202,12 +198,17 @@ namespace AkribisFAM.Windows
         private async void Points11Calib_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = Points11CalibNum.SelectedIndex;
-            if (nozzlenum < 0 || nozzlenum >= 4)
+            if (nozzlenum < 1 || nozzlenum >= 4)
             {
                 return;
             }
             if (Calibstatus_Click)
             {
+                FileHelper.LoadConfig(posFileName[0], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 33) {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
@@ -225,6 +226,12 @@ namespace AkribisFAM.Windows
         {
             if (Calibstatus_Click)
             {
+                FileHelper.LoadConfig(posFileName[3], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 17)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
@@ -247,6 +254,12 @@ namespace AkribisFAM.Windows
             }
             if (Calibstatus_Click)
             {
+                FileHelper.LoadConfig(posFileName[1], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 18)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
