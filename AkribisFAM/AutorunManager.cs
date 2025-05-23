@@ -247,6 +247,11 @@ namespace AkribisFAM
             //Thread.Sleep(5000);
             //return true;
 
+            //飞达复位
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
+
+
+
             //单独对Z轴下使能
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
@@ -263,12 +268,27 @@ namespace AkribisFAM
             //复位气缸和吸嘴IO
             CylinderDown();
             Logger.WriteLog("3333");
+
+
+            //再次吸嘴上气
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+            Thread.Sleep(20);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+            Thread.Sleep(20);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
+            Thread.Sleep(20);
+
+
+
+
             //轴使能
             AkrAction.Current.axisAllEnable(true);
             Logger.WriteLog("4444");
             //轴回原点
+
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
 
             AkrAction.Current.WaitAxisAll();
             Logger.WriteLog("66666");
@@ -288,8 +308,7 @@ namespace AkribisFAM
             //传送带停止
             AkrAction.Current.StopConveyor();
 
-            //飞达复位
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
+
 
 
             //激光测距复位(tcp)
@@ -332,6 +351,11 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            //让飞达送料
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1 , 1);
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+            Thread.Sleep(20);
 
             return true;
         }

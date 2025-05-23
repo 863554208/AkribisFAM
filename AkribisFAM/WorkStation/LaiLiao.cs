@@ -107,6 +107,8 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.IsByPass = false;
             //触发扫码枪扫码
 
+            //Task_Scanner.TriggScannerSendData(Task_Scanner.ScannerProcessCommand.Trigger ,"");
+
             //GlobalManager.Current.IsByPass = true;
             return 0;
         }
@@ -143,14 +145,15 @@ namespace AkribisFAM.WorkStation
                 //    TestNumber = "1",
                 //    address = "0",
                 //};
+                //string req = "1,0" + "\n";
                 //sendKDistanceAppend.Add(temp);
-                //string temp = "1,0";
-                //Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
+                //Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
 
                 ////得到测量结果
                 //AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
                 //var res = AcceptKDistanceAppend[0].MeasurData;
-                //GlobalManager.Current.currentLasered++;
+                //Logger.WriteLog("激光测距结果:" + res);
+                GlobalManager.Current.currentLasered++;
 
                 Thread.Sleep(300);
             }

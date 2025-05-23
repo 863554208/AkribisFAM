@@ -174,8 +174,8 @@ namespace AkribisFAM.Windows
             if (nozzlenum < 0 || nozzlenum >=4) {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
                 FileHelper.LoadConfig(posFileName[2], out CamerCalibProcess.Instance.CalibrationPoints);
                 if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 5)
                 {
@@ -185,14 +185,15 @@ namespace AkribisFAM.Windows
                 Calibstatus_Click = false;
                 try
                 {
-                    await CamerCalibProcess.Instance.TrainNozzles(nozzlenum);   
+                    await CamerCalibProcess.Instance.TrainNozzles(nozzlenum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Nozzle calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void Points11Calib_Click(object sender, RoutedEventArgs e)
@@ -202,8 +203,8 @@ namespace AkribisFAM.Windows
             {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
                 FileHelper.LoadConfig(posFileName[0], out CamerCalibProcess.Instance.CalibrationPoints);
                 if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 33) {
                     MessageBox.Show("Point Number is incorrect!");
@@ -213,19 +214,20 @@ namespace AkribisFAM.Windows
                 try
                 {
                     await CamerCalibProcess.Instance.Point11Calibprocess((NozzleNumber)nozzlenum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Points11 calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void JointCalib_Click(object sender, RoutedEventArgs e)
         {
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
                 FileHelper.LoadConfig(posFileName[3], out CamerCalibProcess.Instance.CalibrationPoints);
                 if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 17)
                 {
@@ -236,13 +238,14 @@ namespace AkribisFAM.Windows
                 try
                 {
                     await CamerCalibProcess.Instance.CombineCalibrationprocess();
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the joint calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void Points9Calib_Click(object sender, RoutedEventArgs e)
@@ -252,8 +255,8 @@ namespace AkribisFAM.Windows
             {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
                 FileHelper.LoadConfig(posFileName[1], out CamerCalibProcess.Instance.CalibrationPoints);
                 if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 18)
                 {
@@ -264,13 +267,15 @@ namespace AkribisFAM.Windows
                 try
                 {
                     await CamerCalibProcess.Instance.Point9Calibprocess((MovingCameraCalibposition)calibnum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Points9 calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            
+            //}
         }
         /// ======================================================================================================
         /// ======================================================================================================
