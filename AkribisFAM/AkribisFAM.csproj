@@ -180,6 +180,7 @@
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
+    <Compile Include="Helper\FileRecovery.cs" />
     <Compile Include="Lang\UI.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -193,6 +194,7 @@
     <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
@@ -463,6 +465,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="devices.json" />
     <None Include="IOPoint.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

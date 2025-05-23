@@ -1,69 +1,96 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AkribisFAM.Manager;
 using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
-using AkribisFAM.Manager;
+using System.Text.RegularExpressions;
 
 namespace AkribisFAM.Helper
 {
-    public static class FileHelper
+    public static class FileRecovery
     {
-        /// <summary>
-        /// 从 JSON 文件加载配置对象
-        /// </summary>
-        public static bool LoadConfig<T>(string jsonFile, out T config) where T : class
+      
+        public static bool RecoverFile<T>(string originalFile, string tempFile, string backupFile)
         {
-            config = null;
+            RecoverFile(originalFile, tempFile, backupFile);
 
-            if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+            // Check if the file can be deserialized to the specified type
+            if (!IsFileSerializableToClass<T>(originalFile))
             {
-                return false;
-            }
-
-            try
-            {
-                string content = File.ReadAllText(jsonFile);
-                config = JsonConvert.DeserializeObject<T>(content);
-                if (config == null)
-                {
-                    return false;
-                }
-            }
-            catch
-            {
-                return false;
+                if (!File.Exists(backupFile)) return false;
+                File.Copy(backupFile, originalFile, overwrite: true);
+                Console.WriteLine("File was corrupted; restored from backup.");
+                //return false;
             }
 
             return true;
         }
+        public static bool RecoverFile(string originalFile, string tempFile, string backupFile)
+        {
+            // Complete the replacing to original file
+            if (File.Exists(tempFile))
+            {
+                Console.WriteLine("File replace was not completed; restored from temp file.");
+                if (File.Exists(originalFile))
+                    File.Replace(tempFile, originalFile, backupFile);
+                else
+                    File.Move(tempFile, originalFile);
+            }
 
-        /// <summary>
-        /// 将配置对象保存为 JSON 文件
-        /// </summary>
-        public static bool SaveToJson<T>(string jsonFile, T config) where T : class
+            // Verify the integrity of the new file
+            if (IsFileCorrupted(originalFile))
+            {
+                if (!File.Exists(backupFile)) return false;
+                // If verification fails, restore from backup
+                File.Copy(backupFile, originalFile, overwrite: true);
+                Console.WriteLine("File was corrupted; restored from backup.");
+            }
+
+
+            return true;
+        }
+        private static bool IsFileSerializableToClass<T>(string filePath)
         {
             try
             {
-                JsonSerializerSettings settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                };
+                // Read file content
+                string fileContent = File.ReadAllText(filePath);
 
-                string content = JsonConvert.SerializeObject(config, Formatting.Indented, settings);
-                File.WriteAllText(jsonFile, content);
+                // Attempt to deserialize the content to an object of type T
+                JsonConvert.DeserializeObject<T>(fileContent);
 
-                return File.Exists(jsonFile);
+                // If deserialization succeeds, return true
+                return true;
             }
-            catch
+            catch (JsonException ex)
             {
+                // If there is an error during deserialization, log it and return false
+                Console.WriteLine($"Error deserializing file to {typeof(T).Name}: {ex.Message}");
                 return false;
             }
         }
 
+        public static bool IsFileCorrupted(string originalFilePath)
+        {
+            try
+            {
+                // Define "weird" characters as anything not in the ASCII range (0-127)
+                //if (Regex.IsMatch(File.ReadAllText(originalFilePath), @"[^\u0000-\u007F]"))
+                    if (Regex.IsMatch(File.ReadAllText(originalFilePath), @"[^\u0000-\u007F]|(\0{2,})"))
+                    {
+                    Console.WriteLine("Original file contains weird characters.");
+                    return true; // File is considered corrupted
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading original file: {ex.Message}");
+                return true; // Considered corrupted if we cannot read the file
+            }
+
+            // If all checks pass, the file is not considered corrupted
+            return false;
+        }
 
 
         /// <summary>

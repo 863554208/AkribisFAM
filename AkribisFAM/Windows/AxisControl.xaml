@@ -22,8 +22,8 @@
             </ScrollViewer>
         </GroupBox>
 
-        <GroupBox Header="{DynamicResource TextAxisStat}" Grid.Column="1">
-            <Grid VerticalAlignment="Center" Height="500">
+        <GroupBox Header="{DynamicResource TextAxisStat}"  Grid.Column="1">
+            <Grid VerticalAlignment="Top" Height="500" Margin="0 20 0 00">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.7*"/>
                     <RowDefinition Height="*"/>
@@ -42,7 +42,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Row 0 (Header) -->
-                <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
+                <Border Grid.Row="0" Grid.Column="0"  BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
                     <TextBlock Text="{DynamicResource TextAxisName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="#FFF0F0F0">
@@ -79,12 +79,12 @@
                     <TextBlock Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <Border Grid.Row="3" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
-                        <Ellipse Name="AxisEnStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
+                        <Ellipse Name="AxisEnStat" Width="35" Height="35" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
                 <Border Grid.Row="3" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisInPosStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
@@ -102,17 +102,17 @@
 
                 <!-- Row 5 -->
                 <Border Grid.Row="5" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisHomeStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
                 <Border Grid.Row="5" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
                 <Border Grid.Row="5" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
@@ -130,17 +130,17 @@
 
                 <!-- Row 7 -->
                 <Border Grid.Row="7" Grid.Column="0" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisErrStat" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
                 <Border Grid.Row="7" Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisSwLimitStatP" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
                 <Border Grid.Row="7" Grid.Column="2" BorderBrush="Black" BorderThickness="1" Background="White">
-                    <Viewbox Stretch="Uniform" Width="50" Height="50">
+                    <Viewbox Stretch="Uniform" Width="35" Height="35">
                         <Ellipse Name="AxisSwLimitStatN" Width="30" Height="30" Fill="Gray" Stroke="Blue" StrokeThickness="1"/>
                     </Viewbox>
                 </Border>
