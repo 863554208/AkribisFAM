@@ -445,9 +445,8 @@ namespace AkribisFAM.WorkStation
             STEP_WaitStopSig1:
                 Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
                 WaitIO(99999, IO_INFunction_Table.IN1_4Stop_Sign1, true);
-                //可能需要延时一段时间TODO
                 Logger.WriteLog("皮带任务_皮带停止");
-                StopConveyor();  //函数体未实现
+                StopConveyor(); 
 
 
             STEP_LiftCylinderExtend1:
