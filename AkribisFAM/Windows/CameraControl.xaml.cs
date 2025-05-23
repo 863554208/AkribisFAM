@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -419,15 +420,6 @@ namespace AkribisFAM.Windows
                     // 单独点，使用 pt 的 X/Y/Z/R
                     var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
-                    //rowPanel.Children.Add(new TextBlock
-                    //{
-                    //    Text = $"ID: {pt.name}",
-                    //    //Width = 100,
-                    //    Margin = new Thickness(0, 0, 15, 0),
-                    //    VerticalAlignment = VerticalAlignment.Center
-                    //});
-
-
 
                     // 添加 ID 标签
                     rowPanel.Children.Add(new TextBlock
@@ -442,7 +434,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -454,23 +446,24 @@ namespace AkribisFAM.Windows
                     };
                     rowPanel.Children.Add(idTextBox);
 
+                    TextBox xBox, yBox, zBox, rBox;
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X,out xBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.X = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y, out yBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.Y = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z, out zBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.Z = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R, out rBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.R = val;
                     }));
@@ -523,7 +516,8 @@ namespace AkribisFAM.Windows
 
                     // 定义三列：标签、输入框、说明文本
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                     // ID: 标签
@@ -558,9 +552,86 @@ namespace AkribisFAM.Windows
                     Grid.SetColumn(matrixInfoText, 2);
                     rowGrid.Children.Add(matrixInfoText);
 
+                    var ButtonAutoData = new Button
+                    {
+                        Content = "FillData",
+                        Margin = new Thickness(8, 0, 0, 0),
+                        Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                    };
+                    Grid.SetColumn(ButtonAutoData, 3);
+
+                    rowGrid.Children.Add(ButtonAutoData);
+
                     // 添加整行到主 panel
                     panel.Children.Add(rowGrid);
 
+
+                    //添加偏移行
+                    var rowOfferGrid = new Grid
+                    {
+                        Margin = new Thickness(0, 8, 0, 4),
+                        Tag = "MatrixHeader"  // 关键标记
+                    };
+
+                    // 定义4列：标签、输入框  offer10,offer11
+                    rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                    rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+
+                    // Offer10 Label
+                    var offer10Label = new TextBlock
+                    {
+                        Text = "Offer10:",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 6, 0)
+                    };
+                    Grid.SetColumn(offer10Label, 0);
+                    rowOfferGrid.Children.Add(offer10Label);
+
+                    // Offer10 TextBox
+                    var offer10Box = new TextBox
+                    {
+                        Width = 90,
+                        Margin = new Thickness(0, 0, 10, 0),
+                        Text = pt.offer10.ToString() // 初始化值
+                    };
+                    offer10Box.TextChanged += (s, e) =>
+                    {
+                        if (double.TryParse(offer10Box.Text, out double val))
+                            pt.offer10 = val;
+                    };
+                    Grid.SetColumn(offer10Box, 1);
+                    rowOfferGrid.Children.Add(offer10Box);
+
+                    // Offer11 Label
+                    var offer11Label = new TextBlock
+                    {
+                        Text = "Offer11:",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(20, 0, 6, 0)
+                    };
+                    Grid.SetColumn(offer11Label, 2);
+                    rowOfferGrid.Children.Add(offer11Label);
+
+                    // Offer11 TextBox
+                    var offer11Box = new TextBox
+                    {
+                        Width = 90,
+                        Text = pt.offer11.ToString()
+                    };
+                    offer11Box.TextChanged += (s, e) =>
+                    {
+                        if (double.TryParse(offer11Box.Text, out double val))
+                            pt.offer11 = val;
+                    };
+                    Grid.SetColumn(offer11Box, 3);
+                    rowOfferGrid.Children.Add(offer11Box);
+
+                    panel.Children.Add(rowOfferGrid);
+
+
+                    List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // 每个点 4 个 TextBox
 
                     int childIndex = 0;
                     for (int r = 0; r < pt.row; r++)
@@ -572,6 +643,8 @@ namespace AkribisFAM.Windows
                             Margin = new Thickness(0, 4, 0, 4)
                         };
 
+                        var inputRow = new List<TextBox[]>();
+
                         for (int c = 0; c < pt.col; c++)
                         {
                             var child = pt.childList[childIndex++];
@@ -582,7 +655,7 @@ namespace AkribisFAM.Windows
                             {
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
-                                Width = 140,
+                                Width = 120,
                                 Background = new SolidColorBrush(Colors.LightGray),
                             };
 
@@ -592,23 +665,25 @@ namespace AkribisFAM.Windows
                                 Margin = new Thickness(0, 0, 0, 6)
                             });
 
+                            TextBox xBox, yBox, zBox, rBox;
+
                             //回写，用于保存文件
-                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0],out xBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[0] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], out yBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[1] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], out zBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[2] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], out rBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[3] = val;
                             }));
@@ -617,12 +692,52 @@ namespace AkribisFAM.Windows
 
                             rowPanel.Children.Add(pointPanel);
 
+                            inputRow.Add(new[] { xBox, yBox, zBox, rBox });
+
                         }
+
+                        matrixInputs.Add(inputRow);
 
                         panel.Children.Add(rowPanel);
 
 
                     }
+                    ButtonAutoData.Click += (s, e) =>
+                    {
+                        if (pt.childList.Count != pt.row * pt.col) return;
+
+                        var topLeft = pt.childList[0].childPos;
+                        var topRight = pt.childList[pt.col - 1].childPos;
+                        var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                        double[] vecX = new double[4];
+                        double[] vecY = new double[4];
+                        for (int i = 0; i < 4; i++)
+                        {
+                            vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                            vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                        }
+
+                        int idx = 0;
+                        for (int r = 0; r < pt.row; r++)
+                        {
+                            for (int c = 0; c < pt.col; c++)
+                            {
+                                var pos = pt.childList[idx++].childPos;
+
+                                pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                                pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                                pos[2] = topLeft[2];
+                                pos[3] = topLeft[3];
+
+                                var boxes = matrixInputs[r][c];
+                                boxes[0].Text = pos[0].ToString("0.###");
+                                boxes[1].Text = pos[1].ToString("0.###");
+                                boxes[2].Text = pos[2].ToString("0.###");
+                                boxes[3].Text = pos[3].ToString("0.###");
+                            }
+                        }
+                    };
                 }
                 else
                 {
@@ -648,7 +763,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -667,7 +782,7 @@ namespace AkribisFAM.Windows
                     var genTextBox = new TextBox
                     {
                         Text = pt.general.ToString(),
-                        Width = 100,
+                        Width = 90,
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     genTextBox.TextChanged += (s, edc) =>
@@ -689,7 +804,10 @@ namespace AkribisFAM.Windows
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
             };
         }
-        private FrameworkElement CreateLabeledTextBox(string label, double initialValue, Action<string> onTextChanged = null)
+
+
+
+        private FrameworkElement CreateLabeledTextBox(string label, double initialValue,out TextBox tb, Action<string> onTextChanged = null)
         {
             var panel = new StackPanel
             {
@@ -705,29 +823,31 @@ namespace AkribisFAM.Windows
                 VerticalAlignment = VerticalAlignment.Center
             });
 
-            var tb = new TextBox
+            var tba = new TextBox
             {
-                Width = 110,
+                Width = 90,
                 Text = initialValue.ToString()
             };
 
-            tb.PreviewTextInput += FloatTextBox_PreviewTextInput;
-            tb.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
-            DataObject.AddPastingHandler(tb, FloatTextBox_Pasting);
+            tba.PreviewTextInput += FloatTextBox_PreviewTextInput;
+            tba.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+            DataObject.AddPastingHandler(tba, FloatTextBox_Pasting);
 
             // 禁用输入法
-            InputMethod.SetIsInputMethodEnabled(tb, false);
+            InputMethod.SetIsInputMethodEnabled(tba, false);
+
+            tb = tba;
 
             // 如果有绑定回调，就在文本变更时触发
             if (onTextChanged != null)
             {
-                tb.TextChanged += (s, e) =>
+                tba.TextChanged += (s, e) =>
                 {
-                    onTextChanged(tb.Text);
+                    onTextChanged(tba.Text);
                 };
             }
 
-            panel.Children.Add(tb);
+            panel.Children.Add(tba);
 
             return panel;
         }
@@ -739,12 +859,12 @@ namespace AkribisFAM.Windows
             {
                 ToolTip = "Teaching point",
                 Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
-                Width = 36,
-                Height = 36,
+                Width = 25,
+                Height = 25,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 0, 5),
-                Content = new PackIcon { Kind = PackIconKind.DebugStepInto, Width = 18, Height = 18 }
+                Content = new PackIcon { Kind = PackIconKind.DebugStepInto, Width = 17, Height = 17 }
             };
 
             teachBtn.Click += (s, e) =>
@@ -1074,7 +1194,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -1086,22 +1206,24 @@ namespace AkribisFAM.Windows
                 };
                 rowPanel.Children.Add(idTextBox);
 
-                rowPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
+                TextBox xBox, yBox, zBox, rBox;
+
+                rowPanel.Children.Add(CreateLabeledTextBox("X", 0,out xBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.X = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.Y = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.Z = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("R", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.R = val;
                 }));
@@ -1156,7 +1278,8 @@ namespace AkribisFAM.Windows
 
                 // 定义三列：标签、输入框、说明文本
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                 // ID: 标签
@@ -1191,9 +1314,87 @@ namespace AkribisFAM.Windows
                 Grid.SetColumn(matrixInfoText, 2);
                 rowGrid.Children.Add(matrixInfoText);
 
+
+                var ButtonAutoData = new Button
+                {
+                    Content = "FillData",
+                    Margin = new Thickness(8, 0, 0, 0),
+                    Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                };
+                Grid.SetColumn(ButtonAutoData, 3);
+                rowGrid.Children.Add(ButtonAutoData);
+
+
+
+                //添加偏移行
+                var rowOfferGrid = new Grid
+                {
+                    Margin = new Thickness(0, 8, 0, 4),
+                    Tag = "MatrixHeader"  // 关键标记
+                };
+
+                // 定义4列：标签、输入框  offer10,offer11
+                rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+
+                // Offer10 Label
+                var offer10Label = new TextBlock
+                {
+                    Text = "Offer10:",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 6, 0)
+                };
+                Grid.SetColumn(offer10Label, 0);
+                rowOfferGrid.Children.Add(offer10Label);
+
+                // Offer10 TextBox
+                var offer10Box = new TextBox
+                {
+                    Width = 90,
+                    Margin = new Thickness(0, 0, 10, 0),
+                    Text = pt.offer10.ToString() // 初始化值
+                };
+                offer10Box.TextChanged += (s, eoffer) =>
+                {
+                    if (double.TryParse(offer10Box.Text, out double val))
+                        pt.offer10 = val;
+                };
+                Grid.SetColumn(offer10Box, 1);
+                rowOfferGrid.Children.Add(offer10Box);
+
+                // Offer11 Label
+                var offer11Label = new TextBlock
+                {
+                    Text = "Offer11:",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(20, 0, 6, 0)
+                };
+                Grid.SetColumn(offer11Label, 2);
+                rowOfferGrid.Children.Add(offer11Label);
+
+                // Offer11 TextBox
+                var offer11Box = new TextBox
+                {
+                    Width = 90,
+                    Text = pt.offer11.ToString()
+                };
+                offer11Box.TextChanged += (s, eoffer) =>
+                {
+                    if (double.TryParse(offer11Box.Text, out double val))
+                        pt.offer11 = val;
+                };
+                Grid.SetColumn(offer11Box, 3);
+                rowOfferGrid.Children.Add(offer11Box);
+                
+
                 mainPanel.Children.Add(rowGrid);
+                mainPanel.Children.Add(rowOfferGrid);
 
 
+
+                List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // 每个点 4 个 TextBox
 
                 int childIndex = 0;
                 for (int r = 0; r < row; r++)
@@ -1205,6 +1406,8 @@ namespace AkribisFAM.Windows
                         Margin = new Thickness(0, 4, 0, 4)
                     };
 
+                    var inputRow = new List<TextBox[]>();
+
                     for (int c = 0; c < col; c++)
                     {
                         var child = pt.childList[childIndex++];
@@ -1215,7 +1418,7 @@ namespace AkribisFAM.Windows
                         {
                             Orientation = System.Windows.Controls.Orientation.Vertical,
                             Margin = new Thickness(4),
-                            Width = 140,
+                            Width = 120,
                             Background = new SolidColorBrush(Colors.LightGray),
                         };
 
@@ -1224,36 +1427,64 @@ namespace AkribisFAM.Windows
                             Text = $"ID: {displayName}",
                             Margin = new Thickness(0, 0, 0, 6)
                         });
-
                         //回写，用于保存文件
-                        pointPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[0] = val;
-                        }));
+                        TextBox xBox, yBox, zBox, rBox;
 
-                        pointPanel.Children.Add(CreateLabeledTextBox("Y", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[1] = val;
-                        }));
-
-                        pointPanel.Children.Add(CreateLabeledTextBox("Z", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[2] = val;
-                        }));
-
-                        pointPanel.Children.Add(CreateLabeledTextBox("R", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[3] = val;
-                        }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], out xBox, newText => { if (double.TryParse(newText, out double val)) pos[0] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], out yBox, newText => { if (double.TryParse(newText, out double val)) pos[1] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], out zBox, newText => { if (double.TryParse(newText, out double val)) pos[2] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], out rBox, newText => { if (double.TryParse(newText, out double val)) pos[3] = val; }));
 
                         pointPanel.Children.Add(GreateButton(pt.axisMap, pointPanel));
 
                         rowPanel.Children.Add(pointPanel);
 
+                        inputRow.Add(new[] { xBox, yBox, zBox, rBox });
+
                     }
+
+                    matrixInputs.Add(inputRow);
 
                     mainPanel.Children.Add(rowPanel);
                 }
+
+                ButtonAutoData.Click += (s, ebtn) =>
+                {
+                    if (pt.childList.Count != pt.row * pt.col) return;
+
+                    var topLeft = pt.childList[0].childPos;
+                    var topRight = pt.childList[pt.col - 1].childPos;
+                    var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                    double[] vecX = new double[4];
+                    double[] vecY = new double[4];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                        vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                    }
+
+                    int idx = 0;
+                    for (int r = 0; r < pt.row; r++)
+                    {
+                        for (int c = 0; c < pt.col; c++)
+                        {
+                            var pos = pt.childList[idx++].childPos;
+
+                            pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                            pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                            pos[2] = topLeft[2];
+                            pos[3] = topLeft[3];
+
+                            var boxes = matrixInputs[r][c];
+                            boxes[0].Text = pos[0].ToString("0.###");
+                            boxes[1].Text = pos[1].ToString("0.###");
+                            boxes[2].Text = pos[2].ToString("0.###");
+                            boxes[3].Text = pos[3].ToString("0.###");
+                        }
+                    }
+                };
+
                 AddStationData(selectIndex, pt);
             }
             else if (data == 2)
@@ -1280,7 +1511,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -1298,7 +1529,7 @@ namespace AkribisFAM.Windows
                 // 添加 General 输入框（回写 pt.general）
                 var genTextBox = new TextBox
                 {
-                    Width = 100,
+                    Width = 90,
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 genTextBox.TextChanged += (s, edc) =>

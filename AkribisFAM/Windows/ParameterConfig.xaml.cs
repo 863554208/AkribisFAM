@@ -293,7 +293,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -383,7 +383,7 @@ namespace AkribisFAM.Windows
 
                     // 定义三列：标签、输入框、说明文本
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                     // ID: 标签
@@ -442,7 +442,7 @@ namespace AkribisFAM.Windows
                             {
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
-                                Width = 140,
+                                Width = 120,
                                 Background = new SolidColorBrush(Colors.LightGray),
                             };
 
@@ -524,7 +524,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 100,
+                        Width = 90,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -543,7 +543,7 @@ namespace AkribisFAM.Windows
                     var genTextBox = new TextBox
                     {
                         Text = pt.general.ToString(),
-                        Width = 100,
+                        Width = 90,
                         VerticalAlignment = VerticalAlignment.Center
                     };
                     genTextBox.TextChanged += (s, edc) =>
@@ -579,7 +579,7 @@ namespace AkribisFAM.Windows
 
             var tb = new TextBox
             {
-                Width = 110,
+                Width = 90,
                 Text = initialValue.ToString()
             };
 
@@ -611,8 +611,8 @@ namespace AkribisFAM.Windows
             {
                 ToolTip = "Teaching point",
                 Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
-                Width = 36,
-                Height = 36,
+                Width = 30,
+                Height = 30,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 0, 5),
@@ -2806,7 +2806,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -2898,7 +2898,7 @@ namespace AkribisFAM.Windows
 
                 // 定义三列：标签、输入框、说明文本
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                 // ID: 标签
@@ -2957,7 +2957,7 @@ namespace AkribisFAM.Windows
                         {
                             Orientation = System.Windows.Controls.Orientation.Vertical,
                             Margin = new Thickness(4),
-                            Width = 140,
+                            Width = 120,
                             Background = new SolidColorBrush(Colors.LightGray),
                         };
 
@@ -3039,7 +3039,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 100,
+                    Width = 90,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -3057,7 +3057,7 @@ namespace AkribisFAM.Windows
                 // 添加 General 输入框（回写 pt.general）
                 var genTextBox = new TextBox
                 {
-                    Width = 100,
+                    Width = 90,
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 genTextBox.TextChanged += (s, edc) =>
