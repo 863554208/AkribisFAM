@@ -115,25 +115,7 @@ namespace AkribisFAM.WorkStation
 
         public int LaserHeight()
         {
-            GlobalManager.Current.laserPoints.Clear();
-            //激光测距
-            if (GlobalManager.Current.stationPoints.LaiLiaoPointList == null)
-            {
-                Console.WriteLine("没有激光测距点位文件");
-                return 1;
-            }
-            foreach (var point in GlobalManager.Current.stationPoints.LaiLiaoPointList)
-            {
-                if(point.type == 0)
-                {
-                    //GlobalManager.Current.laserPoints.Add((point.X,point.Y));
-                }
-            }
-            if(GlobalManager.Current.laserPoints.Count == 0)
-            {
-                Console.WriteLine("激光测距点位为空");
-                return 1;
-            }
+
             foreach (var point in GlobalManager.Current.laserPoints)
             {
                 AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX ,(int)AxisAcc.LSX);

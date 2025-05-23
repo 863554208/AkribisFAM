@@ -187,12 +187,13 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+        public bool UseFeedar1 = true;
+        public bool UseFeedar2 = false;
+
         //测试用
         public bool isRun = false;
 
         public List<SinglePoint> laserPoints = new List<SinglePoint>();
-
-        public List<SinglePoint> feedarPoints = new List<SinglePoint>();
 
         public List<SinglePoint> feedar1Points = new List<SinglePoint>();
 
