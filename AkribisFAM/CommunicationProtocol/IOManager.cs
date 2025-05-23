@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace AkribisFAM.CommunicationProtocol
 {
-    enum IO_OutFunction_Table
+   public enum IO_OutFunction_Table
     {
         OUT1_0Left_1_lift_cylinder_extend = 0,
         OUT1_1Left_1_lift_cylinder_retract,

@@ -24,11 +24,38 @@
             <!--<Viewbox Grid.ColumnSpan="4" Grid.RowSpan="3" Stretch="UniformToFill">-->
             <Image Source="..\001.png" Grid.ColumnSpan="4" Grid.RowSpan="2" Stretch="Fill"  Height="600"/>
             <!--</Viewbox>-->
+            <Border Grid.Row="0" VerticalAlignment="Top" Background="White" BorderBrush="Black" BorderThickness="2"  Height="50" Width="Auto" Grid.ColumnSpan="2">
 
-            <local:GateControlView Grid.Row="2" Grid.Column="0" Opacity=".8" Grid.RowSpan="3" Margin="2"/>
-            <local:GateControlView Grid.Row="2" Grid.Column="1"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>
-            <local:GateControlView Grid.Row="2" Grid.Column="2"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>
-            <local:GateControlView Grid.Row="2" Grid.Column="3"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>
+                <StackPanel Orientation="Horizontal" Background="White"  HorizontalAlignment="Left"  Margin="20 0 ">
+                    <Label Content="All Station" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
+                    <RadioButton x:Name="btnMove" Content="Move" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMove_Click"/>
+                    <RadioButton x:Name="btnSlowMove" Content="Slow Move" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnSlowMove_Click"/>
+                    <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnStop_Click"/>
+                </StackPanel>
+            </Border>
+            <!--<local:GateControlView Grid.Row="2" Grid.Column="0" Opacity=".8" Grid.RowSpan="3" Margin="2"/>-->
+            <!--<local:GateControlView Grid.Row="2" Grid.Column="1"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>-->
+            <!--<local:GateControlView Grid.Row="2" Grid.Column="2"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>-->
+            <!--<local:GateControlView Grid.Row="2" Grid.Column="3"  Opacity=".8" Grid.RowSpan="3" Margin="2"/>-->
+            <ScrollViewer  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Grid.RowSpan="3">
+                <ItemsControl x:Name="itemControlStation">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:GateControlView  Opacity=".8" Margin="2" 
+                                                    GateZUpPressed="GateControlView_GateZUpPressed"
+                                                    GateZDownPressed="GateControlView_GateZDownPressed"
+                                                    LifterZUpPressed="GateControlView_LifterZUpPressed"
+                                                    LifterZDownPressed="GateControlView_LifterZDownPressed"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
 
         </Grid>

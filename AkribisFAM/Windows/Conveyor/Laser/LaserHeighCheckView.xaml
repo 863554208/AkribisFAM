@@ -20,7 +20,7 @@
             </Grid.ColumnDefinitions>
 
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
-            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged" />
             <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>
             <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
         </Grid>

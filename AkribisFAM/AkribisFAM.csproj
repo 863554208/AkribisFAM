@@ -226,6 +226,7 @@
     <Compile Include="Windows\CameraControl.xaml.cs">
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Converters\Converters.cs" />
     <Compile Include="Windows\Conveyor\Laser\LaserHeighCheckView.xaml.cs">
       <DependentUpon>LaserHeighCheckView.xaml</DependentUpon>
     </Compile>

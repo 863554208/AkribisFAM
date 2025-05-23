@@ -20,5 +20,18 @@ namespace AkribisFAM.Windows
             };
             cbxTrayType.SelectedIndex = 0;
         }
+
+        private void cbxTrayType_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+
+
     }
 }
