@@ -287,7 +287,8 @@ namespace AkribisFAM
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
-            if(!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, true) || !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, true))
+            //需要这两个信号都是0，代表电机可以复位，安全门也可以复位
+            if(!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, false) && !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, false))
             {
                 return false;
             }
