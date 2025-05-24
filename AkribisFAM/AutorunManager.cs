@@ -299,9 +299,9 @@ namespace AkribisFAM
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             AkrAction.Current.axisAllZAxisEnable(true);
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
             AkrAction.Current.axisAllZAxisEnable(false);
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
             Thread.Sleep(500);
@@ -326,6 +326,7 @@ namespace AkribisFAM
             //轴回原点
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
 
@@ -371,7 +372,7 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
 

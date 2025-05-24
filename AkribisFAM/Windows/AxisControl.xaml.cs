@@ -28,6 +28,7 @@ using System.Windows.Threading;
 using System.Reflection;
 using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace AkribisFAM.Windows
 {
@@ -141,12 +142,23 @@ namespace AkribisFAM.Windows
                 AxisName axisName = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
                 if (result == MessageBoxResult.OK)
                 {
-                    string path = Directory.GetCurrentDirectory() + "\\homming\\" + axisName.ToString() + "_homing.hseq";
+
+                    string path = "D:\\akribisfam_config\\HomeFileT\\" + axisName.ToString() + "_homing.hseq";
                     int agmIndex = (int)axisName / 8;
                     int axisRefNum = (int)axisName % 8;
+                    DateTime time = DateTime.Now;
                     try
                     {
+                        AkrAction.Current.axisEnable(axisName, true);
                         AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), path);
+                        while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
+                        {
+                            if ((DateTime.Now - time).TotalMilliseconds > 30000) {
+                                MessageBox.Show("Homing TimeOut!");
+                                break;//30sec break
+                            }
+                            Thread.Sleep(50);
+                        }
                     }
                     catch(Exception ex)
                     {
@@ -163,17 +175,12 @@ namespace AkribisFAM.Windows
         }
 
         private int _pressProgress;
-        private const int PressDuration = 3; // 3秒
+        private const int PressDuration = 3; // 3sec
         private int Home_trigger = 0;
         private void Button_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _pressProgress = 0;
             Home_trigger = 1;
-        }
-
-        private void Button_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-
         }
 
 
