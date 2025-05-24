@@ -147,6 +147,9 @@ namespace AkribisFAM.Windows
         private void InitOutIOState() {
             for (int i = 1; i < 14; i++)
             {
+                if (i == 2 || i == 4 || i == 6) {
+                    continue;
+                }
                 string name = "Cylinder" + i.ToString();
                 Button b1 = (Button)FindObject(name);
                 if (IOManager.Instance.INIO_status[(int)OutputCylinderExtendPairs[name]] == 0)
@@ -170,9 +173,6 @@ namespace AkribisFAM.Windows
                 {
                     b1.Content = "Supply";
                 }
-                string name2 = "Suctionnozzle" + i.ToString() + "1";
-                Button b2 = (Button)FindObject(name2);
-                b2.Content = "Blow";
             }
         }
 
@@ -284,6 +284,90 @@ namespace AkribisFAM.Windows
                 IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 0);
                 IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
                 button.Content = "Blow";
+            }
+        }
+
+        private void Cylinder2_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button.Name == "Cylinder1") {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder1"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder1"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 1);
+                    button.Content = "Extend";
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder2"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder2"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder2"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder2"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder2"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder2"], 1);
+                    button.Content = "Extend";
+                }
+            }
+            else if (button.Name == "Cylinder3") {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder3"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder3"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 1);
+                    button.Content = "Extend";
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder4"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder4"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder4"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder4"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder4"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder4"], 1);
+                    button.Content = "Extend";
+                }
+            }
+            else if (button.Name == "Cylinder5")
+            {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder5"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder5"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 1);
+                    button.Content = "Extend";
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder6"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder6"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder6"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder6"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder6"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder6"], 1);
+                    button.Content = "Extend";
+                }
             }
         }
     }

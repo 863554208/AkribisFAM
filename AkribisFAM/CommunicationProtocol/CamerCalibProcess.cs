@@ -61,6 +61,14 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
+                AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
+
+              
+
+
                 //解析josn中拍照运动坐标
                 //string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
                 //string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
@@ -145,8 +153,13 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 Thread.Sleep(800);
                 //吸嘴停止吸气
                 NozzleStopInhale(NozzleNumber.Nozzle1);
-                Thread.Sleep(1000);
-                
+                Thread.Sleep(10);
+                NozzleStopInhale1(NozzleNumber.Nozzle1);
+
+                Thread.Sleep(500);
+
+
+
                 //移动到预放标定片位
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[15].X, CalibrationPoints.ZuZhuangPointList[15].Y, CalibrationPoints.ZuZhuangPointList[15].Z, CalibrationPoints.ZuZhuangPointList[15].R, NozzleNumber.Nozzle1);
 
@@ -183,6 +196,13 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
+
+
+
                 //吸嘴吸气
                 //NozzleInhale(nozzleNumber);
                 //标定开始
@@ -211,6 +231,11 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
+                AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
+
                 //标定开始
                 if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, movingCameraCalibposition,"Movestart"))
                 {
@@ -304,6 +329,9 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //}
                 //double[] values = PointArray.Select(x => (double)x).ToArray();//x,y,z,r
                 int startidx = ((int)nozzleNumber - 1) * 11 + i;
+                if (startidx < 0) {
+                    startidx = ((int)nozzleNumber) * 11 + i;
+                }
                 string Data = $"{CalibrationPoints.ZuZhuangPointList[startidx].X},{CalibrationPoints.ZuZhuangPointList[startidx].Y},{CalibrationPoints.ZuZhuangPointList[startidx].R}";//x,y,r     
                 //发送标定指令
                 switch (nozzleNumber)
@@ -505,6 +533,42 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }
         }
 
+        private void NozzleStopInhale1(NozzleNumber nozzleNumber)//吸嘴停止吸气
+        {
+            switch (nozzleNumber)
+            {
+                case NozzleNumber.Nozzle1:
+                    {
+                        //Nozzle1吸嘴停止吸气
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
+                    }
+                    break;
+                case NozzleNumber.Nozzle2:
+                    {
+                        //Nozzle2吸嘴停止吸气
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 0);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
+                    }
+                    break;
+                case NozzleNumber.Nozzle3:
+                    {
+                        //Nozzle3吸嘴停止吸气
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply, 0);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
+                    }
+                    break;
+                case NozzleNumber.Nozzle4:
+                    {
+                        //Nozzle4吸嘴停止吸气
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 0);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
         private void MoveAxisDirectControl(double x, double y, double z, double r, NozzleNumber nozzleNumber)//直接控制轴运动，及到位判断
         {
             AkrAction.Current.Move(GlobalManager.AxisName.FSX,x, (int)AxisSpeed.FSX);//x轴运动x
@@ -514,8 +578,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             {
                 case NozzleNumber.Nozzle1:
                     {
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, z, (int)AxisSpeed.PICK1_Z); //z轴运动z
                         AkrAction.Current.Move(GlobalManager.AxisName.PICK1_T, r, (int)AxisSpeed.PICK1_T); //r轴运动r
+                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, z, (int)AxisSpeed.PICK1_Z); //z轴运动z
                     }
                     break;
                 case NozzleNumber.Nozzle2:
@@ -551,11 +615,12 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         public bool TrainNozzle(int pickernum)
         {
             //移动到飞拍起始位置
-            AkrAction.Current.Move(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[4].X, (int)AxisSpeed.FSX);
-            AkrAction.Current.Move(AxisName.FSY, CalibrationPoints.ZuZhuangPointList[4].Y, (int)AxisSpeed.FSY);
+            AkrAction.Current.Move(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[4].X, (int)10);
+            AkrAction.Current.Move(AxisName.FSY, CalibrationPoints.ZuZhuangPointList[4].Y, (int)10);
             //给Cognex发拍照信息
-            string command = "SN" + "123456," + $"+{pickernum}," + "Foam," + $"{CalibrationPoints.ZuZhuangPointList[pickernum].X},{CalibrationPoints.ZuZhuangPointList[pickernum].Y},{CalibrationPoints.ZuZhuangPointList[pickernum].R}";
+            string command = "SN" + "123456," + $"{pickernum+1}," + "Foam," + $"{CalibrationPoints.ZuZhuangPointList[pickernum].X},{CalibrationPoints.ZuZhuangPointList[pickernum].Y},{CalibrationPoints.ZuZhuangPointList[pickernum].R}";
             TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
+            Thread.Sleep(100);
             int cnt = 0;
             while (true)
             {
@@ -569,7 +634,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
             //飞拍移动到结束位置
             AkrAction.Current.SetSingleEvent(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, 1);
-            AkrAction.Current.MoveNoWait(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, (int)AxisSpeed.FSX);
+            AkrAction.Current.MoveNoWait(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, (int)10);
 
             //接受Cognex结果
             string Errcode = TriggTTNCamreaAcceptData(TTNProcessCommand.TTN)[0].Errcode1;

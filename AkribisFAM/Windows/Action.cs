@@ -225,7 +225,7 @@ namespace AkribisFAM.WorkStation
         public void WaitAxisAll()
         {
             AkrAction.Current.WaitAxis(AxisName.FSX);
-            AkrAction.Current.WaitAxis(AxisName.FSY);
+            //AkrAction.Current.WaitAxis(AxisName.FSY);
             //AkrAction.Current.WaitAxis(AxisName.LSX);
             //AkrAction.Current.WaitAxis(AxisName.LSY);
             //AkrAction.Current.WaitAxis(AxisName.PRX);
@@ -353,8 +353,8 @@ namespace AkribisFAM.WorkStation
             Stop(AxisName.PICK1_T);
             Stop(AxisName.PICK2_Z);
             Stop(AxisName.PICK2_T);
-            Stop(AxisName.PICK3_Z);
-            Stop(AxisName.PICK3_T);
+            //Stop(AxisName.PICK3_Z);
+            //Stop(AxisName.PICK3_T);
             Stop(AxisName.PICK4_Z);
             Stop(AxisName.PICK4_T);
             Stop(AxisName.PRX);
@@ -550,10 +550,10 @@ namespace AkribisFAM.WorkStation
             axisRefNum = temp % 8;
             AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK2_Z_homing.hseq");
 
-            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
-            agmIndex = temp / 8;
-            axisRefNum = temp % 8;
-            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK3_Z_homing.hseq");
+            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+            //agmIndex = temp / 8;
+            //axisRefNum = temp % 8;
+            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK3_Z_homing.hseq");
 
             temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
             agmIndex = temp / 8;
@@ -581,10 +581,10 @@ namespace AkribisFAM.WorkStation
             axisRefNum = temp % 8;
             AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK2_T_homing.hseq");
 
-            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_T");
-            agmIndex = temp / 8;
-            axisRefNum = temp % 8;
-            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK3_T_homing.hseq");
+            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_T");
+            //agmIndex = temp / 8;
+            //axisRefNum = temp % 8;
+            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK3_T_homing.hseq");
 
             temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_T");
             agmIndex = temp / 8;
@@ -944,8 +944,8 @@ namespace AkribisFAM.WorkStation
                 ret += SetZero(AxisName.PICK1_T);
                 ret += SetZero(AxisName.PICK2_Z);
                 ret += SetZero(AxisName.PICK2_T);
-                ret += SetZero(AxisName.PICK3_Z);
-                ret += SetZero(AxisName.PICK3_T);
+                //ret += SetZero(AxisName.PICK3_Z);
+                //ret += SetZero(AxisName.PICK3_T);
                 ret += SetZero(AxisName.PICK4_Z);
                 ret += SetZero(AxisName.PICK4_T);
 
@@ -970,8 +970,8 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.PICK1_T, enable);
             ret += axisEnable(AxisName.PICK2_Z, enable);
             ret += axisEnable(AxisName.PICK2_T, enable);
-            ret += axisEnable(AxisName.PICK3_Z, enable);
-            ret += axisEnable(AxisName.PICK3_T, enable);
+            //ret += axisEnable(AxisName.PICK3_Z, enable);
+            //ret += axisEnable(AxisName.PICK3_T, enable);
             ret += axisEnable(AxisName.PICK4_Z, enable);
             ret += axisEnable(AxisName.PICK4_T, enable);
 
@@ -1005,8 +1005,8 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.PICK1_T, enable);
             ret += axisEnable(AxisName.PICK2_Z, enable);
             ret += axisEnable(AxisName.PICK2_T, enable);
-            ret += axisEnable(AxisName.PICK3_Z, enable);
-            ret += axisEnable(AxisName.PICK3_T, enable);
+            //ret += axisEnable(AxisName.PICK3_Z, enable);
+            //ret += axisEnable(AxisName.PICK3_T, enable);
             ret += axisEnable(AxisName.PICK4_Z, enable);
             ret += axisEnable(AxisName.PICK4_T, enable);
             ret += axisEnable(AxisName.PRX, enable);
