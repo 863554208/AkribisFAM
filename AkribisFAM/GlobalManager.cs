@@ -149,6 +149,19 @@ namespace AkribisFAM
         public int flag_RecheckStationRequestOutflowTray;
         public int flag_Bypass;
 
+        public int laserpoint1_shift_X = 20;
+        public int laserpoint1_shift_Y = 0;
+        public int laserpoint2_shift_X = 20;
+        public int laserpoint2_shift_Y = 20;
+        public int laserpoint3_shift_X = 0;
+        public int laserpoint3_shift_Y = 20;
+
+        //参数界面
+        public int NozzleGap_X = 20;
+        public int PalleteGap_X = 50;
+        public int PalleteGap_Y = 40;
+        public int TotalRow = 3;
+        public int TotalColumn = 4;
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -212,7 +225,9 @@ namespace AkribisFAM
 
         public List<SinglePoint> feedar2Points = new List<SinglePoint>();
 
-        public List<SinglePoint> pickFoamPoints = new List<SinglePoint>();
+        public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
 
         public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
 

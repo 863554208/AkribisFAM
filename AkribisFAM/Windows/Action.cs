@@ -189,12 +189,9 @@ namespace AkribisFAM.WorkStation
         }
 
 
-        public void MoveNoWait(GlobalManager.AxisName axisName, double? position, double? speed = null, double? accel = null, double? decel = null)
+        public int MoveNoWait(GlobalManager.AxisName axisName, double? position, double? speed = null, double? accel = null, double? decel = null)
         {
-            if(axisName == AxisName.FSX || axisName == AxisName.FSY || axisName == AxisName.PRX || axisName == AxisName.PRY)
-            {
-
-            }
+            if (ZAxisInSafeZone(axisName) != 0) return -1;
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
             if (accel == null)
@@ -208,7 +205,7 @@ namespace AkribisFAM.WorkStation
                 
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
-
+            return 0;
         }
 
 
@@ -277,7 +274,7 @@ namespace AkribisFAM.WorkStation
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 //TODO 加入退出机制
-                if ((DateTime.Now - now).TotalMilliseconds > 25000)
+                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold *1000)
                 {
                     string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
                     Logger.WriteLog(err);
@@ -353,7 +350,7 @@ namespace AkribisFAM.WorkStation
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 //TODO 加入退出机制
-                if ((DateTime.Now - now).TotalMilliseconds > 25000)
+                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
                 {
                     string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
                     Logger.WriteLog(err);
@@ -389,7 +386,7 @@ namespace AkribisFAM.WorkStation
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 //TODO 加入退出机制
-                if ((DateTime.Now - now).TotalMilliseconds > 25000)
+                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
                 {
                     string err = string.Format("第{0}个AGM800的第{1}个轴相对移动失败", agmIndex.ToString(), axisRefNum.ToString());
                     Logger.WriteLog(err);

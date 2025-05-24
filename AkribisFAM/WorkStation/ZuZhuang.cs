@@ -25,6 +25,8 @@ namespace AkribisFAM.WorkStation
         int delta = 0;
         public int board_count = 0;
 
+        List<SinglePoint> snapPalleteList = new List<SinglePoint>();
+
         List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
         List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
         List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> palletePath = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> ();
@@ -382,9 +384,14 @@ namespace AkribisFAM.WorkStation
 
         public int PickFoam()
         {
+            GlobalManager.Current.UsePicker1 = true;
+            GlobalManager.Current.UsePicker2 = true;
+            GlobalManager.Current.UsePicker3 = false;
+            GlobalManager.Current.UsePicker4 = true;
+
             //移动到取料位
-            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.pickFoamPoints[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.pickFoamPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.pickFoam1Points[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.pickFoam1Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
             if (GlobalManager.Current.UsePicker1)
             {
@@ -564,6 +571,43 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
+        public void CalcaulteFlySnapPath()
+        {
+            double start_pos_X = GlobalManager.Current.snapPalletePoints[0].X;
+            double start_pos_Y = GlobalManager.Current.snapPalletePoints[0].Y;
+            int totalRow = GlobalManager.Current.TotalRow;
+            int totalColumn = GlobalManager.Current.TotalColumn;
+            int gap_X = GlobalManager.Current.PalleteGap_X;
+            int gap_Y = GlobalManager.Current.PalleteGap_Y;
+            double end_pos_X = (totalColumn - 1) * gap_X;
+            double end_pos_Y = (totalRow - 1) * gap_Y;
+
+            snapPalleteList.Clear();
+
+            for (int row = 0; row < totalRow; row++)
+            {
+                double current_start_pos_Y = start_pos_Y + (row - 1) * gap_Y; // 当前行的起点Y坐标
+                double current_end_pos_Y = current_start_pos_Y; // 当前行的终点Y坐标（在同一行）]
+                double current_start_pos_X = start_pos_X;
+                double current_end_pos_X = start_pos_X + (totalColumn - 1) * gap_X;
+                snapPalleteList.Add(new SinglePoint()
+                {
+                    X = current_start_pos_X,
+                    Y = current_start_pos_Y,
+                    Z = 0,
+                    R = 0
+                });
+                snapPalleteList.Add(new SinglePoint()
+                {
+                    X = current_end_pos_X,
+                    Y = current_end_pos_Y,
+                    Z = 0,
+                    R = 0
+                });
+            }
+        }
+
+
         public int SnapPallete()
         {
             palletePath.Clear();
@@ -586,20 +630,24 @@ namespace AkribisFAM.WorkStation
             //}
 
             //Task_AssUpCameraFunction.TriggAssUpCamreaTLTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT, palletePath);
+
+
+            CalcaulteFlySnapPath();
+
             int count = 0;
-            foreach (var Point in GlobalManager.Current.snapPalletePoints)
+            foreach (var Point in snapPalleteList)
             {
                 Logger.WriteLog("料盘飞拍开始");
 
-                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.snapPalletePoints[count].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.snapPalletePoints[count].Y, (int)AxisSpeed.FSY ,(int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count].Y, (int)AxisSpeed.FSY ,(int)AxisAcc.FSX);
 
-                AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.snapPalletePoints[count].X, 50, GlobalManager.Current.snapPalletePoints[count+1].X, 1);
+                AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, snapPalleteList[count].X, GlobalManager.Current.PalleteGap_X, GlobalManager.Current.snapPalletePoints[count+1].X, 1);
 
                 count++;
 
-                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.snapPalletePoints[count].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.snapPalletePoints[count].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
                 count++;
 
@@ -616,7 +664,7 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.picker1State = true;
             GlobalManager.Current.picker2State = true;
-            GlobalManager.Current.picker3State = true;
+            GlobalManager.Current.picker3State = false;
             GlobalManager.Current.picker4State = true;
 
             var caveId = (GlobalManager.Current.current_Assembled + 1);
@@ -715,8 +763,6 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
                 Thread.Sleep(20);
                 AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z);
-
-         
 
                 caveId++;
                 GlobalManager.Current.current_Assembled++;
