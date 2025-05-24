@@ -50,6 +50,18 @@ namespace AkribisFAM
         public double R { get; set; }
 
         [DataMember]
+        public double spacingX { get; set; }
+
+        [DataMember]
+        public double spacingY { get; set; }
+
+        [DataMember]
+        public double offer10{ get; set; }
+
+        [DataMember]
+        public double offer11 { get; set; }
+
+        [DataMember]
         public List<int> axisMap { get; set; }
 
         [DataMember]

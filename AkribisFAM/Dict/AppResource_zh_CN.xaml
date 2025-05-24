@@ -24,7 +24,8 @@
 
 
     <sys:String x:Key="TextAxisList">轴列表</sys:String>
-    <sys:String x:Key="TextAxisStat">轴状态</sys:String>
+    <sys:String x:Key="TextAxisStat">当前轴状态</sys:String>
+    <sys:String x:Key="TextAllAxisStat">所有轴状态</sys:String>
     <sys:String x:Key="TextAxisControl">轴控制</sys:String>
     <sys:String x:Key="TextAxisName">轴名</sys:String>
     <sys:String x:Key="TextTargetAxisPos">目标位置</sys:String>
