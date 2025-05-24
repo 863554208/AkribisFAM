@@ -99,7 +99,12 @@ namespace AkribisFAM
             _timer.Start();
 
             //END Add
+            this.Closing += MainWindow_Closing;
+        }
 
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            TCPNetworkManage.StopAllClients();
         }
 
         private void UpdateIcon()
