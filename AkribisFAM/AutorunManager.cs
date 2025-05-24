@@ -296,40 +296,30 @@ namespace AkribisFAM
 
             //单独对Z轴下使能
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
-            Thread.Sleep(500);
+            Thread.Sleep(300);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             AkrAction.Current.axisAllZAxisEnable(true);
-            Thread.Sleep(1000);
+            Thread.Sleep(200);
             AkrAction.Current.axisAllZAxisEnable(false);
-            Thread.Sleep(1000);
+            Thread.Sleep(200);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
-            Thread.Sleep(500);
+            Thread.Sleep(300);
             //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
-            Logger.WriteLog("2222");
             //复位气缸和吸嘴IO
             CylinderDown();
-            Logger.WriteLog("3333");
-
-
-            //再次吸嘴上气
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-            Thread.Sleep(20);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
-            Thread.Sleep(20);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
-            Thread.Sleep(20);
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
- 
-            //轴回原点
 
+            //轴回原点
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
+            //while()
 
-            AkrAction.Current.WaitAxisAll();
+            AkrAction.Current.WaitAllHomingFinished();
  
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
@@ -371,7 +361,7 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
 
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
 
@@ -389,8 +379,6 @@ namespace AkribisFAM
             //让飞达送料
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1 , 1);
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
-            Thread.Sleep(20);
 
             return true;
         }

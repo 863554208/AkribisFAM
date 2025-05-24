@@ -450,10 +450,10 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 1);
 
             Thread.Sleep(200);
-            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 10, (int)AxisSpeed.PICK1_Z);
-            AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 10, (int)AxisSpeed.PICK2_Z);
-            AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 10, (int)AxisSpeed.PICK3_Z);
-            AkrAction.Current.Move(AxisName.PICK4_Z, 10, (int)AxisSpeed.PICK4_Z);
+            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
+            AkrAction.Current.MoveNoWait(AxisName.PICK2_Z, 5, (int)AxisSpeed.PICK2_Z);
+            AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 5, (int)AxisSpeed.PICK3_Z);
+            AkrAction.Current.Move(AxisName.PICK4_Z, 5, (int)AxisSpeed.PICK4_Z);
 
             return 0;
         }
