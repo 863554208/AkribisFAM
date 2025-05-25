@@ -20,14 +20,50 @@
             </Grid.ColumnDefinitions>
 
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
-            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5"/>
-            <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
+            <!--<Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>-->
             <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right"/>
         </Grid>
-        <StackPanel Orientation="Horizontal" Grid.Row="1">
-            <local:ManualFeederControlView/>
-            <local:ManualFeederControlView/>
-        </StackPanel>
+        <ScrollViewer  Grid.Row="1">
+            <ItemsControl x:Name="itemControlStation">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ManualFeederControlView  Opacity=".8" Margin="2" 
+                                                       VisionStandbyPosPressed="ManualFeederControlView_VisionStandbyPosPressed"
+                                                        VisionEndingPosPressed="ManualFeederControlView_VisionEndingPosPressed"
+                                                        VisionOTFPressed="ManualFeederControlView_VisionOTFPressed"
+                                                        PickerZUpPressed="ManualFeederControlView_PickerZUpPressed"
+                                                        PickerZDownPressed="ManualFeederControlView_PickerZDownPressed"
+                                                        PickerVacOnPressed="ManualFeederControlView_PickerVacOnPressed"
+                                                        PickerPurgePressed="ManualFeederControlView_PickerPurgePressed"
+                                                        PickerOffAirPressed="ManualFeederControlView_PickerOffAirPressed"
+                                                        PickerMoveFoam1Pressed="ManualFeederControlView_PickerMoveFoam1Pressed"
+                                                        PickerMoveFoam2Pressed="ManualFeederControlView_PickerMoveFoam2Pressed"
+                                                        PickerMoveFoam3Pressed="ManualFeederControlView_PickerMoveFoam3Pressed"
+                                                        PickerMoveFoam4Pressed="ManualFeederControlView_PickerMoveFoam4Pressed"
+                                                        PickerPickFoam1Pressed="ManualFeederControlView_PickerPickFoam1Pressed"
+                                                        PickerPickFoam2Pressed="ManualFeederControlView_PickerPickFoam2Pressed"
+                                                        PickerPickFoam3Pressed="ManualFeederControlView_PickerPickFoam3Pressed"
+                                                        PickerPickFoam4Pressed="ManualFeederControlView_PickerPickFoam4Pressed"
+                                                        FeederIndexPressed="ManualFeederControlView_FeederIndexPressed"
+                                                        FeederExtendPressed="ManualFeederControlView_FeederExtendPressed"
+                                                        FeederRetractPressed="ManualFeederControlView_FeederRetractPressed"
+                                                        FeederOffAirPressed="ManualFeederControlView_FeederOffAirPressed"   
+                                                        FeederPurgePressed="ManualFeederControlView_FeederPurgePressed"
+                                                        FeederVacOnPressed="ManualFeederControlView_FeederVacOnPressed"
+                                                        
+                                                        />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
 
     </Grid>
 </UserControl>

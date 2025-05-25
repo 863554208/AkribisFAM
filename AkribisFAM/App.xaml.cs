@@ -1,26 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using AAMotion;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
-using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.AAmotionFAM;
-using static AkribisFAM.GlobalManager;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
-using AkribisFAM.Helper;
 using AkribisFAM.DeviceClass;
 
 namespace AkribisFAM
@@ -34,6 +24,10 @@ namespace AkribisFAM
         public static DirectoryManager DirManager;
         public static RecipeManager recipeManager;
         public static KeyenceLaserControl laser;
+        public static CognexVisionControl vision1;
+        public static AssemblyGantryControl assemblyGantryControl;
+        public static FeederControl feeder1;
+        public static FeederControl feeder2;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -59,7 +53,9 @@ namespace AkribisFAM
 
             recipeManager = new RecipeManager();
             laser = new KeyenceLaserControl();
-
+            vision1 = new CognexVisionControl();
+            feeder1 = new FeederControl(1);
+            feeder2 = new FeederControl(2);
 
             //TODO
             //try

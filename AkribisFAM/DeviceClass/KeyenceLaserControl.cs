@@ -1,14 +1,6 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Util;
-using AkribisFAM.WorkStation;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Pushcommand;
-using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.DeviceClass
 {

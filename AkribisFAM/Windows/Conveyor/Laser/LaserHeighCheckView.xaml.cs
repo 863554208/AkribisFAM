@@ -19,7 +19,7 @@ namespace AkribisFAM.Windows
     {
         LaserHeighCheckVM vm;
         bool stopAllMotion = false;
-        public class LaserHeighCheckVM
+         class LaserHeighCheckVM
         {
 
             private List<ObservableCollection<SinglePoint>> points = new List<ObservableCollection<SinglePoint>>();
@@ -60,8 +60,10 @@ namespace AkribisFAM.Windows
 
         private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            DataContext = null;
             List<SinglePoint> lsp = new List<SinglePoint>();
             if (cbxTrayType.SelectedIndex < 0) return;
+            if (cbxTrayType.SelectedIndex > 0) return;
 
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
@@ -99,7 +101,7 @@ namespace AkribisFAM.Windows
             pts.Add(newpt);
             pts.Add(newpt);
 
-            LaserHeighCheckVM vm = new LaserHeighCheckVM()
+             vm = new LaserHeighCheckVM()
             {
                 Points = pts,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,

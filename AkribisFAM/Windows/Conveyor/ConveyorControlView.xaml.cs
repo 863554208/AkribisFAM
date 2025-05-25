@@ -12,11 +12,11 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class ConveyorControlView : UserControl
     {
-        ObservableCollection<ConveyorWorkstationControl> stations = new ObservableCollection<ConveyorWorkstationControl>();
+        ObservableCollection<ConveyorWorkStationControl> stations = new ObservableCollection<ConveyorWorkStationControl>();
         public ConveyorControlView()
         {
             InitializeComponent();
-            ConveyorWorkstationControl laserStation = new ConveyorWorkstationControl()
+            ConveyorWorkStationControl laserStation = new ConveyorWorkStationControl()
             {
                 StationNumber = 1,
                 StationName = "Laser Check",
@@ -60,7 +60,7 @@ namespace AkribisFAM.Windows
 
             };
             stations.Add(laserStation);
-            ConveyorWorkstationControl assemblyStation = new ConveyorWorkstationControl()
+            ConveyorWorkStationControl assemblyStation = new ConveyorWorkStationControl()
             {
                 StationNumber = 2,
                 StationName = "Foam assembly",
@@ -107,7 +107,7 @@ namespace AkribisFAM.Windows
 
             stations.Add(assemblyStation);
 
-            ConveyorWorkstationControl filmRemoveStation = new ConveyorWorkstationControl()
+            ConveyorWorkStationControl filmRemoveStation = new ConveyorWorkStationControl()
             {
                 StationNumber = 3,
                 StationName = "Film Remove",
@@ -153,13 +153,14 @@ namespace AkribisFAM.Windows
 
             stations.Add(filmRemoveStation);
 
-            ConveyorWorkstationControl NGStation = new ConveyorWorkstationControl()
+            ConveyorWorkStationControl NGStation = new ConveyorWorkStationControl()
             {
                 StationNumber = 4,
                 StationName = "NG Reject",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    IO_INFunction_Table.IN1_2Slowdown_Sign3
+                    IO_INFunction_Table.IN1_2Slowdown_Sign3,
+                    IO_INFunction_Table.IN6_0NG_plate_1_in_position
                 },
                 LifterInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -220,14 +221,14 @@ namespace AkribisFAM.Windows
         private void GateControlView_GateZDownPressed(object sender, System.EventArgs e)
         {
             var control = (GateControlView)sender;
-            var station = (ConveyorWorkstationControl)control.DataContext;
+            var station = (ConveyorWorkStationControl)control.DataContext;
             Conveyor.Current.GateDown(station.StationNumber);
         }
 
         private void GateControlView_GateZUpPressed(object sender, System.EventArgs e)
         {
             var control = (GateControlView)sender;
-            var station = (ConveyorWorkstationControl)control.DataContext;
+            var station = (ConveyorWorkStationControl)control.DataContext;
             Conveyor.Current.GateUp(station.StationNumber);
         }
 
@@ -235,20 +236,20 @@ namespace AkribisFAM.Windows
         {
 
             var control = (GateControlView)sender;
-            var station = (ConveyorWorkstationControl)control.DataContext;
+            var station = (ConveyorWorkStationControl)control.DataContext;
             Conveyor.Current.LiftDownRelatedTray(station.StationNumber);
         }
 
         private void GateControlView_LifterZUpPressed(object sender, System.EventArgs e)
         {
             var control = (GateControlView)sender;
-            var station = (ConveyorWorkstationControl)control.DataContext;
+            var station = (ConveyorWorkStationControl)control.DataContext;
             Conveyor.Current.LiftUpRelatedTray(station.StationNumber);
         }
     }
 
 
-    public class ConveyorWorkstationControl
+    public class ConveyorWorkStationControl
     {
         private int stationNumber;
 
@@ -314,8 +315,8 @@ namespace AkribisFAM.Windows
             set { gateOutList = value; }
         }
 
-        public ConveyorWorkstationControl() { }
-        public ConveyorWorkstationControl(string name,
+        public ConveyorWorkStationControl() { }
+        public ConveyorWorkStationControl(string name,
             ObservableCollection<IO_INFunction_Table> conveyIn,
             ObservableCollection<IO_OutFunction_Table> conveyOut,
             ObservableCollection<IO_INFunction_Table> lifterIn,
