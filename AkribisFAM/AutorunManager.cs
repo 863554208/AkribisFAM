@@ -95,6 +95,22 @@ namespace AkribisFAM
             return ret;
         }
 
+
+        public void Clear()
+        {
+
+            GlobalManager.Current.laserPoints.Clear();
+            GlobalManager.Current.feedar1Points.Clear();
+            GlobalManager.Current.feedar2Points.Clear();
+            GlobalManager.Current.pickFoam1Points.Clear();
+            GlobalManager.Current.pickFoam2Points.Clear();
+            GlobalManager.Current.lowerCCDPoints.Clear();
+            GlobalManager.Current.dropBadFoamPoints.Clear();
+            GlobalManager.Current.snapPalletePoints.Clear();
+            GlobalManager.Current.placeFoamPoints.Clear();
+            GlobalManager.Current.recheckPoints.Clear();
+            GlobalManager.Current.tearingPoints.Clear();
+        }
         public async void AutoRunMain(CancellationToken token)
         {
             if (!CheckTaskReady())
@@ -113,6 +129,7 @@ namespace AkribisFAM
             {
                 Trace.WriteLine("Autorun Process");
 
+                Clear();
                 ParameterConfig.LoadPoints();
 
                 try
@@ -280,6 +297,8 @@ namespace AkribisFAM
 
         public bool Reset()
         {
+            return true;
+            
             //20250519 测试 【史彦洋】 追加 Start
             //Thread.Sleep(5000);
             //return true;
@@ -313,7 +332,7 @@ namespace AkribisFAM
             AkrAction.Current.axisAllEnable(true);
 
             //轴回原点
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
@@ -338,14 +357,14 @@ namespace AkribisFAM
             //激光测距复位(tcp)
 
             //相机复位(tcp)
-            sendSetStatCamreapositionList.Clear();
-            SendSetStatCamreaposition command = new SendSetStatCamreaposition
-            {
-                AE_Station = "123",
-                ProjectName ="project",
-            };
-            sendSetStatCamreapositionList.Add(command);
-            Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
+            //sendSetStatCamreapositionList.Clear();
+            //SendSetStatCamreaposition command = new SendSetStatCamreaposition
+            //{
+            //    AE_Station = "123",
+            //    ProjectName ="project",
+            //};
+            //sendSetStatCamreapositionList.Add(command);
+            //Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
 
             //程序状态为置0
             GlobalManager.Current.current_Lailiao_step = 0;
@@ -372,6 +391,9 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+            AkrAction.Current.WaitAllHomingZFinished();
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);

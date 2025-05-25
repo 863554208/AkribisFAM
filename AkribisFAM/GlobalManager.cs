@@ -872,10 +872,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 100,
-            LSY = 100,
-            FSX = 100,
-            FSY = 100,
+            LSX = 50,
+            LSY = 50,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -890,14 +890,14 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 10,
-            PICK1_T = 10,
-            PICK2_Z = 10,
-            PICK2_T = 10,
-            PICK3_Z = 10,
-            PICK3_T = 10,
-            PICK4_Z = 10,
-            PICK4_T = 10,
+            PICK1_Z = 8,
+            PICK1_T = 8,
+            PICK2_Z = 8,
+            PICK2_T = 8,
+            PICK3_Z = 8,
+            PICK3_T = 8,
+            PICK4_Z = 8,
+            PICK4_T = 8,
 
             //AGM800[3]
             PRX = 50,
