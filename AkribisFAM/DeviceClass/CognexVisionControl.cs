@@ -28,7 +28,7 @@ namespace AkribisFAM.DeviceClass
 
         public bool OnTheFlyTrigger(FeederNum feeder)
         {
-            List<SinglePoint > points = new List<SinglePoint>();
+            List<SinglePoint> points = new List<SinglePoint>();
             switch (feeder)
             {
                 case FeederNum.Feeder1:
@@ -83,8 +83,30 @@ namespace AkribisFAM.DeviceClass
             Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
             return true;
         }
+        public bool MoveVision2StandbyPos()
+        {
+            List<SinglePoint> points = new List<SinglePoint>(); 
+            points = GlobalManager.Current.lowerCCDPoints;
+           
 
-        public bool MoveStandbyPos(FeederNum feeder)
+            //移动到拍照起始点
+            AkrAction.Current.MoveNoWait(AxisName.FSX, points[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+
+            return true;
+        }
+        public bool MoveVision2EndingPos()
+        {
+            List<SinglePoint> points = new List<SinglePoint>(); 
+            points = GlobalManager.Current.lowerCCDPoints;
+
+
+            AkrAction.Current.MoveNoWait(AxisName.FSX, points[1].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+
+            return true;
+        }
+        public bool MoveFoamStandbyPos(FeederNum feeder)
         {
             List<SinglePoint> points = new List<SinglePoint>();
             switch (feeder)
@@ -106,7 +128,7 @@ namespace AkribisFAM.DeviceClass
             return true;
         }
 
-        public bool MoveEndingPos(FeederNum feeder)
+        public bool MoveFoamEndingPos(FeederNum feeder)
         {
             List<SinglePoint> points = new List<SinglePoint>();
             switch (feeder)

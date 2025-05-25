@@ -22,18 +22,26 @@ namespace AkribisFAM.Manager
                 TrayType = TrayType.PAM_230_144_3X4,
                 RecipeName = TrayType.PAM_230_144_3X4.ToString(),
                 SettingPath = "Station_points1.json",
+                XPitch = 54.5,
+                YPitch = 40,
+                Width = 230,
+                Height = 144,
                 PartRow = 3,
                 PartColumn = 4,
             });
 
             Recipes.Add(new Recipe()
             {
-                RecipeNumber = (int)TrayType.RIM_292_120,
-                TrayType = TrayType.RIM_292_120,
-                RecipeName = TrayType.RIM_292_120.ToString(),
+                RecipeNumber = (int)TrayType.RIM_292_120_2X8,
+                TrayType = TrayType.RIM_292_120_2X8,
+                RecipeName = TrayType.RIM_292_120_2X8.ToString(),
                 SettingPath = "Station_points2.json",
-                PartColumn = 3,
-                PartRow = 4,
+                XPitch = 69,
+                YPitch = 56,
+                Width = 290,
+                Height = 120,
+                PartRow = 2,
+                PartColumn = 8,
             });
 
             Recipes.Add(new Recipe()
@@ -42,28 +50,40 @@ namespace AkribisFAM.Manager
                 TrayType = TrayType.SLAW_360_260_4X5,
                 RecipeName = TrayType.SLAW_360_260_4X5.ToString(),
                 SettingPath = "Station_points3.json",
-                PartColumn = 4,
-                PartRow = 5,
+                XPitch = 40,
+                YPitch = 60,
+                Width = 360,
+                Height = 260,
+                PartRow = 4,
+                PartColumn = 5,
             });
 
             Recipes.Add(new Recipe()
             {
-                RecipeNumber = (int)TrayType.VAM_300_220,
-                TrayType = TrayType.VAM_300_220,
-                RecipeName = TrayType.VAM_300_220.ToString(),
+                RecipeNumber = (int)TrayType.VAM_300_220_3X6,
+                TrayType = TrayType.VAM_300_220_3X6,
+                RecipeName = TrayType.VAM_300_220_3X6.ToString(),
                 SettingPath = "Station_points4.json",
-                PartColumn = 3,
-                PartRow = 4,
+                XPitch = 40,
+                YPitch = 60,
+                Width = 300,
+                Height = 220,
+                PartRow = 3,
+                PartColumn = 6,
             });
 
             Recipes.Add(new Recipe()
             {
-                RecipeNumber = (int)TrayType.RUM_300_200,
-                TrayType = TrayType.RUM_300_200,
-                RecipeName = TrayType.RUM_300_200.ToString(),
+                RecipeNumber = (int)TrayType.RUM_300_200_4x3,
+                TrayType = TrayType.RUM_300_200_4x3,
+                RecipeName = TrayType.RUM_300_200_4x3.ToString(),
                 SettingPath = "Station_points5.json",
-                PartColumn = 3,
+                XPitch = 85,
+                YPitch = 42,
+                Width = 300,
+                Height = 200,
                 PartRow = 4,
+                PartColumn = 3,
             });
         }
 
@@ -101,10 +121,10 @@ namespace AkribisFAM.Manager
     public enum TrayType
     {
         PAM_230_144_3X4,
-        RIM_292_120,
+        RIM_292_120_2X8,
         SLAW_360_260_4X5,
-        VAM_300_220,
-        RUM_300_200,
+        VAM_300_220_3X6,
+        RUM_300_200_4x3,
     }
     public class Recipe
     {
@@ -147,6 +167,37 @@ namespace AkribisFAM.Manager
         {
             get { return partColumn; }
             set { partColumn = value; }
+        }
+        private double xpitch;
+
+        public double XPitch
+        {
+            get { return xpitch; }
+            set { xpitch = value; }
+        }
+
+        private double width;
+
+        public double Width
+        {
+            get { return width; }
+            set { width = value; }
+        }
+
+        private double height;
+
+        public double Height
+        {
+            get { return height; }
+            set { height = value; }
+        }
+
+        private double ypitch;
+
+        public double YPitch
+        {
+            get { return ypitch; }
+            set { ypitch = value; }
         }
 
         public int TotalPart => PartRow * PartColumn;

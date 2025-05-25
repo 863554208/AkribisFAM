@@ -25,9 +25,9 @@
         <StackPanel Orientation="Vertical" Grid.Row="1">
             <Label Content="Vision CCD2 Motion" Width="150" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left"  Margin="20 0 ">
-                <RadioButton x:Name="btnMoveStandby" Content="Move to Standby Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
-                <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
-                <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}"/>
+                <RadioButton x:Name="btnMoveStandby" Content="Move to Standby Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveStandby_Click"/>
+                <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveEnding_Click"/>
+                <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnStop_Click"/>
             </StackPanel>
             <Button x:Name="btnVis1OTF" Content="On the fly capture" Width="200" Margin="20 10"  Style="{StaticResource MaterialDesignPaperButton}" HorizontalAlignment="Left"/>
             <StackPanel Orientation="Vertical" Margin="20 0">

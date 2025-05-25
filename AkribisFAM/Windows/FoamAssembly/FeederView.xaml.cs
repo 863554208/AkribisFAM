@@ -189,7 +189,7 @@ namespace AkribisFAM.Windows
         {
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.MoveStandbyPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            App.vision1.MoveFoamStandbyPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
         }
 
         private void ManualFeederControlView_VisionEndingPosPressed(object sender, EventArgs e)
@@ -197,7 +197,7 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.MoveEndingPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            App.vision1.MoveFoamEndingPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
         }
 
         private void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
