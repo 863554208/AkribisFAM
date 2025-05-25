@@ -62,23 +62,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             await Task.Run(new Action(() =>
             {
                 AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
 
-              
-
-
-                //解析josn中拍照运动坐标
-                //string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-                //string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-                //JObject obj = JObject.Parse(json);
-                //double[] MoveVehiclesPhotoposition = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["MoveVehiclesPhotoposition"]).ToObject<double[]>();//载具标定拍照位
-                //double[] MoveReservepickmylar = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["MoveReservepickmylar"]).ToObject<double[]>();//预取标定片位
-                //double[] Movepickmylar = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["Movepickmylar"]).ToObject<double[]>();//取标定片位
-                //double[] MoveFeedPhotoposition = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["MoveFeedPhotoposition"]).ToObject<double[]>();//飞达标定拍照位
-                //double[] MoveReservePutmylar = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["MoveReservePutmylar"]).ToObject<double[]>();//预放标定片位
-                //double[] Moveputmylar = ((Newtonsoft.Json.Linq.JArray)obj["CombineCalibProcessposition"]["Moveputmylar"]).ToObject<double[]>();//放标定片位
                 //标定开始
                 if (!CamerCombinePhotoCalib(CombineCalibProcess.Combinestart, "CombineStart"))
                 {
@@ -87,25 +71,13 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //移动到载具标定拍照位
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[11].X, CalibrationPoints.ZuZhuangPointList[11].Y, CalibrationPoints.ZuZhuangPointList[11].Z, CalibrationPoints.ZuZhuangPointList[11].R, NozzleNumber.Nozzle1);
 
-                ////移动到预取标定片位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
-                ////移动到取标定片位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[13].X, CalibrationPoints.ZuZhuangPointList[13].Y, CalibrationPoints.ZuZhuangPointList[13].Z, CalibrationPoints.ZuZhuangPointList[13].R, NozzleNumber.Nozzle1);
-
                 Thread.Sleep(800);//延时
                 //取标定片指令发送
                 if (!CamerCombinePhotoCalib(CombineCalibProcess.Combinepick, $"{CalibrationPoints.ZuZhuangPointList[13].X.ToString()},{CalibrationPoints.ZuZhuangPointList[13].Y.ToString()},{CalibrationPoints.ZuZhuangPointList[13].R.ToString()}"))
                 {
                     return;
                 }
-                ////移动到预取标定片位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
-                ////移动到载具标定拍照位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[11].X, CalibrationPoints.ZuZhuangPointList[11].Y, CalibrationPoints.ZuZhuangPointList[11].Z, CalibrationPoints.ZuZhuangPointList[11].R, NozzleNumber.Nozzle1);
-
-
-                //Thread.Sleep(500);//延时
                 //关联取指令发送
                 if (!CamerCombinePhotoCalib(CombineCalibProcess.CombineRelationpick, $"{CalibrationPoints.ZuZhuangPointList[11].X.ToString()},{CalibrationPoints.ZuZhuangPointList[11].Y.ToString()},0"))
                 {
@@ -128,9 +100,6 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //移动到预取标定片位
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
-                ////移动到载具标定拍照位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[11].X, CalibrationPoints.ZuZhuangPointList[11].Y, CalibrationPoints.ZuZhuangPointList[11].Z, CalibrationPoints.ZuZhuangPointList[11].R, NozzleNumber.Nozzle1);
-
                 //移动到过渡点
                 MoveAxisDirectControl(278.818, 144.488, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
@@ -141,8 +110,6 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 {
                     return;
                 }
-                ////移动到飞达标定拍照位
-                //MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[14].X, CalibrationPoints.ZuZhuangPointList[14].Y, CalibrationPoints.ZuZhuangPointList[14].Z, CalibrationPoints.ZuZhuangPointList[14].R, NozzleNumber.Nozzle1);
 
                 //移动到预放标定片位
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[15].X, CalibrationPoints.ZuZhuangPointList[15].Y, CalibrationPoints.ZuZhuangPointList[15].Z, CalibrationPoints.ZuZhuangPointList[15].R, NozzleNumber.Nozzle1);
@@ -614,14 +581,54 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
         public bool TrainNozzle(int pickernum)
         {
+            //抬起Z轴
+            //lift up pickerZ
+            if (pickernum == 0)
+            {
+                AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)10);
+            }
+            else if (pickernum == 1) {
+                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)10);
+            }
+            else if (pickernum == 2)
+            {
+                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)10);
+            }
+            else if (pickernum == 3)
+            {
+                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)10);
+            }
             //移动到飞拍起始位置
+            //move to start position of fly photograph
             AkrAction.Current.Move(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[4].X, (int)10);
             AkrAction.Current.Move(AxisName.FSY, CalibrationPoints.ZuZhuangPointList[4].Y, (int)10);
+            if (pickernum == 0)
+            {
+                AkrAction.Current.Move(AxisName.PICK1_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
+                AkrAction.Current.Move(AxisName.PICK1_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+            }
+            else if (pickernum == 1)
+            {
+                AkrAction.Current.Move(AxisName.PICK2_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
+                AkrAction.Current.Move(AxisName.PICK2_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+            }
+            else if (pickernum == 2)
+            {
+                AkrAction.Current.Move(AxisName.PICK3_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
+                AkrAction.Current.Move(AxisName.PICK3_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+            }
+            else if (pickernum == 3)
+            {
+                AkrAction.Current.Move(AxisName.PICK4_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
+                AkrAction.Current.Move(AxisName.PICK4_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+            }
             //给Cognex发拍照信息
+            //send Cognex message
             string command = "SN" + "123456," + $"{pickernum+1}," + "Foam," + $"{CalibrationPoints.ZuZhuangPointList[pickernum].X},{CalibrationPoints.ZuZhuangPointList[pickernum].Y},{CalibrationPoints.ZuZhuangPointList[pickernum].R}";
             TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
             Thread.Sleep(100);
             int cnt = 0;
+            //wait OK or tinme out 10s
             while (true)
             {
                 if (TriggTTNCamreaready() == "OK" || cnt == 200)
@@ -633,16 +640,36 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }
 
             //飞拍移动到结束位置
+            //set fly photograph event , the third param is event number which should check PCsuite
             AkrAction.Current.SetSingleEvent(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, 1);
+            //start move
             AkrAction.Current.MoveNoWait(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, (int)10);
 
             //接受Cognex结果
+            //get Cognex result
             string Errcode = TriggTTNCamreaAcceptData(TTNProcessCommand.TTN)[0].Errcode1;
             if (Errcode != "1")
             {
                 return false;
             }
-
+            //抬起Z轴
+            //lift up pickerZ
+            if (pickernum == 0)
+            {
+                AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)10);
+            }
+            else if (pickernum == 1)
+            {
+                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)10);
+            }
+            else if (pickernum == 2)
+            {
+                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)10);
+            }
+            else if (pickernum == 3)
+            {
+                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)10);
+            }
             return true;
         }
 

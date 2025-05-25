@@ -172,6 +172,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
+                InstructionHeader = $"GM,1,";// 模块头+计算取料坐标个数 
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到取料坐标: " + VisionAcceptData);
@@ -271,6 +272,12 @@ namespace AkribisFAM.CommunicationProtocol
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
+            return true;//需要添加代码修改(发送字符串到网络Socket)
+        }
+
+        public static bool PushcommandFunction(string SendCommand)//(发送字符串到网络Socket)
+        {
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, SendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

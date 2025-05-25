@@ -25,6 +25,7 @@ namespace AkribisFAM.Windows
 {
     /// <summary>
     /// InternetConfig.xaml 的交互逻辑
+    /// connection window
     /// </summary>
     public partial class InternetConfig : UserControl
     {
@@ -41,6 +42,7 @@ namespace AkribisFAM.Windows
             connectState.Add("scanner", false);
             connectState.Add("mes", false);
             connectState.Add("ModbusTCP", false);
+            connectState.Add("Pressure_sensor", false);
             Readdevicesjson();
             RegisterHandlersInContainer(Networkgrid);
         }
@@ -65,26 +67,10 @@ namespace AkribisFAM.Windows
             this.mes_Port.Text = (obj["mes"]["Port"]).ToString();
             this.ModbusTCP_IP.Text = (obj["ModbusTCP"]["IP"]).ToString();
             this.ModbusTCP_Port.Text = (obj["ModbusTCP"]["Port"]).ToString();
+            this.Pressure_sensor_IP.Text = (obj["Pressure_sensor"]["IP"]).ToString();
+            this.Pressure_sensor_Port.Text = (obj["Pressure_sensor"]["Port"]).ToString();
         }
 
-        //public void ConnectionThread() {
-        //    Task.Run(new Action(() =>
-        //    {
-        //        while (true)
-        //        {
-        //            connectState["camera1_Feed"] = TCPNetworkManage.namedClients[ClientNames.camera1_Feed].isConnected;
-        //            connectState["camera1_Runner"] = TCPNetworkManage.namedClients[ClientNames.camera1_Runner].isConnected;
-        //            connectState["camera2"] = TCPNetworkManage.namedClients[ClientNames.camera2].isConnected;
-        //            connectState["camera3"] = TCPNetworkManage.namedClients[ClientNames.camera3].isConnected;
-        //            connectState["lazer"] = TCPNetworkManage.namedClients[ClientNames.lazer].isConnected;
-        //            connectState["scanner"] = TCPNetworkManage.namedClients[ClientNames.scanner].isConnected;
-        //            connectState["mes"] = TCPNetworkManage.namedClients[ClientNames.mes].isConnected;
-        //            connectState["ModbusTCP"] = ModbusTCPWorker.GetInstance().connect_state;
-        //            Thread.Sleep(1000);
-        //        }
-        //    }
-        //    ));
-        //}
 
         private void Writedevicesjson(string Devices,string IP_Port)//写相应设备的IP地址或端口号
         {
@@ -293,5 +279,6 @@ namespace AkribisFAM.Windows
                 }
             }));
         }
+
     }
 }
