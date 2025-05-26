@@ -359,7 +359,7 @@ namespace AkribisFAM.WorkStation
                 }
             STEP_BeltSlowDown:
                 Logger.WriteLog("皮带任务_皮带减速");
-                MoveConveyor(30);
+                MoveConveyor(20);
 
             STEP_WaitAnyTrayArrived:
 
@@ -499,7 +499,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
 
                 Logger.WriteLog("皮带任务_皮带低速运行");
-                MoveConveyor(30);
+                MoveConveyor(20);
 
             STEP_WaitStopSig1:
                 Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");

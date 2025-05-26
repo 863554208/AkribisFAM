@@ -107,6 +107,8 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.IsByPass = false;
             //触发扫码枪扫码
 
+            Task_Scanner.TriggScannerSendData();
+            var str = Task_Scanner.TriggScannerAcceptData();
             //Task_Scanner.TriggScannerSendData(Task_Scanner.ScannerProcessCommand.Trigger ,"");
 
             //GlobalManager.Current.IsByPass = true;

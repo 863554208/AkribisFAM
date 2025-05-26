@@ -409,14 +409,19 @@ namespace AkribisFAM.WorkStation
             for (int i = 12 + 1; i < 12+12+1; ++i)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+                Logger.WriteLog("CCD3 复检拍照开始移动到穴位");
                 //移动到穴位
                 AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                Logger.WriteLog("CCD3 复检拍照X轴移动到位");
                 AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                Logger.WriteLog("CCD3 复检拍照Y轴移动到位");
                 AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                Logger.WriteLog("CCD3 复检拍照Z轴移动到位");
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
+                Logger.WriteLog("CCD3 复检拍照移动到穴位结束");
                 //康耐视复检
                 string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
                 TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
@@ -432,9 +437,10 @@ namespace AkribisFAM.WorkStation
                 }
                 Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
-
+                Logger.WriteLog("CCD3 触发拍照");
                 //获取康耐视数据
                 string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
+                Logger.WriteLog("CCD3 触发接收数据");
                 int cogres;
                 bool ret = int.TryParse(Errcode, out cogres);
                 Logger.WriteLog("CCD3 获取康耐视数据"+ Errcode);

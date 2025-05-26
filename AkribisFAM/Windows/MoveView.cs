@@ -90,7 +90,7 @@ public class MoveView
         return error_code;
     }
 
-    public static int MovePTP(params  object[][] parameters)
+    public static int MovePTP(params object[][] parameters)
     {
         return ProcessMotion(parameters, 5, "MovePTP 错误", (axisName, paramArray) =>
         {
@@ -100,15 +100,15 @@ public class MoveView
             AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
                 .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum))
                 .MoveAbs(
-                    ToPulse(axisName, (double)paramArray[1]),
-                    ToPulse(axisName, (double)paramArray[2]),
-                    ToPulse(axisName, (double)paramArray[3]),
-                    ToPulse(axisName, (double)paramArray[4])
+                    ToPulse(axisName, Convert.ToDouble(paramArray[1])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[2])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[3])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[4]))
                 );
         });
     }
 
-    public static int MoveJog(params  object[][] parameters)
+    public static int MoveJog(params object[][] parameters)
     {
         return ProcessMotion(parameters, 3, "MoveJog 错误", (axisName, paramArray) =>
         {
@@ -118,12 +118,12 @@ public class MoveView
             AAMotionAPI.Jog(
                 AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex],
                 GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),
-                (int)paramArray[1] * ToPulse(axisName, (double)paramArray[2])
+                (int)paramArray[1] * ToPulse(axisName, Convert.ToDouble(paramArray[2]))
             );
         });
     }
 
-    public static int MoveRelative(params  object[][] parameters)
+    public static int MoveRelative(params object[][] parameters)
     {
         return ProcessMotion(parameters, 5, "MoveRelative 错误", (axisName, paramArray) =>
         {
@@ -133,15 +133,15 @@ public class MoveView
             AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
                 .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum))
                 .MoveRel(
-                    ToPulse(axisName, (double)paramArray[1]),
-                    ToPulse(axisName, (double)paramArray[2]),
-                    ToPulse(axisName, (double)paramArray[3]),
-                    ToPulse(axisName, (double)paramArray[4])
+                    ToPulse(axisName, Convert.ToDouble(paramArray[1])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[2])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[3])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[4]))
                 );
         });
     }
 
-    public static int MoveStop(params  object[][] parameters)
+    public static int MoveStop(params object[][] parameters)
     {
         return ProcessMotion(parameters, 1, "MoveStop 错误", (axisName, paramArray) =>
         {
@@ -154,7 +154,7 @@ public class MoveView
         });
     }
 
-    public static int WaitAxisArrived(params  object[][] parameters)
+    public static int WaitAxisArrived(params object[][] parameters)
     {
         return ProcessMotion(parameters, 1, "WaitAxisArrived 错误", (axisName, paramArray) =>
         {

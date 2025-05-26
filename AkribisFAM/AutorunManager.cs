@@ -330,6 +330,7 @@ namespace AkribisFAM
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
+
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
             Thread.Sleep(300);
             //轴回原点
