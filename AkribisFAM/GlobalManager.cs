@@ -241,6 +241,7 @@ namespace AkribisFAM
 
         public List<SinglePoint> tearingPoints = new List<SinglePoint>();
 
+
         public int TotalLaserCount = 48;
 
         public StationPoints stationPoints;
