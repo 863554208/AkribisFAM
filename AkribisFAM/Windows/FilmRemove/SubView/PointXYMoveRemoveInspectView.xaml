@@ -17,11 +17,11 @@
             </Border>
             <StackPanel Orientation="Horizontal">
 
-                <StackPanel Width="200" Orientation="Horizontal">
+                <StackPanel Width="100" Orientation="Horizontal">
                     <Label Content="X : " FontWeight="Bold" FontSize="16" Foreground="DarkBlue" />
                     <Label Content="{Binding X}" FontSize="16" Foreground="DarkBlue" />
                 </StackPanel>
-                <StackPanel Width="200" Orientation="Horizontal">
+                <StackPanel Width="100" Orientation="Horizontal">
                     <Label Content="Y : "  FontWeight="Bold" FontSize="16" Foreground="DarkRed" />
                     <Label Content="{Binding Y}" FontSize="16" Foreground="DarkRed" />
                 </StackPanel>

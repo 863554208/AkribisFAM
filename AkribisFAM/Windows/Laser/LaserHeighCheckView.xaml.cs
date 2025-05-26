@@ -86,23 +86,34 @@ namespace AkribisFAM.Windows
             var points = new ObservableCollection<SinglePointExt>(lsp);
             List<ObservableCollection<SinglePointExt>> pts = new List<ObservableCollection<SinglePointExt>>();
             var newpt = new ObservableCollection<SinglePointExt>();
-            newpt.Add(points[0]);
-            newpt.Add(points[1]);
-            newpt.Add(points[2]);
-            newpt.Add(points[3]);
+            pts.Clear();
+            foreach (var pt in points)
+            {
+                newpt = new ObservableCollection<SinglePointExt>();
+                newpt.Add(new SinglePointExt()
+                {
+                    X = pt.X + 0,
+                    Y = pt.Y + 0,
+                });
+                newpt.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint1_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint1_shift_Y,
+                });
+                newpt.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint2_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint2_shift_Y,
+                });
+                newpt.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint3_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint3_shift_Y,
+                });
+                pts.Add(newpt);
+            }
 
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
-            pts.Add(newpt);
+
 
              vm = new LaserHeighCheckVM()
             {

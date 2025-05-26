@@ -184,6 +184,7 @@
     <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
+    <Compile Include="Helper\ViewModelBase.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
     <Compile Include="Helper\FileRecovery.cs" />
     <Compile Include="Lang\UI.Designer.cs">

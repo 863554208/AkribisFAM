@@ -16,6 +16,8 @@ namespace AkribisFAM.Windows
     public partial class FeederView : UserControl
     {
         ObservableCollection<FeederControlVM> feeders = new ObservableCollection<FeederControlVM>();
+
+        private readonly System.Timers.Timer _timer;
         FeederVM vm;
         bool stopAllMotion = false;
 
@@ -125,6 +127,17 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
+
+            _timer = new System.Timers.Timer(200);
+            _timer.Elapsed += (s, e) => TickTime();
+            _timer.AutoReset = true;
+            _timer.Start();
+        }
+
+        private void TickTime()
+        {
+            feeders = feeders;
+
         }
         class FeederVM
         {
@@ -379,8 +392,9 @@ namespace AkribisFAM.Windows
     }
 
 
-    public class FeederControlVM
+    public class FeederControlVM : ViewModelBase
     {
+        private readonly System.Timers.Timer _timer;
         private int feederNumber;
 
         public int FeederNumber
@@ -402,7 +416,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_INFunction_Table> PickerInList
         {
             get { return pickerInList; }
-            set { pickerInList = value; }
+            set { pickerInList = value; OnPropertyChanged(); }
         }
 
 
@@ -411,7 +425,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_OutFunction_Table> PickerOutList
         {
             get { return pickerOutList; }
-            set { pickerOutList = value; }
+            set { pickerOutList = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_INFunction_Table> feederInList = new ObservableCollection<IO_INFunction_Table>();
@@ -419,7 +433,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_INFunction_Table> FeederInList
         {
             get { return feederInList; }
-            set { feederInList = value; }
+            set { feederInList = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_OutFunction_Table> feederOutList = new ObservableCollection<IO_OutFunction_Table>();
@@ -427,10 +441,10 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_OutFunction_Table> FeederOutList
         {
             get { return feederOutList; }
-            set { feederOutList = value; }
+            set { feederOutList = value; OnPropertyChanged(); }
         }
 
-        private ObservableCollection<IO_INFunction_Table> gateInList = new ObservableCollection<IO_INFunction_Table>();
+        //private ObservableCollection<IO_INFunction_Table> gateInList = new ObservableCollection<IO_INFunction_Table>();
 
         //public ObservableCollection<IO_INFunction_Table> GateInList
         //{
@@ -456,8 +470,21 @@ namespace AkribisFAM.Windows
             PickerOutList = conveyOut;
             FeederInList = lifterIn;
             FeederOutList = lifterOut;
+
+
+            _timer = new System.Timers.Timer(200);
+            _timer.Elapsed += (s, e) => TickTime();
+            _timer.AutoReset = true;
+            _timer.Start();
             //GateInList = gateIn;
             //GateOutList = gateOut;
+        }
+        private void TickTime()
+        {
+            PickerInList = PickerInList;
+            PickerOutList = PickerOutList;
+            FeederInList = FeederInList;
+            FeederOutList = FeederOutList;
         }
     }
 }

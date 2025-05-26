@@ -2,9 +2,9 @@
 using AkribisFAM.WorkStation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
-
 namespace AkribisFAM.Windows
 {
     /// <summary>
@@ -13,9 +13,16 @@ namespace AkribisFAM.Windows
     public partial class ConveyorControlView : UserControl
     {
         ObservableCollection<ConveyorWorkStationControl> stations = new ObservableCollection<ConveyorWorkStationControl>();
+
+        private readonly System.Timers.Timer _timer;
+
         public ConveyorControlView()
         {
             InitializeComponent();
+
+            _timer = new System.Timers.Timer(1000);
+            
+
             ConveyorWorkStationControl laserStation = new ConveyorWorkStationControl()
             {
                 StationNumber = 1,
@@ -202,6 +209,17 @@ namespace AkribisFAM.Windows
             };
             stations.Add(NGStation);
             itemControlStation.ItemsSource = stations;
+
+            _timer = new System.Timers.Timer(200);
+            _timer.Elapsed += (s, e) => TickTime();
+            _timer.AutoReset = true;
+            _timer.Start();
+        }
+
+        private void TickTime()
+        {
+            stations = stations;
+
         }
        private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -249,14 +267,14 @@ namespace AkribisFAM.Windows
     }
 
 
-    public class ConveyorWorkStationControl
+    public class ConveyorWorkStationControl : ViewModelBase
     {
         private int stationNumber;
 
         public int StationNumber
         {
             get { return stationNumber; }
-            set { stationNumber = value; }
+            set { stationNumber = value; OnPropertyChanged(); }
         }
 
         private string stationName;
@@ -264,7 +282,7 @@ namespace AkribisFAM.Windows
         public string StationName
         {
             get { return stationName; }
-            set { stationName = value; }
+            set { stationName = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_INFunction_Table> conveyorInList = new ObservableCollection<IO_INFunction_Table>();
@@ -272,7 +290,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_INFunction_Table> ConveyorInList
         {
             get { return conveyorInList; }
-            set { conveyorInList = value; }
+            set { conveyorInList = value; OnPropertyChanged(); }
         }
 
 
@@ -281,7 +299,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_OutFunction_Table> ConveyorOutList
         {
             get { return conveyorOutList; }
-            set { conveyorOutList = value; }
+            set { conveyorOutList = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_INFunction_Table> lifterInList = new ObservableCollection<IO_INFunction_Table>();
@@ -289,7 +307,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_INFunction_Table> LifterInList
         {
             get { return lifterInList; }
-            set { lifterInList = value; }
+            set { lifterInList = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_OutFunction_Table> lifterOutList = new ObservableCollection<IO_OutFunction_Table>();
@@ -297,7 +315,7 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_OutFunction_Table> LifterOutList
         {
             get { return lifterOutList; }
-            set { lifterOutList = value; }
+            set { lifterOutList = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<IO_INFunction_Table> gateInList = new ObservableCollection<IO_INFunction_Table>();
@@ -305,14 +323,14 @@ namespace AkribisFAM.Windows
         public ObservableCollection<IO_INFunction_Table> GateInList
         {
             get { return gateInList; }
-            set { gateInList = value; }
+            set { gateInList = value; OnPropertyChanged(); }
         }
         private ObservableCollection<IO_OutFunction_Table> gateOutList = new ObservableCollection<IO_OutFunction_Table>();
 
         public ObservableCollection<IO_OutFunction_Table> GateOutList
         {
             get { return gateOutList; }
-            set { gateOutList = value; }
+            set { gateOutList = value; OnPropertyChanged(); }
         }
 
         public ConveyorWorkStationControl() { }
@@ -330,6 +348,22 @@ namespace AkribisFAM.Windows
             LifterOutList = lifterOut;
             GateInList = gateIn;
             GateOutList = gateOut;
+
+            _timer = new System.Timers.Timer(200);
+            _timer.Elapsed += (s, e) => TickTime();
+            _timer.AutoReset = true;
+            _timer.Start();
+        }
+
+        private void TickTime()
+        {
+            ConveyorInList = ConveyorInList;
+            ConveyorOutList = ConveyorOutList;
+            LifterInList = LifterInList;
+            LifterOutList = LifterOutList;
+            GateInList = GateInList;
+            GateOutList = GateOutList;
+
         }
     }
 

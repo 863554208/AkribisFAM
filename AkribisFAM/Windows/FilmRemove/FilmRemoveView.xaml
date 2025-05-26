@@ -22,9 +22,13 @@
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
             <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
         </Grid>
-
         <ScrollViewer Grid.Row="1" CanContentScroll="True">
-            <ItemsControl ItemsSource="{Binding Points}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ItemsControl ItemsSource="{Binding Points}">
                     <ItemsControl.ItemsPanel>
 
                         <ItemsPanelTemplate>
@@ -38,8 +42,24 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+
+                    <Border BorderBrush="Gray" BorderThickness="0 0 0 1" >
+                        <Label Content="Nozzle" FontSize="20"/>
+                    </Border>
+                    <StackPanel Orientation="Vertical"  Background="LightGray">
+                        <Button x:Name="btnZUp" Content="ZUp"  Margin="20"/>
+                        <Button x:Name="btnZDown" Content="ZDown"  Margin="20"/>
+                        <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="20"/>
+                        <Button x:Name="btnClawClose" Content="Claw Close"  Margin="20"/>
+                        <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="20"/>
+                        <Button x:Name="btnReject" Content="Toss film"  Margin="20"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
 
         </ScrollViewer>
+
 
     </Grid>
 </UserControl>
