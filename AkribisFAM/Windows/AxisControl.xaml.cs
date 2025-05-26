@@ -47,12 +47,32 @@ namespace AkribisFAM.Windows
 
 
         private List<SingleAxis> _axisDataList = new List<SingleAxis>();
+        private List<AxisRowControls> axisRows = new List<AxisRowControls>();
+
         //private Dictionary<int, string> _homefileDict = new Dictionary<int, string>();
 
         public List<SingleAxis> AxisDataList
         {
             get { return _axisDataList; }
             set { _axisDataList = value; }
+        }
+
+        public class AxisRowControls
+        {
+            public int AxisIndex { get; set; } // 轴索引
+
+            public TextBlock AxisNameText { get; set; }
+            public TextBlock CurrentPosText { get; set; }
+            public TextBlock TargetPosText { get; set; }
+
+            public Ellipse EnableStatus { get; set; }
+            public Ellipse InPosStatus { get; set; }
+            public Ellipse HomeStatus { get; set; }
+            public Ellipse ErrStatus { get; set; }
+            public Ellipse LimitPStatus { get; set; }
+            public Ellipse LimitNStatus { get; set; }
+            public Ellipse SwLimitPStatus { get; set; }
+            public Ellipse SwLimitNStatus { get; set; }
         }
 
         public class SingleAxis
@@ -90,8 +110,22 @@ namespace AkribisFAM.Windows
                 AxisDataList.Add(temp);
             }
 
-            //SingleAxis af = new SingleAxis();
-            //updateAxisData(af);
+            initUIAllAxisStat();
+
+
+            //示例
+            // 设置第3个轴的目标位置
+            axisRows[2].TargetPosText.Text = "123.456";
+
+            // 设置第5个轴的报警状态为红色
+            axisRows[4].ErrStatus.Fill = Brushes.Red;
+
+            // 设置第10个轴的报警状态为绿色
+            axisRows[9].HomeStatus.Fill = Brushes.Green;
+
+            // 设置第25个轴的目标位置
+            axisRows[24].CurrentPosText.Text = "99925.55";
+
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(300);
@@ -469,6 +503,8 @@ namespace AkribisFAM.Windows
             {
                 currentIndex++;
             }
+
+            //AxisListBox.SelectedIndex = currentIndex;
         }
 
         private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
@@ -524,6 +560,116 @@ namespace AkribisFAM.Windows
 
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.JogMove(axis, -1, velValue);
+        }
+
+        private void initUIAllAxisStat()
+        {
+            const int AxisNum = 25;
+            axisRows.Clear();
+
+            for (int i = 0; i < AxisNum; i++)
+            {
+                GridAllAxisStat.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                var lightGrayBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF0F0F0"));
+                var bgColor = (i % 2 == 0) ? Brushes.White : lightGrayBrush;
+
+                string axisName = GlobalManager.Current.GetAxisStringFromInteger(i);
+
+                TextBlock axisNameTb, currentPosTb, targetPosTb;
+
+                GridAllAxisStat.Children.Add(CreateTextBlock(axisName, i + 1, 0, bgColor, out axisNameTb));
+                GridAllAxisStat.Children.Add(CreateTextBlock("", i + 1, 1, bgColor, out currentPosTb));
+                GridAllAxisStat.Children.Add(CreateTextBlock("", i + 1, 2, bgColor, out targetPosTb));
+
+                var rowControls = new AxisRowControls
+                {
+                    AxisIndex = i,
+                    AxisNameText = axisNameTb,
+                    CurrentPosText = currentPosTb,
+                    TargetPosText = targetPosTb,
+                };
+
+
+
+                // 创建 8 个状态圆
+                var ellipses = new List<Ellipse>();
+                for (int col = 3; col <= 10; col++)
+                {
+                    var ellipse = CreateEllipseCell(i + 1, col, bgColor);
+                    GridAllAxisStat.Children.Add(ellipse.container);
+                    ellipses.Add(ellipse.ellipse);
+                }
+
+                // 分配给对应字段
+                rowControls.EnableStatus = ellipses[0];
+                rowControls.InPosStatus = ellipses[1];
+                rowControls.HomeStatus = ellipses[2];
+                rowControls.ErrStatus = ellipses[3];
+                rowControls.LimitPStatus = ellipses[4];
+                rowControls.LimitNStatus = ellipses[5];
+                rowControls.SwLimitPStatus = ellipses[6];
+                rowControls.SwLimitNStatus = ellipses[7];
+
+                axisRows.Add(rowControls);
+            }
+
+        }
+
+        private Border CreateTextBlock(string text, int row, int col, Brush bg, out TextBlock tbOut)
+        {
+            var tb = new TextBlock
+            {
+                Text = text,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(2)
+            };
+
+            var border = new Border
+            {
+                Background = bg,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Child = tb
+            };
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+
+            tbOut = tb;
+            return border;
+        }
+
+        private (Ellipse ellipse, Border container) CreateEllipseCell(int row, int col, Brush bg)
+        {
+            var ellipse = new Ellipse
+            {
+                Width = 15,
+                Height = 15,
+                Fill = Brushes.Gray,
+                StrokeThickness = 1
+            };
+
+            var viewbox = new Viewbox
+            {
+                Width = 15,
+                Height = 15,
+                Stretch = Stretch.Uniform,
+                Child = ellipse
+            };
+
+            var border = new Border
+            {
+                Background = bg,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Child = viewbox
+            };
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+            return (ellipse, border);
         }
 
     }
