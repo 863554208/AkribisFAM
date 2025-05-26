@@ -1222,6 +1222,7 @@ namespace AkribisFAM.Windows
             pt.type = data;
             pt.row = row;
             pt.col = col;
+            pt.axisMap = dlg.AxexIndexList;   //将轴映射保存
 
             if (data == 0)
             {

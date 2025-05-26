@@ -563,22 +563,24 @@ namespace AkribisFAM.Windows
 
 
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("X", pt.X, newText =>
+                    TextBox xBox, yBox, zBox, rBox;
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.X = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("Y", pt.Y, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.Y = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("Z", pt.Z, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.Z = val;
                     }));
 
-                    rowPanel.Children.Add(CreateLabeledTextBox("R", pt.R, newText =>
+                    rowPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText =>
                     {
                         if (double.TryParse(newText, out double val)) pt.R = val;
                     }));
@@ -641,6 +643,7 @@ namespace AkribisFAM.Windows
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                     // ID: 标签
                     var idLabel = new TextBlock
@@ -674,10 +677,20 @@ namespace AkribisFAM.Windows
                     Grid.SetColumn(matrixInfoText, 2);
                     rowGrid.Children.Add(matrixInfoText);
 
+                    var ButtonAutoData = new Button
+                    {
+                        Content = "FillData",
+                        ToolTip = "Add the top left, top right and bottom left points to fillData",
+                        Margin = new Thickness(8, 0, 0, 0),
+                        Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                    };
+                    Grid.SetColumn(ButtonAutoData, 3);
+                    rowGrid.Children.Add(ButtonAutoData);
+
                     // 添加整行到主 panel
                     panel.Children.Add(rowGrid);
 
-
+                    List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // each point has 4 TextBoxes
                     int childIndex = 0;
                     for (int r = 0; r < pt.row; r++)
                     {
@@ -687,6 +700,8 @@ namespace AkribisFAM.Windows
                             Orientation = Orientation.Horizontal,
                             Margin = new Thickness(0, 4, 0, 4)
                         };
+
+                        var inputRow = new List<TextBox[]>();
 
                         for (int c = 0; c < pt.col; c++)
                         {
@@ -711,23 +726,26 @@ namespace AkribisFAM.Windows
                             pointPanel.Children.Add(tbID);
                             addTextBlockClicked(tbID, pt.axisMap, pointPanel);
 
+                            TextBox xBox, yBox, zBox, rBox;
+
                             //回写，用于保存文件
-                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], newText =>
+                            //use to save file
+                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], out xBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[0] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], out yBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[1] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], out zBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[2] = val;
                             }));
 
-                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], newText =>
+                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], out rBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[3] = val;
                             }));
@@ -736,12 +754,53 @@ namespace AkribisFAM.Windows
 
                             rowPanel.Children.Add(pointPanel);
 
+                            inputRow.Add(new[] { xBox, yBox, zBox, rBox });
                         }
 
+
+                        matrixInputs.Add(inputRow);
                         panel.Children.Add(rowPanel);
 
                         
                     }
+
+                    ButtonAutoData.Click += (s, e) =>
+                    {
+                        if (pt.childList.Count != pt.row * pt.col) return;
+
+                        var topLeft = pt.childList[0].childPos;
+                        var topRight = pt.childList[pt.col - 1].childPos;
+                        var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                        double[] vecX = new double[4];
+                        double[] vecY = new double[4];
+                        for (int i = 0; i < 4; i++)
+                        {
+                            vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                            vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                        }
+
+                        int idx = 0;
+                        for (int r = 0; r < pt.row; r++)
+                        {
+                            for (int c = 0; c < pt.col; c++)
+                            {
+                                var pos = pt.childList[idx++].childPos;
+
+                                pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                                pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                                pos[2] = topLeft[2];
+                                pos[3] = topLeft[3];
+
+                                var boxes = matrixInputs[r][c];
+                                boxes[0].Text = pos[0].ToString("0.###");
+                                boxes[1].Text = pos[1].ToString("0.###");
+                                boxes[2].Text = pos[2].ToString("0.###");
+                                boxes[3].Text = pos[3].ToString("0.###");
+                            }
+                        }
+                    };
+
                 }
                 else
                 {
@@ -820,7 +879,7 @@ namespace AkribisFAM.Windows
             return new ScrollViewer { Content = panel,VerticalScrollBarVisibility = ScrollBarVisibility.Auto,HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
             };
         }
-        private FrameworkElement CreateLabeledTextBox(string label, double initialValue, Action<string> onTextChanged = null)
+        private FrameworkElement CreateLabeledTextBox(string label, double initialValue, out TextBox tb, Action<string> onTextChanged = null)
         {
             var panel = new StackPanel
             {
@@ -836,29 +895,31 @@ namespace AkribisFAM.Windows
                 VerticalAlignment = VerticalAlignment.Center
             });
 
-            var tb = new TextBox
+            var tba = new TextBox
             {
                 Width = 90,
                 Text = initialValue.ToString()
             };
 
-            tb.PreviewTextInput += FloatTextBox_PreviewTextInput;
-            tb.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
-            DataObject.AddPastingHandler(tb, FloatTextBox_Pasting);
+            tba.PreviewTextInput += FloatTextBox_PreviewTextInput;
+            tba.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+            DataObject.AddPastingHandler(tba, FloatTextBox_Pasting);
 
             // 禁用输入法
-            InputMethod.SetIsInputMethodEnabled(tb, false);
+            //limit input
+            InputMethod.SetIsInputMethodEnabled(tba, false);
 
-            // 如果有绑定回调，就在文本变更时触发
+            tb = tba;
+
             if (onTextChanged != null)
             {
-                tb.TextChanged += (s, e) =>
+                tba.TextChanged += (s, e) =>
                 {
-                    onTextChanged(tb.Text);
+                    onTextChanged(tba.Text);
                 };
             }
 
-            panel.Children.Add(tb);
+            panel.Children.Add(tba);
 
             return panel;
         }
@@ -3104,6 +3165,7 @@ namespace AkribisFAM.Windows
             pt.type = data;
             pt.row = row;
             pt.col = col;
+            pt.axisMap = dlg.AxexIndexList;   //将轴映射保存
             //点分类
             if (data == 0)
             {
@@ -3140,22 +3202,24 @@ namespace AkribisFAM.Windows
                 rowPanel.Children.Add(idTextBox);
 
 
-                rowPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
+                TextBox xBox, yBox, zBox, rBox;
+
+                rowPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.X = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.Y = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.Z = val;
                 }));
 
-                rowPanel.Children.Add(CreateLabeledTextBox("R", 0, newText =>
+                rowPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText =>
                 {
                     if (double.TryParse(newText, out double val)) pt.R = val;
                 }));
@@ -3221,6 +3285,7 @@ namespace AkribisFAM.Windows
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                 // ID: 标签
                 var idLabel = new TextBlock
@@ -3257,7 +3322,17 @@ namespace AkribisFAM.Windows
                 mainPanel.Children.Add(rowGrid);
 
 
+                var ButtonAutoData = new Button
+                {
+                    Content = "FillData",
+                    ToolTip = "Add the top left, top right and bottom left points to fillData",
+                    Margin = new Thickness(8, 0, 0, 0),
+                    Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                };
+                Grid.SetColumn(ButtonAutoData, 3);
+                rowGrid.Children.Add(ButtonAutoData);
 
+                List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>();
                 int childIndex = 0;
                 for (int r = 0; r < row; r++)
                 {
@@ -3267,6 +3342,8 @@ namespace AkribisFAM.Windows
                         Orientation = System.Windows.Controls.Orientation.Horizontal,
                         Margin = new Thickness(0, 4, 0, 4)
                     };
+
+                    var inputRow = new List<TextBox[]>();
 
                     for (int c = 0; c < col; c++)
                     {
@@ -3292,34 +3369,62 @@ namespace AkribisFAM.Windows
                         addTextBlockClicked(tbID, pt.axisMap, pointPanel);   //点击ID弹出示教
 
                         //回写，用于保存文件
-                        pointPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[0] = val;
-                        }));
+                        TextBox xBox, yBox, zBox, rBox;
 
-                        pointPanel.Children.Add(CreateLabeledTextBox("Y", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[1] = val;
-                        }));
-
-                        pointPanel.Children.Add(CreateLabeledTextBox("Z", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[2] = val;
-                        }));
-
-                        pointPanel.Children.Add(CreateLabeledTextBox("R", 0, newText =>
-                        {
-                            if (double.TryParse(newText, out double val)) pos[3] = val;
-                        }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText => { if (double.TryParse(newText, out double val)) pos[0] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText => { if (double.TryParse(newText, out double val)) pos[1] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText => { if (double.TryParse(newText, out double val)) pos[2] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText => { if (double.TryParse(newText, out double val)) pos[3] = val; }));
 
                         pointPanel.Children.Add(GreateButton(pt.axisMap, pointPanel));
 
                         rowPanel.Children.Add(pointPanel);
 
+                        inputRow.Add(new[] { xBox, yBox, zBox, rBox });
                     }
+
+                    matrixInputs.Add(inputRow);
 
                     mainPanel.Children.Add(rowPanel);
                 }
+
+                ButtonAutoData.Click += (s, ebtn) =>
+                {
+                    if (pt.childList.Count != pt.row * pt.col) return;
+
+                    var topLeft = pt.childList[0].childPos;
+                    var topRight = pt.childList[pt.col - 1].childPos;
+                    var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                    double[] vecX = new double[4];
+                    double[] vecY = new double[4];
+                    for (int i = 0; i < 4; i++)
+                    {
+                        vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                        vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                    }
+
+                    int idx = 0;
+                    for (int r = 0; r < pt.row; r++)
+                    {
+                        for (int c = 0; c < pt.col; c++)
+                        {
+                            var pos = pt.childList[idx++].childPos;
+
+                            pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                            pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                            pos[2] = topLeft[2];
+                            pos[3] = topLeft[3];
+
+                            var boxes = matrixInputs[r][c];
+                            boxes[0].Text = pos[0].ToString("0.###");
+                            boxes[1].Text = pos[1].ToString("0.###");
+                            boxes[2].Text = pos[2].ToString("0.###");
+                            boxes[3].Text = pos[3].ToString("0.###");
+                        }
+                    }
+                };
+
                 AddStationData(selectIndex, pt);
             }
             else if(data == 2)
