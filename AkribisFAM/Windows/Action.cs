@@ -376,7 +376,6 @@ namespace AkribisFAM.WorkStation
             DateTime now  = DateTime.Now;
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
-                if ((DateTime.Now - time).TotalMilliseconds > 20000) break;
                 //TODO 加入退出机制
                 if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
                 {
