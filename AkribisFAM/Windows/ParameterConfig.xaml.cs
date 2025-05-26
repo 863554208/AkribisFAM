@@ -534,20 +534,22 @@ namespace AkribisFAM.Windows
                     var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
                     // 添加 ID 标签
-                    rowPanel.Children.Add(new TextBlock
+                    var tbID = new TextBlock
                     {
                         Text = "ID:",
                         FontWeight = FontWeights.Bold,
                         Margin = new Thickness(0, 0, 5, 0),
                         VerticalAlignment = VerticalAlignment.Center
-                    });
+                    };
+                    rowPanel.Children.Add(tbID);
+                    addTextBlockClicked(tbID, pt.axisMap, rowPanel);   //点击ID弹出示教
 
 
                     // 添加可编辑的 ID 输入框
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 90,
+                        Width = 150,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -637,7 +639,7 @@ namespace AkribisFAM.Windows
 
                     // 定义三列：标签、输入框、说明文本
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                     // ID: 标签
@@ -694,17 +696,20 @@ namespace AkribisFAM.Windows
 
                             var pointPanel = new StackPanel
                             {
+                                Tag = "MatrixRow",
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
                                 Width = 120,
                                 Background = new SolidColorBrush(Colors.LightGray),
                             };
 
-                            pointPanel.Children.Add(new TextBlock
+                            var tbID = new TextBlock
                             {
                                 Text = $"ID: {displayName}",
                                 Margin = new Thickness(0, 0, 0, 6)
-                            });
+                            };
+                            pointPanel.Children.Add(tbID);
+                            addTextBlockClicked(tbID, pt.axisMap, pointPanel);
 
                             //回写，用于保存文件
                             pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], newText =>
@@ -778,7 +783,7 @@ namespace AkribisFAM.Windows
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
-                        Width = 90,
+                        Width = 150,
                         Margin = new Thickness(0, 0, 15, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
@@ -863,6 +868,7 @@ namespace AkribisFAM.Windows
             // 添加 Teaching Point 按钮
             var teachBtn = new Button
             {
+                Visibility= Visibility.Collapsed,
                 ToolTip = "Teaching point",
                 Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
                 Width = 30,
@@ -890,18 +896,77 @@ namespace AkribisFAM.Windows
                     Console.WriteLine($"X={x}, Y={y}, Z={z}, R={r}");
                     // 遍历 backSP 中的 TextBox，按顺序赋值 X/Y/Z/R
                     var textBoxes = FindTextBoxes(backSP);
-                    if (textBoxes.Count >= 4)
+                    if (backSP.Tag.ToString() == "SinglePoint")
                     {
-                        textBoxes[0].Text = x.ToString("F3");
-                        textBoxes[1].Text = y.ToString("F3");
-                        textBoxes[2].Text = z.ToString("F3");
-                        textBoxes[3].Text = r.ToString("F3");
+                        if (textBoxes.Count >= 5)
+                        {
+                            textBoxes[1].Text = x.ToString("F3");
+                            textBoxes[2].Text = y.ToString("F3");
+                            textBoxes[3].Text = z.ToString("F3");
+                            textBoxes[4].Text = r.ToString("F3");
+                        }
+                    }
+                    else
+                    {
+                        if (textBoxes.Count >= 4)
+                        {
+                            textBoxes[0].Text = x.ToString("F3");
+                            textBoxes[1].Text = y.ToString("F3");
+                            textBoxes[2].Text = z.ToString("F3");
+                            textBoxes[3].Text = r.ToString("F3");
+                        }
                     }
                 };
 
                 teachingWindow.Show();
             };
             return teachBtn;
+        }
+
+        private void addTextBlockClicked(TextBlock textBlock, List<int> axisIndex, StackPanel backSP)
+        {
+            textBlock.MouseLeftButtonDown += (s, e) =>
+            {
+                //将X,Y,Z,R轴的对应映射下标传入
+                //List<int> ints= new List<int>();
+                // 如果已有弹窗存在并还在显示，就关闭它
+                if (teachingWindow != null && teachingWindow.IsLoaded)
+                {
+                    teachingWindow.Close();
+                }
+
+                // 创建新的窗口
+                teachingWindow = new TeachingWindow(axisIndex);
+                teachingWindow.TeachingDataReady += (x, y, z, r) =>
+                {
+                    Console.WriteLine($"X={x}, Y={y}, Z={z}, R={r}");
+                    // 遍历 backSP 中的 TextBox，按顺序赋值 X/Y/Z/R
+                    var textBoxes = FindTextBoxes(backSP);
+
+                    if (backSP.Tag.ToString() == "SinglePoint")
+                    {
+                        if (textBoxes.Count >= 5)
+                        {
+                            textBoxes[1].Text = x.ToString("F3");
+                            textBoxes[2].Text = y.ToString("F3");
+                            textBoxes[3].Text = z.ToString("F3");
+                            textBoxes[4].Text = r.ToString("F3");
+                        }
+                    }
+                    else
+                    {
+                        if (textBoxes.Count >= 4)
+                        {
+                            textBoxes[0].Text = x.ToString("F3");
+                            textBoxes[1].Text = y.ToString("F3");
+                            textBoxes[2].Text = z.ToString("F3");
+                            textBoxes[3].Text = r.ToString("F3");
+                        }
+                    }
+                };
+
+                teachingWindow.Show();
+            };
         }
 
         private List<TextBox> FindTextBoxes(DependencyObject parent)
@@ -3048,19 +3113,21 @@ namespace AkribisFAM.Windows
 
 
                 // 添加 ID 标签
-                rowPanel.Children.Add(new TextBlock
+                var tbID = new TextBlock
                 {
                     Text = "ID:",
                     FontWeight = FontWeights.Bold,
                     Margin = new Thickness(0, 0, 5, 0),
                     VerticalAlignment = VerticalAlignment.Center
-                });
+                };
+                rowPanel.Children.Add(tbID);
+                addTextBlockClicked(tbID, pt.axisMap, rowPanel);   //点击ID弹出示教
 
                 // 添加可编辑的 ID 输入框
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 90,
+                    Width = 150,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
@@ -3147,12 +3214,12 @@ namespace AkribisFAM.Windows
                 var rowGrid = new Grid
                 {
                     Margin = new Thickness(0, 8, 0, 4),
-                    Tag = row // 可选：将行数存储在 Tag 中
+                    Tag = "MatrixHeader"  // 关键标记
                 };
 
                 // 定义三列：标签、输入框、说明文本
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
                 rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
                 // ID: 标签
@@ -3209,17 +3276,20 @@ namespace AkribisFAM.Windows
 
                         var pointPanel = new StackPanel
                         {
+                            Tag = "MatrixRow",
                             Orientation = System.Windows.Controls.Orientation.Vertical,
                             Margin = new Thickness(4),
                             Width = 120,
                             Background = new SolidColorBrush(Colors.LightGray),
                         };
 
-                        pointPanel.Children.Add(new TextBlock
+                        var tbID = new TextBlock
                         {
                             Text = $"ID: {displayName}",
                             Margin = new Thickness(0, 0, 0, 6)
-                        });
+                        };
+                        pointPanel.Children.Add(tbID);
+                        addTextBlockClicked(tbID, pt.axisMap, pointPanel);   //点击ID弹出示教
 
                         //回写，用于保存文件
                         pointPanel.Children.Add(CreateLabeledTextBox("X", 0, newText =>
@@ -3293,7 +3363,7 @@ namespace AkribisFAM.Windows
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
-                    Width = 90,
+                    Width = 150,
                     Margin = new Thickness(0, 0, 15, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
