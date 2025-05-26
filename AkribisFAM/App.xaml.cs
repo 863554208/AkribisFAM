@@ -176,6 +176,7 @@ namespace AkribisFAM
         
 		protected override void OnExit(ExitEventArgs e)
         {
+            TCPNetworkManage.StopAllClients();
             // Dispose of resources
             DbManager?.Dispose();
 

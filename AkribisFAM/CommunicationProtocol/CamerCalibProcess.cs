@@ -199,9 +199,6 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             await Task.Run(new Action(() =>
             {
                 AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
 
                 //标定开始
                 if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, movingCameraCalibposition,"Movestart"))
@@ -212,28 +209,9 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //九点运动过程
                 Func<MovingCameraCalibposition, bool> Point9Calibongoing = e =>
                 {
-                    //string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-                    //string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-                    //JObject obj = JObject.Parse(json);
-                    //var MoveCameraCalibmoveAxisNozzle = obj["MoveCameraCalibMoveAxisCalibposition"]?[movingCameraCalibposition.ToString()] as JArray;//获取轴Nozzle 数组 
-
-                    //if (MoveCameraCalibmoveAxisNozzle == null && MoveCameraCalibmoveAxisNozzle.Count == 0)
-                    //{
-                    //    Console.WriteLine($"{movingCameraCalibposition.ToString()}不存在或为空");
-                    //    MessageBox.Show($"{movingCameraCalibposition.ToString()}不存在或为空");
-                    //    return false;
-                    //}
 
                     for (int i = 0; i < 9; i++)
                     {
-                        //var PointArray = MoveCameraCalibmoveAxisNozzle[i] as JArray;//第几个移动点
-                        //double[] values = PointArray.Select(x => (double)x).ToArray();//x,y,z,r
-
-                        //if (PointArray == null)
-                        //{
-                        //    MessageBox.Show($"九点标定{PointArray}点位空");
-                        //    return false;
-                        //}
                         //移动到拍照位
                         int startidx = (int)movingCameraCalibposition * 9 + i;
                         MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[startidx].X, CalibrationPoints.ZuZhuangPointList[startidx].Y, CalibrationPoints.ZuZhuangPointList[startidx].Z, CalibrationPoints.ZuZhuangPointList[startidx].R, NozzleNumber.Nozzle2);//x,y,z,r
@@ -266,38 +244,18 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }));
         }
 
-        private bool Point11Calibongoing(NozzleNumber nozzleNumber)//11点运动过程
+        private bool Point11Calibongoing(NozzleNumber nozzleNumber)//11 calibration process
         {
-            //解析josn中拍照运动坐标
-            //string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "NozzleCalib.json");// 获取文件路径
-            //string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-            //JObject obj = JObject.Parse(json);
-            //DownCameramoveAxisNozzle = obj["DownCameraMoveAxisCalibposition"]?[nozzleNumber.ToString()] as JArray;//获取轴Nozzle 数组 
-
-            //if (DownCameramoveAxisNozzle == null && DownCameramoveAxisNozzle.Count == 0)
-            //{
-            //    Console.WriteLine($"{nozzleNumber.ToString()}不存在或为空");
-            //    MessageBox.Show($"{nozzleNumber.ToString()}不存在或为空");
-            //    return false;
-            //}
 
             for (int i = 0; i < 11; i++)
             {
-                //移动到拍照位
                 MoveAxis(i, nozzleNumber);
 
                 Thread.Sleep(1000);
 
-                //var PointArray = DownCameramoveAxisNozzle[i] as JArray;//第几个移动点
-                //if (PointArray == null)
-                //{
-                //    MessageBox.Show($"{PointArray}点位空");
-                //    return false;
-                //}
-                //double[] values = PointArray.Select(x => (double)x).ToArray();//x,y,z,r
-                int startidx = ((int)nozzleNumber - 1) * 11 + i;
+                int startidx = ((int)nozzleNumber - 1) * 11 + i;//for 11 calibration, becuase it does not have nozzle 1
                 if (startidx < 0) {
-                    startidx = ((int)nozzleNumber) * 11 + i;
+                    startidx = ((int)nozzleNumber) * 11 + i;//for common calibration
                 }
                 string Data = $"{CalibrationPoints.ZuZhuangPointList[startidx].X},{CalibrationPoints.ZuZhuangPointList[startidx].Y},{CalibrationPoints.ZuZhuangPointList[startidx].R}";//x,y,r     
                 //发送标定指令
@@ -305,7 +263,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 {
                     case NozzleNumber.Nozzle1:
                         {
-                            //联合标定 
+                            //joint calib
                             if (!CamerCombinePhotoCalib(CombineCalibProcess.Combineongoing, Data))
                             {
                                 return false;
@@ -314,7 +272,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                         break;
                     case NozzleNumber.Nozzle2:
                         {
-                            //单独标定
+                            //11 points alone
                             if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
                             {
                                 return false;
@@ -323,7 +281,6 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                         }
                     case NozzleNumber.Nozzle3:
                         {
-                            //单独标定
                             if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
                             {
                                 return false;
@@ -332,7 +289,6 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                         break;
                     case NozzleNumber.Nozzle4:
                         {
-                            //单独标定
                             if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
                             {
                                 return false;
@@ -341,11 +297,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                         break;
                     default:
                         {
-                            ////单独标定
-                            //if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, nozzleNumber, Data))
-                            //{
-                            //    return false;
-                            //}
+
                         }
                         break;
                 }
@@ -353,24 +305,17 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             return true;
         }
 
-        private void MoveAxis(int Index, NozzleNumber nozzleNumber)//移动轴到目标点位
+        private void MoveAxis(int Index, NozzleNumber nozzleNumber)//移动轴到目标点位 move to target position
         {
-            //var PointArray = DownCameramoveAxisNozzle[Index] as JArray;//第几个移动点
-            //double[] values = PointArray.Select(x => (double)x).ToArray();//x,y,z,r
 
-            //if (PointArray == null)
-            //{
-            //    MessageBox.Show($"{PointArray}点位空");
-            //    return;
-            //}
-            int startidx = ((int)nozzleNumber-1) * 11 + Index;
+            int startidx = ((int)nozzleNumber-1) * 11 + Index;//for 11 calibration, becuase it does not have nozzle 1
             if (startidx < 0) {
-                startidx = ((int)nozzleNumber) * 11 + Index;
+                startidx = ((int)nozzleNumber) * 11 + Index;//for common calibration
             }
             MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[startidx].X, CalibrationPoints.ZuZhuangPointList[startidx].Y, CalibrationPoints.ZuZhuangPointList[startidx].Z, CalibrationPoints.ZuZhuangPointList[startidx].R, nozzleNumber);
         }
 
-        private bool CamerCombinePhotoCalib(CombineCalibProcess combineCalibProcess, string Data)//联合标定拍照判断
+        private bool CamerCombinePhotoCalib(CombineCalibProcess combineCalibProcess, string Data)//joint calibration judgement
         {
             CalibCommunicationProcess.SendCombineCalibration(combineCalibProcess, Data);
             if (CalibCommunicationProcess.CalibStatus())
@@ -640,8 +585,9 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }
 
             //飞拍移动到结束位置
-            //set fly photograph event , the third param is event number which should check PCsuite
-            AkrAction.Current.SetSingleEvent(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, 1);
+            //set fly photograph event , the third param is event number which should check PCsuite. Now event 2 is CCD2.
+            //We prefer to use IO trigger, so that we can avoid using agito to trigger. Just move to the position of photograph and trigger IO.
+            AkrAction.Current.SetSingleEvent(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, 2);
             //start move
             AkrAction.Current.MoveNoWait(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, (int)10);
 

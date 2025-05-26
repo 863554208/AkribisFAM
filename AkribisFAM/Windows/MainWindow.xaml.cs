@@ -104,7 +104,7 @@ namespace AkribisFAM
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            TCPNetworkManage.StopAllClients();
+            
         }
 
         private void UpdateIcon()
