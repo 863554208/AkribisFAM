@@ -205,7 +205,7 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.OnTheFlyTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            App.vision1.FoamOnTheFlyTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
         }
 
         private void ManualFeederControlView_PickerZUpPressed(object sender, EventArgs e)

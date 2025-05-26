@@ -26,7 +26,7 @@ namespace AkribisFAM.DeviceClass
         }
         public CognexVisionControl() { }
 
-        public bool OnTheFlyTrigger(FeederNum feeder)
+        public bool FoamOnTheFlyTrigger(FeederNum feeder)
         {
             List<SinglePoint> points = new List<SinglePoint>();
             switch (feeder)
