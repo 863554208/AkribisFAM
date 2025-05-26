@@ -109,7 +109,7 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case CombineCalibProcess.Combineprocessend:
                     {
-                        CalibPushcommand($"UN,1");
+                        //CalibPushcommand($"UN,1");
                     }
                     break;
                 default:
@@ -218,7 +218,7 @@ namespace AkribisFAM.CommunicationProtocol
             TCPNetworkManage.ClearLastMessage(ClientNames.camera2);
         }
 
-        private static void CalibPushcommand(string VisionSendCommand)//写socket
+        public static void CalibPushcommand(string VisionSendCommand)//写socket
         {
             InstructionHeader = VisionSendCommand.Split(',')[0];
             TCPNetworkManage.InputLoop(ClientNames.camera2, VisionSendCommand);

@@ -919,7 +919,7 @@ namespace AkribisFAM.WorkStation
                     return (int)(20000 * mm);
 
                 case AxisName.PRZ:
-                    return (int)(10000 * mm);
+                    return (int)(2500 * mm);
 
                 default:
                     return (int)(10000 * mm);
@@ -1004,7 +1004,7 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 20000.0);
 
                 case AxisName.PRZ:
-                    return (double)(pulse / 10000.0);
+                    return (double)(pulse / 2500.0);
 
                 default:
                     return (double)(pulse / 10000.0);

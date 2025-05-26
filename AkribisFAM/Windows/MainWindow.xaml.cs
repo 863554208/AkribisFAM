@@ -39,6 +39,7 @@ using AkribisFAM.Helper;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
+using Newtonsoft.Json.Linq;
 
 namespace AkribisFAM
 {
@@ -357,6 +358,7 @@ namespace AkribisFAM
         }
         private void TestFeiPai_Click(object sender, RoutedEventArgs e)
         {
+
             List<SinglePoint> snapPalleteList = new List<SinglePoint>();
             List<SinglePoint> feedar1pointList = new List<SinglePoint>();
             List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();

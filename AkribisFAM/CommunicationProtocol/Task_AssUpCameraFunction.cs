@@ -91,7 +91,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
-                InstructionHeader = $"TLT,CmdTLT_100,10,";
+                InstructionHeader = $"TLT,CmdTLT_100,12,";
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket

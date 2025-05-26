@@ -890,10 +890,10 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 8,
-            PICK1_T = 8,
-            PICK2_Z = 8,
-            PICK2_T = 8,
+            PICK1_Z = 100,
+            PICK1_T = 200,
+            PICK2_Z = 100,
+            PICK2_T = 200,
             PICK3_Z = 8,
             PICK3_T = 8,
             PICK4_Z = 8,

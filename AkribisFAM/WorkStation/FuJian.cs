@@ -297,7 +297,7 @@ namespace AkribisFAM.WorkStation
         {
             bool ret;
             //撕膜
-            for(int i = 0; i < 3; ++i)
+            for(int i = 0; i < 12; ++i)
             {
                 //移动到穴位
                 Logger.WriteLog("开始执行撕膜X");
@@ -320,9 +320,9 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
                 Logger.WriteLog("CCCCCCCCCCCC");
-                if (CheckState(ret) == 1)
+                if (CheckState(true) == 1)
                 {
                     return false;
                 }
@@ -330,16 +330,16 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+                ret = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
                 Logger.WriteLog("DDDDDDDDDDDDDD");
-                if (CheckState(ret) == 1)
+                if (CheckState(true) == 1)
                 {
                     return false;
                 }
                 Thread.Sleep(500);
                 //移动撕膜
                 AkrAction.Current.MoveRel(AxisName.PRY, 5, 10);
-                AkrAction.Current.MoveRel(AxisName.PRZ, -0.5, 10);
+                AkrAction.Current.MoveRel(AxisName.PRZ, -5, 10);
                 Logger.WriteLog("EEEEEEEEEEEEEE");
                 //Z轴上升
                 //TODO 
@@ -350,6 +350,8 @@ namespace AkribisFAM.WorkStation
                     //TODO 加入退出机制
                     Thread.Sleep(50);
                 }
+
+
                 Logger.WriteLog("ASDDDDDDDDDDDDDE");
                 AkrAction.Current.Move(AxisName.PRZ, Pointlist[25].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
@@ -359,7 +361,9 @@ namespace AkribisFAM.WorkStation
                 Logger.WriteLog("QQQQQQQQQQQQQQQQQQ");
                 //移动到蓝膜收集处
                 AkrAction.Current.Move(AxisName.PRX, Pointlist[12].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[12].y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+
+                //必须XY到位后再移动Z轴
                 AkrAction.Current.Move(AxisName.PRZ, Pointlist[12].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 Logger.WriteLog("EEEEEEEEEEEEEEEEEEEESADSAD");
                 if (CheckState(true) == 1)
@@ -370,8 +374,8 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
-                if (CheckState(ret) == 1)
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                if (CheckState(true) == 1)
                 {
                     return false;
                 }
@@ -381,6 +385,11 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(500);
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
                 SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 1);
+                //夹爪气缸缩回
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
+                ret = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+
                 AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(true) == 1)
                 {
@@ -394,14 +403,13 @@ namespace AkribisFAM.WorkStation
         public int boardstate;
         public bool Recheck()
         {
+            readPointJson();
             //复检
             int cnt = 0;
-            for (int i = 12 + 1; i < 12+3+1; ++i)
+            for (int i = 12 + 1; i < 12+12+1; ++i)
             {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
                 //移动到穴位
-                Logger.WriteLog("EEEE123213ADSAD");
-                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
-                Logger.WriteLog("EEEEEE12312312321EDSAD");
                 AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
                 AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
                 AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
@@ -410,13 +418,24 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 //康耐视复检
-                //string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
-                //TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+                string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
+                TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+                
+                Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
+                while (Task_RecheckCamreaFunction.TriggRecheckCamreaready() != "OK")
+                {
+                    string res = "接收到的信息是:" + Task_RecheckCamreaFunction.TriggRecheckCamreaready();
+                    Logger.WriteLog(res);
+                    Thread.Sleep(300);
+                }
+                Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
 
-                ////获取康耐视数据
-                //string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
-                //int cogres;
-                //bool ret = int.TryParse(Errcode, out cogres);
+                //获取康耐视数据
+                string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
+                int cogres;
+                bool ret = int.TryParse(Errcode, out cogres);
+                Logger.WriteLog("CCD3 获取康耐视数据"+ Errcode);
                 //if (CheckState(ret) == 1)
                 //{
                 //    return false;
@@ -426,9 +445,10 @@ namespace AkribisFAM.WorkStation
                 //    //康耐视报错
                 //    CheckState(false);
                 //}
-                //string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
-                
+                string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
+
                 cnt = cnt + modulestate[i - (modulenum + 1)];
+                Logger.WriteLog($"单点结束{i}");
             }
             //20250522 修改 【史彦洋】 追加 
             GlobalManager.Current.isNGPallete = true;
@@ -444,7 +464,6 @@ namespace AkribisFAM.WorkStation
         {
             GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
-
             AkrAction.Current.Move(AxisName.PRX, 39, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
             AkrAction.Current.Move(AxisName.PRY, 50, (int)AxisSpeed.PRY, (int)AxisAcc.PRX);
             #region 使用新的传送带控制逻辑
@@ -514,10 +533,10 @@ namespace AkribisFAM.WorkStation
                     //}
 
                     //BoardIn();
-                    while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
-                    {
-                        Thread.Sleep(300);
-                    }
+                    //while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
+                    //{
+                    //    Thread.Sleep(300);
+                    //}
                     GlobalManager.Current.flag_RecheckTrayArrived = 0;
                     GlobalManager.Current.current_FuJian_step = 1;
                     if (GlobalManager.Current.FuJian_exit) break;

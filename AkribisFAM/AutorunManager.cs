@@ -137,9 +137,9 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current ,token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
@@ -297,7 +297,7 @@ namespace AkribisFAM
 
         public bool Reset()
         {
-            return true;
+            //return true;
             
             //20250519 测试 【史彦洋】 追加 Start
             //Thread.Sleep(5000);
@@ -330,7 +330,8 @@ namespace AkribisFAM
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
-
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
+            Thread.Sleep(300);
             //轴回原点
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
