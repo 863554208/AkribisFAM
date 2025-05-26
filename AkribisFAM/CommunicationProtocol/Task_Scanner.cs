@@ -18,7 +18,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
         private static string InstructionHeader;//指令头
 
-        public static bool TriggScannerSendData(ScannerProcessCommand scannerProcessCommand, string SendData) //扫码与扫码枪交互Trigger自动触发流程
+        public static bool TriggScannerSendData() //扫码与扫码枪交互Trigger自动触发流程
         {
             try
             {

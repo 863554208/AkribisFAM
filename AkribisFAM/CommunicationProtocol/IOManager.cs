@@ -436,8 +436,8 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
                 {
-                    string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    Logger.WriteLog(err);
+                    //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                    //Logger.WriteLog(err);
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
                     if (!Sucessstatus)
                     {
@@ -454,8 +454,8 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
                 {
-                    string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    Logger.WriteLog(err);
+                    //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                    //Logger.WriteLog(err);
 
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
                     if (!Sucessstatus)
