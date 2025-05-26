@@ -281,5 +281,6 @@ namespace AkribisFAM.CommunicationProtocol
             TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
+
     }
 }
