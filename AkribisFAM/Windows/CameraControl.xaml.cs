@@ -81,17 +81,7 @@ namespace AkribisFAM.Windows
             FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
             InitTabs(stationPoints);
             //END ADD
-            try
-            {
-                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                string path = folder + "\\NozzleCalib1.json";
-                string content = File.ReadAllText(path);
-                Reject.Current.TrainPointlist = JsonConvert.DeserializeObject<List<TrainPoint>>(content);
-            }
-            catch
-            {
 
-            }
         }
 
         // 按钮点击事件处理
@@ -204,58 +194,78 @@ namespace AkribisFAM.Windows
             if (nozzlenum < 0 || nozzlenum >=4) {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
+                FileHelper.LoadConfig(posFileName[2], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 5)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
-                    await Reject.Current.TrainNozzles(nozzlenum);   
+                    await CamerCalibProcess.Instance.TrainNozzles(nozzlenum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Nozzle calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void Points11Calib_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = Points11CalibNum.SelectedIndex;
-            if (nozzlenum < 0 || nozzlenum >= 4)
+            if (nozzlenum < 1 || nozzlenum >= 4)
             {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
+                FileHelper.LoadConfig(posFileName[0], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 33) {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
                     await CamerCalibProcess.Instance.Point11Calibprocess((NozzleNumber)nozzlenum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Points11 calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void JointCalib_Click(object sender, RoutedEventArgs e)
         {
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
+                FileHelper.LoadConfig(posFileName[3], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 17)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
                     await CamerCalibProcess.Instance.CombineCalibrationprocess();
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the joint calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            //}
         }
 
         private async void Points9Calib_Click(object sender, RoutedEventArgs e)
@@ -265,19 +275,27 @@ namespace AkribisFAM.Windows
             {
                 return;
             }
-            if (Calibstatus_Click)
-            {
+            //if (Calibstatus_Click)
+            //{
+                FileHelper.LoadConfig(posFileName[1], out CamerCalibProcess.Instance.CalibrationPoints);
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 18)
+                {
+                    MessageBox.Show("Point Number is incorrect!");
+                    return;
+                }
                 Calibstatus_Click = false;
                 try
                 {
                     await CamerCalibProcess.Instance.Point9Calibprocess((MovingCameraCalibposition)calibnum);
+                    MessageBox.Show("Calibration Finished!");
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("An error occurred during the Points9 calibration process:" + ex.Message);
                 }
                 Calibstatus_Click = true;
-            }
+            
+            //}
         }
         /// ======================================================================================================
         /// ======================================================================================================

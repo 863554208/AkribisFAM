@@ -317,7 +317,7 @@ namespace AkribisFAM.WorkStation
                 }
                 Logger.WriteLog("BBBBBBBBBBBBBB");
                 //夹爪气缸打开
-                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);            
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
                 ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
