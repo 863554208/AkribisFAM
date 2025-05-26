@@ -54,6 +54,21 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 return _instance;
             }
         }
+
+        public int AllCalibrationFinished() {
+            CalibCommunicationProcess.CalibPushcommand($"UN,1" + "\r\n");
+            return 0;
+        }
+
+        public int ReCheckCalibration()
+        {
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+            CalibCommunicationProcess.CalibPushcommand($"CB,6" + "\r\n");
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+            return 0;
+        }
+
+
         private JArray DownCameramoveAxisNozzle;//下相机机构动作执行点位
 
         public StationPoints CalibrationPoints = new StationPoints();

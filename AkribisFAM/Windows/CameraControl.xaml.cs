@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
@@ -92,53 +93,35 @@ namespace AkribisFAM.Windows
         }
 
 
-        private void Loadbtn_Click(object sender, RoutedEventArgs e)
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.gif)|*.png;*.jpeg;*.jpg;*.gif"; 
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string filePath = openFileDialog.FileName;
-                ImageSource imageSource = new BitmapImage(new Uri(filePath));
-                Imageview.Source = imageSource;
-            }
         }
 
-        private void SaveImage(string filename)
+        private void Cam3Calibbtn_Click(object sender, RoutedEventArgs e)
         {
-            BitmapEncoder encoder = null;
-            switch (Path.GetExtension(filename).ToLower())
+            CamerCalibProcess.Instance.ReCheckCalibration();
+        }
+
+        private void UniversalCalibbtn_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show("Universal Calibration?", "Confirming", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
             {
-                case ".png": encoder = new PngBitmapEncoder(); break;
-                case ".jpg": encoder = new JpegBitmapEncoder(); break;
-                case ".jpeg": encoder = new JpegBitmapEncoder(); break;
-                case ".gif": encoder = new GifBitmapEncoder(); break;
-            }
-            if (encoder != null)
-            {
-                BitmapFrame frame = BitmapFrame.Create(Imageview.Source as BitmapImage); 
-                encoder.Frames.Add(frame);
-                using (FileStream stream = File.Create(filename))
+                try
                 {
-                    encoder.Save(stream); 
+                    CamerCalibProcess.Instance.AllCalibrationFinished();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Universal Calibration Failed!" + ex.Message);
                 }
             }
-        }
-
-        private void Savebtn_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "PNG Image|*.png|JPG Image|*.jpg|GIF Image|*.gif";
-            saveFileDialog.FileName = "Image"; 
-            saveFileDialog.DefaultExt = ".png"; 
-
-            Nullable<bool> result = saveFileDialog.ShowDialog();
-            if (result == true) 
+            else if (result == MessageBoxResult.Cancel)
             {
-                string filename = saveFileDialog.FileName; 
-                SaveImage(filename); 
+
             }
+            
         }
 
         private void Capturebtn_Click(object sender, RoutedEventArgs e)
@@ -365,9 +348,9 @@ namespace AkribisFAM.Windows
             }
             PosTabControl.Items.Clear();
 
-            AddTabIfHasData("Para 1", points.LaiLiaoPointList);
-            AddTabIfHasData("Para 2", points.ZuZhuangPointList);
-            AddTabIfHasData("Para 3", points.FuJianPointList);
+            AddTabIfHasData("Station 1", points.LaiLiaoPointList);
+            AddTabIfHasData("Station 2", points.ZuZhuangPointList);
+            AddTabIfHasData("Station 3", points.FuJianPointList);
 
         }
 
@@ -1084,11 +1067,11 @@ namespace AkribisFAM.Windows
 
             switch (header)
             {
-                case "Para 1":
+                case "Station 1":
                     return stationPoints.LaiLiaoPointList;
-                case "Para 2":
+                case "Station 2":
                     return stationPoints.ZuZhuangPointList;
-                case "Para 3":
+                case "Station 3":
                     return stationPoints.FuJianPointList;
                 default:
                     return null;

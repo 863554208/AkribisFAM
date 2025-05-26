@@ -130,7 +130,7 @@ namespace AkribisFAM.WorkStation
                         TestNumber = "1",
                         address = "0",
                     };
-                    string req = "1,0" + "\r";
+                    string req = "1,0" + "\r\n";
                     sendKDistanceAppend.Add(temp);
                     Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
 
@@ -143,8 +143,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count == 1) 
                 {
-                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X+20, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X +GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
                     //触发测距
                     sendKDistanceAppend.Clear();
                     KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
@@ -152,7 +152,7 @@ namespace AkribisFAM.WorkStation
                         TestNumber = "1",
                         address = "0",
                     };
-                    string req = "1,0" + "\r";
+                    string req = "1,0" + "\r\n";
                     sendKDistanceAppend.Add(temp);
                     Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
 
@@ -164,8 +164,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count == 2)
                 {
-                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X + 20, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y + 20, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
                     //触发测距
                     sendKDistanceAppend.Clear();
                     KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
@@ -173,7 +173,7 @@ namespace AkribisFAM.WorkStation
                         TestNumber = "1",
                         address = "0",
                     };
-                    string req = "1,0" + "\r";
+                    string req = "1,0" + "\r\n";
                     sendKDistanceAppend.Add(temp);
                     Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
 
@@ -185,8 +185,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count == 3)
                 {
-                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X , (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y +20, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
                     //触发测距
                     sendKDistanceAppend.Clear();
                     KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
@@ -194,7 +194,7 @@ namespace AkribisFAM.WorkStation
                         TestNumber = "1",
                         address = "0",
                     };
-                    string req = "1,0" + "\r";
+                    string req = "1,0" + "\r\n";
                     sendKDistanceAppend.Add(temp);
                     Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
 

@@ -45,8 +45,8 @@ namespace AkribisFAM.CommunicationProtocol
                 public string Subareas_count;//子区域个数
                 public string Subareas_Errcode11;//1号穴位错误代码，1为成功
                 public string Data11;//11穴位数据收集,NA无数据收集
-                public string Subareas_Errcode22;//2号穴位错误代码，1为成功
-                public string Data22;//22穴位数据收集,NA无数据收集
+                //public string Subareas_Errcode22;//2号穴位错误代码，1为成功
+                //public string Data22;//22穴位数据收集,NA无数据收集
             }
             //定义Cognex接收追加指令(获取取料坐标)
             public class AcceptGMCommandAppend
@@ -81,7 +81,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
-                InstructionHeader = $"TLM,Cmd_100,2,";// 模块头+指令编号+拍照次数  
+                InstructionHeader = $"TLM,Cmd_100,4,";// 模块头+指令编号+拍照次数  
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
 
@@ -126,6 +126,12 @@ namespace AkribisFAM.CommunicationProtocol
                 //bool sendcommand_status = this.VisionpositionfeedPushcommand("信息报错:"+ex.ToString());
                 return false;
             }
+        }
+
+        public static bool PushcommandFunction(string SendCommand)//(发送字符串到网络Socket)
+        {
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, SendCommand + "\r\n");
+            return true;//需要添加代码修改(发送字符串到网络Socket)
         }
 
         public static List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand feedupCameraProcessCommand)//飞达拍照与相机交互TLM接收流程
@@ -265,6 +271,7 @@ namespace AkribisFAM.CommunicationProtocol
                 return false;
             }
 
+            VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
             //VisionAcceptCommand = "TLM,Cmd_100,2,1,1,2,1,132_133_130_126_999.999,1,133_135_132_128_999.999,1,2,2,1,139_141_136_128_999.999,1,131_133_129_127_999.999";
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
@@ -275,10 +282,5 @@ namespace AkribisFAM.CommunicationProtocol
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
 
-        public static bool PushcommandFunction(string SendCommand)//(发送字符串到网络Socket)
-        {
-            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, SendCommand + "\r\n");
-            return true;//需要添加代码修改(发送字符串到网络Socket)
-        }
     }
 }

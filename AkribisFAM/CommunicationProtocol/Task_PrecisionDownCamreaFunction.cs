@@ -233,7 +233,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return false;
             }
-
+            VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
             //VisionAcceptCommand = "TLM,Cmd_100,2,1,1,2,1,132_133_130_126_999.999,1,133_135_132_128_999.999,1,2,2,1,139_141_136_128_999.999,1,131_133_129_127_999.999";
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
