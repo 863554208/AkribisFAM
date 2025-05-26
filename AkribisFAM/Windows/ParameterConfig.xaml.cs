@@ -144,7 +144,33 @@ namespace AkribisFAM.Windows
             FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
             foreach (var Node in GlobalManager.Current.stationPoints.LaiLiaoPointList)
             {
-                if (Node.name != null && Node.name.Equals("Laser Points"))
+                if (Node.name != null && Node.name.Equals("laserpoint1_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint1_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint1_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint1_shift_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint2_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint2_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint2_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint2_shift_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint3_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint3_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint3_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint3_shift_Y = Convert.ToInt32(Node.general);
+                }
+
+
+                if (Node.name!=null && Node.name.Equals("Laser Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -162,7 +188,28 @@ namespace AkribisFAM.Windows
 
             foreach (var Node in GlobalManager.Current.stationPoints.ZuZhuangPointList)
             {
-                if (Node.name != null && Node.name.Equals("Feedar1 Points"))
+                if(Node.name !=null && Node.name.Equals("NozzleGap_X"))
+                {
+                    GlobalManager.Current.NozzleGap_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("PalleteGap_X"))
+                {
+                    GlobalManager.Current.PalleteGap_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("PalleteGap_Y"))
+                {
+                    GlobalManager.Current.PalleteGap_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TotalRow"))
+                {
+                    GlobalManager.Current.TotalRow = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TotalColumn"))
+                {
+                    GlobalManager.Current.TotalColumn = Convert.ToInt32(Node.general);
+                }
+
+                if (Node.name != null && Node.name.Equals("Snap Feedar1 Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -177,7 +224,7 @@ namespace AkribisFAM.Windows
                     }
                 }
 
-                if (Node.name != null && Node.name.Equals("Feedar2 Points"))
+                if (Node.name != null && Node.name.Equals("Snap Feedar2 Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -192,7 +239,7 @@ namespace AkribisFAM.Windows
                     }
                 }
 
-                if (Node.name != null && Node.name.Equals("PickFoam Points"))
+                if (Node.name != null && Node.name.Equals("Feedar1 PickFoam Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -203,11 +250,26 @@ namespace AkribisFAM.Windows
                             Z = pointList.childPos[2],
                             R = pointList.childPos[3]
                         };
-                        GlobalManager.Current.pickFoamPoints.Add(temp);
+                        GlobalManager.Current.pickFoam1Points.Add(temp);
                     }
                 }
 
-                if (Node.name != null && Node.name.Equals("LowerCCD Points"))
+                if (Node.name != null && Node.name.Equals("Feedar2 PickFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.pickFoam2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Snap LowerCCD Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -302,7 +364,7 @@ namespace AkribisFAM.Windows
             var c = GlobalManager.Current.laserPoints;
             var a = GlobalManager.Current.feedar1Points;
             var b = GlobalManager.Current.feedar2Points;
-            var d = GlobalManager.Current.pickFoamPoints;
+            var d = GlobalManager.Current.pickFoam1Points;
             var e = GlobalManager.Current.lowerCCDPoints;
             var f = GlobalManager.Current.dropBadFoamPoints;
             var g = GlobalManager.Current.snapPalletePoints;

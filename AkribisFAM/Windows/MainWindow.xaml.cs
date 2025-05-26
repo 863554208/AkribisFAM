@@ -36,6 +36,10 @@ using System.Reflection;
 using YamlDotNet.Core.Tokens;
 using System.Windows.Media.Media3D;
 using AkribisFAM.Helper;
+using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
+using static AkribisFAM.GlobalManager;
+using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
+using Newtonsoft.Json.Linq;
 
 namespace AkribisFAM
 {
@@ -104,7 +108,7 @@ namespace AkribisFAM
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            TCPNetworkManage.StopAllClients();
+            
         }
 
         private void UpdateIcon()
@@ -356,6 +360,226 @@ namespace AkribisFAM
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
             ContentDisplay.Content = debugLog; // ManualDebugScreen 是你定义的用户控件或界面
+        }
+        private void TestFeiPai_Click(object sender, RoutedEventArgs e)
+        {
+
+            List<SinglePoint> snapPalleteList = new List<SinglePoint>();
+            List<SinglePoint> feedar1pointList = new List<SinglePoint>();
+            List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+            List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
+            List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> palletePath = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition>();
+            List<AssUpCamrea.Pushcommand.SendGTCommandAppend> fetchMatrial = new List<AssUpCamrea.Pushcommand.SendGTCommandAppend>();
+
+            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z);
+            AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
+
+
+            if (true)
+            {
+                snapFeederPath.Clear();
+                feedar1pointList.Clear();
+                int index = 0;
+                int count1 = 0;
+                double start_pos_X = GlobalManager.Current.feedar1Points[0].X;
+                double start_pos_Y = GlobalManager.Current.feedar1Points[0].Y;
+                double end_pos_X = GlobalManager.Current.feedar1Points[1].X;
+                double end_pos_Y = GlobalManager.Current.feedar1Points[1].Y;
+                for (int i = 0; i < 4; i++)
+                {
+                    feedar1pointList.Add(new SinglePoint()
+                    {
+                        X = start_pos_X + 16 * i,
+                        Y = start_pos_Y,
+                        Z = 0,
+                        R = 0,
+                    });
+                }
+                foreach (var Point in feedar1pointList)
+                {
+                    FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition()
+                    {
+                        SN1 = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                        RawMaterialName1 = "Foam",
+                        FOV = count1.ToString(),
+                        Photo_X1 = Point.X.ToString(),
+                        Photo_Y1 = Point.Y.ToString(),
+                        Photo_R1 = "0"
+                    };
+                    count1++;
+                    snapFeederPath.Add(sendTLMCamreaposition1);
+                }
+
+                Logger.WriteLog("feedar开始发送信息");
+                //给Cognex发拍照信息
+
+                //移动到拍照起始点
+                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X - 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.feedar1Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+
+                //Logger.WriteLog("初始点的X为" + (GlobalManager.Current.feedar1Points[0].X - 16));
+                //AkrAction.Current.getPos(AxisName.FSX);
+                //Logger.WriteLog("初始点的Y为" + GlobalManager.Current.feedar1Points[0].Y);
+
+
+                Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
+                //while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+                //{
+                //    string res = "接收到的信息是:" + Task_FeedupCameraFunction.TriggFeedUpCamreaready();
+                //    Logger.WriteLog(res);
+                //    Thread.Sleep(300);
+                //}
+
+                AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X, 16, GlobalManager.Current.feedar1Points[0].X + 16 * 3, 1);
+                Thread.Sleep(1000);
+
+                AkrAction.Current.EventEnable(AxisName.FSX);
+                AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
+                Thread.Sleep(1000);
+                Logger.WriteLog("上相机相机设置eventon =1的结果为");
+                Logger.WriteLog(response);
+
+                //移动到拍照结束点
+                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                Logger.WriteLog("结束点的X为" + GlobalManager.Current.feedar1Points[1].X);
+
+                AkrAction.Current.EventDisable(AxisName.FSX);
+                AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
+                Thread.Sleep(1000);
+                Logger.WriteLog("上相机相机设置eventon =0的结果为");
+                //Logger.WriteLog(response4);
+                ////接受Cognex的信息
+                //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+                //msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+
+                //Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
+            }
+
+
+            //Thread.Sleep(200);
+            //AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
+
+            Logger.WriteLog("将Z轴移上去结束");
+
+            ccd2SnapPath.Clear();
+            int count = 0;
+            var start_x = GlobalManager.Current.lowerCCDPoints[1].X;
+            var start_y = GlobalManager.Current.lowerCCDPoints[1].Y;
+            for (int i = 0; i < 4; i++)
+            {
+
+                PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition SendTLNCamreaposition = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition()
+                {
+                    SN = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    NozzleID = (4 - count).ToString(),
+                    RawMaterialName = "Foam",
+                    CaveID = "0",
+                    TargetMaterialName1 = "Foam->Moudel",
+                    Photo_X1 = (start_x + i * 16).ToString(),
+                    Photo_Y1 = (start_y).ToString(),
+                    Photo_R1 = "0.0",
+
+                };
+                ccd2SnapPath.Add(SendTLNCamreaposition);
+                count++;
+            }
+
+            //给Cognex发拍照信息
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response5);
+
+            //移动到拍照起始点
+            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[1].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+            Logger.WriteLog("X的初始坐标为：");
+            Logger.WriteLog(GlobalManager.Current.lowerCCDPoints[1].X.ToString());
+            Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand.TLN, ccd2SnapPath);
+            //while (Task_PrecisionDownCamreaFunction.TriggDownCamreaready() != "OK")
+            //{
+            //    string res = "接收到的信息是:" + Task_PrecisionDownCamreaFunction.TriggDownCamreaready();
+            //    Logger.WriteLog(res);
+            //    Thread.Sleep(300);
+            //}
+
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[1].X + 16 * 3) ,-16, GlobalManager.Current.lowerCCDPoints[1].X , 2);
+            Thread.Sleep(1000);
+
+            AkrAction.Current.EventEnable(AxisName.FSX);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response2);
+            Thread.Sleep(1000);
+            Logger.WriteLog("CCD2 下相机设置eventon =1的结果为");
+            Logger.WriteLog(response2);
+
+            //移动到拍照结束点
+            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[1].X -16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            Thread.Sleep(1000);
+
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
+            Logger.WriteLog("CCD2 下相机设置eventon =0的结果为");
+            Logger.WriteLog(response3);
+            Thread.Sleep(1000);
+
+            //接受Cognex信息
+            //List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+            //AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+
+            //List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
+            //List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+
+            //ccd2SnapPath.Clear();
+            //int count = 0;
+            //var start_x = GlobalManager.Current.lowerCCDPoints[0].X;
+            //var start_y = GlobalManager.Current.lowerCCDPoints[0].Y;
+            //for (int i = 0; i < 4; i++)
+            //{
+
+            //    PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition SendTLNCamreaposition = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition()
+            //    {
+            //        SN = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //        NozzleID = (count + 1).ToString(),
+            //        RawMaterialName = "Foam",
+            //        CaveID = "0",
+            //        TargetMaterialName1 = "Foam->Moudel",
+            //        Photo_X1 = (start_x - i * 16).ToString(),
+            //        Photo_Y1 = (start_y).ToString(),
+            //        Photo_R1 = "39.54",
+
+            //    };
+            //    ccd2SnapPath.Add(SendTLNCamreaposition);
+            //    count++;
+            //}
+
+            ////给Cognex发拍照信息
+
+
+            ////移动到拍照起始点
+            //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X +16 , (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+
+            //Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand.TLN, ccd2SnapPath);
+            ////while (Task_PrecisionDownCamreaFunction.TriggDownCamreaready() != "OK")
+            ////{
+            ////    string res = "接收到的信息是:" + Task_PrecisionDownCamreaFunction.TriggDownCamreaready();
+            ////    Logger.WriteLog(res);
+            ////    Thread.Sleep(300);
+            ////}
+
+            //Thread.Sleep(500);
+            //AkrAction.Current.EventEnable(AxisName.FSX);
+            //AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response2);
+            //Thread.Sleep(500);
+            //AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[1].X, 2);
+            //Thread.Sleep(1000);
+            ////移动到拍照结束点
+            //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[1].X -5, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            //Thread.Sleep(1000);
+            ////接受Cognex信息
+            ////List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+            ////AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+
+            //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            //AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+
         }
 
 

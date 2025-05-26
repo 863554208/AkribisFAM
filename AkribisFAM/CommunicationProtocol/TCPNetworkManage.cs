@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 using Newtonsoft.Json.Linq;
 //using AkribisFAM.Util;
 
@@ -27,7 +28,9 @@ namespace AkribisFAM.CommunicationProtocol
         
         mes,
 
-        ModbusTCP
+        ModbusTCP,
+
+        Pressure_sensor
     }
 
     class TCPNetworkManage
@@ -50,18 +53,26 @@ namespace AkribisFAM.CommunicationProtocol
         /// </summary>
         private static void Readdevicesjson()
         {
-            string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "devices.json");// 获取文件路径
-            string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
-            JObject obj = JObject.Parse(json);
-            clientNameToEndpoint.TryAdd(ClientNames.camera1_Feed, ((string ip, int port))((obj["camera1_Feed"]["IP"]).ToString(), (obj["camera1_Feed"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.camera1_Runner, ((string ip, int port))((obj["camera1_Runner"]["IP"]).ToString(), (obj["camera1_Runner"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.camera2, ((string ip, int port))((obj["camera2"]["IP"]).ToString(), (obj["camera2"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.camera3, ((string ip, int port))((obj["camera3"]["IP"]).ToString(), (obj["camera3"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.lazer, ((string ip, int port))((obj["lazer"]["IP"]).ToString(), (obj["lazer"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.scanner, ((string ip, int port))((obj["scanner"]["IP"]).ToString(), (obj["scanner"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.mes, ((string ip, int port))((obj["mes"]["IP"]).ToString(), (obj["mes"]["Port"])));
-            clientNameToEndpoint.TryAdd(ClientNames.ModbusTCP, ((string ip, int port))((obj["ModbusTCP"]["IP"]).ToString(), (obj["ModbusTCP"]["Port"])));
-            // 其他客户端可以继续添加
+            try
+            {
+                string filePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "devices.json");// 获取文件路径
+                string json = File.ReadAllText(filePath);// 读取JSON文件并反序列化为对象
+                JObject obj = JObject.Parse(json);
+                clientNameToEndpoint.TryAdd(ClientNames.camera1_Feed, ((string ip, int port))((obj["camera1_Feed"]["IP"]).ToString(), (obj["camera1_Feed"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.camera1_Runner, ((string ip, int port))((obj["camera1_Runner"]["IP"]).ToString(), (obj["camera1_Runner"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.camera2, ((string ip, int port))((obj["camera2"]["IP"]).ToString(), (obj["camera2"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.camera3, ((string ip, int port))((obj["camera3"]["IP"]).ToString(), (obj["camera3"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.lazer, ((string ip, int port))((obj["lazer"]["IP"]).ToString(), (obj["lazer"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.scanner, ((string ip, int port))((obj["scanner"]["IP"]).ToString(), (obj["scanner"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.mes, ((string ip, int port))((obj["mes"]["IP"]).ToString(), (obj["mes"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.ModbusTCP, ((string ip, int port))((obj["ModbusTCP"]["IP"]).ToString(), (obj["ModbusTCP"]["Port"])));
+                clientNameToEndpoint.TryAdd(ClientNames.Pressure_sensor, ((string ip, int port))((obj["Pressure_sensor"]["IP"]).ToString(), (obj["Pressure_sensor"]["Port"])));
+                // 其他客户端可以继续添加
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Read device IP failed!");
+            }
         }
         /// <summary>
         /// 加载单独客户端的IP地址和端口号

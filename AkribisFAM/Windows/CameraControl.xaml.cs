@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
@@ -29,6 +30,13 @@ namespace AkribisFAM.Windows
 {
     /// <summary>
     /// CameraControl.xaml 的交互逻辑
+    /// function
+    /// 1.load image
+    /// 2.camera calibration
+    ///     11 points for nozzle2,3,4
+    ///     9 points for feeder and conveyor(pallet)
+    ///     nozzle train for nozzle1,2,3,4
+    ///     joint calibration calibrates motion from pallet to feeder on nozzle1
     /// </summary>
     public partial class CameraControl : UserControl
     {
@@ -36,7 +44,7 @@ namespace AkribisFAM.Windows
         List<string> posFilePre = new List<string>();
         List<string> posFileName = new List<string>();
 
-        private const string MatrixPointPrefix = "Camera矩阵点:";
+        private const string MatrixPointPrefix = "Camera Matrix Points:";
         TeachingWindow teachingWindow;
 
         private StationPoints stationPoints = new StationPoints();
@@ -52,11 +60,11 @@ namespace AkribisFAM.Windows
             Calibstatus_Click = true;
 
             //Add by yxw
-            posFilePre.Add("Camera_points1.json");
-            posFilePre.Add("Camera_points2.json");
-            posFilePre.Add("Camera_points3.json");
-            posFilePre.Add("Camera_points4.json");
-            posFilePre.Add("Camera_points5.json");
+            posFilePre.Add("Camera_points1.json");//11 points calibration points, 1-11 for nozzle2, 12-22 for nozzle3, 23-33 for nozzle4
+            posFilePre.Add("Camera_points2.json");//9 points calibration points, 1-9 for feeder, 10-18 for conveyor
+            posFilePre.Add("Camera_points3.json");//nozzle train points, 5 is fly photograph start point, 1-4 is photograph position for nozzle1,2,3,4
+            posFilePre.Add("Camera_points4.json");//joint calibration points, 1-11 for nozzle1 11 points calibration, 12-17 move points in calibration process
+            posFilePre.Add("Camera_points5.json");//reserve
 
             for (int z = 0; z < posFilePre.Count; z++)
             {
@@ -67,6 +75,7 @@ namespace AkribisFAM.Windows
             CboxNowType.SelectionChanged += CboxNowType_SelectionChanged;
 
             // 读取数据并生成 UI
+            //read json and generate UI
             for (int i = 0; i < posFilePre.Count; i++)
             {
                 string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, posFilePre[i]);
@@ -77,90 +86,42 @@ namespace AkribisFAM.Windows
                 }
             }
             stationPoints = new StationPoints();
-            FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数
+            FileHelper.LoadConfig(posFileName[0], out stationPoints);   //默认加载第一套参数; load the first json file by default
             InitTabs(stationPoints);
             //END ADD
 
         }
 
-        // 按钮点击事件处理
-        //private void OnSelectImageClick(object sender, RoutedEventArgs e)
-        //{
-        //    // 创建文件选择对话框实例
-        //    OpenFileDialog openFileDialog = new OpenFileDialog();
-
-        //    // 设置初始目录为默认的图片文件夹（例如，项目目录中的 Images 文件夹）
-        //    openFileDialog.InitialDirectory = @"C:\Users\Public\Pictures"; // 设置为你想要的默认目录
-
-        //    // 过滤器，用于显示特定类型的文件（例如，仅显示图片文件）
-        //    openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif";
-
-        //    // 如果用户选择了文件并点击“打开”
-        //    if (openFileDialog.ShowDialog() == true)
-        //    {
-        //        // 获取选中的文件路径
-        //        string filePath = openFileDialog.FileName;
-
-        //        // 将选中的文件显示到 Image 控件中
-        //        imageDisplay.Source = new BitmapImage(new Uri(filePath));
-        //    }
-        //}
 
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
 
-        private void Loadbtn_Click(object sender, RoutedEventArgs e)
+        private void Cam3Calibbtn_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.gif)|*.png;*.jpeg;*.jpg;*.gif"; // 设置文件过滤器
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string filePath = openFileDialog.FileName;
-                ImageSource imageSource = new BitmapImage(new Uri(filePath));
-                Imageview.Source = imageSource;
-            }
+            CamerCalibProcess.Instance.ReCheckCalibration();
         }
 
-        private void SaveImage(string filename)
+        private void UniversalCalibbtn_Click(object sender, RoutedEventArgs e)
         {
-            // 这里假设你有一个BitmapSource类型的图片变量叫myBitmapSource，你需要将其保存到文件
-            BitmapEncoder encoder = null;
-            switch (Path.GetExtension(filename).ToLower())
+            MessageBoxResult result = MessageBox.Show("Universal Calibration?", "Confirming", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
             {
-                case ".png": encoder = new PngBitmapEncoder(); break;
-                case ".jpg": encoder = new JpegBitmapEncoder(); break;
-                case ".jpeg": encoder = new JpegBitmapEncoder(); break;
-                case ".gif": encoder = new GifBitmapEncoder(); break;
-            }
-            if (encoder != null)
-            {
-                BitmapFrame frame = BitmapFrame.Create(Imageview.Source as BitmapImage); // myBitmapSource是你的图片源，例如一个RenderTargetBitmap对象
-                encoder.Frames.Add(frame);
-                using (FileStream stream = File.Create(filename))
+                try
                 {
-                    encoder.Save(stream); // 保存图片到文件
+                    CamerCalibProcess.Instance.AllCalibrationFinished();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Universal Calibration Failed!" + ex.Message);
                 }
             }
-        }
-
-        private void Savebtn_Click(object sender, RoutedEventArgs e)
-        {
-            // 创建一个SaveFileDialog实例
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "PNG Image|*.png|JPG Image|*.jpg|GIF Image|*.gif"; // 设置文件类型过滤器
-            saveFileDialog.FileName = "Image"; // 默认文件名
-            saveFileDialog.DefaultExt = ".png"; // 默认文件扩展名
-
-            // 显示保存对话框
-            Nullable<bool> result = saveFileDialog.ShowDialog();
-            if (result == true) // 如果用户点击了OK按钮
+            else if (result == MessageBoxResult.Cancel)
             {
-                string filename = saveFileDialog.FileName; // 获取保存的文件名和路径
-                SaveImage(filename); // 调用保存图片的方法
+
             }
+            
         }
 
         private void Capturebtn_Click(object sender, RoutedEventArgs e)
@@ -168,7 +129,7 @@ namespace AkribisFAM.Windows
 
         }
 
-        
+        //train nozzle
         private async void NozzleCalib_Click(object sender, RoutedEventArgs e)
         {
             int nozzlenum = NozzleCalibNum.SelectedIndex;
@@ -375,7 +336,6 @@ namespace AkribisFAM.Windows
                     }
             };
 
-            // 保存到文件
             bool saveOk = FileHelper.SaveToJson(file, newStats);
             //MessageBox.Show(saveOk ? "The Json point file cannot be found, and the system automatically generates default point data" : "The automatic generation of the Json point file failed");
         }
@@ -388,9 +348,9 @@ namespace AkribisFAM.Windows
             }
             PosTabControl.Items.Clear();
 
-            AddTabIfHasData("Para 1", points.LaiLiaoPointList);
-            AddTabIfHasData("Para 2", points.ZuZhuangPointList);
-            AddTabIfHasData("Para 3", points.FuJianPointList);
+            AddTabIfHasData("Station 1", points.LaiLiaoPointList);
+            AddTabIfHasData("Station 2", points.ZuZhuangPointList);
+            AddTabIfHasData("Station 3", points.FuJianPointList);
 
         }
 
@@ -436,10 +396,12 @@ namespace AkribisFAM.Windows
                 if (pt.type == 0)
                 {
                     // 单独点，使用 pt 的 X/Y/Z/R
+                    // single point uses X/Y/Z/R
                     var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
 
                     // 添加 ID 标签
+                    // add ID label
                     rowPanel.Children.Add(new TextBlock
                     {
                         Text = "ID:",
@@ -449,6 +411,7 @@ namespace AkribisFAM.Windows
                     });
 
                     // 添加可编辑的 ID 输入框
+                    // add textbox
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
@@ -458,6 +421,7 @@ namespace AkribisFAM.Windows
                     };
 
                     // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                    // register TextChanged event, set user change
                     idTextBox.TextChanged += (s, edc) =>
                     {
                         pt.name = idTextBox.Text;
@@ -494,19 +458,21 @@ namespace AkribisFAM.Windows
                 else if (pt.type == 1)
                 {
                     // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
+                    // matrix points
                     int totalPoints = pt.row * pt.col;
 
                     if (totalPoints > 200)
                     {
                         panel.Children.Add(new TextBlock
                         {
-                            Text = $"{MatrixPointPrefix} {pt.name} 超过最大限制（200 个点），跳过。",
+                            Text = $"{MatrixPointPrefix} {pt.name} Exceeding the maximum limit（200 points），Skip!",//over 200 points limitation
                             Foreground = new SolidColorBrush(Colors.Red)
                         });
                         continue;
                     }
 
                     // 初始化并填满 childList
+                    // init ChildPoint list
                     if (pt.childList == null)
                         pt.childList = new List<ChildPoint>();
 
@@ -520,25 +486,25 @@ namespace AkribisFAM.Windows
                     }
 
                     // 校验每个子点的内容
+                    //Verify the content of childList
                     foreach (var child in pt.childList)
                     {
                         EnsureChildDataValid(child);
                     }
 
                     // 绘制 UI
+                    // draw UI
                     var rowGrid = new Grid
                     {
                         Margin = new Thickness(0, 8, 0, 4),
-                        Tag = "MatrixHeader"  // 关键标记
+                        Tag = "MatrixHeader"  
                     };
 
-                    // 定义三列：标签、输入框、说明文本
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); 
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
                     rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
 
-                    // ID: 标签
                     var idLabel = new TextBlock
                     {
                         Text = "ID:",
@@ -549,7 +515,6 @@ namespace AkribisFAM.Windows
                     Grid.SetColumn(idLabel, 0);
                     rowGrid.Children.Add(idLabel);
 
-                    // 可编辑的 ID 输入框
                     var matrixIdTextBox = new TextBox
                     {
                         Text = pt.name,
@@ -559,7 +524,7 @@ namespace AkribisFAM.Windows
                     Grid.SetColumn(matrixIdTextBox, 1);
                     rowGrid.Children.Add(matrixIdTextBox);
 
-                    // 显示 col × row 信息
+                    //  col × row 
                     var matrixInfoText = new TextBlock
                     {
                         Text = $"({pt.col}col × {pt.row}row)",
@@ -580,18 +545,15 @@ namespace AkribisFAM.Windows
 
                     rowGrid.Children.Add(ButtonAutoData);
 
-                    // 添加整行到主 panel
                     panel.Children.Add(rowGrid);
 
 
-                    //添加偏移行
                     var rowOfferGrid = new Grid
                     {
                         Margin = new Thickness(0, 8, 0, 4),
-                        Tag = "MatrixHeader"  // 关键标记
+                        Tag = "MatrixHeader"  
                     };
 
-                    // 定义4列：标签、输入框  offer10,offer11
                     rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                     rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
                     rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -612,7 +574,7 @@ namespace AkribisFAM.Windows
                     {
                         Width = 90,
                         Margin = new Thickness(0, 0, 10, 0),
-                        Text = pt.offer10.ToString() // 初始化值
+                        Text = pt.offer10.ToString()
                     };
                     offer10Box.TextChanged += (s, e) =>
                     {
@@ -649,7 +611,7 @@ namespace AkribisFAM.Windows
                     panel.Children.Add(rowOfferGrid);
 
 
-                    List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // 每个点 4 个 TextBox
+                    List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // each point has 4 TextBoxes
 
                     int childIndex = 0;
                     for (int r = 0; r < pt.row; r++)
@@ -686,6 +648,7 @@ namespace AkribisFAM.Windows
                             TextBox xBox, yBox, zBox, rBox;
 
                             //回写，用于保存文件
+                            //use to save file
                             pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0],out xBox, newText =>
                             {
                                 if (double.TryParse(newText, out double val)) pos[0] = val;
@@ -768,7 +731,6 @@ namespace AkribisFAM.Windows
 
                     //pt.name = "New";
 
-                    // 添加 ID 标签
                     rowPanel.Children.Add(new TextBlock
                     {
                         Text = "ID:",
@@ -777,7 +739,6 @@ namespace AkribisFAM.Windows
                         Margin = new Thickness(0, 0, 5, 0)
                     });
 
-                    // 添加 ID 输入框（回写 pt.name）
                     var idTextBox = new TextBox
                     {
                         Text = pt.name,
@@ -788,7 +749,6 @@ namespace AkribisFAM.Windows
                     idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
                     rowPanel.Children.Add(idTextBox);
 
-                    // 添加 General 标签
                     rowPanel.Children.Add(new TextBlock
                     {
                         Text = "Data:",
@@ -796,7 +756,6 @@ namespace AkribisFAM.Windows
                         Margin = new Thickness(0, 0, 5, 0)
                     });
 
-                    // 添加 General 输入框（回写 pt.general）
                     var genTextBox = new TextBox
                     {
                         Text = pt.general.ToString(),
@@ -810,7 +769,6 @@ namespace AkribisFAM.Windows
                     };
                     rowPanel.Children.Add(genTextBox);
 
-                    // 添加到主容器
                     panel.Children.Add(rowPanel);
                 }
             }
@@ -852,11 +810,11 @@ namespace AkribisFAM.Windows
             DataObject.AddPastingHandler(tba, FloatTextBox_Pasting);
 
             // 禁用输入法
+            //limit input
             InputMethod.SetIsInputMethodEnabled(tba, false);
 
             tb = tba;
 
-            // 如果有绑定回调，就在文本变更时触发
             if (onTextChanged != null)
             {
                 tba.TextChanged += (s, e) =>
@@ -994,15 +952,14 @@ namespace AkribisFAM.Windows
             }
         }
 
+        //limit input
         private void FloatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // 禁用中文输入法（保险起见）
             InputMethod.Current.ImeState = InputMethodState.Off;
         }
 
         private bool IsValidFloatInput(string input)
         {
-            // 支持合法浮点数格式：123、0.5、.5、123.
             return Regex.IsMatch(input, @"^-?(\d+(\.\d*)?|\.\d+)?$");
         }
 
@@ -1012,11 +969,12 @@ namespace AkribisFAM.Windows
             if (comboBox != null)
             {
                 int selectedIndex = comboBox.SelectedIndex;
-                FileHelper.LoadConfig(posFileName[selectedIndex], out stationPoints);   //默认加载第一套参数
+                FileHelper.LoadConfig(posFileName[selectedIndex], out stationPoints);  
                 InitTabs(stationPoints);
             }
         }
 
+        //delete position point
         private void deletePosParam_Click(object sender, RoutedEventArgs e)
         {
             int listIndex = PosTabControl.SelectedIndex;
@@ -1043,7 +1001,6 @@ namespace AkribisFAM.Windows
                     }
                     else
                     {
-                        // 查找最后一个矩阵头的位置（Tag == "MatrixHeader"）
                         int matrixHeaderIndex = -1;
                         for (int i = lastIndex; i >= 0; i--)
                         {
@@ -1057,7 +1014,6 @@ namespace AkribisFAM.Windows
 
                         if (matrixHeaderIndex >= 0)
                         {
-                            // 从矩阵头开始，删除它和后面所有 "MatrixRow"
                             int removeCount = 0;
                             int currentIndex = matrixHeaderIndex;
 
@@ -1070,7 +1026,6 @@ namespace AkribisFAM.Windows
                                 {
                                     mainPanel.Children.RemoveAt(currentIndex);
                                     removeCount++;
-                                    // 删除后元素会自动往前移，不要 ++ currentIndex
                                 }
                                 else
                                 {
@@ -1112,11 +1067,11 @@ namespace AkribisFAM.Windows
 
             switch (header)
             {
-                case "Para 1":
+                case "Station 1":
                     return stationPoints.LaiLiaoPointList;
-                case "Para 2":
+                case "Station 2":
                     return stationPoints.ZuZhuangPointList;
-                case "Para 3":
+                case "Station 3":
                     return stationPoints.FuJianPointList;
                 default:
                     return null;
@@ -1164,15 +1119,15 @@ namespace AkribisFAM.Windows
             }
         }
 
+        //add position point
         private void AddPosParam_Click(object sender, RoutedEventArgs e)
         {
-            ///TODO 1.选中类型   1.5（设置行列）   2.添加UI     3.维护缓存
+
             var dlg = new SelectPointType();
             dlg.ShowDialog();
             var data = dlg.SelectedType;
             var row = dlg.SelectedRow;
             var col = dlg.SelectedCol;
-            //依次单点，矩阵点，通用点
 
             int selectIndex = PosTabControl.SelectedIndex;
 
@@ -1180,11 +1135,10 @@ namespace AkribisFAM.Windows
                   selectedTab.Content is ScrollViewer scrollViewer &&
                   scrollViewer.Content is StackPanel mainPanel))
             {
-                System.Windows.MessageBox.Show("请先选择一个页面", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show("Please select a page first", "Tips", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // 获取对应缓存列表
             var pointList = GetPointListByTab(selectedTab.Header.ToString());
             if (pointList == null) return;
 
@@ -1193,13 +1147,11 @@ namespace AkribisFAM.Windows
             pt.type = data;
             pt.row = row;
             pt.col = col;
-            //点分类
+
             if (data == 0)
             {
-                // 单独点，使用 pt 的 X/Y/Z/R
                 var rowPanel = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
 
-                // 添加 ID 标签
                 rowPanel.Children.Add(new TextBlock
                 {
                     Text = "ID:",
@@ -1208,7 +1160,6 @@ namespace AkribisFAM.Windows
                     VerticalAlignment = VerticalAlignment.Center
                 });
 
-                // 添加可编辑的 ID 输入框
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
@@ -1217,7 +1168,6 @@ namespace AkribisFAM.Windows
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
-                // 注册 TextChanged 事件，将用户输入回写到 pt.name
                 idTextBox.TextChanged += (s, edc) =>
                 {
                     pt.name = idTextBox.Text;
@@ -1255,20 +1205,18 @@ namespace AkribisFAM.Windows
             }
             else if (data == 1)
             {
-                // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
                 int totalPoints = row * col;
 
                 if (totalPoints > 200)
                 {
                     mainPanel.Children.Add(new TextBlock
                     {
-                        Text = $"{MatrixPointPrefix} New 超过最大限制（200 个点），跳过。",
+                        Text = $"{MatrixPointPrefix} New Exceeding the maximum limit（200 points），Skip!",
                         Foreground = new SolidColorBrush(Colors.Red)
                     });
                     return;
                 }
 
-                // 初始化并填满 NewchildList   
                 if (pt.childList == null)
                     pt.childList = new List<ChildPoint>();
 
@@ -1281,26 +1229,17 @@ namespace AkribisFAM.Windows
                     });
                 }
 
-                // 校验每个子点的内容
-                //foreach (var child in pt.childList)
-                //{
-                //    EnsureChildDataValid(child);
-                //}
-
-                // 绘制 UI
                 var rowGrid = new Grid
                 {
                     Margin = new Thickness(0, 8, 0, 4),
-                    Tag = row // 可选：将行数存储在 Tag 中
+                    Tag = row 
                 };
 
-                // 定义三列：标签、输入框、说明文本
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); // 输入框宽度
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
-                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); 
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) }); 
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); 
 
-                // ID: 标签
                 var idLabel = new TextBlock
                 {
                     Text = "ID:",
@@ -1311,7 +1250,6 @@ namespace AkribisFAM.Windows
                 Grid.SetColumn(idLabel, 0);
                 rowGrid.Children.Add(idLabel);
 
-                // 可编辑的 ID 输入框
                 var matrixIdTextBox = new TextBox
                 {
                     Text = pt.name,
@@ -1321,7 +1259,6 @@ namespace AkribisFAM.Windows
                 Grid.SetColumn(matrixIdTextBox, 1);
                 rowGrid.Children.Add(matrixIdTextBox);
 
-                // 显示 col × row 信息
                 var matrixInfoText = new TextBlock
                 {
                     Text = $"({col}col × {row}row)",
@@ -1344,14 +1281,12 @@ namespace AkribisFAM.Windows
 
 
 
-                //添加偏移行
                 var rowOfferGrid = new Grid
                 {
                     Margin = new Thickness(0, 8, 0, 4),
-                    Tag = "MatrixHeader"  // 关键标记
+                    Tag = "MatrixHeader"  
                 };
 
-                // 定义4列：标签、输入框  offer10,offer11
                 rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
                 rowOfferGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -1372,7 +1307,7 @@ namespace AkribisFAM.Windows
                 {
                     Width = 90,
                     Margin = new Thickness(0, 0, 10, 0),
-                    Text = pt.offer10.ToString() // 初始化值
+                    Text = pt.offer10.ToString() 
                 };
                 offer10Box.TextChanged += (s, eoffer) =>
                 {
@@ -1412,7 +1347,7 @@ namespace AkribisFAM.Windows
 
 
 
-                List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // 每个点 4 个 TextBox
+                List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); 
 
                 int childIndex = 0;
                 for (int r = 0; r < row; r++)
@@ -1445,7 +1380,7 @@ namespace AkribisFAM.Windows
                             Text = $"ID: {displayName}",
                             Margin = new Thickness(0, 0, 0, 6)
                         });
-                        //回写，用于保存文件
+
                         TextBox xBox, yBox, zBox, rBox;
 
                         pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], out xBox, newText => { if (double.TryParse(newText, out double val)) pos[0] = val; }));
@@ -1514,9 +1449,7 @@ namespace AkribisFAM.Windows
                     Margin = new Thickness(0, 4, 10, 4)
                 };
 
-                //pt.name = "New";
 
-                // 添加 ID 标签
                 rowPanel.Children.Add(new TextBlock
                 {
                     Text = "ID:",
@@ -1525,7 +1458,6 @@ namespace AkribisFAM.Windows
                     Margin = new Thickness(0, 0, 5, 0)
                 });
 
-                // 添加 ID 输入框（回写 pt.name）
                 var idTextBox = new TextBox
                 {
                     Text = pt.name,
@@ -1536,7 +1468,6 @@ namespace AkribisFAM.Windows
                 idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
                 rowPanel.Children.Add(idTextBox);
 
-                // 添加 General 标签
                 rowPanel.Children.Add(new TextBlock
                 {
                     Text = "Data:",
@@ -1544,7 +1475,6 @@ namespace AkribisFAM.Windows
                     Margin = new Thickness(0, 0, 5, 0)
                 });
 
-                // 添加 General 输入框（回写 pt.general）
                 var genTextBox = new TextBox
                 {
                     Width = 90,
@@ -1557,7 +1487,6 @@ namespace AkribisFAM.Windows
                 };
                 rowPanel.Children.Add(genTextBox);
 
-                // 添加到主容器
                 mainPanel.Children.Add(rowPanel);
                 AddStationData(selectIndex, pt);
             }
@@ -1576,9 +1505,9 @@ namespace AkribisFAM.Windows
             int selectedIndex = CboxNowType.SelectedIndex;
             string jsonFile = posFileName[selectedIndex];
             if (SaveAllTabsData(jsonFile))
-                MessageBox.Show("保存相机点位成功" + posFilePre[selectedIndex]);
+                MessageBox.Show("Save success" + posFilePre[selectedIndex]);
             else
-                MessageBox.Show("保存相机点位失败" + posFilePre[selectedIndex]);
+                MessageBox.Show("Save failed" + posFilePre[selectedIndex]);
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
@@ -1589,7 +1518,6 @@ namespace AkribisFAM.Windows
                 if (TeachingPage != null)
                 {
                     TeachingPage.Visibility = Visibility;
-                    // 恢复右列宽度
                     CameraGrid.ColumnDefinitions[1].Width = new GridLength(8, GridUnitType.Star);
                 }
             }
@@ -1598,7 +1526,6 @@ namespace AkribisFAM.Windows
                 if (TeachingPage != null)
                 {
                     TeachingPage.Visibility = Visibility.Collapsed;
-                    // 右列宽度设为 0
                     CameraGrid.ColumnDefinitions[1].Width = new GridLength(0);
                 }
             }

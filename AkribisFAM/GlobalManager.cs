@@ -149,6 +149,19 @@ namespace AkribisFAM
         public int flag_RecheckStationRequestOutflowTray;
         public int flag_Bypass;
 
+        public int laserpoint1_shift_X = 20;
+        public int laserpoint1_shift_Y = 0;
+        public int laserpoint2_shift_X = 20;
+        public int laserpoint2_shift_Y = 20;
+        public int laserpoint3_shift_X = 0;
+        public int laserpoint3_shift_Y = 20;
+
+        //参数界面
+        public int NozzleGap_X = 20;
+        public int PalleteGap_X = 50;
+        public int PalleteGap_Y = 40;
+        public int TotalRow = 3;
+        public int TotalColumn = 4;
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -212,7 +225,9 @@ namespace AkribisFAM
 
         public List<SinglePoint> feedar2Points = new List<SinglePoint>();
 
-        public List<SinglePoint> pickFoamPoints = new List<SinglePoint>();
+        public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
 
         public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
 
@@ -225,6 +240,7 @@ namespace AkribisFAM
         public List<SinglePoint> recheckPoints = new List<SinglePoint>();
 
         public List<SinglePoint> tearingPoints = new List<SinglePoint>();
+
 
         public int TotalLaserCount = 48;
 
@@ -858,10 +874,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 100,
-            LSY = 100,
-            FSX = 100,
-            FSY = 100,
+            LSX = 50,
+            LSY = 50,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -876,14 +892,14 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 10,
-            PICK1_T = 10,
-            PICK2_Z = 10,
-            PICK2_T = 10,
-            PICK3_Z = 10,
-            PICK3_T = 10,
-            PICK4_Z = 10,
-            PICK4_T = 10,
+            PICK1_Z = 100,
+            PICK1_T = 200,
+            PICK2_Z = 100,
+            PICK2_T = 200,
+            PICK3_Z = 8,
+            PICK3_T = 8,
+            PICK4_Z = 8,
+            PICK4_T = 8,
 
             //AGM800[3]
             PRX = 50,

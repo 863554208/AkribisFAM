@@ -296,6 +296,7 @@
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\MoveView.cs" />
     <Compile Include="Windows\ParameterConfig.xaml.cs">
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
     </Compile>
