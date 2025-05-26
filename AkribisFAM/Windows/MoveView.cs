@@ -51,7 +51,23 @@ public class MoveView
                     {
                         try
                         {
-                            motionAction(axisName, paramArray);
+                            int agmIndex = (int)axisName / 8;
+                            int axisRefNum = (int)axisName % 8;
+                            bool connectState = AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].IsConnected;
+                            if (!connectState)
+                            {
+                                error_message = $"执行运动指令失败。轴：" + agmIndex + "未连接！";
+                                error_code = -5;
+
+                            }
+                            else
+                            {
+                                AAMotionAPI.MotorOn(AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));// 上使能
+                                motionAction(axisName, paramArray);
+                            }
+                            //AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+
+
                         }
                         catch (TimeoutException tex)
                         {
@@ -162,8 +178,7 @@ public class MoveView
             int axisRefNum = (int)axisName % 8;
             DateTime start = DateTime.Now;
 
-            while (AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
-                .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            while (AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 if ((DateTime.Now - start).TotalMilliseconds > 20000)
                 {
