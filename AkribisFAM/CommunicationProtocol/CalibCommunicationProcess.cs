@@ -109,7 +109,7 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case CombineCalibProcess.Combineprocessend:
                     {
-                        CalibPushcommand($"UN,1");
+                        //CalibPushcommand($"UN,1");
                     }
                     break;
                 default:
@@ -142,7 +142,7 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case DownCamreaAloneCalibProcess.processend:
                     {
-                        CalibPushcommand($"UN,1");
+                       // CalibPushcommand($"UN,1");
                     }
                     break;
                 default:
@@ -159,14 +159,14 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 case DownCamreaAloneCalibProcess.start:
                     {
-                        CalibPushcommand($"SC,{moveCameraCalibPositionNumber.ToString().Substring(1)},9");
+                        CalibPushcommand($"SC,{moveCameraCalibPositionNumber.ToString().Substring(1)},9\r\n");
                     }
                     break;
                 case DownCamreaAloneCalibProcess.Ongoing:
                     {
                         //    string CombineRelationpickPhotoXY = ReadaxisPositionXYR();
                         //    CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{CombineRelationpickPhotoXY.Split(',')[0]},{CombineRelationpickPhotoXY.Split(',')[1]},0");
-                        CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{Data},0");
+                        CalibPushcommand($"{moveCameraCalibPositionNumber.ToString()},{Data}\r\n");
                     }
                     break;
                 case DownCamreaAloneCalibProcess.calibend:
@@ -176,7 +176,7 @@ namespace AkribisFAM.CommunicationProtocol
                     break;
                 case DownCamreaAloneCalibProcess.processend:
                     {
-                        CalibPushcommand($"UN,1");
+                        //CalibPushcommand($"UN,1");
                     }
                     break;
                 default:
@@ -218,7 +218,7 @@ namespace AkribisFAM.CommunicationProtocol
             TCPNetworkManage.ClearLastMessage(ClientNames.camera2);
         }
 
-        private static void CalibPushcommand(string VisionSendCommand)//写socket
+        public static void CalibPushcommand(string VisionSendCommand)//写socket
         {
             InstructionHeader = VisionSendCommand.Split(',')[0];
             TCPNetworkManage.InputLoop(ClientNames.camera2, VisionSendCommand);
@@ -227,7 +227,7 @@ namespace AkribisFAM.CommunicationProtocol
         private static bool CalibReadcommand(out string VisionAcceptCommand)//从网络Socket读取字符串
         {
             VisionAcceptCommand = null;
-            int timeoutMs = 999999999;//1秒之后超时
+            int timeoutMs = 5000;//5秒之后超时
             int pollIntervalMs = 50;//50毫秒线程延时
             var sw = System.Diagnostics.Stopwatch.StartNew();
 

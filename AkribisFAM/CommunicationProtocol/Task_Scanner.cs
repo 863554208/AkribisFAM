@@ -100,7 +100,6 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
             }
-
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
 
