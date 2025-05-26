@@ -17,13 +17,23 @@
             <Grid Name="CameraGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="8*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="2" CornerRadius="4" Margin="5">
+                <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="2" CornerRadius="4" Margin="5 5 0 5">
                     <Image x:Name="Imageview" />
                 </Border>
 
-                <Grid Grid.Column="1" Name="TeachingPage" Cursor="Hand" >
+                <!-- 拖动条 -->
+                <GridSplitter Grid.Column="1"
+                  Width="3"
+                  Background="#a7c0ec"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  ResizeBehavior="PreviousAndNext"
+                  ShowsPreview="True" Margin="3"/>
+
+                <Grid Grid.Column="2" Name="TeachingPage" Cursor="Hand" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
 
@@ -33,6 +43,9 @@
                     </Grid.RowDefinitions>
 
                     <TabControl Name="PosTabControl" Grid.Row="1"  FontSize="15"/>
+                    
+                    
+                    
                     <Grid Grid.Row="0" Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

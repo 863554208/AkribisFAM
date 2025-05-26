@@ -120,7 +120,7 @@ namespace AkribisFAM
                 {
                     AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
                     AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
-                    
+
                 }
             }
             catch (Exception ex) { }

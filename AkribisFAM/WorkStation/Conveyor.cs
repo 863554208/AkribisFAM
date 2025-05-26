@@ -410,72 +410,18 @@ namespace AkribisFAM.WorkStation
 
             STEP_JudgeAllStationTrayNumberIsZero:
                 Logger.WriteLog("皮带任务_判断设备内有无料盘");
-                if (data_AllStationTrayNumber != 0)
+                if (data_AllStationTrayNumber == 0)
                 {
-                    goto STEP_WaitingAllTrayProcessCompleted;
+                    goto STEP_WaitUpstreamEquipmentHaveTray;
                 }
 
-            STEP_WaitUpstreamEquipmentHaveTray:
 
-                Logger.WriteLog("皮带任务_等待上游设备有料盘");
-                while (!GlobalManager.Current.IO_test1)
-                {
-                    Thread.Sleep(300);
-                }
-                GlobalManager.Current.IO_test1 = false;
-                //WaitIO(99999999, IO_INFunction_Table.IN7_0BOARD_AVAILABLE, true);
-
-                Logger.WriteLog("皮带任务_允许上游设备送料盘");
-                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
-
-                Logger.WriteLog("皮带任务_皮带高速运行");
-                MoveConveyor((int)AxisSpeed.BL1);
-
-            STEP_WaitSlowDownSig1:
-
-                Logger.WriteLog("皮带任务_等待测距位减速光电信号");
-                WaitIO(99999, IO_INFunction_Table.IN1_0Slowdown_Sign1, false);  //有信号时输入模块信号为0
-
-                Logger.WriteLog("皮带任务_禁止上游设备送料盘");
-                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
-
-                Logger.WriteLog("皮带任务_皮带低速运行");
-                MoveConveyor(20);
-
-            STEP_WaitStopSig1:
-                Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
-                WaitIO(99999, IO_INFunction_Table.IN1_4Stop_Sign1, true);
-                Logger.WriteLog("皮带任务_皮带停止");
-                StopConveyor(); 
-
-
-            STEP_LiftCylinderExtend1:
-
-                Logger.WriteLog("皮带任务_顶起测距位料盘");
-                SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
-                SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
-
-                Logger.WriteLog("皮带任务_等待测距位料盘被顶起");
-                WaitIO(99999999, IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos, true);
-                WaitIO(99999999, IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos, true);
-
-                Logger.WriteLog("皮带任务_设置测距位料盘就位");
-                GlobalManager.Current.flag_RangeFindingTrayArrived = 1;
-
-                Logger.WriteLog("皮带任务_所有工位料盘数量自增1(不包含NG工位)");
-                data_AllStationTrayNumber += 1;
-                goto STEP_JudgeAllStationTrayNumberIsZero;
-
+            //如果设备内已经有料盘，执行下面的逻辑
             STEP_WaitingAllTrayProcessCompleted:
                 Logger.WriteLog("皮带任务_等待所有工位料盘产品处理完成");
                 Logger.WriteLog("flag_TrayProcessCompletedNumber : " + GlobalManager.Current.flag_TrayProcessCompletedNumber.ToString());
-                while (data_AllStationTrayNumber != GlobalManager.Current.flag_TrayProcessCompletedNumber) { System.Threading.Thread.Sleep(30); }
-                GlobalManager.Current.flag_TrayProcessCompletedNumber = 0;
 
-                Logger.WriteLog("皮带任务_等待NG工位允许料盘进入");
-                while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
+                while (data_AllStationTrayNumber != GlobalManager.Current.flag_TrayProcessCompletedNumber) { System.Threading.Thread.Sleep(30); }
 
 
             STEP_JudgeIsBypass:
@@ -485,12 +431,18 @@ namespace AkribisFAM.WorkStation
                     goto STEP_BypassStart;
                 }
 
+                GlobalManager.Current.flag_TrayProcessCompletedNumber = 0;
+
+
             STEP_JudeRecheckStationHaveTray:
                 Logger.WriteLog("皮带任务_判断复检工位是否有料盘");
                 if (GlobalManager.Current.flag_RecheckStationHaveTray == 0)
                 {
                     goto STEP_JudeUpstreamDeviceHaveTray;
                 }
+
+                Logger.WriteLog("皮带任务_等待NG工位允许料盘进入");
+                while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
 
             STEP_SetRecheckStationRequestOutflowTray:
                 Logger.WriteLog("皮带任务_设置复检工位请求流出料盘");
@@ -499,6 +451,7 @@ namespace AkribisFAM.WorkStation
 
                 Logger.WriteLog("皮带任务_所有工位料盘数量自减1(不包含NG工位)");
                 data_AllStationTrayNumber -= 1;
+
 
             STEP_JudeUpstreamDeviceHaveTray:
                 Logger.WriteLog("皮带任务_判断上游设备是否有料盘");
@@ -512,9 +465,32 @@ namespace AkribisFAM.WorkStation
                 }
                 GlobalManager.Current.IO_test1 = false;
 
+            STEP_JudeUpstreamDeviceTrayisFailed:
+
+                bool isFliledTray = WaitIO(999, IO_INFunction_Table.IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL, true);
+                if (isFliledTray)
+                {
+                    GlobalManager.Current.flag_Bypass = 1;
+                    Logger.WriteLog("皮带任务_上游设备输送failed料盘后等待NG工位允许进板");
+                    while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
+
+                    Logger.WriteLog("皮带任务_isFliledTray后允许上游设备送料盘");
+                    SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+                    System.Threading.Thread.Sleep(1000);
+                    SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
+                    //ToBypassStep
+                }
+
+
+
             STEP_SetDeviceAllowEnterTray:
+
+                Logger.WriteLog("皮带任务_所有工位顶升气缸下降(不包含NG工位,先控制阻挡气缸下降再向上游设备要板)");
+                AllWorkLiftCylinderRetract();
+
                 Logger.WriteLog("皮带任务_再次允许上游设备送料盘");
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+
                 Logger.WriteLog("皮带任务_所有工位料盘数量再次自增1(不包含NG工位)");
                 data_AllStationTrayNumber += 1;
 
@@ -532,7 +508,7 @@ namespace AkribisFAM.WorkStation
                 bool IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
                 Logger.WriteLog("皮带任务_等待任一料盘触发流出阻挡气缸光电信号");
-                System.Threading.Thread.Sleep(3000);
+                System.Threading.Thread.Sleep(2000);
                 //while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
                 //{
                 //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
@@ -544,7 +520,7 @@ namespace AkribisFAM.WorkStation
                 //}
 
                 Logger.WriteLog("皮带任务_等待所有料盘流出阻挡气缸光电信号");
-                //如果上游设备延迟给料太晚，此次会有bug，后续再想方案处理TODO
+                //如果上游设备延迟给料太久，此次会有bug，不影响整体测试。后续再想方案处理TODO
                 //while (IN1_10 == true || IN1_11 == true || IN6_6 == true)     //所有料盘流出此光电后，退出循环
                 //{
                 //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
@@ -593,7 +569,9 @@ namespace AkribisFAM.WorkStation
                     System.Threading.Thread.Sleep(10);
                 }
                 Logger.WriteLog("皮带任务_皮带停止");
-                StopConveyor();  //函数体未实现
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
+
             STEP_LiftUpRelatedTray:
                 //优先判断贴装位料盘
                 Logger.WriteLog("皮带任务_判断贴装位料盘是否到位");
@@ -638,7 +616,9 @@ namespace AkribisFAM.WorkStation
                                       IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos);
                     Logger.WriteLog("皮带任务_设置复检位料盘就位");
                     GlobalManager.Current.flag_RecheckTrayArrived = 1;
+                    GlobalManager.Current.flag_RecheckStationHaveTray = 1;
                 }
+
             STEP_WaitAllTrayIsArrived:
                 Logger.WriteLog("皮带任务_料盘就位数量自增1");
                 GlobalManager.Current.flag_TrayArrivedNumber += 1;
@@ -659,6 +639,8 @@ namespace AkribisFAM.WorkStation
 
 
 
+
+            //处理bypass料盘
             STEP_BypassStart:
                 GlobalManager.Current.flag_Bypass = 0;
 
@@ -678,8 +660,65 @@ namespace AkribisFAM.WorkStation
             STEP_BypassWaitSlowDownSig4:
                 WaitIO(99999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
                 WaitIO(99999, IO_INFunction_Table.IN1_7Stop_Sign4, false);
-                StopConveyor();  //函数体未实现
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
                 goto STEP_JudgeAllStationTrayNumberIsZero;
+
+
+
+
+
+            //处理进入设备内的第一个料盘
+            STEP_WaitUpstreamEquipmentHaveTray:
+                Logger.WriteLog("皮带任务_等待上游设备有料盘");
+                while (!GlobalManager.Current.IO_test1)
+                {
+                    Thread.Sleep(300);
+                }
+                GlobalManager.Current.IO_test1 = false;
+                //WaitIO(99999999, IO_INFunction_Table.IN7_0BOARD_AVAILABLE, true);
+
+                Logger.WriteLog("皮带任务_允许上游设备送料盘");
+                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+
+                Logger.WriteLog("皮带任务_皮带高速运行");
+                MoveConveyor((int)AxisSpeed.BL1);
+
+            STEP_WaitSlowDownSig1:
+                Logger.WriteLog("皮带任务_等待测距位减速光电信号");
+                WaitIO(99999, IO_INFunction_Table.IN1_0Slowdown_Sign1, false);  //有信号时输入模块信号为0
+
+                Logger.WriteLog("皮带任务_禁止上游设备送料盘");
+                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
+
+                Logger.WriteLog("皮带任务_皮带低速运行");
+                MoveConveyor(20);
+
+            STEP_WaitStopSig1:
+                Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
+                WaitIO(99999, IO_INFunction_Table.IN1_4Stop_Sign1, true);
+                Logger.WriteLog("皮带任务_皮带停止");
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
+
+            STEP_LiftCylinderExtend1:
+                Logger.WriteLog("皮带任务_顶起测距位料盘");
+                SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
+                SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
+
+                Logger.WriteLog("皮带任务_等待测距位料盘被顶起");
+                WaitIO(99999999, IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos, true);
+                WaitIO(99999999, IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos, true);
+
+                Logger.WriteLog("皮带任务_设置测距位料盘就位");
+                GlobalManager.Current.flag_RangeFindingTrayArrived = 1;
+
+                Logger.WriteLog("皮带任务_所有工位料盘数量自增1(不包含NG工位)");
+                data_AllStationTrayNumber += 1;
+                goto STEP_JudgeAllStationTrayNumberIsZero;
+
 
             }
 

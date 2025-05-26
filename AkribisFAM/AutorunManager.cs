@@ -139,7 +139,7 @@ namespace AkribisFAM
 
                     tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
@@ -330,6 +330,7 @@ namespace AkribisFAM
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
+
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
             Thread.Sleep(300);
             //轴回原点
