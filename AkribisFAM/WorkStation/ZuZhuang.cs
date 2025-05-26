@@ -502,8 +502,8 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 //SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
 
-                AkrAction.Current.Move(AxisName.PICK2_T, 0, (int)AxisSpeed.PICK2_T);
-                AkrAction.Current.Move(AxisName.PICK2_Z, 15.5, (int)AxisSpeed.PICK2_Z);
+                //AkrAction.Current.Move(AxisName.PICK2_T, 0, (int)AxisSpeed.PICK2_T);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 14.5, (int)AxisSpeed.PICK2_Z);
 
                 GlobalManager.Current.current_FOAM_Count++;
             }
@@ -538,8 +538,8 @@ namespace AkribisFAM.WorkStation
 
 
             Logger.WriteLog("取料结束");
-            Thread.Sleep(200);
-            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5.5, (int)AxisSpeed.PICK1_Z);
+            Thread.Sleep(500);
+            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5.5, (int)AxisSpeed.PICK1_Z );
             AkrAction.Current.Move(AxisName.PICK2_Z, 5.5, (int)AxisSpeed.PICK2_Z);
            
 
@@ -585,9 +585,11 @@ namespace AkribisFAM.WorkStation
 
 
             //移动到拍照起始点
-            AkrAction.Current.MoveNoWait(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
-            AkrAction.Current.Move(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
+            AkrAction.Current.MoveNoWait(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
+            AkrAction.Current.Move(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
 
+
+            Logger.WriteLog("CCD2准备移动到拍照位置");
 
             AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X +16 , (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
             AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
@@ -1114,7 +1116,7 @@ namespace AkribisFAM.WorkStation
         {
             board_count  = 0;
             GlobalManager.Current.current_Assembled = 0;
-            GlobalManager.Current.total_Assemble_Count = 4;
+            GlobalManager.Current.total_Assemble_Count = 12;
             try
             {
 
@@ -1168,25 +1170,25 @@ namespace AkribisFAM.WorkStation
 
                     step6:
                     //注释 20250525
-                    if (GlobalManager.Current.palleteSnaped) goto step7;
-                    Step6();
-                    Thread.Sleep(100);
+                    //if (GlobalManager.Current.palleteSnaped) goto step7;
+                    //Step6();
+                    //Thread.Sleep(100);
                     //注释 20250525
-                //if (GlobalManager.Current.palleteSnaped) goto step7;
-                //Logger.WriteLog("开始等待料盘到位");
-                //while (GlobalManager.Current.flag_assembleTrayArrived != 1)
-                //{
-                //    Thread.Sleep(300);
-                //}
-                //Logger.WriteLog("等到料盘到位");
-                //GlobalManager.Current.flag_assembleTrayArrived = 0;
+                    if (GlobalManager.Current.palleteSnaped) goto step7;
+                    Logger.WriteLog("开始等待料盘到位");
+                    while (GlobalManager.Current.flag_assembleTrayArrived != 1)
+                    {
+                        Thread.Sleep(300);
+                    }
+                    Logger.WriteLog("等到料盘到位");
+                    GlobalManager.Current.flag_assembleTrayArrived = 0;
 
-                //Logger.WriteLog("组装工位开始飞拍");
-                ////拍料盘                        
-                //Step6();
-                //    if (GlobalManager.Current.Zuzhuang_exit) break;
+                    Logger.WriteLog("组装工位开始飞拍");
+                    //拍料盘                        
+                    Step6();
+                    if (GlobalManager.Current.Zuzhuang_exit) break;
 
-                step7:
+                    step7:
                         Logger.WriteLog("开始放料");
                         //放料
                         Step7();

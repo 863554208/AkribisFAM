@@ -303,11 +303,15 @@ namespace AkribisFAM.WorkStation
                 Logger.WriteLog("开始执行撕膜X");
                 AkrAction.Current.Move(AxisName.PRX, Pointlist[i].x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
                 Logger.WriteLog("开始执行撕膜Y");
-                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                AkrAction.Current.Move(AxisName.PRY, Pointlist[i].y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
                 if (CheckState(true) == 1)
                 {
                     return false;
                 }
+                //夹爪气缸打开
+                Logger.WriteLog("BBBBBBBBBBBBBB");
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //移动z轴下降
                 Logger.WriteLog("AAAAAAAAAAAAA");
                 AkrAction.Current.Move(AxisName.PRZ, Pointlist[i].z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
@@ -315,10 +319,6 @@ namespace AkribisFAM.WorkStation
                 {
                     return false;
                 }
-                Logger.WriteLog("BBBBBBBBBBBBBB");
-                //夹爪气缸打开
-                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);            
-                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
                 ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
                 Logger.WriteLog("CCCCCCCCCCCC");
@@ -338,8 +338,8 @@ namespace AkribisFAM.WorkStation
                 }
                 Thread.Sleep(500);
                 //移动撕膜
-                AkrAction.Current.MoveRel(AxisName.PRY, 5, 10);
-                AkrAction.Current.MoveRel(AxisName.PRZ, -5, 10);
+                AkrAction.Current.MoveRelNoWait(AxisName.PRY, 5, (int)AxisSpeed.PRZ);
+                AkrAction.Current.MoveRelNoWait(AxisName.PRZ, -5, (int)AxisSpeed.PRZ);
                 Logger.WriteLog("EEEEEEEEEEEEEE");
                 //Z轴上升
                 //TODO 
@@ -422,11 +422,13 @@ namespace AkribisFAM.WorkStation
                 TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
                 
                 Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
-                while (Task_RecheckCamreaFunction.TriggRecheckCamreaready() != "OK")
+                cnt = 0;
+                while (Task_RecheckCamreaFunction.TriggRecheckCamreaready() != "OK" && cnt < 10)
                 {
                     string res = "接收到的信息是:" + Task_RecheckCamreaFunction.TriggRecheckCamreaready();
                     Logger.WriteLog(res);
                     Thread.Sleep(300);
+                    cnt++;
                 }
                 Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
@@ -533,10 +535,12 @@ namespace AkribisFAM.WorkStation
                     //}
 
                     //BoardIn();
-                    //while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
-                    //{
-                    //    Thread.Sleep(300);
-                    //}
+                    Logger.WriteLog("复检工位_等待料盘到位");
+                    while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
+                    {
+                        Thread.Sleep(300);
+                    }
+                    Logger.WriteLog("复检工位_料盘到位");
                     GlobalManager.Current.flag_RecheckTrayArrived = 0;
                     GlobalManager.Current.current_FuJian_step = 1;
                     if (GlobalManager.Current.FuJian_exit) break;

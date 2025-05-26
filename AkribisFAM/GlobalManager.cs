@@ -873,22 +873,22 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 50,
-            LSY = 50,
-            FSX = 50,
-            FSY = 50,
+            LSX = 200,
+            LSY = 200,
+            FSX = 120,
+            FSY = 120,
             BL5 = 100,
             BR5 = 100,
 
             //AGM800[1]
-            BL1 = 100,
-            BL2 = 100,
-            BL3 = 100,
-            BL4 = 100,
-            BR1 = 100,
-            BR2 = 100,
-            BR3 = 100,
-            BR4 = 100,
+            BL1 = 150,
+            BL2 = 150,
+            BL3 = 150,
+            BL4 = 150,
+            BR1 = 150,
+            BR2 = 150,
+            BR3 = 150,
+            BR4 = 150,
 
             //AGM800[2]
             PICK1_Z = 100,
@@ -901,29 +901,29 @@ namespace AkribisFAM
             PICK4_T = 8,
 
             //AGM800[3]
-            PRX = 50,
-            PRY = 50,
-            PRZ = 2,
+            PRX = 200,
+            PRY = 200,
+            PRZ = 30,
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 1000,
-            LSY = 1000,
-            FSX = 1000,
-            FSY = 1000,
+            LSX = 2000,
+            LSY = 2000,
+            FSX = 800,
+            FSY = 800,
             BL5 = 500,
             BR5 = 500,
 
             //AGM800[1]
-            BL1 = 500,
-            BL2 = 500,
-            BL3 = 500,
-            BL4 = 500,
-            BR1 = 500,
-            BR2 = 500,
-            BR3 = 500,
-            BR4 = 500,
+            BL1 = 800,
+            BL2 = 800,
+            BL3 = 800,
+            BL4 = 800,
+            BR1 = 800,
+            BR2 = 800,
+            BR3 = 800,
+            BR4 = 800,
 
             //AGM800[2]
             PICK1_Z = 50,
@@ -936,9 +936,9 @@ namespace AkribisFAM
             PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 500,
-            PRY = 500,
-            PRZ = 10,
+            PRX = 2000,
+            PRY = 2000,
+            PRZ = 300,
         }
 
         //轴参数
