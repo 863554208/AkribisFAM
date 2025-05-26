@@ -180,6 +180,7 @@
                 <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>
             <Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
+            <Button Content="testFeipai" HorizontalAlignment="Left" Margin="349,0,0,0" VerticalAlignment="Center" Height="37" Width="80" Click="TestFeiPai_Click"/>
         </Grid>
     </Grid>
 </Window>

@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
@@ -111,17 +112,18 @@ namespace AkribisFAM.Windows
 
         }
 
-        private void Loadbtn_Click(object sender, RoutedEventArgs e)
+        private void Cam3Calibbtn_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.gif)|*.png;*.jpeg;*.jpg;*.gif"; // 设置文件过滤器
+            //OpenFileDialog openFileDialog = new OpenFileDialog();
+            //openFileDialog.Filter = "Image files (*.png;*.jpeg;*.jpg;*.gif)|*.png;*.jpeg;*.jpg;*.gif"; // 设置文件过滤器
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string filePath = openFileDialog.FileName;
-                ImageSource imageSource = new BitmapImage(new Uri(filePath));
-                Imageview.Source = imageSource;
-            }
+            //if (openFileDialog.ShowDialog() == true)
+            //{
+            //    string filePath = openFileDialog.FileName;
+            //    ImageSource imageSource = new BitmapImage(new Uri(filePath));
+            //    Imageview.Source = imageSource;
+            //}
+            CamerCalibProcess.Instance.ReCheckCalibration();
         }
 
         private void SaveImage(string filename)
@@ -146,21 +148,38 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void Savebtn_Click(object sender, RoutedEventArgs e)
+        private void UniversalCalibbtn_Click(object sender, RoutedEventArgs e)
         {
-            // 创建一个SaveFileDialog实例
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "PNG Image|*.png|JPG Image|*.jpg|GIF Image|*.gif"; // 设置文件类型过滤器
-            saveFileDialog.FileName = "Image"; // 默认文件名
-            saveFileDialog.DefaultExt = ".png"; // 默认文件扩展名
+            //// 创建一个SaveFileDialog实例
+            //SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //saveFileDialog.Filter = "PNG Image|*.png|JPG Image|*.jpg|GIF Image|*.gif"; // 设置文件类型过滤器
+            //saveFileDialog.FileName = "Image"; // 默认文件名
+            //saveFileDialog.DefaultExt = ".png"; // 默认文件扩展名
 
-            // 显示保存对话框
-            Nullable<bool> result = saveFileDialog.ShowDialog();
-            if (result == true) // 如果用户点击了OK按钮
+            //// 显示保存对话框
+            //Nullable<bool> result = saveFileDialog.ShowDialog();
+            //if (result == true) // 如果用户点击了OK按钮
+            //{
+            //    string filename = saveFileDialog.FileName; // 获取保存的文件名和路径
+            //    SaveImage(filename); // 调用保存图片的方法
+            //}
+            MessageBoxResult result = MessageBox.Show("Universal Calibration?", "Confirming", MessageBoxButton.OKCancel);
+            if (result == MessageBoxResult.OK)
             {
-                string filename = saveFileDialog.FileName; // 获取保存的文件名和路径
-                SaveImage(filename); // 调用保存图片的方法
+                try
+                {
+                    CamerCalibProcess.Instance.AllCalibrationFinished();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Universal Calibration Failed!" + ex.Message);
+                }
             }
+            else if (result == MessageBoxResult.Cancel)
+            {
+
+            }
+            
         }
 
         private void Capturebtn_Click(object sender, RoutedEventArgs e)
