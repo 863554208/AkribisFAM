@@ -8,24 +8,18 @@
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="800">
     <Border BorderThickness="1" CornerRadius="3" BorderBrush="Black">
-        <Border.Effect>
-            <DropShadowEffect Color="Black" Direction="270" ShadowDepth="5" Opacity="0.5"/>
-        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Border BorderBrush="Gray" BorderThickness="0 0 0 2">
-                <Grid  Margin="5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <!--<Label Content="{Binding}" Grid.Column="0" HorizontalAlignment="Left"/>-->
+                <StackPanel Orientation="Horizontal" Margin="5">
+                    <Label Content="Teachpoint "/>  
+                    <Label Content="{Binding TeachPointIndex}" Grid.Column="0" />
                     <Button x:Name="btnMoveToPosLaserCheckAll" Grid.Column="1" Margin="10 0" Content="Move and check all" HorizontalAlignment="Right"
                             Click="btnMoveToPosLaserCheckAll_Click"/>
-                </Grid>
+                </StackPanel>
             </Border>
             <ScrollViewer Grid.Row="1">
                 <ItemsControl ItemsSource="{Binding}">

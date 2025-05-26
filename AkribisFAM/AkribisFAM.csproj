@@ -233,16 +233,19 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Converters\Converters.cs" />
-    <Compile Include="Windows\Conveyor\Laser\LaserHeighCheckView.xaml.cs">
+    <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
+      <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\LaserHeighCheckView.xaml.cs">
       <DependentUpon>LaserHeighCheckView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Conveyor\ConveyorControlView.xaml.cs">
       <DependentUpon>ConveyorControlView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Conveyor\Laser\SubView\ProductXYPointsView.xaml.cs">
+    <Compile Include="Windows\Laser\SubView\ProductXYPointsView.xaml.cs">
       <DependentUpon>ProductXYPointsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\Conveyor\Laser\SubView\PointXYMoveView.xaml.cs">
+    <Compile Include="Windows\Laser\SubView\PointXYMoveView.xaml.cs">
       <DependentUpon>PointXYMoveView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Conveyor\SubView\GateControlView.xaml.cs">
@@ -254,8 +257,8 @@
     <Compile Include="Windows\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Windows\FilmRemove\FoamAssemblyView.xaml.cs">
-      <DependentUpon>FoamAssemblyView.xaml</DependentUpon>
+    <Compile Include="Windows\FilmRemove\FilmRemoveView.xaml.cs">
+      <DependentUpon>FilmRemoveView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\FoamAssembly\FoamAssemblyView.xaml.cs">
       <DependentUpon>FoamAssemblyView.xaml</DependentUpon>
@@ -327,7 +330,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\Conveyor\Laser\LaserHeighCheckView.xaml">
+    <Page Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Laser\LaserHeighCheckView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -335,11 +342,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\Conveyor\Laser\SubView\ProductXYPointsView.xaml">
+    <Page Include="Windows\Laser\SubView\ProductXYPointsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Windows\Conveyor\Laser\SubView\PointXYMoveView.xaml">
+    <Page Include="Windows\Laser\SubView\PointXYMoveView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -351,7 +358,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\FilmRemove\FoamAssemblyView.xaml">
+    <Page Include="Windows\FilmRemove\FilmRemoveView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

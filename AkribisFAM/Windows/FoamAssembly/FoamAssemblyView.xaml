@@ -20,28 +20,27 @@
             </Grid.ColumnDefinitions>
 
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
-            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
         </Grid>
 
-        <ScrollViewer Grid.Row="1" CanContentScroll="True">
-            <StackPanel Orientation="Vertical">
-                <local:ManualFoamAssemblyOTFView/>
-                <ItemsControl ItemsSource="{Binding teachpoints}">
+        <ScrollViewer Grid.Row="1" CanContentScroll="True" VerticalScrollBarVisibility="Visible">
+            <ItemsControl ItemsSource="{Binding Points}">
                     <ItemsControl.ItemsPanel>
-
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="{Binding}"/>
+
+                            <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:ManualFoamAssemblyView />
+                            <local:PointXYPickerMoveAndPlaceView Margin="5"
+                                PickerMovePressed="PointXYPickerMoveAndPlaceView_PickerMovePressed" 
+                                PickerPlacePressed="PointXYPickerMoveAndPlaceView_PickerPlacePressed"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-            </StackPanel>
         </ScrollViewer>
 
     </Grid>

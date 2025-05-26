@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
+using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
 {
@@ -128,9 +129,9 @@ namespace AkribisFAM.Windows
         class FeederVM
         {
 
-            private ObservableCollection<SinglePoint> points = new ObservableCollection<SinglePoint>();
+            private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
 
-            public ObservableCollection<SinglePoint> Points
+            public ObservableCollection<SinglePointExt> Points
             {
                 get { return points; }
                 set { points = value; }
@@ -153,7 +154,7 @@ namespace AkribisFAM.Windows
         private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataContext = null;
-            List<SinglePoint> lsp = new List<SinglePoint>();
+            List<SinglePointExt> lsp = new List<SinglePointExt>();
             if (cbxTrayType.SelectedIndex < 0) return;
             if (cbxTrayType.SelectedIndex > 0) return;
 
@@ -163,17 +164,18 @@ namespace AkribisFAM.Windows
             var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Feedar1 Points"));
             if (laser == null) return;
 
-            lsp = laser.childList.Select(x => new SinglePoint
+            lsp = laser.childList.Select((x,index) => new SinglePointExt
             {
                 X = x.childPos[0],
                 Y = x.childPos[1],
                 Z = x.childPos[2],
                 R = x.childPos[3],
+                TeachPointIndex = index + 1
             }).ToList();
 
 
             var points = new ObservableCollection<SinglePoint>(lsp);
-            ObservableCollection<SinglePoint> pts = new ObservableCollection<SinglePoint>();
+            ObservableCollection<SinglePointExt> pts = new ObservableCollection<SinglePointExt>();
 
 
             vm = new FeederVM()

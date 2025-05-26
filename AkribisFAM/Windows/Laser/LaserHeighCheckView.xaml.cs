@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 using static AkribisFAM.GlobalManager;
+using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
 {
@@ -22,9 +24,9 @@ namespace AkribisFAM.Windows
          class LaserHeighCheckVM
         {
 
-            private List<ObservableCollection<SinglePoint>> points = new List<ObservableCollection<SinglePoint>>();
+            private List<ObservableCollection<SinglePointExt>> points = new List<ObservableCollection<SinglePointExt>>();
 
-            public List<ObservableCollection<SinglePoint>> Points
+            public List<ObservableCollection<SinglePointExt>> Points
             {
                 get { return points; }
                 set { points = value; }
@@ -61,7 +63,7 @@ namespace AkribisFAM.Windows
         private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataContext = null;
-            List<SinglePoint> lsp = new List<SinglePoint>();
+            List<SinglePointExt> lsp = new List<SinglePointExt>();
             if (cbxTrayType.SelectedIndex < 0) return;
             if (cbxTrayType.SelectedIndex > 0) return;
 
@@ -71,18 +73,19 @@ namespace AkribisFAM.Windows
             var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
             if (laser == null) return;
 
-            lsp = laser.childList.Select(x => new SinglePoint
+            lsp = laser.childList.Select((x, index) => new SinglePointExt
             {
                 X = x.childPos[0],
                 Y = x.childPos[1],
                 Z = x.childPos[2],
                 R = x.childPos[3],
+                TeachPointIndex = index + 1
             }).ToList();
 
 
-            var points = new ObservableCollection<SinglePoint>(lsp);
-            List<ObservableCollection<SinglePoint>> pts = new List<ObservableCollection<SinglePoint>>();
-            var newpt = new ObservableCollection<SinglePoint>();
+            var points = new ObservableCollection<SinglePointExt>(lsp);
+            List<ObservableCollection<SinglePointExt>> pts = new List<ObservableCollection<SinglePointExt>>();
+            var newpt = new ObservableCollection<SinglePointExt>();
             newpt.Add(points[0]);
             newpt.Add(points[1]);
             newpt.Add(points[2]);

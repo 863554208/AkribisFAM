@@ -30,12 +30,11 @@
 
 
             <TabItem Header="Film remove">
-                <local:FileRemoveView/>
+                <local:FilmRemoveView/>
             </TabItem>
 
 
-            <TabItem Header="NG">
-            </TabItem>
+       
         </TabControl>
 
     </Grid>

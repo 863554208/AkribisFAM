@@ -4,18 +4,18 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Controls;
 using AkribisFAM.Manager;
+using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
 {
     /// <summary>
-    /// Interaction logic for FoamAssemblyView.xaml
+    /// Interaction logic for FilmRemoveView.xaml
     /// </summary>
-    public partial class FoamAssemblyView : UserControl
+    public partial class FilmRemoveView : UserControl
     {
-
-        FoamAssemblyVM vm;
+        FilmRemoveVM vm;
         bool stopAllMotion = false;
-        class FoamAssemblyVM
+        class FilmRemoveVM
         {
 
             private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
@@ -40,7 +40,7 @@ namespace AkribisFAM.Windows
                 set { row = value; }
             }
         }
-        public FoamAssemblyView()
+        public FilmRemoveView()
         {
             InitializeComponent();
 
@@ -58,7 +58,8 @@ namespace AkribisFAM.Windows
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
 
-            var laser = stationsPoints.ZuZhuangPointList.FirstOrDefault(x => x.name != null && x.name.Equals("PlaceFoam Points")); 
+            //var laser = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
+            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
             if (laser == null) return;
 
             lsp = laser.childList.Select((x, index) => new SinglePointExt
@@ -70,37 +71,15 @@ namespace AkribisFAM.Windows
                 TeachPointIndex = index + 1
             }).ToList();
 
-
             var points = new ObservableCollection<SinglePointExt>(lsp);
 
-            vm = new FoamAssemblyVM()
+            vm = new FilmRemoveVM()
             {
                 Points = points,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,
                 Column = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartColumn,
             };
             DataContext = vm;
-        }
-        public class SinglePointExt : SinglePoint
-        {
-            private int teachPointIndex;
-
-            public int TeachPointIndex
-            {
-                get { return teachPointIndex; }
-                set { teachPointIndex = value; }
-            }
-
-            public SinglePointExt() { }
-        }
-        private void PointXYPickerMoveAndPlaceView_PickerMovePressed(object sender, EventArgs e)
-        {
-
-        }
-
-        private void PointXYPickerMoveAndPlaceView_PickerPlacePressed(object sender, EventArgs e)
-        {
-
         }
     }
 }

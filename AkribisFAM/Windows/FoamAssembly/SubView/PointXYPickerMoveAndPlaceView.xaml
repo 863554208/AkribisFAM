@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="AkribisFAM.Windows.PointXYMoveRemoveInspectView"
+﻿<UserControl x:Class="AkribisFAM.Windows.PointXYPickerMoveAndPlaceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -26,9 +26,14 @@
                     <Label Content="{Binding Y}" FontSize="16" Foreground="DarkRed" />
                 </StackPanel>
             </StackPanel>
-            <Button x:Name="btnMoveToPos" Margin="10" Content="Move"/>
-            <Button x:Name="btnRemoveFilm"  Margin="10" Content="Remove Film"/>
-            <Button x:Name="btnInspect"  Margin="10" Content="Inspect"/>
+            <ListBox x:Name="RadioButtonGroupChoiceChipPrimaryOutline" IsEnabled="{Binding MotionButtonEnable}" Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBox}" Margin="0 0 0 10">
+                <ListBoxItem x:Name="btnPicker1" Content="Picker1" Selected="btnPicker_Selected"/>
+                <ListBoxItem x:Name="btnPicker2" Content="Picker2" Selected="btnPicker_Selected"/>
+                <ListBoxItem x:Name="btnPicker3" Content="Picker3" Selected="btnPicker_Selected"/>
+                <ListBoxItem x:Name="btnPicker4" Content="Picker4" Selected="btnPicker_Selected"/>
+            </ListBox>
+            <Button x:Name="btnMoveToPos" Margin="10" Content="Move" Click="btnMoveToPos_Click"/>
+            <Button x:Name="btnPlace"  Margin="10" Content="Place" Click="btnPlace_Click"/>
 
         </StackPanel>
     </Border>
