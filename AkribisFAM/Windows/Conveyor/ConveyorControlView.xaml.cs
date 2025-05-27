@@ -223,12 +223,12 @@ namespace AkribisFAM.Windows
         }
        private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Conveyor.Current.MoveConveyor((int)AxisSpeed.BL1);
+            Conveyor.Current.MoveConveyorAll((int)AxisSpeed.BL1);
         }
 
         private void btnSlowMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Conveyor.Current.MoveConveyor((int)20);
+            Conveyor.Current.MoveConveyorAll((int)20);
         }
 
         private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)

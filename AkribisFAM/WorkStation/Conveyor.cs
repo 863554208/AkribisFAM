@@ -97,6 +97,11 @@ namespace AkribisFAM.WorkStation
         {
             AkrAction.Current.MoveConveyor(vel);
         }
+
+        public void MoveConveyorAll(int vel)
+        {
+            AkrAction.Current.MoveConveyorAll(vel);
+        }
         public void StopConveyor()
         {
             AkrAction.Current.StopConveyor();

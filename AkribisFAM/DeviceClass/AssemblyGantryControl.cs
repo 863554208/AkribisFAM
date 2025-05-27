@@ -65,9 +65,8 @@ namespace AkribisFAM.DeviceClass
                 default:
                     return false;
             }
-            IOManager.Instance.IO_ControlStatus(vacSupply, 1);
-            IOManager.Instance.IO_ControlStatus(vacRelease, 0);
-            return true;
+            return (IOManager.Instance.IO_ControlStatus(vacSupply, 1) &&
+            IOManager.Instance.IO_ControlStatus(vacRelease, 0));
         }
 
         public bool Purge(Picker picker)
@@ -95,9 +94,9 @@ namespace AkribisFAM.DeviceClass
                 default:
                     return false;
             }
-            IOManager.Instance.IO_ControlStatus(vacSupply, 0);
-            IOManager.Instance.IO_ControlStatus(vacRelease, 1);
-            return true;
+
+            return (IOManager.Instance.IO_ControlStatus(vacSupply, 0) &&
+            IOManager.Instance.IO_ControlStatus(vacRelease, 1));
         }
 
         public bool Off(Picker picker)
@@ -126,9 +125,8 @@ namespace AkribisFAM.DeviceClass
                 default:
                     return false;
             }
-            IOManager.Instance.IO_ControlStatus(vacSupply, 0);
-            IOManager.Instance.IO_ControlStatus(vacRelease, 0);
-            return true;
+           return (IOManager.Instance.IO_ControlStatus(vacSupply, 0) &&
+            IOManager.Instance.IO_ControlStatus(vacRelease, 0));
         }
         public bool ZDown(Picker picker)
         {
@@ -159,8 +157,7 @@ namespace AkribisFAM.DeviceClass
                     return false;
             }
 
-            AkrAction.Current.Move(axis, 0, (int)speed);
-            return true;
+            return AkrAction.Current.Move(axis, 0, (int)speed) == 0;
 
         }
     }

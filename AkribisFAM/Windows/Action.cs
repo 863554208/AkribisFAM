@@ -487,6 +487,20 @@ namespace AkribisFAM.WorkStation
             //JogMove(GlobalManager.AxisName.BR5, 1, 10000);
             return true;
         }
+        public bool MoveConveyorAll(int vel)
+        {
+            JogMove(GlobalManager.AxisName.BL1, 1, vel);
+            JogMove(GlobalManager.AxisName.BL2, 1, vel);
+            JogMove(GlobalManager.AxisName.BL3, 1, vel);
+            JogMove(GlobalManager.AxisName.BL4, 1, vel);
+            JogMove(GlobalManager.AxisName.BL5, 1, vel);
+            JogMove(GlobalManager.AxisName.BR1, 1, vel);
+            JogMove(GlobalManager.AxisName.BR2, 1, vel);
+            JogMove(GlobalManager.AxisName.BR3, 1, vel);
+            JogMove(GlobalManager.AxisName.BR4, 1, vel);
+            JogMove(GlobalManager.AxisName.BR5, 1, vel);
+            return true;
+        }
         public bool MoveSubConveyor(int vel)
         {
             switch (vel)

@@ -1,5 +1,6 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using System.Windows.Media;
+using System.Windows.Navigation;
 
 namespace AkribisFAM.DeviceClass
 {
@@ -25,7 +26,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4Initialized_feeder2;
-                return IOManager.Instance.INIO_status[(int)input] == 1;
+                return IOManager.Instance.INIO_status[(int)input] == 0;
             }
 
         }
@@ -34,7 +35,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_1Alarm_feeder1 : IO_INFunction_Table.IN4_5Alarm_feeder2;
-                return IOManager.Instance.INIO_status[(int)input] == 1;
+                return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
         public bool IsFoamsIn
@@ -42,7 +43,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_6Platform_has_label_feeder2;
-                return IOManager.Instance.INIO_status[(int)input] == 1;
+                return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
 
@@ -52,7 +53,7 @@ namespace AkribisFAM.DeviceClass
             {
                 IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos : IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos;
                 IO_INFunction_Table input2 = FeederNumber == 1 ? IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos : IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos;
-                return IOManager.Instance.INIO_status[(int)input1] == 1 && IOManager.Instance.INIO_status[(int)input2] == 0;
+                return IOManager.Instance.INIO_status[(int)input1] == 0 && IOManager.Instance.INIO_status[(int)input2] == 1;
             }
         }
 
@@ -62,7 +63,7 @@ namespace AkribisFAM.DeviceClass
             {
                 IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos : IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos;
                 IO_INFunction_Table input2 = FeederNumber == 1 ? IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos : IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos;
-                return IOManager.Instance.INIO_status[(int)input1] == 0 && IOManager.Instance.INIO_status[(int)input2] == 1;
+                return IOManager.Instance.INIO_status[(int)input1] == 1 && IOManager.Instance.INIO_status[(int)input2] == 0;
             }
         }
 
@@ -71,7 +72,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN4_12Feeder1_drawer_InPos : IO_INFunction_Table.IN4_13Feeder2_drawer_InPos;
-                return IOManager.Instance.INIO_status[(int)input1] == 1;
+                return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
         public bool IsVac1PressureOk
@@ -79,7 +80,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN5_0Feeder_vacuum1_Pressure_feedback : IO_INFunction_Table.IN5_2Feeder_vacuum3_Pressure_feedback;
-                return IOManager.Instance.INIO_status[(int)input1] == 1;
+                return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
         public bool IsVac2PressureOk
@@ -87,7 +88,7 @@ namespace AkribisFAM.DeviceClass
             get
             {
                 IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN5_1Feeder_vacuum2_Pressure_feedback : IO_INFunction_Table.IN5_3Feeder_vacuum4_Pressure_feedback;
-                return IOManager.Instance.INIO_status[(int)input1] == 1;
+                return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
 
@@ -191,11 +192,8 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!IsLock)
-            {
-                return false;
-            }
-            return true;
+
+            return IsLock;
         }
 
         public bool Unlock()
@@ -218,11 +216,8 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!IsUnlock)
-            {
-                return false;
-            }
-            return true;
+
+            return IsUnlock;
         }
 
         public bool Index()
