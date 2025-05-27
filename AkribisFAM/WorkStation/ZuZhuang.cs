@@ -15,6 +15,7 @@ using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using System.Windows.Controls;
 using AkribisFAM.Util;
 using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
+using System.Windows;
 
 namespace AkribisFAM.WorkStation
 {
@@ -29,6 +30,7 @@ namespace AkribisFAM.WorkStation
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
         List<SinglePoint> feedar1pointList = new List<SinglePoint>();
+        List<SinglePoint> feedar2pointList = new List<SinglePoint>();
         List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
         List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> snapFeederGMPath = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
         List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
@@ -65,11 +67,21 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public void CheckState()
+        public int CheckState(int state)
         {
-            GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            if (GlobalManager.Current.Zuzhuang_exit) return 0;
+            if (state == 0 )
+            {
+                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 0;
+            }
+            else
+            {
+                ShowWarningMessage(state);
+                GlobalManager.Current.Zuzhuang_state[GlobalManager.Current.current_Zuzhuang_step] = 1;
+            }
             GlobalManager.Current.ZuZhuang_CheckState();
             WarningManager.Current.WaitZuZhuang();
+            return 0;
         }
 
         public static void Set(string propertyName, object value)
@@ -81,21 +93,49 @@ namespace AkribisFAM.WorkStation
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
         }
-        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        public int WaitIO(int delta, IO_INFunction_Table index, bool value ,ErrorCode errorCode)
         {
             DateTime time = DateTime.Now;
-            bool ret = false;
+            int ret = (int)ErrorCode.NoError;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
                 if (ReadIO(index) == value)
                 {
-                    ret = true;
+                    ret = (int)ErrorCode.NoError;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
 
-            return ret;
+            return (int)errorCode;
+        }
+
+        private void ShowErrorMessage(int error)
+        {
+            string errorName = Enum.IsDefined(typeof(ErrorCode), error)
+                                ? Enum.GetName(typeof(ErrorCode), error)
+                                : "未知错误";
+
+            // 弹出错误提示框
+            System.Windows.MessageBox.Show(
+                $"测距工位发生致命错误：{errorName}\n 错误代码: {error}\n 即将退出该工站的运行流程",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        private void ShowWarningMessage(int error)
+        {
+            string errorName = Enum.IsDefined(typeof(ErrorCode), error)
+                                ? Enum.GetName(typeof(ErrorCode), error)
+                                : "未知错误";
+
+            // 弹出错误提示框
+            System.Windows.MessageBox.Show(
+                $"测距工位发生报警：{errorName}\n 报警代码: {error}\n 请处理后按RESUME恢复运行",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
 
         public void ResumeConveyor()
@@ -111,62 +151,62 @@ namespace AkribisFAM.WorkStation
                 MoveConveyor((int)AxisSpeed.BL1);
             }
         }
-        public bool BoradIn()
-        {
-            if (true)
-            {
-                //将要板信号清空
-                Set("IO_test2", false);
-                Set("station2_IsBoardInHighSpeed", true);
+        //public bool BoradIn()
+        //{
+        //    if (true)
+        //    {
+        //        //将要板信号清空
+        //        Set("IO_test2", false);
+        //        Set("station2_IsBoardInHighSpeed", true);
 
-                //传送带高速移动
-                MoveConveyor((int)AxisSpeed.BL1);
+        //        //传送带高速移动
+        //        MoveConveyor((int)AxisSpeed.BL1);
 
-                //等待减速光电2 , false为感应到
-                if (!WaitIO(999999, IO_INFunction_Table.IN1_1Slowdown_Sign2, false)) throw new Exception();
+        //        //等待减速光电2 , false为感应到
+        //        if (!WaitIO(999999, IO_INFunction_Table.IN1_1Slowdown_Sign2, false)) throw new Exception();
 
-                //阻挡气缸2上气
-                SetIO(IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, 0);
+        //        //阻挡气缸2上气
+        //        SetIO(IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend, 1);
+        //        SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, 0);
 
-                //标志位转换
-                Set("station2_IsBoardInHighSpeed", false);
-                Set("station2_IsBoardInLowSpeed", true);
+        //        //标志位转换
+        //        Set("station2_IsBoardInHighSpeed", false);
+        //        Set("station2_IsBoardInLowSpeed", true);
 
-                //传送带减速
-                MoveConveyor(10);
+        //        //传送带减速
+        //        MoveConveyor(10);
 
-                //等待料盘挡停到位信号1
-                if (!WaitIO(999999, IO_INFunction_Table.IN1_5Stop_Sign2, true)) throw new Exception();
+        //        //等待料盘挡停到位信号1
+        //        if (!WaitIO(999999, IO_INFunction_Table.IN1_5Stop_Sign2, true)) throw new Exception();
 
-                //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
-                Set("station2_IsBoardInLowSpeed", false);
-                Set("station2_IsLifting", true);
+        //        //停止皮带移动，直到该工位顶升完成，才能继续移动皮带
+        //        Set("station2_IsBoardInLowSpeed", false);
+        //        Set("station2_IsLifting", true);
 
-                StopConveyor();
+        //        StopConveyor();
 
-                //执行测距位顶升气缸顶升                
+        //        //执行测距位顶升气缸顶升                
 
-                SetIO(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
-                SetIO(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
+        //        SetIO(IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend, 1);
+        //        SetIO(IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract, 0);
+        //        SetIO(IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend, 1);
+        //        SetIO(IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract, 0);
 
-                if (!WaitIO(999999, IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos, true)) throw new Exception();
+        //        if (!WaitIO(999999, IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos, true)) throw new Exception();
 
-                Set("station1_IsLifting", false);
-                Set("station2_IsBoardIn", false);
-                ResumeConveyor();
+        //        Set("station1_IsLifting", false);
+        //        Set("station2_IsBoardIn", false);
+        //        ResumeConveyor();
 
-                board_count += 1;
-                return true;
-            }
-            else
-            {
-                Thread.Sleep(100);
-                return false;
-            }
-        }
+        //        board_count += 1;
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        Thread.Sleep(100);
+        //        return false;
+        //    }
+        //}
         public void BoardOut()
         {
             Logger.WriteLog("组装工站执行完成");
@@ -233,34 +273,30 @@ namespace AkribisFAM.WorkStation
             #endregion
         }
 
-        public void WaitConveyor(int type)
+        public int WaitConveyor(int type)
         {
-            DateTime time = DateTime.Now;
             switch (type)
             {
                 case 2:
-                    while (SnapFeedar() == 1) ;
-                    break;
+                    return SnapFeedar();
 
                 case 3:
-                    while (PickFoam() == 1) ;
-                    break;
+                    return PickFoam();
 
                 case 4:
-                    while (LowerCCD() == 1) ;
-                    break;
+                    return LowerCCD();
 
                 case 5:
-                    while (DropBadFoam() == 1) ;
-                    break;
+                    return DropBadFoam();
 
                 case 6:
-                    while (SnapPallete() == 1) ;
-                    break;
+                    return SnapPallete();
 
                 case 7:
-                    while (PlaceFoam() == 1) ;
-                    break;
+                    return PlaceFoam();
+
+                default:
+                    return (int)ErrorCode.ProcessErr;
             }
         }
 
@@ -294,6 +330,16 @@ namespace AkribisFAM.WorkStation
         public void SetIO(IO_OutFunction_Table index, int value)
         {
             IOManager.Instance.IO_ControlStatus(index, value);
+        }
+
+        private int WaitFor_X_AxesArrival()
+        {
+            return MoveView.WaitAxisArrived(new object[] { AxisName.FSX });
+        }
+
+        private int WaitFor_Y_AxesArrival()
+        {
+            return MoveView.WaitAxisArrived(new object[] {  AxisName.FSY });
         }
 
         public int SnapFeedar()
@@ -342,21 +388,35 @@ namespace AkribisFAM.WorkStation
                 }
 
                 //移动到拍照起始点
-                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X- 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                var move1 = new object[] { AxisName.FSX, GlobalManager.Current.feedar1Points[0].X - 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX, (int)AxisAcc.FSX };
+                var move2 = new object[] { AxisName.FSY,GlobalManager.Current.feedar1Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY, (int)AxisAcc.FSX };
 
+                int moveToPointX = MoveView.MovePTP(move1);
+                if (moveToPointX > 0x1000) return moveToPointX;
+                CheckState(moveToPointX);
 
+                int moveToPointY = MoveView.MovePTP(move2);
+                if (moveToPointY > 0x1000) return moveToPointY;
+                CheckState(moveToPointY);
 
-                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.feedar1Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+                int waitPointX = WaitFor_X_AxesArrival();
+                if (waitPointX > 0x1000) return waitPointX; 
+                CheckState(waitPointX);
 
+                int waitPointY = WaitFor_Y_AxesArrival();
+                if (waitPointY > 0x1000) return waitPointY;
+                CheckState(waitPointY);
 
                 Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
 
                 Logger.WriteLog("发送好数据");
-                while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+                int retryCount = 0;
+                while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK" )
                 {
-                    //string res = "接收到的信息是:" + Task_FeedupCameraFunction.TriggFeedUpCamreaready();
-                    //Logger.WriteLog(res);
                     Thread.Sleep(300);
+                    retryCount++;
+
+                    if (retryCount > 10) return (int)ErrorCode.Cognex_DisConnected;
                 }
 
                 AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X, 16, GlobalManager.Current.feedar1Points[0].X+ 16 * 3 , 1);
@@ -367,7 +427,17 @@ namespace AkribisFAM.WorkStation
 
                 Logger.WriteLog("开始CCD2运动");
                 //移动到拍照结束点
-                AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.feedar1Points[0].X + 16 * 4 , (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+
+                var move3 = new object[] { AxisName.FSX, GlobalManager.Current.feedar1Points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX, (int)AxisAcc.FSX };
+                int moveToPointX2 = MoveView.MovePTP(move3);
+
+                if (moveToPointX2 > 0x1000) return moveToPointX2;
+                CheckState(moveToPointX2);
+
+                int waitPointX2 = WaitFor_X_AxesArrival();
+                if (waitPointX2 > 0x1000) return waitPointX2; 
+                CheckState(waitPointX2);
+
                 Logger.WriteLog("结束点的X为" + GlobalManager.Current.feedar1Points[1].X);
                 Logger.WriteLog("结束CCD2运动");
                 //AkrAction.Current.EventDisable(AxisName.FSX);
@@ -375,53 +445,40 @@ namespace AkribisFAM.WorkStation
                 AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
                 Thread.Sleep(300);
 
-
-
                 ////接受Cognex的信息
                 List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
                 msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
 
                 Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
 
-
-
-
-                //解析Cognex飞达取料坐标
-
-                //[1,0,1,1] a = Cognex.feed1(msg_received);
-
-                //[x, y, z] b = cognex.feed1(index1, index2);
-
-                //if (msg_received[0].Errcode1 == "1" && msg_received[0].Subareas_Errcode11 == "1")
-                //{
-                //
-                //}
-                //
-                //foreach (var Point in feedar1pointList)
-                //{
-                //    FeedUpCamrea.Pushcommand.SendGMCommandAppend sendGMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendGMCommandAppend()
-                //    {
-                //        NozzlelD1 = "1",
-                //        RawMaterialName1 = "Foam",
-                //        FOV1 = "1",
-                //        SubRegionID1 = "1"
-                //    };
-                //}
-                
-
-
             }
             else if (GlobalManager.Current.UseFeedar2)
             {
                 snapFeederPath.Clear();
+                feedar2pointList.Clear();
                 int index = 0;
+                int count = 0;
+                double start_pos_X = GlobalManager.Current.feedar2Points[0].X;
+                double start_pos_Y = GlobalManager.Current.feedar2Points[0].Y;
+                double end_pos_X = GlobalManager.Current.feedar2Points[1].X;
+                double end_pos_Y = GlobalManager.Current.feedar2Points[1].Y;
+                for (int i = 0; i < 4; i++)
+                {
+                    feedar2pointList.Add(new SinglePoint()
+                    {
+                        X = start_pos_X + 16 * i,
+                        Y = start_pos_Y,
+                        Z = 0,
+                        R = 0,
+                    });
+                }
                 foreach (var Point in GlobalManager.Current.feedar2Points)
                 {
                     FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition()
                     {
-                        SN1 = "ASDASD",
-                        RawMaterialName1 = "FOAM",
-                        FOV = index.ToString(),
+                        SN1 = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                        RawMaterialName1 = "Foam",
+                        FOV = (count + 1).ToString(),
                         Photo_X1 = Point.X.ToString(),
                         Photo_Y1 = Point.Y.ToString(),
                         Photo_R1 = "0"
@@ -432,16 +489,56 @@ namespace AkribisFAM.WorkStation
                 Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
 
                 //移动到拍照起始点
-                AkrAction.Current.MoveNoWait(AxisName.FSX, GlobalManager.Current.feedar2Points[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.feedar2Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
-                AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn",out string response);
-                //AkrAction.Current.EventEnable(AxisName.FSX);
-                Thread.Sleep(300);
-                AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.feedar2Points[0].X, 50, GlobalManager.Current.feedar2Points[1].X, 1);
+                var move1 = new object[] { AxisName.FSX, GlobalManager.Current.feedar2Points[0].X - 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX, (int)AxisAcc.FSX };
+                var move2 = new object[] { AxisName.FSY, GlobalManager.Current.feedar2Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY, (int)AxisAcc.FSX };
 
+                int moveToPointX = MoveView.MovePTP(move1);
+                if (moveToPointX > 0x1000) return moveToPointX;
+                CheckState(moveToPointX);
+
+                int moveToPointY = MoveView.MovePTP(move2);
+                if (moveToPointY > 0x1000) return moveToPointY;
+                CheckState(moveToPointY);
+
+                int waitPointX = WaitFor_X_AxesArrival();
+                if (waitPointX > 0x1000) return waitPointX;
+                CheckState(waitPointX);
+
+                int waitPointY = WaitFor_Y_AxesArrival();
+                if (waitPointY > 0x1000) return waitPointY;
+                CheckState(waitPointY);
+
+                Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath);
+
+                Logger.WriteLog("发送好数据");
+                int retryCount = 0;
+                while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+                {
+                    Thread.Sleep(300);
+                    retryCount++;
+
+                    if (retryCount > 10) return (int)ErrorCode.Cognex_DisConnected;
+                }
+
+                AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.feedar2Points[0].X, 16, GlobalManager.Current.feedar2Points[1].X + 16*3, 1);
+                Thread.Sleep(300);
+
+                AkrAction.Current.EventEnable(AxisName.FSX);
+                AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
                 //移动到拍照结束点
-                AkrAction.Current.MoveNoWait(AxisName.FSX, GlobalManager.Current.feedar2Points[1].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.feedar2Points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
+                var move3 = new object[] { AxisName.FSX, GlobalManager.Current.feedar2Points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX, (int)AxisAcc.FSX };
+                int moveToPointX2 = MoveView.MovePTP(move3);
+
+                if (moveToPointX2 > 0x1000) return moveToPointX2;
+                CheckState(moveToPointX2);
+
+                int waitPointX2 = WaitFor_X_AxesArrival();
+                if (waitPointX2 > 0x1000) return waitPointX2;
+                CheckState(waitPointX2);
+
+                Thread.Sleep(300);
+                AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
+                Thread.Sleep(300);
 
                 ////接受Cognex的信息
                 List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
@@ -450,9 +547,26 @@ namespace AkribisFAM.WorkStation
                 Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
             }
 
+            var moveZ1 = new object[] { AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z, (int)AxisAcc.PICK1_Z, (int)AxisAcc.PICK1_Z };
+            var moveZ2 = new object[] { AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z, (int)AxisAcc.PICK2_Z, (int)AxisAcc.PICK2_Z };
+            var moveZ3 = new object[] { AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z, (int)AxisAcc.PICK3_Z, (int)AxisAcc.PICK3_Z };
+            var moveZ4 = new object[] { AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z, (int)AxisAcc.PICK4_Z, (int)AxisAcc.PICK4_Z };
 
-            AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z);
-            AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
+            int moveToZ1 = MoveView.MovePTP(moveZ1);
+            if (moveToZ1 > 0x1000) return moveToZ1;
+            CheckState(moveToZ1);
+
+            int moveToZ2 = MoveView.MovePTP(moveZ2);
+            if (moveToZ2 > 0x1000) return moveToZ2;
+            CheckState(moveToZ2);
+
+            int moveToZ3 = MoveView.MovePTP(moveZ3);
+            if (moveToZ3 > 0x1000) return moveToZ3;
+            CheckState(moveToZ1);
+
+            int moveToZ4 = MoveView.MovePTP(moveZ4);
+            if (moveToZ4 > 0x1000) return moveToZ4;
+            CheckState(moveToZ4);
             //根据congex返回的结果判断坐标，以及是否有
 
             GlobalManager.Current.BadFoamCount = 0;
@@ -464,11 +578,12 @@ namespace AkribisFAM.WorkStation
 
             GlobalManager.Current.UsePicker1 = true;
             GlobalManager.Current.UsePicker2 = true;
-            GlobalManager.Current.UsePicker3 = false;
-            GlobalManager.Current.UsePicker4 = false;
+            GlobalManager.Current.UsePicker3 = true;
+            GlobalManager.Current.UsePicker4 = true;
 
 
             //移动到取料位
+
             AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.pickFoam1Points[0].X -20, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
             AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.pickFoam1Points[0].Y , (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
@@ -487,10 +602,19 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
                 Thread.Sleep(20);
 
+
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 1);
                 Thread.Sleep(20);
                 AkrAction.Current.Move(AxisName.PICK1_T, 0, (int)AxisSpeed.PICK1_T);
                 AkrAction.Current.Move(AxisName.PICK1_Z, 15.5, (int)AxisSpeed.PICK1_Z);
+
+                int ret = WaitIO(3000, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback, true, ErrorCode.OUT3_1_PNP_Gantry_vacuum1_Release_Error);
+                if ((int)ret > 0x1000) return ret;
+                CheckState(ret);
+
+                Thread.Sleep(200);
+
+
                 AkrAction.Current.Move(AxisName.PICK1_Z, 5.5, (int)AxisSpeed.PICK1_Z);
                 //SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
 
@@ -514,6 +638,11 @@ namespace AkribisFAM.WorkStation
                 //AkrAction.Current.Move(AxisName.PICK2_T, 0, (int)AxisSpeed.PICK2_T);
                 AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
                 AkrAction.Current.Move(AxisName.PICK2_Z, 14.5, (int)AxisSpeed.PICK2_Z);
+
+                int ret = WaitIO(3000, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback, true, ErrorCode.OUT3_2_PNP_Gantry_vacuum2_Release_Error);
+                if ((int)ret > 0x1000) return ret;
+                CheckState(ret);
+
                 AkrAction.Current.Move(AxisName.PICK2_Z, 5.5, (int)AxisSpeed.PICK2_Z);
 
                 GlobalManager.Current.current_FOAM_Count++;
@@ -521,6 +650,7 @@ namespace AkribisFAM.WorkStation
 
             if (GlobalManager.Current.UsePicker3)
             {
+
                 AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 10, (int?)(int)AxisSpeed.PICK3_Z);
                 SetIO(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
                 Thread.Sleep(20);
@@ -535,6 +665,7 @@ namespace AkribisFAM.WorkStation
 
             if (GlobalManager.Current.UsePicker4)
             {
+                
                 AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 10, (int?)(int)AxisSpeed.PICK4_Z);
                 SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
                 Thread.Sleep(20);
@@ -551,7 +682,6 @@ namespace AkribisFAM.WorkStation
             Logger.WriteLog("取料结束");
             Thread.Sleep(500);
 
-           
 
             //让飞达送料
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 1);
@@ -933,6 +1063,24 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.Move(AxisName.FSY, temp.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
                 AkrAction.Current.Move(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
+                //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
+                //Thread.Sleep(50);
+                //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=2", out string response4);
+                //Thread.Sleep(100);
+                //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[101]=1000", out string response44);
+                //Thread.Sleep(100);
+                //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[102]=5000", out string response123);
+
+                //while (true)
+                //{
+                //    AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[103]=0", out string response);
+                //    if(response.Equals("1"))
+                //    {
+                //        break;
+                //    }
+                //    Thread.Sleep(100);
+                //}
+                
 
                 SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply, 0);
                 Thread.Sleep(200);
@@ -975,6 +1123,26 @@ namespace AkribisFAM.WorkStation
                 AkrAction.Current.Move(AxisName.FSY, temp.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
                 AkrAction.Current.Move(AxisName.PICK2_Z, 5, (int)AxisSpeed.PICK2_Z);
+
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("CProgRun[1]=1", out string response45);
+                Thread.Sleep(50);
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("CGenData[800]=2", out string response4);
+                Thread.Sleep(100);
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("CGenData[101]=1000", out string response44);
+                Thread.Sleep(100);
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("CGenData[102]=5000", out string response123);
+
+                while (true)
+                {
+                    AAmotionFAM.AGM800.Current.controller[2].SendCommandString("CGenData[103]=0", out string response);
+                    if (response.Equals("1"))
+                    {
+                        break;
+                    }
+                    Thread.Sleep(100);
+                }
+
+
                 SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 0);
                 Thread.Sleep(200);
                 //SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 1);
@@ -1056,7 +1224,7 @@ namespace AkribisFAM.WorkStation
             //将当前穴位信息清空
             GlobalManager.Current.palleteSnaped = false;
 
-            CheckState();
+            //CheckState();
 
             return true;
         }
@@ -1070,7 +1238,7 @@ namespace AkribisFAM.WorkStation
             //到feedar上拍照
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            CheckState();
+            //CheckState();
 
             return true;
         }
@@ -1084,7 +1252,7 @@ namespace AkribisFAM.WorkStation
             //吸嘴取料
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            CheckState();
+            //CheckState();
 
             return true;
         }
@@ -1098,7 +1266,7 @@ namespace AkribisFAM.WorkStation
             //CCD2精定位
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            CheckState();
+            //CheckState();
 
 
             return true;
@@ -1113,7 +1281,7 @@ namespace AkribisFAM.WorkStation
             //拍Pallete料盘
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            CheckState();
+            //CheckState();
 
             return true;
         }
@@ -1128,7 +1296,7 @@ namespace AkribisFAM.WorkStation
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
             Logger.WriteLog("waitstep6 start");
-            CheckState();
+            //CheckState();
             Logger.WriteLog("waitstep6 end");
             return true;
         }
@@ -1142,7 +1310,7 @@ namespace AkribisFAM.WorkStation
             //拍Pallete料盘
             WaitConveyor(GlobalManager.Current.current_Zuzhuang_step);
 
-            CheckState();
+            //CheckState();
 
             return true;
         }

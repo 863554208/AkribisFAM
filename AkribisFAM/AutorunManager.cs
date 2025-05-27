@@ -321,8 +321,6 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             AkrAction.Current.axisAllZAxisEnable(true);
             Thread.Sleep(200);
-            AkrAction.Current.axisAllZAxisEnable(false);
-            Thread.Sleep(200);
 
             //先对Z轴hardstop回零
             AkrAction.Current.axisAllZHome_HardStop();
@@ -365,6 +363,8 @@ namespace AkribisFAM
 
 
             //激光测距复位(tcp)
+            Task_KEYENCEDistance.SendResetData();
+            var a = Task_KEYENCEDistance.AcceptMSData()[0];
 
             //相机复位(tcp)
             //sendSetStatCamreapositionList.Clear();

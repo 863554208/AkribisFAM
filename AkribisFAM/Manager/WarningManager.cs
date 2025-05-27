@@ -65,7 +65,7 @@ namespace AkribisFAM.Manager
             if (GlobalManager.Current.IsPause)
             {
                 Logger.WriteLog("来料部分执行暂停");
-                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 999999;
+                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = int.MaxValue;
             }
 
             while (true)
