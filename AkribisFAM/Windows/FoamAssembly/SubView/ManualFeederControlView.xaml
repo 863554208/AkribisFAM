@@ -27,7 +27,7 @@
                 <Label Content="{Binding FeederName}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14"/>
             </Border>
             <StackPanel Orientation="Vertical" Grid.Row="1">
-                <Label Content="Vision CCD1 Motion" Width="150" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Label Content="Vision CCD1 Feeder Motion" Width="250" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left"  Margin="20 0 ">
                     <RadioButton x:Name="btnMoveStandby" Content="Move to Standby Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveStandby_Click" />
                     <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveEnding_Click"/>

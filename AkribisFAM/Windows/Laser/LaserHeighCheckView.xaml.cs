@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Media3D;
 using static AkribisFAM.GlobalManager;
@@ -21,7 +22,7 @@ namespace AkribisFAM.Windows
     {
         LaserHeighCheckVM vm;
         bool stopAllMotion = false;
-         class LaserHeighCheckVM
+        class LaserHeighCheckVM
         {
 
             private List<ObservableCollection<SinglePointExt>> points = new List<ObservableCollection<SinglePointExt>>();
@@ -65,7 +66,7 @@ namespace AkribisFAM.Windows
             DataContext = null;
             List<SinglePointExt> lsp = new List<SinglePointExt>();
             if (cbxTrayType.SelectedIndex < 0) return;
-            if (cbxTrayType.SelectedIndex > 0) return;
+            if (cbxTrayType.SelectedIndex > 4) return;
 
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
@@ -115,7 +116,7 @@ namespace AkribisFAM.Windows
 
 
 
-             vm = new LaserHeighCheckVM()
+            vm = new LaserHeighCheckVM()
             {
                 Points = pts,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,
@@ -152,25 +153,36 @@ namespace AkribisFAM.Windows
                         {
                             if (!stopAllMotion)
                             {
-                                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                                AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                                App.laser.Measure(out int readout);
+                                if (AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                                        AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                                {
+                                    MessageBox.Show("Failed to move position");
+                                    return;
+                                }
+
+                                if (!App.laser.Measure(out int readout))
+                                {
+                                    MessageBox.Show("Failed to measure");
+                                    return;
+                                }
+
                                 Thread.Sleep(50);
                             }
+                            Thread.Sleep(50);
                         }
                     }
 
                 });
-            }
-        }
-
-        private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            stopAllMotion = true;
-            Task.Run(() =>
-            {
-                AkrAction.Current.StopAllAxis();
-            });
         }
     }
+
+    private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        stopAllMotion = true;
+        Task.Run(() =>
+        {
+            AkrAction.Current.StopAllAxis();
+        });
+    }
+}
 }

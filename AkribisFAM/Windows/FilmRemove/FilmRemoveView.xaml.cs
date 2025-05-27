@@ -53,7 +53,7 @@ namespace AkribisFAM.Windows
             DataContext = null;
             List<SinglePointExt> lsp = new List<SinglePointExt>();
             if (cbxTrayType.SelectedIndex < 0) return;
-            if (cbxTrayType.SelectedIndex > 0) return;
+            if (cbxTrayType.SelectedIndex > 4) return;
 
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;

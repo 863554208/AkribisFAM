@@ -237,6 +237,9 @@
     <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
       <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\FoamAssembly\Vision3PalletOnTheFly.xaml.cs">
+      <DependentUpon>Vision3PalletOnTheFly.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Laser\LaserHeighCheckView.xaml.cs">
       <DependentUpon>LaserHeighCheckView.xaml</DependentUpon>
     </Compile>
@@ -332,6 +335,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\Vision3PalletOnTheFly.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

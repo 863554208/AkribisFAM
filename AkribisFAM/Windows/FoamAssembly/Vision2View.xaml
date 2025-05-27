@@ -29,7 +29,7 @@
                 <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveEnding_Click"/>
                 <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnStop_Click"/>
             </StackPanel>
-            <Button x:Name="btnVis1OTF" Content="On the fly capture" Width="200" Margin="20 10"  Style="{StaticResource MaterialDesignPaperButton}" HorizontalAlignment="Left"/>
+            <Button x:Name="btnVis2OTF" Content="On the fly capture" Width="200" Margin="20 10"  Style="{StaticResource MaterialDesignPaperButton}" HorizontalAlignment="Left" Click="btnVis2OTF_Click"/>
             <StackPanel Orientation="Vertical" Margin="20 0">
                 <!--<StackPanel Orientation="Horizontal">
             <materialDesign:PackIcon Kind="CircleSlice8" HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -24,12 +24,15 @@
                 <local:Vision2View />
             </TabItem>
 
+            <!--<TabItem Header="Pallet on the fly">
+                <local:Vision3PalletOnTheFly/>
+            </TabItem>-->
             <TabItem Header="Foam Assembly">
                 <local:FoamAssemblyView/>
             </TabItem>
 
 
-            <TabItem Header="Film remove">
+            <TabItem Header="Film Remove">
                 <local:FilmRemoveView/>
             </TabItem>
 

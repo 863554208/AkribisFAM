@@ -705,7 +705,7 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-        public void CalcaulteFlySnapPath()
+        public void CalculateFlySnapPath()
         {
             double start_pos_X = GlobalManager.Current.snapPalletePoints[0].X;
             double start_pos_Y = GlobalManager.Current.snapPalletePoints[0].Y;
@@ -809,7 +809,7 @@ namespace AkribisFAM.WorkStation
             for (int count2 = 0;  count2 < 12;count2++)
             {
 
-                AssUpCamrea.Pushcommand.SendTLTCamreaposition sendTLTCamreaposition = new AssUpCamrea.Pushcommand.SendTLTCamreaposition()
+                AssUpCamrea.Pushcommand.SendTLTCamreaposition sendTLTCameraposition = new AssUpCamrea.Pushcommand.SendTLTCamreaposition()
                 {
                     SN = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                     NozzleID = "0",
@@ -820,10 +820,10 @@ namespace AkribisFAM.WorkStation
                     Photo_Y1 = RealPalletePointsList[count2].Y.ToString(),
                     Photo_R1 = "0"
                 };
-                palletePath.Add(sendTLTCamreaposition);
+                palletePath.Add(sendTLTCameraposition);
             }
 
-            CalcaulteFlySnapPath();
+            CalculateFlySnapPath();
             bool reverse = true;
             int count =0;
             bool has_sent = false;
@@ -835,7 +835,7 @@ namespace AkribisFAM.WorkStation
 
                     AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
                     Thread.Sleep(300);
-
+                    //0,1 => 3,3 +,5
                     AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count + 1].X - GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
                     AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count + 1].Y, (int)AxisSpeed.FSY ,(int)AxisAcc.FSX);
                     if (!has_sent)

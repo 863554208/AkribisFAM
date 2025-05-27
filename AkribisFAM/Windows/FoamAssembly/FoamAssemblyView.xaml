@@ -9,9 +9,10 @@
     <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
-        <Grid Background="LightGray">
+        <Grid Background="LightGray" Grid.ColumnSpan="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -22,24 +23,33 @@
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
             <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
         </Grid>
+        <StackPanel Orientation="Vertical" Grid.Row="1">
+            <Label Content="Vision CCD1 Pallet Motion" Width="250" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left"  Margin="20 0 ">
+                <RadioButton x:Name="btnMoveStandby" Content="Move to Standby Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveStandby_Click" IsEnabled="False"/>
+                <RadioButton x:Name="btnMoveEnding" Content="Move to Ending Pos" Width="200" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMoveEnding_Click" IsEnabled="False"/>
+                <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnStop_Click"/>
+            </StackPanel>
+            <Button x:Name="btnVis3OTF" Content="On the fly capture" Width="200" Margin="20 10"  Style="{StaticResource MaterialDesignPaperButton}" HorizontalAlignment="Left" Click="btnVis3OTF_Click"/>
+        </StackPanel>
 
-        <ScrollViewer Grid.Row="1" CanContentScroll="True" VerticalScrollBarVisibility="Visible">
-            <ItemsControl ItemsSource="{Binding Points}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
+        <ScrollViewer Grid.Row="2" Grid.RowSpan="2" CanContentScroll="True" VerticalScrollBarVisibility="Visible">
+            <ItemsControl x:Name="itemControl">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
 
-                            <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                        <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <local:PointXYPickerMoveAndPlaceView Margin="5"
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:PointXYPickerMoveAndPlaceView Margin="5"
                                 PickerMovePressed="PointXYPickerMoveAndPlaceView_PickerMovePressed" 
                                 PickerPlacePressed="PointXYPickerMoveAndPlaceView_PickerPlacePressed"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </ScrollViewer>
 

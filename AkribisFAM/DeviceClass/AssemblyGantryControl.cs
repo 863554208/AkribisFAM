@@ -1,5 +1,6 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.WorkStation;
+using LiveCharts.Wpf;
 using System.Reflection;
 using System.Threading;
 using YamlDotNet.Core.Tokens;
@@ -11,34 +12,16 @@ namespace AkribisFAM.DeviceClass
     {
         public enum Picker
         {
-            Picker1,
-            Picker2,
-            Picker3,
-            Picker4,
+            Picker1 = 1,
+            Picker2 = 2,
+            Picker3 = 3,
+            Picker4 = 4,
         }
 
 
         public AssemblyGantryControl() { }
 
-        public bool ZUp(Picker picker)
-        {
-            switch (picker)
-            {
-                case Picker.Picker1:
-                    break;
-                case Picker.Picker2:
-                    break;
-                case Picker.Picker3:
-                    break;
-                case Picker.Picker4:
-                    break;
-                default:
-                    return false;
-            }
 
-            return true;
-
-        }
         public bool VacOn(Picker picker)
         {
             IO_OutFunction_Table vacSupply;
@@ -125,10 +108,280 @@ namespace AkribisFAM.DeviceClass
                 default:
                     return false;
             }
-           return (IOManager.Instance.IO_ControlStatus(vacSupply, 0) &&
-            IOManager.Instance.IO_ControlStatus(vacRelease, 0));
+            return (IOManager.Instance.IO_ControlStatus(vacSupply, 0) &&
+             IOManager.Instance.IO_ControlStatus(vacRelease, 0));
         }
         public bool ZDown(Picker picker)
+        {
+            AxisName axis;
+            AxisSpeed speed;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = AxisName.PICK1_Z;
+                    speed = AxisSpeed.PICK1_Z;
+                    break;
+                case Picker.Picker2:
+
+                    axis = AxisName.PICK2_Z;
+                    speed = AxisSpeed.PICK2_Z;
+                    break;
+                case Picker.Picker3:
+
+                    axis = AxisName.PICK3_Z;
+                    speed = AxisSpeed.PICK3_Z;
+                    break;
+                case Picker.Picker4:
+
+                    axis = AxisName.PICK4_Z;
+                    speed = AxisSpeed.PICK4_Z;
+                    break;
+                default:
+                    return false;
+            }
+
+            return AkrAction.Current.Move(axis, 15.5, (int)speed) == 0;
+
+        }
+        
+        public bool ZSafe(Picker picker)
+        {
+            AxisName axis;
+            AxisSpeed speed;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = AxisName.PICK1_Z;
+                    speed = AxisSpeed.PICK1_Z;
+                    break;
+                case Picker.Picker2:
+
+                    axis = AxisName.PICK2_Z;
+                    speed = AxisSpeed.PICK2_Z;
+                    break;
+                case Picker.Picker3:
+
+                    axis = AxisName.PICK3_Z;
+                    speed = AxisSpeed.PICK3_Z;
+                    break;
+                case Picker.Picker4:
+
+                    axis = AxisName.PICK4_Z;
+                    speed = AxisSpeed.PICK4_Z;
+                    break;
+                default:
+                    return false;
+            }
+
+            return AkrAction.Current.Move(axis, 5.5, (int)speed) == 0;
+
+        }
+        public bool ZUpAll()
+        {
+
+            return AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z) == 0 &&
+                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z) == 0 &&
+                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z) == 0 &&
+                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z) == 0;
+        }
+        public bool MovePickPos(Picker pickerNum, int fovNum)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            SinglePoint res1 = ZuZhuang.Current.GetPickPosition((int)pickerNum, (int)pickerNum);
+            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
+            AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+            {
+
+                return false;
+            }
+            return true;
+        }
+        public bool MovePlacePos(Picker pickerNum, int fovNum)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            SinglePoint res1 = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
+            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
+            AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+            {
+
+                return false;
+            }
+            return true;
+        }
+        public SinglePoint GetPlacePosition(int Nozzlenum, int Fovnum)
+        {
+            SinglePoint singlePoint = new SinglePoint();
+            string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
+            Task_FeedupCameraFunction.PushcommandFunction(command);
+            var GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGTAcceptData()[0];
+            if (GMout.Subareas_Errcode == "1")
+            {
+                singlePoint.X = double.Parse(GMout.Unload_X);
+                singlePoint.Y = double.Parse(GMout.Unload_Y);
+                singlePoint.R = double.Parse(GMout.Unload_R);
+                singlePoint.Z = 0.0;
+            }
+            return singlePoint;
+        }
+        public bool PlaceFoam(Picker pickerNum, int fovNum)
+        {
+            //var temp = GetPlacePosition((int)pickerNum, fovNum);
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MovePlacePos(pickerNum,fovNum))
+            {
+                return false;
+            }
+
+            if (!ZSafe(pickerNum))
+            {
+                return false;
+            }
+            
+            if (!Off(pickerNum))
+            {
+                return false;
+            }
+
+            Thread.Sleep(200);
+
+            return ZUp(pickerNum);
+        }
+        public bool PickFoam(Picker pickerNum, int fovNum)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MovePickPos(pickerNum, fovNum))
+            {
+                return false;
+            }
+            if (!VacOn(pickerNum))
+            {
+                return false;
+            }
+
+
+            if (!ZUp(pickerNum))
+            {
+                return false;
+            }
+            if (!ZDown(pickerNum))
+            {
+                return false;
+            }
+            return ZSafe(pickerNum);
+
+        }
+
+        public bool PickAllFoam()
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MovePickPos(Picker.Picker1, 1))
+            {
+                return false;
+            }
+            if (!VacOn(Picker.Picker1))
+            {
+                return false;
+            }
+            if (!VacOn(Picker.Picker2))
+            {
+                return false;
+            }
+            if (!VacOn(Picker.Picker3))
+            {
+                return false;
+            }
+            if (!VacOn(Picker.Picker4))
+            {
+                return false;
+            }
+
+            var res = TZero(Picker.Picker1) || TZero(Picker.Picker2) || TZero(Picker.Picker3) || TZero(Picker.Picker4);
+            res = res && ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
+            res = res && ZSafe(Picker.Picker1) || ZSafe(Picker.Picker2) || ZSafe(Picker.Picker3) || ZSafe(Picker.Picker4);
+            return res;
+        }
+        public bool TRotate(Picker picker, int angle)
+        {
+            AxisName axis;
+            AxisSpeed speed;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = AxisName.PICK1_T;
+                    speed = AxisSpeed.PICK1_T;
+                    break;
+                case Picker.Picker2:
+
+                    axis = AxisName.PICK2_T;
+                    speed = AxisSpeed.PICK2_T;
+                    break;
+                case Picker.Picker3:
+
+                    axis = AxisName.PICK3_T;
+                    speed = AxisSpeed.PICK3_T;
+                    break;
+                case Picker.Picker4:
+
+                    axis = AxisName.PICK4_T;
+                    speed = AxisSpeed.PICK4_T;
+                    break;
+                default:
+                    return false;
+            }
+
+
+            return AkrAction.Current.Move(axis, angle, (int)speed) == 0;
+        }
+        public bool TZero(Picker picker)
+        {
+            AxisName axis;
+            AxisSpeed speed;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = AxisName.PICK1_T;
+                    speed = AxisSpeed.PICK1_T;
+                    break;
+                case Picker.Picker2:
+
+                    axis = AxisName.PICK2_T;
+                    speed = AxisSpeed.PICK2_T;
+                    break;
+                case Picker.Picker3:
+
+                    axis = AxisName.PICK3_T;
+                    speed = AxisSpeed.PICK3_T;
+                    break;
+                case Picker.Picker4:
+
+                    axis = AxisName.PICK4_T;
+                    speed = AxisSpeed.PICK4_T;
+                    break;
+                default:
+                    return false;
+            }
+
+
+            return AkrAction.Current.Move(axis, 0, (int)speed) == 0;
+        }
+        public bool ZUp(Picker picker)
         {
             AxisName axis;
             AxisSpeed speed;

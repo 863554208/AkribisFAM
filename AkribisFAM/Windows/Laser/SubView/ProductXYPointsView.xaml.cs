@@ -24,10 +24,19 @@ namespace AkribisFAM.Windows
                 var dc = (ObservableCollection<SinglePoint>)DataContext;
                 foreach (var pts in dc)
                 {
-                    AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pts.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    AkrAction.Current.Move(AxisName.LSY, (int)pts.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
 
-                    App.laser.Measure(out int readout);
+                    if (AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pts.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                    AkrAction.Current.Move(AxisName.LSY, (int)pts.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Failed to move position");
+                        return;
+                    }
+
+                    if (!App.laser.Measure(out int readout))
+                    {
+                        System.Windows.Forms.MessageBox.Show("Failed to measure");
+                        return;
+                    }
 
                     Thread.Sleep(50);
                 }

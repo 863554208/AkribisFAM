@@ -51,6 +51,7 @@
                                                         PickerPickFoam2Pressed="ManualFeederControlView_PickerPickFoam2Pressed"
                                                         PickerPickFoam3Pressed="ManualFeederControlView_PickerPickFoam3Pressed"
                                                         PickerPickFoam4Pressed="ManualFeederControlView_PickerPickFoam4Pressed"
+                                                        PickerPickAllPressed="ManualFeederControlView_PickerPickAllPressed"
                                                         FeederIndexPressed="ManualFeederControlView_FeederIndexPressed"
                                                         FeederExtendPressed="ManualFeederControlView_FeederExtendPressed"
                                                         FeederRetractPressed="ManualFeederControlView_FeederRetractPressed"

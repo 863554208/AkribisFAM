@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
@@ -169,7 +170,7 @@ namespace AkribisFAM.Windows
             DataContext = null;
             List<SinglePointExt> lsp = new List<SinglePointExt>();
             if (cbxTrayType.SelectedIndex < 0) return;
-            if (cbxTrayType.SelectedIndex > 0) return;
+            if (cbxTrayType.SelectedIndex > 4) return;
 
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
@@ -177,7 +178,7 @@ namespace AkribisFAM.Windows
             var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Feedar1 Points"));
             if (laser == null) return;
 
-            lsp = laser.childList.Select((x,index) => new SinglePointExt
+            lsp = laser.childList.Select((x, index) => new SinglePointExt
             {
                 X = x.childPos[0],
                 Y = x.childPos[1],
@@ -204,7 +205,11 @@ namespace AkribisFAM.Windows
         {
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.MoveFoamStandbyPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
+            if (!App.vision1.MoveFoamStandbyPos(num))
+            {
+                MessageBox.Show($"Failed to move feeder {num} to standby position");
+            }
         }
 
         private void ManualFeederControlView_VisionEndingPosPressed(object sender, EventArgs e)
@@ -212,7 +217,11 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.MoveFoamEndingPos((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
+            if (!App.vision1.MoveFoamEndingPos(num))
+            {
+                MessageBox.Show($"Failed to move feeder {num} to ending position");
+            }
         }
 
         private void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
@@ -220,19 +229,33 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            App.vision1.FoamOnTheFlyTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber);
+            if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+            {
+
+                MessageBox.Show($"Failed to operate on the fly trigger");
+            }
         }
 
         private void ManualFeederControlView_PickerZUpPressed(object sender, EventArgs e)
         {
             var control = (ManualFeederControlView)sender;
-            App.assemblyGantryControl.ZUp((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+            var station = (FeederControlVM)control.DataContext;
+            var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
+            if (!App.assemblyGantryControl.ZUp((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
+            {
+                MessageBox.Show($"Failed to move picker {num} Z up");
+            }
         }
 
         private void ManualFeederControlView_PickerZDownPressed(object sender, EventArgs e)
         {
             var control = (ManualFeederControlView)sender;
-            App.assemblyGantryControl.ZDown((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+            var station = (FeederControlVM)control.DataContext;
+            var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
+            if (!App.assemblyGantryControl.ZDown((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
+            {
+                MessageBox.Show($"Failed to move picker {num} Z down");
+            }
         }
 
         private void ManualFeederControlView_PickerVacOnPressed(object sender, EventArgs e)
@@ -240,6 +263,7 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             App.assemblyGantryControl.VacOn((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+
         }
 
         private void ManualFeederControlView_PickerPurgePressed(object sender, EventArgs e)
@@ -257,55 +281,85 @@ namespace AkribisFAM.Windows
 
         private void ManualFeederControlView_PickerMoveFoam1Pressed(object sender, EventArgs e)
         {
-            //var control = (ManualFeederControlView)sender;
-            //App.assemblyGantryControl.Off((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 1))
+            {
+                MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+            }
         }
 
         private void ManualFeederControlView_PickerMoveFoam2Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 2))
+            {
+                MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+            }
         }
 
         private void ManualFeederControlView_PickerMoveFoam3Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 3))
+            {
+                MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+            }
         }
 
         private void ManualFeederControlView_PickerMoveFoam4Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 4))
+            {
+                MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+            }
         }
 
         private void ManualFeederControlView_PickerPickFoam1Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 1))
+            {
+                MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
+            }
         }
 
         private void ManualFeederControlView_PickerPickFoam2Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 2))
+            {
+                MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
+            }
         }
 
-        private void ManualFeederControlView_PickerMoveFoam3Pressed_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ManualFeederControlView_PickerMoveFoam4Pressed_1(object sender, EventArgs e)
-        {
-
-        }
 
         private void ManualFeederControlView_PickerPickFoam3Pressed(object sender, EventArgs e)
         {
 
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 3))
+            {
+                MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
+            }
         }
 
         private void ManualFeederControlView_PickerPickFoam4Pressed(object sender, EventArgs e)
         {
-
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 4))
+            {
+                MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
+            }
         }
-
+        private void ManualFeederControlView_PickerPickAllPressed(object sender, EventArgs e)
+        {
+            var control = (ManualFeederControlView)sender;
+            if (!App.assemblyGantryControl.PickAllFoam())
+            {
+                MessageBox.Show($"Failed to pick 4 foams");
+            }
+        }
         private void ManualFeederControlView_FeederIndexPressed(object sender, EventArgs e)
         {
             var control = (ManualFeederControlView)sender;
@@ -389,6 +443,8 @@ namespace AkribisFAM.Windows
                 App.feeder2.VacOn();
             }
         }
+
+
     }
 
 
