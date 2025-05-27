@@ -49,7 +49,11 @@ namespace AkribisFAM.Manager
         WaitIO = 0x000A,
         WaitMotion = 0x000B,
         CognexErr = 0x000C,
-        WaitFeeder = 0x000D
+        WaitFeeder = 0x000D,
+        Feeder1Empty = 0x000E,
+        Feeder2Empty = 0x000F,
+        Feeder1Alarm = 0x0010,
+        Feeder2Alarm = 0x0011
     }
 
     public struct ErrorInfo
