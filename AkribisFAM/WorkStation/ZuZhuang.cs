@@ -28,6 +28,7 @@ namespace AkribisFAM.WorkStation
         public int board_count = 0;
 
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
+        List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
         List<SinglePoint> feedar1pointList = new List<SinglePoint>();
         List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
         List<FeedUpCamrea.Pushcommand.SendGMCommandAppend> snapFeederGMPath = new List<FeedUpCamrea.Pushcommand.SendGMCommandAppend>();
@@ -380,7 +381,7 @@ namespace AkribisFAM.WorkStation
                 ////接受Cognex的信息
                 List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
                 msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
-                SinglePoint res = GetPickPosition(1, 1);
+
                 Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
 
 
@@ -462,20 +463,24 @@ namespace AkribisFAM.WorkStation
         public int PickFoam()
         {
 
-            
-
             GlobalManager.Current.UsePicker1 = true;
             GlobalManager.Current.UsePicker2 = true;
             GlobalManager.Current.UsePicker3 = false;
             GlobalManager.Current.UsePicker4 = false;
 
+
             //移动到取料位
-            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.pickFoam1Points[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.pickFoam1Points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.pickFoam1Points[0].X -20, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.pickFoam1Points[0].Y , (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
 
             if (GlobalManager.Current.UsePicker1)
             {
+
+                SinglePoint res1 = GetPickPosition(1, 1);
+                AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+
                 SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
                 Thread.Sleep(20);
                 SetIO(IO_OutFunction_Table.OUT3_0PNP_Gantry_vacuum1_Supply,0);
@@ -487,14 +492,18 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 AkrAction.Current.Move(AxisName.PICK1_T, 0, (int)AxisSpeed.PICK1_T);
                 AkrAction.Current.Move(AxisName.PICK1_Z, 15.5, (int)AxisSpeed.PICK1_Z);
-                
+                AkrAction.Current.Move(AxisName.PICK1_Z, 5.5, (int)AxisSpeed.PICK1_Z);
                 //SetIO(IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release, 0);
-                
+
                 GlobalManager.Current.current_FOAM_Count++;
             }
 
             if (GlobalManager.Current.UsePicker2)
             {
+                SinglePoint res2 = GetPickPosition(2, 2);
+                AkrAction.Current.Move(AxisName.FSX, res2.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, res2.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+
                 SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
                 Thread.Sleep(20);
                 SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 0);
@@ -503,8 +512,10 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(20);
                 //SetIO(IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release, 0);
 
-                AkrAction.Current.Move(AxisName.PICK2_T, 0, (int)AxisSpeed.PICK2_T);
-                AkrAction.Current.Move(AxisName.PICK2_Z, 15.5, (int)AxisSpeed.PICK2_Z);
+                //AkrAction.Current.Move(AxisName.PICK2_T, 0, (int)AxisSpeed.PICK2_T);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 14.5, (int)AxisSpeed.PICK2_Z);
+                AkrAction.Current.Move(AxisName.PICK2_Z, 5.5, (int)AxisSpeed.PICK2_Z);
 
                 GlobalManager.Current.current_FOAM_Count++;
             }
@@ -539,9 +550,8 @@ namespace AkribisFAM.WorkStation
 
 
             Logger.WriteLog("取料结束");
-            Thread.Sleep(200);
-            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 5.5, (int)AxisSpeed.PICK1_Z);
-            AkrAction.Current.Move(AxisName.PICK2_Z, 5.5, (int)AxisSpeed.PICK2_Z);
+            Thread.Sleep(500);
+
            
 
             //让飞达送料
@@ -573,7 +583,7 @@ namespace AkribisFAM.WorkStation
                     TargetMaterialName1 = "Foam->Moudel",
                     Photo_X1 = (start_x - i * 16).ToString(),
                     Photo_Y1 = (start_y).ToString(),
-                    Photo_R1 = "0.0",
+                    Photo_R1 = "90.0",
 
                 };
                 ccd2SnapPath.Add(SendTLNCamreaposition);
@@ -586,9 +596,11 @@ namespace AkribisFAM.WorkStation
 
 
             //移动到拍照起始点
-            AkrAction.Current.MoveNoWait(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
-            AkrAction.Current.Move(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
+            AkrAction.Current.MoveNoWait(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
+            AkrAction.Current.Move(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
 
+
+            Logger.WriteLog("CCD2准备移动到拍照位置");
 
             AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X +16 , (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
             AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
@@ -739,6 +751,62 @@ namespace AkribisFAM.WorkStation
 
 
             palletePath.Clear();
+
+            //计算实际的拍照位置
+            double start_pos_X = GlobalManager.Current.snapPalletePoints[0].X;
+            double start_pos_Y = GlobalManager.Current.snapPalletePoints[0].Y;
+            int totalRow = GlobalManager.Current.TotalRow;
+            int totalColumn = GlobalManager.Current.TotalColumn;
+            int gap_X = GlobalManager.Current.PalleteGap_X;
+            int gap_Y = GlobalManager.Current.PalleteGap_Y;
+            double end_pos_X = (totalColumn - 1) * gap_X;
+            double end_pos_Y = (totalRow - 1) * gap_Y;
+            double left_end_X = start_pos_X - (totalColumn - 1) * gap_X;
+
+            bool reverse2 = true;
+            RealPalletePointsList.Clear();
+            for (int row = 0; row < totalRow; row++)
+            {
+                double current_start_pos_Y = start_pos_Y - row * gap_Y; 
+                double current_end_pos_Y = current_start_pos_Y; 
+                double current_start_pos_X = start_pos_X;
+                if (reverse2)
+                {
+                    for(int column = 0;column < totalColumn; column++)
+                    {
+
+                            RealPalletePointsList.Add(new SinglePoint()
+                            {
+                                X = start_pos_X - column * gap_X,
+                                Y = start_pos_Y - row * gap_Y,
+                                Z = 0,
+                                R = 0
+                            });
+                            
+                    }
+                    reverse2 = false;
+                }
+                else
+                {
+                    for (int column = 0; column < totalColumn; column++)
+                    { 
+                        RealPalletePointsList.Add(new SinglePoint()
+                        {
+                            X = left_end_X + column * gap_X,
+                            Y = start_pos_Y - row * gap_Y,
+                            Z = 0,
+                            R = 0
+                        });
+                        
+                    }
+                    reverse2 = true;
+                }
+            }
+
+            var a = RealPalletePointsList;
+
+            //计算实际的拍照位置
+
             for (int count2 = 0;  count2 < 12;count2++)
             {
 
@@ -749,13 +817,12 @@ namespace AkribisFAM.WorkStation
                     MaterialTypeN1 = "Foam",
                     AcupointNumber = $"{count2+1}",
                     TargetMaterialName1 = "Foam->Moudel",
-                    Photo_X1 = "123.23",
-                    Photo_Y1 = "20.55",
+                    Photo_X1 = RealPalletePointsList[count2].X.ToString(),
+                    Photo_Y1 = RealPalletePointsList[count2].Y.ToString(),
                     Photo_R1 = "0"
                 };
                 palletePath.Add(sendTLTCamreaposition);
             }
-
 
             CalcaulteFlySnapPath();
             bool reverse = true;
@@ -859,11 +926,12 @@ namespace AkribisFAM.WorkStation
                 //List<AssUpCamrea.Acceptcommand.AcceptGTCommandAppend> res = new List<AssUpCamrea.Acceptcommand.AcceptGTCommandAppend>();
                 //var res = Task_AssUpCameraFunction.TriggAssUpCamreaGTAcceptData(AssUpCameraProcessCommand.GT);
 
-
+                var temp = GetPlacePosition(1, caveId);
+ 
                 var temp_x = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].X;
                 var temp_y = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].Y;
-                AkrAction.Current.Move(AxisName.FSX , temp_x, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, temp_y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSX , temp.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, temp.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
                 AkrAction.Current.Move(AxisName.PICK1_Z, 5, (int)AxisSpeed.PICK1_Z);
 
@@ -895,6 +963,7 @@ namespace AkribisFAM.WorkStation
                 //Thread.Sleep(300);
                 //var res = Task_AssUpCameraFunction.TriggAssUpCamreaGTAcceptData(AssUpCameraProcessCommand.GT);
 
+                var temp = GetPlacePosition(2, caveId);
 
 
                 var temp_x = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].X-16;
@@ -903,8 +972,8 @@ namespace AkribisFAM.WorkStation
                 ////移动到CaveId对应的点
                 //var temp_x = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].X-16;
                 //var temp_y = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].Y;
-                AkrAction.Current.Move(AxisName.FSX, temp_x, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-                AkrAction.Current.Move(AxisName.FSY, temp_y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSX, temp.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+                AkrAction.Current.Move(AxisName.FSY, temp.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX);
 
                 AkrAction.Current.Move(AxisName.PICK2_Z, 5, (int)AxisSpeed.PICK2_Z);
                 SetIO(IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply, 0);
@@ -1099,12 +1168,13 @@ namespace AkribisFAM.WorkStation
             SinglePoint singlePoint = new SinglePoint();
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);
-            FeedUpCamrea.Acceptcommand.AcceptGMCommandAppend GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGMAcceptData(FeedupCameraProcessCommand.GM)[0];
+            var GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGTAcceptData()[0];
             if (GMout.Subareas_Errcode == "1")
             {
-                singlePoint.X = double.Parse(GMout.Pick_X);
-                singlePoint.Y = double.Parse(GMout.Pick_Y);
-                singlePoint.R = double.Parse(GMout.Pick_R);
+                singlePoint.X = double.Parse(GMout.Unload_X);
+                singlePoint.Y = double.Parse(GMout.Unload_Y);
+                singlePoint.R = double.Parse(GMout.Unload_R);
+                singlePoint.Z = 0.0;
             }
             return singlePoint;
         }
@@ -1115,14 +1185,14 @@ namespace AkribisFAM.WorkStation
         {
             board_count  = 0;
             GlobalManager.Current.current_Assembled = 0;
-            GlobalManager.Current.total_Assemble_Count = 4;
+            GlobalManager.Current.total_Assemble_Count = 12;
             try
             {
 
                 while (true)
                 {
 
-                    step1:
+                step1:
                     //if (!GlobalManager.Current.IO_test2 || board_count != 0)
                     //{
                     //    Thread.Sleep(100);
@@ -1130,7 +1200,7 @@ namespace AkribisFAM.WorkStation
                     //}
 
                     //var task1 = Task.Run(() => Step1());
-
+                    Logger.WriteLog("贴装_上拍飞达开始");
                     if (GlobalManager.Current.SendByPassToStation2) goto step9;
                     if (GlobalManager.Current.Zuzhuang_exit) break;
                     //如果吸嘴上有料，直接跳去CCD2精定位
@@ -1139,19 +1209,22 @@ namespace AkribisFAM.WorkStation
                     step2:
                         //飞达上拍料;
                         Step2();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
+                    Logger.WriteLog("贴装_上拍飞达结束");
+                    if (GlobalManager.Current.Zuzhuang_exit) break;
 
 
                     step3:
-                        //吸嘴取料
-                        Step3();
-                        if (GlobalManager.Current.Zuzhuang_exit) break;
+                    //吸嘴取料
+                    Logger.WriteLog("贴装_吸嘴取料开始");
+                    Step3();
+                    Logger.WriteLog("贴装_吸嘴取料结束");
+                    if (GlobalManager.Current.Zuzhuang_exit) break;
 
                     step4:
                     //CCD2精定位
-                        Logger.WriteLog("精定位开始");
+                        Logger.WriteLog("贴装_精定位开始");
                         Step4();
-                        Logger.WriteLog("精定位完成");
+                        Logger.WriteLog("贴装_精定位完成");
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         if (GlobalManager.Current.BadFoamCount > 0)
                         {
@@ -1168,29 +1241,31 @@ namespace AkribisFAM.WorkStation
                         if (GlobalManager.Current.Zuzhuang_exit) break;
 
                     step6:
-                    //注释 20250525
-                    if (GlobalManager.Current.palleteSnaped) goto step7;
-                    Step6();
-                    Thread.Sleep(100);
-                    //注释 20250525
-                //if (GlobalManager.Current.palleteSnaped) goto step7;
-                //Logger.WriteLog("开始等待料盘到位");
-                //while (GlobalManager.Current.flag_assembleTrayArrived != 1)
-                //{
-                //    Thread.Sleep(300);
-                //}
-                //Logger.WriteLog("等到料盘到位");
-                //GlobalManager.Current.flag_assembleTrayArrived = 0;
+                        //注释 20250525
+                        //if (GlobalManager.Current.palleteSnaped) goto step7;
+                        //Step6();
+                        //Thread.Sleep(100);
+                        //注释 20250525
+                        if (GlobalManager.Current.palleteSnaped) goto step7;
+                        Logger.WriteLog("贴装_等待料盘到位");
+                        while (GlobalManager.Current.flag_assembleTrayArrived != 1)
+                        {
+                            Thread.Sleep(300);
+                        }
+                        Logger.WriteLog("贴装_料盘到位");
+                        GlobalManager.Current.flag_assembleTrayArrived = 0;
 
-                //Logger.WriteLog("组装工位开始飞拍");
-                ////拍料盘                        
-                //Step6();
-                //    if (GlobalManager.Current.Zuzhuang_exit) break;
+                    //拍料盘
+                        Logger.WriteLog("贴装_飞拍料盘开始");
+                        Step6();
+                        Logger.WriteLog("贴装_飞拍料盘结束");
+                        if (GlobalManager.Current.Zuzhuang_exit) break;
 
-                step7:
-                        Logger.WriteLog("开始放料");
+                    step7:
+                        Logger.WriteLog("贴装_飞拍料盘开始");
                         //放料
                         Step7();
+                        Logger.WriteLog("贴装_飞拍料盘结束");
                         if (GlobalManager.Current.Zuzhuang_exit) break;
                         //当前组装的料小于穴位数时，要一直取料
                         if (GlobalManager.Current.current_Assembled < GlobalManager.Current.total_Assemble_Count) goto step2;

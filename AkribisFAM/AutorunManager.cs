@@ -95,7 +95,6 @@ namespace AkribisFAM
             return ret;
         }
 
-
         public void Clear()
         {
 
@@ -110,6 +109,8 @@ namespace AkribisFAM
             GlobalManager.Current.placeFoamPoints.Clear();
             GlobalManager.Current.recheckPoints.Clear();
             GlobalManager.Current.tearingPoints.Clear();
+
+            GlobalManager.Current.BarcodeQueue.Clear();
         }
         public async void AutoRunMain(CancellationToken token)
         {
@@ -139,7 +140,7 @@ namespace AkribisFAM
 
                     tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
@@ -322,6 +323,12 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             AkrAction.Current.axisAllZAxisEnable(true);
             Thread.Sleep(200);
+
+
+            //先对Z轴hardstop回零
+            AkrAction.Current.axisAllZHome_HardStop();
+            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+
 
 
             //先对Z轴hardstop回零

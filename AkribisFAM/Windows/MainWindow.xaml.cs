@@ -784,6 +784,8 @@ namespace AkribisFAM
             bool resetResult = await Task.Run(() => AutorunManager.Current.Reset());
             if (!resetResult)
             {
+                AkrAction.Current.StopAllAxis();
+                AkrAction.Current.axisAllEnable(false);
                 Dispatcher.Invoke(() =>
                 {
                     MessageBox.Show("复位失败");

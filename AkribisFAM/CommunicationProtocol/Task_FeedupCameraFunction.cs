@@ -57,6 +57,14 @@ namespace AkribisFAM.CommunicationProtocol
                 public string Pick_Y; //取料坐标Y
                 public string Pick_R; //取料坐标R
             }
+            public class AcceptGTCommandAppend
+            {
+                public string Subareas_Errcode;//子穴错误代码，1为成功
+
+                public string Unload_X; //放料坐标X
+                public string Unload_Y; //放料坐标Y
+                public string Unload_R; //放料坐标R
+            }
             //相机准备状态
             public class TLMCamreaready
             {
@@ -215,7 +223,46 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
+        public static List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend> TriggFeedUpCamreaGTAcceptData()//飞达拍照与相机交互GM接收流程
+        {
+            try
+            {
+                InstructionHeader = $"GT,1,";// 模块头+计算取料坐标个数 
+                string VisionAcceptData = "";
+                bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
+                RecordLog("收到取料坐标: " + VisionAcceptData);
+                if (!VisionAcceptData_status)
+                {
+                    return null;
+                }
 
+                Type camdowntype = typeof(FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend);
+                List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend> list_positions = new List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend>();
+
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
+                {
+                    return null;
+                }
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend)list[i]);
+                }
+                return list_positions;
+            }
+            catch (Exception ex)
+            {
+
+                ex.ToString();
+                return null;
+            }
+        }
         public static string TriggFeedUpCamreaready()
         {
             string VisionAcceptData = null;

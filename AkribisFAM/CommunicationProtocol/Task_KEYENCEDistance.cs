@@ -52,17 +52,18 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool SendMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand,string sendmsdata) //来料与基恩士测距交互MS自动触发流程
+        public static bool SendMSData() //来料与基恩士测距交互MS自动触发流程
         {
             try
             {
                 InstructionHeader = $"MS,";
                  //MS,0,1\n
                 //组合字符串
-                string sendcommandData = $"{InstructionHeader}{sendmsdata}";
+                //string sendcommandData = $"{InstructionHeader}{sendmsdata}";
+                string sendcommand = "MS,1,0\r\n";
                 //发送字符串到Socket
-                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                RecordLog("激光测距: " + sendcommandData);
+                bool sendcommand_status = VisionpositionPushcommand(sendcommand);
+                RecordLog("激光测距: " + sendcommand);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -78,7 +79,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand)//来料与基恩士测距交互MS自动接收流程
+        public static List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptMSData()//来料与基恩士测距交互MS自动接收流程
         {
             try
             {

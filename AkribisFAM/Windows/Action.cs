@@ -358,31 +358,32 @@ namespace AkribisFAM.WorkStation
 
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             if (decel == null) decel = accel;
-            
+            string temp = string.Format("{0} 轴的速度为 {1} , 加速度为 {2} , 减速度为 {3}", axisName.ToString(), speed.ToString() , accel.ToString() , decel,ToString());
+            Logger.WriteLog(temp);
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
 
             //设定一个预期的移动时间
-            int nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
-            double timeThreshold = 0.0;
-            if (speed !=null)
-            {
-                double  temp_now_Pos = nowPos;
-                double temp_target_pos = (double)position;
-                double temp_speed = (double)speed;
-                timeThreshold =(Math.Abs(temp_target_pos - temp_now_Pos) / temp_speed) * 1.5;
-            }
+            //int nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
+            //double timeThreshold = 0.0;
+            //if (speed !=null)
+            //{
+            //    double  temp_now_Pos = nowPos;
+            //    double temp_target_pos = (double)position;
+            //    double temp_speed = (double)speed;
+            //    timeThreshold =(Math.Abs(temp_target_pos - temp_now_Pos) / temp_speed) * 1.5;
+            //}
 
             
-            DateTime now  = DateTime.Now;
+            //DateTime now  = DateTime.Now;
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
-                //TODO 加入退出机制
-                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
-                {
-                    string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
-                    Logger.WriteLog(err);
-                    return -1;
-                }
+                ////TODO 加入退出机制
+                //if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
+                //{
+                //    string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
+                //    Logger.WriteLog(err);
+                //    return -1;
+                //}
 
                 Thread.Sleep(50);
             }
@@ -534,7 +535,9 @@ namespace AkribisFAM.WorkStation
             ret += WaitHomingFinished(AxisName.PRY);
             ret += WaitHomingFinished(AxisName.PRZ);
 
-            if (ret < 0) return -1; 
+            ret += WaitHomingFinished(AxisName.PICK1_T);
+
+            if (ret != 0) return -1; 
 
             return 0;
         }
@@ -544,7 +547,6 @@ namespace AkribisFAM.WorkStation
             int ret = 0;
 
             ret += WaitHomingFinished(AxisName.PICK1_Z);
-            //ret += WaitHomingFinished(AxisName.PICK1_T);
             ret += WaitHomingFinished(AxisName.PICK2_Z);
             //ret += WaitHomingFinished(AxisName.PICK2_T);
             //ret += WaitHomingFinished(AxisName.PICK3_Z);
@@ -553,7 +555,7 @@ namespace AkribisFAM.WorkStation
             //ret += WaitHomingFinished(AxisName.PICK4_T);
 
 
-            if (ret < 0) return -1;
+            if (ret > 0) return -1;
 
             return 0;
         }
@@ -569,12 +571,12 @@ namespace AkribisFAM.WorkStation
                 {
                     string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex+1).ToString(), axisRefNum.ToString());
                     Logger.WriteLog(temp);
-                    return -1;
+                    return 1;
                 }
 
                 Thread.Sleep(50);
             }
-            string err = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
+            string err = string.Format("第{0}个AGM800的第{1}个轴回零成功", (agmIndex + 1).ToString(), axisRefNum.ToString());
             return 0;
         }
         public int axisAllHome(String path)

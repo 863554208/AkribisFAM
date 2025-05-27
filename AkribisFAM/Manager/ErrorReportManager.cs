@@ -43,10 +43,13 @@ namespace AkribisFAM.Manager
         RecheckNGFull = 0x0004,
         YieldLow = 0x0005,
         HasNGPallet = 0x0006,
-        WaitIO = 0x0007,
-        WaitMotion = 0x0008,
-        CognexErr = 0x0009,
-        WaitFeeder = 0x000A
+        BarocdeScan_Failed = 0x0007,
+        BarocdeScan_NoBarcode = 0x0008,
+        Laser_Failed = 0x0009,
+        WaitIO = 0x000A,
+        WaitMotion = 0x000B,
+        CognexErr = 0x000C,
+        WaitFeeder = 0x000D
     }
 
     public struct ErrorInfo

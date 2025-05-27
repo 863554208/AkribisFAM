@@ -125,6 +125,13 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
+        public Queue<string> BarcodeQueue;
+        public bool IsUseMES = false;
+
+        //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
+        public int LaserHeightDelay = 50;
+
+        public double[][] laser_data;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -286,7 +293,9 @@ namespace AkribisFAM
         public int BadFoamCount { get; set; }
 
         //总共需要安装的穴位总数
-        public int total_Assemble_Count { get; set; }
+        public int total_Assemble_Count = 12;
+
+        public int laser_point_length = 4;
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
         public bool lailiao_SaoMa { get; set; }
@@ -384,6 +393,15 @@ namespace AkribisFAM
             }
         }
 
+        private void InitializeLaserData()
+        {
+            laser_data = new double[total_Assemble_Count][];
+            for (int i = 0; i < TotalRow; i++)
+            {
+                laser_data[i] = new double[laser_point_length];
+            }
+        }
+
         public void Lailiao_CheckState()
         {
             if (GlobalManager.Current.Lailiao_state[current_Lailiao_step] == 0)
@@ -452,9 +470,8 @@ namespace AkribisFAM
 
             //StartErrorMonitor();
 
+            InitializeLaserData();
 
-            IsAInTarget = false;
-            IsBInTarget = false;
             IsPause = false;
 
         }
@@ -884,10 +901,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 50,
-            LSY = 50,
-            FSX = 50,
-            FSY = 50,
+            LSX = 200,
+            LSY = 200,
+            FSX = 120,
+            FSY = 120,
             BL5 = 100,
             BR5 = 100,
 
@@ -912,29 +929,29 @@ namespace AkribisFAM
             PICK4_T = 8,
 
             //AGM800[3]
-            PRX = 50,
-            PRY = 50,
-            PRZ = 2,
+            PRX = 200,
+            PRY = 200,
+            PRZ = 30,
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 1000,
-            LSY = 1000,
-            FSX = 1000,
-            FSY = 1000,
+            LSX = 2000,
+            LSY = 2000,
+            FSX = 800,
+            FSY = 800,
             BL5 = 500,
             BR5 = 500,
 
             //AGM800[1]
-            BL1 = 500,
-            BL2 = 500,
-            BL3 = 500,
-            BL4 = 500,
-            BR1 = 500,
-            BR2 = 500,
-            BR3 = 500,
-            BR4 = 500,
+            BL1 = 800,
+            BL2 = 800,
+            BL3 = 800,
+            BL4 = 800,
+            BR1 = 800,
+            BR2 = 800,
+            BR3 = 800,
+            BR4 = 800,
 
             //AGM800[2]
             PICK1_Z = 50,
@@ -947,9 +964,9 @@ namespace AkribisFAM
             PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 500,
-            PRY = 500,
-            PRZ = 10,
+            PRX = 2000,
+            PRY = 2000,
+            PRZ = 300,
         }
 
         //轴参数
