@@ -77,14 +77,18 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             await Task.Run(new Action(() =>
             {
                 AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, -1, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, -1, (int)AxisSpeed.PICK3_Z); //z轴运动z
+                //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, -1, (int)AxisSpeed.PICK4_Z); //z轴运动z
+
+                //移动到载具标定拍照位
+                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[11].X, CalibrationPoints.ZuZhuangPointList[11].Y, CalibrationPoints.ZuZhuangPointList[11].Z, CalibrationPoints.ZuZhuangPointList[11].R, NozzleNumber.Nozzle1);
 
                 //标定开始
                 if (!CamerCombinePhotoCalib(CombineCalibProcess.Combinestart, "CombineStart"))
                 {
                     return;
                 }
-                //移动到载具标定拍照位
-                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[11].X, CalibrationPoints.ZuZhuangPointList[11].Y, CalibrationPoints.ZuZhuangPointList[11].Z, CalibrationPoints.ZuZhuangPointList[11].R, NozzleNumber.Nozzle1);
 
                 Thread.Sleep(800);//延时
                 //取标定片指令发送
@@ -98,13 +102,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 {
                     return;
                 }
-                //移动到过渡点位
-                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, 0, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
-
-                //移动到预取标定片位
+                //移动到取标定片位XY
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
-                //移动到取标定片位
+                //移动到取标定片位XYZ
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[13].X, CalibrationPoints.ZuZhuangPointList[13].Y, CalibrationPoints.ZuZhuangPointList[13].Z, CalibrationPoints.ZuZhuangPointList[13].R, NozzleNumber.Nozzle1);
 
                 Thread.Sleep(1000);//延时
@@ -112,13 +113,11 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 NozzleInhale(NozzleNumber.Nozzle1);
                 Thread.Sleep(1000);//延时
 
-                //移动到预取标定片位
+                //移动到取标定片位XY
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
-                //移动到过渡点
-                MoveAxisDirectControl(278.818, 144.488, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
-
-
+                //移动到11点位置起点XY
+                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[14].X, CalibrationPoints.ZuZhuangPointList[14].Y, CalibrationPoints.ZuZhuangPointList[14].Z, CalibrationPoints.ZuZhuangPointList[14].R, NozzleNumber.Nozzle1);
 
                 //进入11点位置循环
                 if (!Point11Calibongoing(NozzleNumber.Nozzle1))
@@ -126,30 +125,29 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
 
-                //移动到预放标定片位
+                //移动到11点位置起点XY
+                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[14].X, CalibrationPoints.ZuZhuangPointList[14].Y, CalibrationPoints.ZuZhuangPointList[14].Z, CalibrationPoints.ZuZhuangPointList[14].R, NozzleNumber.Nozzle1);
+
+                //移动到放标定片位XY
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[15].X, CalibrationPoints.ZuZhuangPointList[15].Y, CalibrationPoints.ZuZhuangPointList[15].Z, CalibrationPoints.ZuZhuangPointList[15].R, NozzleNumber.Nozzle1);
 
-                //移动到放标定片位
+                //移动到放标定片位XYZ
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[16].X, CalibrationPoints.ZuZhuangPointList[16].Y, CalibrationPoints.ZuZhuangPointList[16].Z, CalibrationPoints.ZuZhuangPointList[16].R, NozzleNumber.Nozzle1);
 
                 Thread.Sleep(800);
                 //吸嘴停止吸气
+                NozzleStopInhale1(NozzleNumber.Nozzle1);
+                Thread.Sleep(10);
                 NozzleStopInhale(NozzleNumber.Nozzle1);
                 Thread.Sleep(10);
                 NozzleStopInhale1(NozzleNumber.Nozzle1);
 
                 Thread.Sleep(500);
-
-
-
-                //移动到预放标定片位
+                //移动到放标定片位XY
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[15].X, CalibrationPoints.ZuZhuangPointList[15].Y, CalibrationPoints.ZuZhuangPointList[15].Z, CalibrationPoints.ZuZhuangPointList[15].R, NozzleNumber.Nozzle1);
 
-                //移动到过渡点
-                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[15].X, CalibrationPoints.ZuZhuangPointList[15].Y, 0, CalibrationPoints.ZuZhuangPointList[15].R, NozzleNumber.Nozzle1);
-
                 //移动到飞达标定拍照位
-                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[14].X, CalibrationPoints.ZuZhuangPointList[14].Y, CalibrationPoints.ZuZhuangPointList[14].Z, CalibrationPoints.ZuZhuangPointList[14].R, NozzleNumber.Nozzle1);
+                MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[17].X, CalibrationPoints.ZuZhuangPointList[17].Y, CalibrationPoints.ZuZhuangPointList[17].Z, CalibrationPoints.ZuZhuangPointList[17].R, NozzleNumber.Nozzle1);
                 
                 Thread.Sleep(1000);
                 //放标定片指令发送
@@ -160,7 +158,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
                 //Thread.Sleep(500);
                 //关联放指令发送
-                if (!CamerCombinePhotoCalib(CombineCalibProcess.CombineRelationput, $"{CalibrationPoints.ZuZhuangPointList[14].X.ToString()},{CalibrationPoints.ZuZhuangPointList[14].Y.ToString()},0"))
+                if (!CamerCombinePhotoCalib(CombineCalibProcess.CombineRelationput, $"{CalibrationPoints.ZuZhuangPointList[17].X.ToString()},{CalibrationPoints.ZuZhuangPointList[17].Y.ToString()},0"))
                 {
                     return;
                 }

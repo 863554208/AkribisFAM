@@ -242,5 +242,19 @@ namespace AkribisFAM.CommunicationProtocol
             }
             return new List<string>();
         }
+
+        //check connection
+        public static void CheckClients()
+        {
+            if (namedClients != null & namedClients.Count > 0)
+            {
+                foreach (var client in namedClients)
+                {
+                    var clientname = client.Key;
+                    var clientworker = client.Value;
+                    clientworker.CheckServerStatus();  
+                }
+            }
+        }
     }
 }

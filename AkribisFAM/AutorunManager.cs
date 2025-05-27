@@ -202,6 +202,7 @@ namespace AkribisFAM
             GlobalManager.Current.Lailiao_exit = true;
             GlobalManager.Current.Zuzhuang_exit = true;
             GlobalManager.Current.FuJian_exit = true;
+            GlobalManager.Current.Reject_exit = true;
             isRunning = false;
             hasReseted = false;
             GlobalManager.Current.IO_test1 = false;
@@ -296,6 +297,7 @@ namespace AkribisFAM
             //GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
         }
 
+
         public bool Reset()
         {
 
@@ -309,7 +311,7 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
 
             //需要这两个信号都是0，代表电机可以复位，安全门也可以复位
-            if(!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, false) && !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, false))
+            if (!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, false) && !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, false))
             {
                 return false;
             }
@@ -321,8 +323,13 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             AkrAction.Current.axisAllZAxisEnable(true);
             Thread.Sleep(200);
-            AkrAction.Current.axisAllZAxisEnable(false);
-            Thread.Sleep(200);
+
+
+            //先对Z轴hardstop回零
+            AkrAction.Current.axisAllZHome_HardStop();
+            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+
+
 
             //先对Z轴hardstop回零
             AkrAction.Current.axisAllZHome_HardStop();
@@ -348,13 +355,13 @@ namespace AkribisFAM
 
             //while()
 
-            if ( AkrAction.Current.WaitAllHomingFinished() !=0) return false;
- 
+            if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
+
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 
 
-            if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
+            if (LaiLiao.Current.board_count != 0 || ZuZhuang.Current.board_count != 0 || FuJian.Current.board_count != 0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor(100);
                 Thread.Sleep(3000);
@@ -403,13 +410,13 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
             AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
-            if(AkrAction.Current.WaitAllHomingZFinished() !=0) return false;
+            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             //让飞达送料
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1 , 1);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 1);
 
 
             return true;

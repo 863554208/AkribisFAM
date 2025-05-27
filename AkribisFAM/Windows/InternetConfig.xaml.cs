@@ -16,9 +16,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using Newtonsoft.Json.Linq;
+using AkribisFAM.Util;
 
 
 namespace AkribisFAM.Windows
@@ -30,7 +32,7 @@ namespace AkribisFAM.Windows
     public partial class InternetConfig : UserControl
     {
         public Dictionary<string, bool> connectState = new Dictionary<string, bool>();
-
+        private DispatcherTimer _timer;
         public InternetConfig()
         {
             InitializeComponent();
@@ -45,7 +47,28 @@ namespace AkribisFAM.Windows
             connectState.Add("Pressure_sensor", false);
             Readdevicesjson();
             RegisterHandlersInContainer(Networkgrid);
+
+            // 创建定时器
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
         }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if(TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+            {
+                string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
+                double result = Parser.TryParseTwoValues(press);
+                PressureInfo.Text = result.ToString()+"N";
+            }
+            else
+            {
+
+            }
+        }
+
         private void Readdevicesjson()//读IP地址和端口号
         {
             try
