@@ -315,7 +315,7 @@ namespace AkribisFAM.WorkStation
                 bool IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
                 Logger.WriteLog("皮带任务_等待任一料盘触发流出阻挡气缸光电信号");
-                System.Threading.Thread.Sleep(2000);
+                System.Threading.Thread.Sleep(3000);
                 //while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
                 //{
                 //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);

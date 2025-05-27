@@ -110,7 +110,7 @@ namespace AkribisFAM
             GlobalManager.Current.recheckPoints.Clear();
             GlobalManager.Current.tearingPoints.Clear();
 
-            GlobalManager.Current.BarcodeQueue.Clear();
+            //GlobalManager.Current.BarcodeQueue.Clear();
         }
         public async void AutoRunMain(CancellationToken token)
         {
@@ -132,7 +132,9 @@ namespace AkribisFAM
 
                 Clear();
                 ParameterConfig.LoadPoints();
-
+                //打开力控
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
+                Thread.Sleep(100);
                 try
                 {
                         
@@ -302,7 +304,9 @@ namespace AkribisFAM
         {
 
             //20250519 测试 【史彦洋】 追加 Start
-            //return true;
+            CylinderDown();
+            Conveyor.Current.AllWorkStopCylinderAct(1, 0);
+            return true;
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
@@ -317,10 +321,10 @@ namespace AkribisFAM
             }
 
 
-            //单独对Z轴下使能
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(300);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+
             AkrAction.Current.axisAllZAxisEnable(true);
             Thread.Sleep(200);
 
@@ -332,8 +336,8 @@ namespace AkribisFAM
 
 
             //先对Z轴hardstop回零
-            AkrAction.Current.axisAllZHome_HardStop();
-            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+            //AkrAction.Current.axisAllZHome_HardStop();
+            //if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
 
 
@@ -372,6 +376,8 @@ namespace AkribisFAM
 
 
             //激光测距复位(tcp)
+            //Task_KEYENCEDistance.SendResetData();
+            //var a = Task_KEYENCEDistance.AcceptMSData()[0];
 
             //相机复位(tcp)
             //sendSetStatCamreapositionList.Clear();

@@ -66,24 +66,38 @@ namespace AkribisFAM.Util
                     }
                 }
 
-                if (secondSignIndex == -1)
+                //if (secondSignIndex == -1)
+                //{
+                //    Log("未找到第二个数的正负号，缺少分隔符。");
+                //    return double.NaN;
+                //}
+
+                string part1 = trimmed.Substring(1, trimmed.Length-1);
+                //string part2 = trimmed.Substring(secondSignIndex);
+                if (trimmed[0] == '+')
                 {
-                    Log("未找到第二个数的正负号，缺少分隔符。");
-                    return double.NaN;
-                }
-
-                string part1 = trimmed.Substring(0, secondSignIndex);
-                string part2 = trimmed.Substring(secondSignIndex);
-
-                if (index == 1)
+                    var a = double.Parse(part1, CultureInfo.InvariantCulture);
                     return double.Parse(part1, CultureInfo.InvariantCulture);
-                else if (index == 2)
-                    return double.Parse(part2, CultureInfo.InvariantCulture);
+                }
                 else
                 {
-                    Log("索引非法，仅支持 1 或 2。");
-                    return double.NaN;
+                    var b = -double.Parse(part1, CultureInfo.InvariantCulture);
+                    return -double.Parse(part1, CultureInfo.InvariantCulture);
                 }
+
+
+
+                //double.Parse(part1, CultureInfo.InvariantCulture);
+                //return double.Parse(part1, CultureInfo.InvariantCulture);
+                //if (index == 1)
+                //    return double.Parse(part1, CultureInfo.InvariantCulture);
+                //else if (index == 2)
+                //    return double.Parse(part2, CultureInfo.InvariantCulture);
+                //else
+                //{
+                //    Log("索引非法，仅支持 1 或 2。");
+                //    return double.NaN;
+                //}
             }
             catch (FormatException fe)
             {

@@ -92,7 +92,19 @@ public class MoveView
                 else
                 {
                     error_code = -2;
-                    error_message = $"参数无效：必须是 object[] 且长度为 {expectedLength}。";
+
+                    // 尝试将 param 展开为字符串显示
+                    string paramContent = "";
+                    if (param is object[] rawArray)
+                    {
+                        paramContent = string.Join(", ", rawArray.Select((p, i) => $"[{i}]={p ?? "null"}"));
+                    }
+                    else
+                    {
+                        paramContent = param?.ToString() ?? "null";
+                    }
+
+                    error_message = $"参数无效：必须是 object[] 且长度为 {expectedLength}。实际参数：{paramContent}";
                     break;
                 }
             }

@@ -901,10 +901,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 200,
-            LSY = 200,
-            FSX = 120,
-            FSY = 120,
+            LSX = 100,
+            LSY = 100,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -936,10 +936,10 @@ namespace AkribisFAM
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 2000,
-            LSY = 2000,
-            FSX = 800,
-            FSY = 800,
+            LSX = 1000,
+            LSY = 1000,
+            FSX = 500,
+            FSY = 500,
             BL5 = 500,
             BR5 = 500,
 
