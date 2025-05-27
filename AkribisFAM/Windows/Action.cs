@@ -1,4 +1,11 @@
-﻿using System;
+﻿using AAMotion;
+using AkribisFAM.AAmotionFAM;
+using AkribisFAM.Helper;
+using AkribisFAM.Util;
+using AkribisFAM.WorkStation;
+using HslCommunication.Profinet.Delta;
+using LiveCharts.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -9,12 +16,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AAMotion;
-using AkribisFAM.AAmotionFAM;
-using AkribisFAM.Util;
-using AkribisFAM.WorkStation;
-using HslCommunication.Profinet.Delta;
-using LiveCharts.Wpf;
 using YamlDotNet.Core.Tokens;
 using static AkribisFAM.GlobalManager;
 
@@ -32,6 +33,12 @@ namespace AkribisFAM.WorkStation
             ERR = -1
         }
 
+        public enum Modules
+        {
+            LaiLiao,
+            ZuZhuang,
+            FuJian
+        }
 
         private static AkrAction _instance;
 
@@ -49,6 +56,8 @@ namespace AkribisFAM.WorkStation
                 return _instance;
             }
         }
+
+        private CancellationTokenSource _cts;
 
         //public int axisSetParams(String AxisName, Int32 iSpeed, Int32 iAcc, Int32 iDec, Int32 iKDec, Int32 iJerk)
         //{
@@ -578,6 +587,29 @@ namespace AkribisFAM.WorkStation
             string err = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
             return 0;
         }
+        public int WaitHomingFinished(GlobalManager.AxisName axisName, CancellationToken token)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            DateTime now = DateTime.Now;
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
+            {
+                if ((DateTime.Now - now).TotalMilliseconds > 30000)
+                {
+                    string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
+                    Logger.WriteLog(temp);
+                    return -1;
+                }
+                if (token.IsCancellationRequested)
+                {
+                    Logger.WriteLog("Homing operation cancelled by user.");
+                    return -1; // Return an error code indicating cancellation
+                }
+                Thread.Sleep(50);
+            }
+            string err = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
+            return 0;
+        }
         public int axisAllHome(String path)
         {
             try
@@ -632,6 +664,253 @@ namespace AkribisFAM.WorkStation
             catch (Exception e) { }
 
             return (int)ACTTION_ERR.NONE;
+        }
+
+        /// <summary>
+        /// Performs the homing sequence for all machine axes concurrently.
+        /// Each axis homing method returns 0 on success or a negative value on failure.
+        /// Logs and reports the result of the homing sequence.
+        /// </summary>
+        public void StartSystemHome()
+        {
+            // Cancel any previous operations
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+
+            Task.Run(() => SystemHome(_cts.Token));
+        }
+        /// <summary>
+        /// Cancels the ongoing system homing operation.
+        /// </summary>
+        public void CancelSystemHome()
+        {
+            _cts?.Cancel();
+        }
+        private async Task SystemHome(CancellationToken token)
+        {
+            try
+            {
+                // Do homing concurrently using Task.Run
+                Task<int> homeLaiLiao = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.LaiLiao, token));
+                Task<int> homeZuZhuang = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.ZuZhuang, token));
+                Task<int> homeFuJian = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.FuJian, token));
+
+                // Wait for all to complete
+                int[] results = await Task.WhenAll(homeLaiLiao, homeZuZhuang, homeFuJian);
+
+                // Evaluate result codes, check if all homed successfully
+                bool allHomedSuccessfully = results.All(r => r == 0);
+
+                if (allHomedSuccessfully)
+                {
+                    Logger.WriteLog("SystemHome: All axes homed successfully.");
+                }
+                else
+                {
+                    Logger.WriteLog("SystemHome: One or more axes failed to home:");
+                    for (int i = 0; i < results.Length; i++)
+                    {
+                        Logger.WriteLog($"  Axis {i + 1} result: {results[i]}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog($"SystemHome: Exception occurred during homing - {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Homing of modules
+        /// </summary>
+        /// <param name="modules">Selected module to home</param>
+        /// <returns></returns>
+        public int HomeModule(Modules module, CancellationToken token)
+        {
+            // cancellation feature
+            int ret = 0;
+
+            // ENABLE ALL AXIS BY SPECIFIC MODULE
+            var axisList = GetAllAxisName(module);
+            foreach (var axis in axisList)
+            {
+                if (axisEnable(axis, true) != 0) return -1;
+            }
+
+            switch (module)
+            {
+                case Modules.LaiLiao:
+                    // ABSOLUTE MOTOR NO HOMING, MOVE SAFE POSITION
+                    // Safe position is not yet available
+
+                    break;
+                case Modules.ZuZhuang:
+                    // MOVE Z HARDSTOP FIRST FOR SAFETY
+                    if (HomeZHardStop(AxisName.PICK1_Z, token, false) != 0) return -1;
+                    if (HomeZHardStop(AxisName.PICK2_Z, token, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.PICK1_Z, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
+
+                    // HOME XY
+                    if (Home(AxisName.FSX, token, false) != 0) return -1;
+                    if (Home(AxisName.FSY, token, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.FSX, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.FSY, token) != 0) return -1;
+
+                    // HOME Z
+                    if (Home(AxisName.PICK1_Z, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK1_T, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK2_Z, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK2_T, token, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_T, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_T, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.PICK1_Z, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.PICK1_T, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.PICK2_T, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_T) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_T) != 0) return -1;
+                    break;
+                case Modules.FuJian:
+                    // MOVE Z HARDSTOP FIRST FOR SAFETY
+                    if (HomeZHardStop(AxisName.PRZ, token, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.PRZ, token) != 0) return -1;
+
+                    // HOME XY
+                    if (Home(AxisName.PRX, token, false) != 0) return -1;
+                    if (Home(AxisName.PRY, token, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.PRX, token) != 0) return -1;
+                    if (WaitHomingFinished(AxisName.PRY, token) != 0) return -1;
+
+                    // HOME Z First for safety
+                    if (Home(AxisName.PRZ, token, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    if (WaitHomingFinished(AxisName.PRZ, token) != 0) return -1;
+
+                    break;
+                default:
+                    return -1;
+            }
+            return ret;
+        }
+
+        public int Home(AxisName axisName, bool waitHomeComplete = true)
+        {
+            var homeFileDir = "D:\\akribisfam_config\\HomeFile\\";
+            // Get all homing files in that directory including subdirectories
+            string[] files = FileHelper.GetAllFileNames(homeFileDir);
+            var homeFile = files.FirstOrDefault(f => f.Contains(axisName.ToString() + "_homing.hseq"));
+            if (homeFile != null)
+            {
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), homeFile);
+                
+                if (waitHomeComplete)
+                {
+                    // Wait for homing to finish
+                    return WaitHomingFinished(axisName);
+                }
+                return 0;
+            }
+            else
+            {
+                Logger.WriteLog($"Homing file for {axisName} not found in {homeFileDir}");
+                return -1;
+            }
+        }
+        public int Home(AxisName axisName, CancellationToken token, bool waitHomeComplete = true)
+        {
+            var homeFileDir = "D:\\akribisfam_config\\HomeFile\\";
+            // Get all homing files in that directory including subdirectories
+            string[] files = FileHelper.GetAllFileNames(homeFileDir);
+            var homeFile = files.FirstOrDefault(f => f.Contains(axisName.ToString() + "_homing.hseq"));
+            if (homeFile != null)
+            {
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), homeFile);
+
+                if (waitHomeComplete)
+                {
+                    // Wait for homing to finish
+                    return WaitHomingFinished(axisName, token);
+                }
+                return 0;
+            }
+            else
+            {
+                Logger.WriteLog($"Homing file for {axisName} not found in {homeFileDir}");
+                return -1;
+            }
+        }
+        public int HomeZHardStop(AxisName axisName, bool waitHomeComplete = true)
+        {
+            var homeFileDir = "D:\\akribisfam_config\\HomeFileZHardStop\\";
+            // Get all homing files in that directory including subdirectories
+            string[] files = FileHelper.GetAllFileNames(homeFileDir);
+            var homeFile = files.FirstOrDefault(f => f.Contains(axisName.ToString() + "_hardstop.hseq"));
+            if (homeFile != null)
+            {
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), homeFile);
+
+                if (waitHomeComplete)
+                {
+                    // Wait for homing to finish
+                    return WaitHomingFinished(axisName);
+                }
+                return 0;
+            }
+            else
+            {
+                Logger.WriteLog($"Homing file for {axisName} not found in {homeFileDir}");
+                return -1;
+            }
+        }
+        public int HomeZHardStop(AxisName axisName, CancellationToken token, bool waitHomeComplete = true)
+        {
+            var homeFileDir = "D:\\akribisfam_config\\HomeFileZHardStop\\";
+            // Get all homing files in that directory including subdirectories
+            string[] files = FileHelper.GetAllFileNames(homeFileDir);
+            var homeFile = files.FirstOrDefault(f => f.Contains(axisName.ToString() + "_hardstop.hseq"));
+            if (homeFile != null)
+            {
+                int agmIndex = (int)axisName / 8;
+                int axisRefNum = (int)axisName % 8;
+                AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), homeFile);
+
+                if (waitHomeComplete)
+                {
+                    // Wait for homing to finish
+                    return WaitHomingFinished(axisName, token);
+                }
+                return 0;
+            }
+            else
+            {
+                Logger.WriteLog($"Homing file for {axisName} not found in {homeFileDir}");
+                return -1;
+            }
         }
 
         public int axisAllZHome(String path)
@@ -853,6 +1132,39 @@ namespace AkribisFAM.WorkStation
             catch (Exception e) { }
 
             return (int)ACTTION_ERR.NONE;
+        }
+
+        public List<GlobalManager.AxisName> GetAllAxisName(Modules module)
+        {
+            List<GlobalManager.AxisName> axisNames = new List<GlobalManager.AxisName>();
+            switch (module)
+            {
+                case Modules.LaiLiao:
+                    axisNames.Add(AxisName.LSX);
+                    axisNames.Add(AxisName.LSY);
+                    break;
+                case Modules.ZuZhuang:
+                    axisNames.Add(AxisName.FSX);
+                    axisNames.Add(AxisName.FSY);
+
+                    axisNames.Add(AxisName.PICK1_Z);
+                    axisNames.Add(AxisName.PICK1_T);
+                    axisNames.Add(AxisName.PICK2_Z);
+                    axisNames.Add(AxisName.PICK2_T);
+                    axisNames.Add(AxisName.PICK3_Z);
+                    axisNames.Add(AxisName.PICK3_T);
+                    axisNames.Add(AxisName.PICK4_Z);
+                    axisNames.Add(AxisName.PICK4_T);
+                    break;
+                case Modules.FuJian:
+                    axisNames.Add(AxisName.PRX);
+                    axisNames.Add(AxisName.PRY);
+                    axisNames.Add(AxisName.PRZ);
+                    break;
+                default:
+                    return null;
+            }
+            return axisNames;
         }
 
         public int ToPulse(AxisName axisName ,double? mm)

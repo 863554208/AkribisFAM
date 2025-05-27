@@ -335,14 +335,15 @@ namespace AkribisFAM
             Thread.Sleep(300);
             //轴回原点
 
+            // Home whole system
+            AkrAction.Current.StartSystemHome();
+
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            //while()
+            //AkrAction.Current.WaitAllHomingFinished();
 
-            AkrAction.Current.WaitAllHomingFinished();
- 
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 

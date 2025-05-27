@@ -159,5 +159,23 @@ namespace AkribisFAM.Helper
                 }
             }
         }
+
+        /// <summary>
+        /// Returns a list of full file paths from the specified directory, including subdirectories.
+        /// If the directory does not exist, returns an empty array.
+        /// </summary>
+        /// <param name="folderPath">The root directory to search.</param>
+        /// <returns>An array of full file paths.</returns>
+        public static string[] GetAllFileNames(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                return Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories);
+            }
+            else
+            {
+                return Array.Empty<string>(); // or: return new string[0];
+            }
+        }
     }
 }
