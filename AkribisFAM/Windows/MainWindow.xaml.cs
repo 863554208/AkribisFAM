@@ -409,10 +409,10 @@ namespace AkribisFAM
 
             // 力控
 
-            // AkrAction.Current.Move(AxisName.PICK2_Z, 20, (int)AxisSpeed.PICK1_Z);
-            // //TODO 改到程序打开的时候执行一次
-            // AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
-            // Thread.Sleep(100);
+            //AkrAction.Current.Move(AxisName.PICK2_Z, 20, (int)AxisSpeed.PICK1_Z);
+            ////TODO 改到程序打开的时候执行一次
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
+            //Thread.Sleep(100);
 
             //pick1的Z轴
             //// AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[101]=1000", out string response44);
@@ -423,22 +423,22 @@ namespace AkribisFAM
 
             //pick2的Z轴
             // AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[201]=2000", out string response4455);
-            // Thread.Sleep(100);
-            // AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[202]=5000", out string response22);
-            // Thread.Sleep(50);
-            // AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=3", out string response54);
+            //Thread.Sleep(100);
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[202]=5000", out string response22);
+            //Thread.Sleep(50);
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=3", out string response54);
 
-            // while (true)
-            // {
-            //     AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[203]", out string response);
-            //     if (response.Equals("1"))
-            //     {
-            //         break;
-            //     }
-            //     Thread.Sleep(500);
-            // }
+            //while (true)
+            //{
+            //    AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[203]", out string response);
+            //    if (response.Equals("1"))
+            //    {
+            //        break;
+            //    }
+            //    Thread.Sleep(500);
+            //}
 
-            // AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK1_Z);
 
 
             //-------

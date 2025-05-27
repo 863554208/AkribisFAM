@@ -894,8 +894,8 @@ namespace AkribisFAM
             //AGM800[0]
             LSX = 100,
             LSY = 100,
-            FSX = 100,
-            FSY = 100,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -929,8 +929,8 @@ namespace AkribisFAM
             //AGM800[0]
             LSX = 1000,
             LSY = 1000,
-            FSX = 800,
-            FSY = 800,
+            FSX = 500,
+            FSY = 500,
             BL5 = 500,
             BR5 = 500,
 

@@ -206,6 +206,7 @@ namespace AkribisFAM.WorkStation
 
         public int LaserHeight()
         {
+
             int count=0;
             foreach (var point in GlobalManager.Current.laserPoints)
             {
@@ -231,9 +232,9 @@ namespace AkribisFAM.WorkStation
                     if ((int)waitPointY > 0x1000) return waitPointY;
                     CheckState(waitPointY);
 
-                    int laserProc = TriggerLaser(count);
-                    if ((int)laserProc >= 0x1000) return laserProc;
-                    CheckState(laserProc);
+                    //int laserProc = TriggerLaser(count);
+                    //if ((int)laserProc >= 0x1000) return laserProc;
+                    //CheckState(laserProc);
                     count++;
                 }
                 if (count % 4 == 1) 
@@ -258,9 +259,9 @@ namespace AkribisFAM.WorkStation
                     if ((int)waitPointY > 0x1000) return waitPointY;
                     CheckState(waitPointY);
 
-                    int laserProc = TriggerLaser(count);
-                    if ((int)laserProc >= 0x1000) return laserProc;
-                    CheckState(laserProc);
+                    //int laserProc = TriggerLaser(count);
+                    //if ((int)laserProc >= 0x1000) return laserProc;
+                    //CheckState(laserProc);
 
                     count++;
                 }
@@ -286,9 +287,9 @@ namespace AkribisFAM.WorkStation
                     if ((int)waitPointY > 0x1000) return waitPointY;
                     CheckState(waitPointY);
 
-                    int laserProc = TriggerLaser(count);
-                    if ((int)laserProc >= 0x1000) return laserProc;
-                    CheckState(laserProc);
+                    //int laserProc = TriggerLaser(count);
+                    //if ((int)laserProc >= 0x1000) return laserProc;
+                    //CheckState(laserProc);
 
                     count++;
                 }
@@ -314,9 +315,9 @@ namespace AkribisFAM.WorkStation
                     if ((int)waitPointY > 0x1000) return waitPointY;
                     CheckState(waitPointY);
 
-                    int laserProc = TriggerLaser(count);
-                    if ((int)laserProc >= 0x1000) return laserProc;
-                    CheckState(laserProc);
+                    //int laserProc = TriggerLaser(count);
+                    //if ((int)laserProc >= 0x1000) return laserProc;
+                    //CheckState(laserProc);
 
                     count++;
                 }
@@ -546,7 +547,6 @@ namespace AkribisFAM.WorkStation
             Logger.WriteLog("测距工站进板Checkstate开始");
             CheckState();
             Logger.WriteLog("测距工站进板Checkstate完成");
-
 
             return true;
         }
