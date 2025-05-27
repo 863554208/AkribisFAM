@@ -17,6 +17,7 @@ using AkribisFAM.Util;
 using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
 using System.Reflection;
 using System.Windows.Threading;
+using System.Windows.Forms;
 
 namespace AkribisFAM.WorkStation
 {
@@ -241,48 +242,13 @@ namespace AkribisFAM.WorkStation
         public bool feeder2empty = false;
         public bool feeder1alarm = false;
         public bool feeder2alarm = false;
+        public bool feeder1Inpos = false;
+        public bool feeder2Inpos = false;
 
-        private async void BlinkLight(bool off, bool inpos, bool ready, IO_OutFunction_Table lightIO) {
-            await Task.Run(() =>
-            {
-                while (FeederIsRunning) {
-                    if (inpos)
-                    {
-                        if (IOManager.Instance.OutIO_status[(int)lightIO] == 1)
-                        {
-                            IOManager.Instance.OutIO_status[(int)lightIO] = 0;
-                        }
-                        else
-                        {
-                            IOManager.Instance.OutIO_status[(int)lightIO] = 1;
-                        }
-                    }
-                    else if (off)
-                    {
-                        IOManager.Instance.OutIO_status[(int)lightIO] = 1;
-                    }
-                    else if(ready)
-                    {
-                        IOManager.Instance.OutIO_status[(int)lightIO] = 0;
-                    }
-                    Thread.Sleep(500);
-                }
-            });
-        }
-        int Limittime = 9999;
+        private int Limittime = 9999;
         private int CheckFeeder()
         {
             bool ret1, ret2;
-            bool off1 = !ReadIO(IO_INFunction_Table.IN4_12Feeder1_drawer_InPos);
-            bool inpos1 = ReadIO(IO_INFunction_Table.IN4_12Feeder1_drawer_InPos);
-            bool ready1 = inpos1&&ReadIO(IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos) == true && ReadIO(IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos) == false;
-            BlinkLight(off1, inpos1, ready1, IO_OutFunction_Table.OUT6_10Feeder1_light);
-
-            bool off2 = !ReadIO(IO_INFunction_Table.IN4_13Feeder2_drawer_InPos);
-            bool inpos2 = ReadIO(IO_INFunction_Table.IN4_13Feeder2_drawer_InPos);
-            bool ready2 = inpos2 && ReadIO(IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos) == true && ReadIO(IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos) == false;
-            BlinkLight(off2, inpos2, ready2, IO_OutFunction_Table.OUT6_11Feeder2_light);
-
             while (FeederIsRunning)
             {
                 Thread.Sleep(100);
@@ -423,6 +389,7 @@ namespace AkribisFAM.WorkStation
                     }
                 }
             }
+            MessageBox.Show("Feeder offline!");
             return 0;
         }
 

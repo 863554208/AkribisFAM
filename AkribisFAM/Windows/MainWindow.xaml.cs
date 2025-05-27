@@ -216,7 +216,55 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                BlinkLightFeeder1();
+                BlinkLightFeeder2();
             }));
+        }
+
+        private void BlinkLightFeeder1()
+        {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 1)
+            {
+                if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] == 1)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                }
+                else
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                }
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 1)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 0)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+            }
+        }
+
+        private void BlinkLightFeeder2()
+        {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 1)
+            {
+                if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] == 1)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                }
+                else
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                }
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 1)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 0)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+            }
         }
 
         private void ConnectState() {
