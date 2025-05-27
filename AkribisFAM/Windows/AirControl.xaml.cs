@@ -295,13 +295,11 @@ namespace AkribisFAM.Windows
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 1);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 0);
-                    button.Content = "Retract";
                 }
                 else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder1"]] == 0)
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 0);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 1);
-                    button.Content = "Extend";
                 }
                 if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder2"]] == 1)
                 {
@@ -321,13 +319,11 @@ namespace AkribisFAM.Windows
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 1);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 0);
-                    button.Content = "Retract";
                 }
                 else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder3"]] == 0)
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 0);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 1);
-                    button.Content = "Extend";
                 }
                 if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder4"]] == 1)
                 {
@@ -348,13 +344,11 @@ namespace AkribisFAM.Windows
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 1);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 0);
-                    button.Content = "Retract";
                 }
                 else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder5"]] == 0)
                 {
                     IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 0);
                     IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 1);
-                    button.Content = "Extend";
                 }
                 if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder6"]] == 1)
                 {

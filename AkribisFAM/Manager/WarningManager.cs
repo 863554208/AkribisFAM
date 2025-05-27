@@ -55,7 +55,7 @@ namespace AkribisFAM.Manager
 
 
             }
-
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaitLaiLiao()
@@ -81,7 +81,7 @@ namespace AkribisFAM.Manager
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
             }
-
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaiFuJian()
@@ -107,7 +107,7 @@ namespace AkribisFAM.Manager
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
             }
-
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaiReject()
@@ -133,7 +133,7 @@ namespace AkribisFAM.Manager
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
             }
-
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
     }
