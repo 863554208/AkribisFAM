@@ -95,7 +95,6 @@ namespace AkribisFAM
             return ret;
         }
 
-
         public void Clear()
         {
 
@@ -110,6 +109,8 @@ namespace AkribisFAM
             GlobalManager.Current.placeFoamPoints.Clear();
             GlobalManager.Current.recheckPoints.Clear();
             GlobalManager.Current.tearingPoints.Clear();
+
+            GlobalManager.Current.BarcodeQueue.Clear();
         }
         public async void AutoRunMain(CancellationToken token)
         {
@@ -297,11 +298,12 @@ namespace AkribisFAM
 
         public bool Reset()
         {
-            //return true;
-            
+
             //20250519 测试 【史彦洋】 追加 Start
-            //Thread.Sleep(5000);
             //return true;
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
 
             //飞达复位
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
@@ -322,6 +324,12 @@ namespace AkribisFAM
             AkrAction.Current.axisAllZAxisEnable(false);
             Thread.Sleep(200);
 
+            //先对Z轴hardstop回零
+            AkrAction.Current.axisAllZHome_HardStop();
+            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+
+
+
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
             Thread.Sleep(300);
             //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
@@ -336,12 +344,11 @@ namespace AkribisFAM
             //轴回原点
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
             AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
             //while()
 
-            AkrAction.Current.WaitAllHomingFinished();
+            if ( AkrAction.Current.WaitAllHomingFinished() !=0) return false;
  
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
@@ -396,7 +403,7 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
             AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
-            AkrAction.Current.WaitAllHomingZFinished();
+            if(AkrAction.Current.WaitAllHomingZFinished() !=0) return false;
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);

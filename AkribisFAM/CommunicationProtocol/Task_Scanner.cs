@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using AkribisFAM.Manager;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 
 namespace AkribisFAM.CommunicationProtocol
@@ -43,7 +44,7 @@ namespace AkribisFAM.CommunicationProtocol
         }
 
        
-        public static string TriggScannerAcceptData()//扫码返回SN
+        public static (string Result, ErrorCode Error) TriggScannerAcceptData()//扫码返回SN
         {
             try
             {
@@ -53,15 +54,13 @@ namespace AkribisFAM.CommunicationProtocol
 
                 if (!VisionAcceptData_status)
                 {
-                    return null;
+                    return (null, ErrorCode.BarocdeScan_NoBarcode);
                 }
-                return VisionAcceptData;
+                return (VisionAcceptData, ErrorCode.NoError);
             }
             catch (Exception ex)
             {
-
-                ex.ToString();
-                return null;
+                return (null, ErrorCode.BarocdeScan_Failed);
             }
         }
 

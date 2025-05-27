@@ -65,6 +65,16 @@ namespace AkribisFAM.WorkStation
             throw new NotImplementedException();
         }
 
+        public static void Get(string propertyName)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.GetValue(GlobalManager.Current);
+            }
+        }
+
         public static void Set(string propertyName, object value)
         {
             var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
@@ -102,17 +112,68 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus( index , value);
         }
 
+        private int AddToLaserList(double height , int count)
+        {
+            try
+            {
+                int row = count / GlobalManager.Current.laser_point_length;
+                int col = count % GlobalManager.Current.laser_point_length;
+                GlobalManager.Current.laser_data[row][col] = height;
+                return (int)ErrorCode.NoError;
+            }
+            catch (Exception ex)
+            {
+                return (int)ErrorCode.Laser_Failed;
+            }
+        }
+
+        private int TriggerLaser(int count)
+        {
+            try
+            {
+                Thread.Sleep(GlobalManager.Current.LaserHeightDelay);
+
+                if (!Task_KEYENCEDistance.SendMSData()) return (int)ErrorCode.Laser_Failed;
+                //得到测量结果
+                AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData();
+
+                var res = AcceptKDistanceAppend[0].MeasurData;    
+                
+                Logger.WriteLog("激光测距结果:" + res);
+
+                double height = AkribisFAM.Util.Parser.TryParseTwoValues(res);
+
+                return AddToLaserList(height, count);
+            }
+            catch (Exception ex) 
+            {
+                Logger.WriteLog("激光测距报错 : " + ex.ToString());
+                return (int)ErrorCode.Laser_Failed;
+            }
+        }
+
         public int ScanBarcode()
         {
-            GlobalManager.Current.IsByPass = false;
-            //触发扫码枪扫码
+            var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
-            Task_Scanner.TriggScannerSendData();
-            var str = Task_Scanner.TriggScannerAcceptData();
-            //Task_Scanner.TriggScannerSendData(Task_Scanner.ScannerProcessCommand.Trigger ,"");
+            if (error == ErrorCode.BarocdeScan_Failed)
+            {
+                return (int)ErrorCode.BarocdeScan_Failed;
+            }
 
-            //GlobalManager.Current.IsByPass = true;
-            return 0;
+            GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
+
+            //global switch for using mes system
+            if (GlobalManager.Current.IsUseMES)
+            {
+                // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
+            }
+            else
+            {
+                GlobalManager.Current.IsByPass = false;
+            }
+
+            return (int)ErrorCode.NoError;
         }
 
         public int LaserHeight()
@@ -122,115 +183,45 @@ namespace AkribisFAM.WorkStation
             {
                 if (count % 4 == 0) 
                 {
-                    AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    Thread.Sleep(20);
-                    Logger.WriteLog("111111aaaa");
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                    Logger.WriteLog("111111bbbbbbbb");
-                    //try
-                    //{
-                    //    //触发测距
-                    //    sendKDistanceAppend.Clear();
-                    //    KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                    //    {
-                    //        TestNumber = "1",
-                    //        address = "0",
-                    //    };
-                    //    string req = "1,0" + "\r\n";
-                    //    sendKDistanceAppend.Add(temp);
-                    //    Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
+                    var arr1 = new object[] { AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    MoveView.MovePTP(arr1, arr2);
 
-                    //    //得到测量结果
-                    //    AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                    //    var res = AcceptKDistanceAppend[0].MeasurData;
-                    //    Logger.WriteLog("激光测距结果:" + res);
-                    //}
-                    //catch (Exception e) { }
-
+                    //AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+                    //Thread.Sleep(20);
+                    //Logger.WriteLog("111111aaaa");
+                    //AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                    TriggerLaser(count);
 
                     count++;
                 }
                 if (count % 4 == 1) 
                 {
-                    AkrAction.Current.Move(AxisName.LSX, (int)point.X +GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    Logger.WriteLog("222222aaaaaa");
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                    Logger.WriteLog("222222bbbbbbbb");
+                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    MoveView.MovePTP(arr1, arr2);
 
-                    ////触发测距
-                    //try
-                    //{
-                    //    sendKDistanceAppend.Clear();
-                    //    KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                    //    {
-                    //        TestNumber = "1",
-                    //        address = "0",
-                    //    };
-                    //    string req = "1,0" + "\r\n";
-                    //    sendKDistanceAppend.Add(temp);
-                    //    Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
+                    TriggerLaser(count);
 
-                    //    //得到测量结果
-                    //    AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                    //    var res = AcceptKDistanceAppend[0].MeasurData;
-                    //    Logger.WriteLog("激光测距结果:" + res);
-                    //}
-                    //catch { }
                     count++;
                 }
                 if (count %4 == 2)
                 {
-                    AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    Logger.WriteLog("33333aaaa");
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                    Logger.WriteLog("33333bbbbbbbb");
-                    //触发测距
-                    //try
-                    //{
-                    //    sendKDistanceAppend.Clear();
-                    //    KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                    //    {
-                    //        TestNumber = "1",
-                    //        address = "0",
-                    //    };
-                    //    string req = "1,0" + "\r\n";
-                    //    sendKDistanceAppend.Add(temp);
-                    //    Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
+                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY,(int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    MoveView.MovePTP(arr1, arr2);
 
-                    //    //得到测量结果
-                    //    AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                    //    var res = AcceptKDistanceAppend[0].MeasurData;
-                    //    Logger.WriteLog("激光测距结果:" + res);
-                    //}
-                    //catch { }
+                    TriggerLaser(count);
 
                     count++;
                 }
                 if (count % 4 == 3)
                 {
-                    AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                    Logger.WriteLog("44444aaaa");
-                    AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                    Logger.WriteLog("44444bbbb");
-                    //触发测距
-                    //try
-                    //{
-                    //    sendKDistanceAppend.Clear();
-                    //    KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                    //    {
-                    //        TestNumber = "1",
-                    //        address = "0",
-                    //    };
-                    //    string req = "1,0" + "\r\n";
-                    //    sendKDistanceAppend.Add(temp);
-                    //    Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req);
-
-                    //    //得到测量结果
-                    //    AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                    //    var res = AcceptKDistanceAppend[0].MeasurData;
-                    //    Logger.WriteLog("激光测距结果:" + res);
-                    //}
-                    //catch (Exception ex) { }
+                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    MoveView.MovePTP(arr1, arr2);
+                    MoveView.WaitAxisArrived(new object[] { AxisName.LSX, AxisName.LSY});
+                    TriggerLaser(count);
 
                     count++;
                 }
@@ -455,7 +446,7 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.flag_RangeFindingTrayArrived = 0;
             GlobalManager.Current.currentLasered = 0;
 
-            Thread.Sleep(500);
+            Thread.Sleep(300);
 
             GlobalManager.Current.current_Lailiao_step = 1;
             Logger.WriteLog("测距工站进板Checkstate开始");

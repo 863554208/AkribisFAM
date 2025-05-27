@@ -472,9 +472,6 @@ namespace AkribisFAM.WorkStation
                 goto STEP_JudgeAllStationTrayNumberIsZero;
 
 
-
-
-
             //处理进入设备内的第一个料盘
             STEP_WaitUpstreamEquipmentHaveTray:
                 Logger.WriteLog("皮带任务_等待上游设备有料盘");
