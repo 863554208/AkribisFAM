@@ -42,7 +42,11 @@ namespace AkribisFAM.Manager
         AssemblyNGFull = 0x0003,
         RecheckNGFull = 0x0004,
         YieldLow = 0x0005,
-        HasNGPallet = 0x0006
+        HasNGPallet = 0x0006,
+        WaitIO = 0x0007,
+        WaitMotion = 0x0008,
+        CognexErr = 0x0009,
+        WaitFeeder = 0x000A
     }
 
     public struct ErrorInfo
@@ -113,7 +117,6 @@ namespace AkribisFAM.Manager
         {
             ErrorStack.Push(err);
             ErrorCnt = ErrorStack.Count;
-            //ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
 
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -122,10 +125,14 @@ namespace AkribisFAM.Manager
             });
             //END 
             //20250519 测试用 【史彦洋】 修改 Start
-            //if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
-            //{
-            //    StateManager.Current.State = StateManager.StateCode.STOPPED;
-            //}
+            if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
+            {
+                StateManager.Current.State = StateManager.StateCode.STOPPED;
+                GlobalManager.Current.Lailiao_exit = true;
+                GlobalManager.Current.Zuzhuang_exit = true;
+                GlobalManager.Current.FuJian_exit = true;
+                GlobalManager.Current.Reject_exit = true;
+            }
             UpdateErrorCnt?.Invoke();
         }
 

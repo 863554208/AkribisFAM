@@ -15,6 +15,7 @@ using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using System.Windows.Controls;
 using AkribisFAM.Util;
 using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
+using System.Reflection;
 
 namespace AkribisFAM.WorkStation
 {

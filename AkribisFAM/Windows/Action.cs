@@ -425,6 +425,17 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
+        public int MoveRelNoWait(GlobalManager.AxisName axisName, double? position, double? speed = null, double? accel = null, double? decel = null)
+        {
+            int agmIndex = (int)axisName / 8;
+            int axisRefNum = (int)axisName % 8;
+            if (decel == null) decel = accel;
+            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
+
+            return 0;
+        }
+
         public void JogMove(GlobalManager.AxisName axisName , int dir , double vel)
         {
             int agmIndex = (int)axisName / 8;
@@ -538,7 +549,7 @@ namespace AkribisFAM.WorkStation
             //ret += WaitHomingFinished(AxisName.PICK2_T);
             //ret += WaitHomingFinished(AxisName.PICK3_Z);
             //ret += WaitHomingFinished(AxisName.PICK3_T);
-            //ret += WaitHomingFinished(AxisName.PICK4_Z);
+            ret += WaitHomingFinished(AxisName.PICK4_Z);
             //ret += WaitHomingFinished(AxisName.PICK4_T);
 
 
@@ -644,10 +655,10 @@ namespace AkribisFAM.WorkStation
             //axisRefNum = temp % 8;
             //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK3_Z_homing.hseq");
 
-            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
-            //agmIndex = temp / 8;
-            //axisRefNum = temp % 8;
-            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK4_Z_homing.hseq");
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK4_Z_homing.hseq");
 
             Thread.Sleep(10000);
             return (int)ACTTION_ERR.NONE;
@@ -1112,6 +1123,33 @@ namespace AkribisFAM.WorkStation
 
             return (int)ACTTION_ERR.NONE;
         }
+        public int axisAllZHome_HardStop()
+        {
+            int agmIndex;
+            int axisRefNum;
+            int temp;
 
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK1_Z_hardstop.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
+
+            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+            //agmIndex = temp / 8;
+            //axisRefNum = temp % 8;
+            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK4_Z_hardstop.hseq");
+
+            return (int)ACTTION_ERR.NONE;
+        }
     }
 }

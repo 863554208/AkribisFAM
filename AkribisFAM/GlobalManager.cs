@@ -163,6 +163,16 @@ namespace AkribisFAM
         public int TotalRow = 3;
         public int TotalColumn = 4;
 
+        public SinglePoint RecheckRecylePos = new SinglePoint();
+        public SinglePoint SafeZPos = new SinglePoint();
+        public SinglePoint StartPoint = new SinglePoint();
+        public double TearX = 0;
+        public double TearY = 0;
+        public double TearZ = 0;
+        public double TearXvel = 0;
+        public double TearYvel = 0;
+        public double TearZvel = 0;
+
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
         public bool station2_IsLifting;
@@ -305,10 +315,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 8;
+        const int Lailiao_stepnum = 10;
         const int Zuzhuang_stepnum = 10;
-        const int FuJian_stepnum = 5;
-        const int Reject_stepnum = 5;
+        const int FuJian_stepnum = 10;
+        const int Reject_stepnum = 10;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];

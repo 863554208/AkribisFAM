@@ -360,6 +360,51 @@ namespace AkribisFAM.Windows
                         GlobalManager.Current.recheckPoints.Add(temp);
                     }
                 }
+                if (Node.name != null && Node.name.Equals("Recycle Point"))
+                {
+                    GlobalManager.Current.RecheckRecylePos.X = Node.X;
+                    GlobalManager.Current.RecheckRecylePos.Y = Node.Y;
+                    GlobalManager.Current.RecheckRecylePos.Z = Node.Z;
+                    GlobalManager.Current.RecheckRecylePos.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("Zliftup Point"))
+                {
+                    GlobalManager.Current.SafeZPos.X = Node.X;
+                    GlobalManager.Current.SafeZPos.Y = Node.Y;
+                    GlobalManager.Current.SafeZPos.Z = Node.Z;
+                    GlobalManager.Current.SafeZPos.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("StartPoint"))
+                {
+                    GlobalManager.Current.StartPoint.X = Node.X;
+                    GlobalManager.Current.StartPoint.Y = Node.Y;
+                    GlobalManager.Current.StartPoint.Z = Node.Z;
+                    GlobalManager.Current.StartPoint.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("TearX"))
+                {
+                    GlobalManager.Current.TearX = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearY"))
+                {
+                    GlobalManager.Current.TearY = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearZ"))
+                {
+                    GlobalManager.Current.TearZ = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearXvel"))
+                {
+                    GlobalManager.Current.TearXvel = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearYvel"))
+                {
+                    GlobalManager.Current.TearYvel = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearZvel"))
+                {
+                    GlobalManager.Current.TearZvel = Convert.ToDouble(Node.general);
+                }
             }
             var c = GlobalManager.Current.laserPoints;
             var a = GlobalManager.Current.feedar1Points;

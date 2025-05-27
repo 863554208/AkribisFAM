@@ -74,7 +74,7 @@ namespace AkribisFAM
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
             _timer.Tick += Timer_Tick;
-            
+
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
@@ -103,7 +103,6 @@ namespace AkribisFAM
             _timer.Start();
 
             //END Add
-            this.Closing += MainWindow_Closing;
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -221,6 +220,7 @@ namespace AkribisFAM
         }
 
         private void ConnectState() {
+            TCPNetworkManage.CheckClients();
             if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Feed))  // 检查字典中是否存在这个客户端连接
             {
                 internetConfig.connectState["camera1_Feed"] = TCPNetworkManage.namedClients[ClientNames.camera1_Feed].isConnected;
@@ -797,43 +797,15 @@ namespace AkribisFAM
                     MessageBox.Show("复位成功");
                 });
                 AutorunManager.Current.hasReseted = true;
+                GlobalManager.Current.Lailiao_exit = false;
+                GlobalManager.Current.Zuzhuang_exit = false;
+                GlobalManager.Current.FuJian_exit = false;
+                GlobalManager.Current.Reject_exit = false;
+                GlobalManager.Current.current_Lailiao_step = 0;
+                GlobalManager.Current.current_Zuzhuang_step = 0;
+                GlobalManager.Current.current_FuJian_step = 0;
+                GlobalManager.Current.current_Reject_step = 0;
             }
-        }
-
-
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
-        {
-            GlobalManager.Current.current_Lailiao_step = 0;
-            GlobalManager.Current.current_Zuzhuang_step = 0;
-            GlobalManager.Current.current_FuJian_step = 0;
-            LaiLiao.Current.board_count = 0;
-            //ZuZhuang.Current.has_board = false;
-            //FuJian.Current.has_board = false;
-            GlobalManager.Current.Lailiao_exit = false;
-            GlobalManager.Current.Zuzhuang_exit = false;
-            GlobalManager.Current.FuJian_exit = false;
-            AutorunManager.Current.hasReseted = true;
-            //button.PromptCount += 1;
-
-            //20250512
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            //20250512
-
-
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
