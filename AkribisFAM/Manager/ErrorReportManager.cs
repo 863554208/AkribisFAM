@@ -42,7 +42,10 @@ namespace AkribisFAM.Manager
         AssemblyNGFull = 0x0003,
         RecheckNGFull = 0x0004,
         YieldLow = 0x0005,
-        HasNGPallet = 0x0006
+        HasNGPallet = 0x0006,
+        BarocdeScan_Failed = 0x0007,
+        BarocdeScan_NoBarcode = 0x0008,
+        Laser_Failed = 0x0009,
     }
 
     public struct ErrorInfo

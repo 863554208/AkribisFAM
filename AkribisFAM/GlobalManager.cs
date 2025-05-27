@@ -125,6 +125,13 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
+        public Queue<string> BarcodeQueue;
+        public bool IsUseMES = false;
+
+        //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
+        public int LaserHeightDelay = 50;
+
+        public double[][] laser_data;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -162,6 +169,7 @@ namespace AkribisFAM
         public int PalleteGap_Y = 40;
         public int TotalRow = 3;
         public int TotalColumn = 4;
+
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -276,7 +284,9 @@ namespace AkribisFAM
         public int BadFoamCount { get; set; }
 
         //总共需要安装的穴位总数
-        public int total_Assemble_Count { get; set; }
+        public int total_Assemble_Count = 12;
+
+        public int laser_point_length = 4;
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
         public bool lailiao_SaoMa { get; set; }
@@ -374,6 +384,15 @@ namespace AkribisFAM
             }
         }
 
+        private void InitializeLaserData()
+        {
+            laser_data = new double[total_Assemble_Count][];
+            for (int i = 0; i < TotalRow; i++)
+            {
+                laser_data[i] = new double[laser_point_length];
+            }
+        }
+
         public void Lailiao_CheckState()
         {
             if (GlobalManager.Current.Lailiao_state[current_Lailiao_step] == 0)
@@ -442,9 +461,8 @@ namespace AkribisFAM
 
             //StartErrorMonitor();
 
+            InitializeLaserData();
 
-            IsAInTarget = false;
-            IsBInTarget = false;
             IsPause = false;
 
         }
