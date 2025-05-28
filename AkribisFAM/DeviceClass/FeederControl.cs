@@ -30,7 +30,7 @@ namespace AkribisFAM.DeviceClass
             }
 
         }
-        public bool IsAlarm //有报警产生低电平，无报警产生高电平, low: alarm, high - ok
+        public bool hasAlarm //有报警产生低电平，无报警产生高电平, low: alarm, high - ok
         {
             get
             {
@@ -46,7 +46,7 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
-
+        public bool IsAutoRunReady => IsInitialized && !hasAlarm && IsLock && IsDrawerInPos && IsAllVacPressureOk;
         public bool IsLock
         {
             get
@@ -91,14 +91,20 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
-
+        public bool IsAllVacPressureOk
+        {
+            get
+            {
+                return IsVac1PressureOk && IsVac2PressureOk;
+            }
+        }
 
         public enum ErrorType
         {
+            None,
             NotInit,
             Alarm,
             IndexFailPartExist,
-
         }
         public bool VacOn(bool checkVacSuccess = false)
         {
@@ -135,7 +141,6 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-
         public bool VacOff(bool checkVacSuccess = false)
         {
             IO_OutFunction_Table vac1_supply = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_8Feeder_vacuum1_Supply : IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply;
@@ -195,7 +200,6 @@ namespace AkribisFAM.DeviceClass
 
             return IsLock;
         }
-
         public bool Unlock()
         {
             IO_OutFunction_Table extend = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend : IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend;
@@ -219,7 +223,6 @@ namespace AkribisFAM.DeviceClass
 
             return IsUnlock;
         }
-
         public bool Index()
         {
             //Check feeder init status
@@ -228,7 +231,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
             //Check feeder alarm status
-            if (IsAlarm)
+            if (hasAlarm)
             {
                 return false;
             }
@@ -273,14 +276,13 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (IsAlarm)
+            if (hasAlarm)
             {
                 return false;
             }
 
             return true;
         }
-
         public bool Stop()
         {
             if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_8Stop_feeder1, 1))
