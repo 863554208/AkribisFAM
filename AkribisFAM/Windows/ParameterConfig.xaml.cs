@@ -1186,7 +1186,22 @@ namespace AkribisFAM.Windows
             int selectedIndex = CboxNowType.SelectedIndex;
             string jsonFile = posFileName[selectedIndex];
             if (SaveAllTabsData(jsonFile))
+            {
+                GlobalManager.Current.laserPoints.Clear();
+                GlobalManager.Current.feedar1Points.Clear();
+                GlobalManager.Current.feedar2Points.Clear();
+                GlobalManager.Current.pickFoam1Points.Clear();
+                GlobalManager.Current.pickFoam2Points.Clear();
+                GlobalManager.Current.lowerCCDPoints.Clear();
+                GlobalManager.Current.dropBadFoamPoints.Clear();
+                GlobalManager.Current.snapPalletePoints.Clear();
+                GlobalManager.Current.placeFoamPoints.Clear();
+                GlobalManager.Current.recheckPoints.Clear();
+                GlobalManager.Current.tearingPoints.Clear();
+                ParameterConfig.LoadPoints();
+
                 MessageBox.Show("保存点位成功" + posFilePre[selectedIndex]);
+            }
             else
                 MessageBox.Show("保存点位失败" + posFilePre[selectedIndex]);
         }

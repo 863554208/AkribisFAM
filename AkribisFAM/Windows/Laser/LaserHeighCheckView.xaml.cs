@@ -70,7 +70,7 @@ namespace AkribisFAM.Windows
             {
                 if (this.IsVisible)
                 {
-                    txtHeightResult.Text += $"Message sent: {message}";
+                    txtTrayBarcode.Text += $"Message sent: {message} \n\r";
                 }
             });
         }
@@ -81,7 +81,7 @@ namespace AkribisFAM.Windows
             {
                 if (this.IsVisible)
                 {
-                    txtHeightResult.Text += $"Message receive: {message}";
+                    txtTrayBarcode.Text += $"Message receive: {message} \n\r";
                 }
             });
         }
@@ -92,7 +92,7 @@ namespace AkribisFAM.Windows
             {
                 if (this.IsVisible)
                 {
-                    txtHeightResult.Text += $"Message sent: {message}";
+                    txtHeightResult.Text += $"Message sent: {message} \n\r";
                 }
             });
         }
@@ -103,7 +103,7 @@ namespace AkribisFAM.Windows
             {
                 if (this.IsVisible)
                 {
-                    txtHeightResult.Text += $"Message receive: {message}";
+                    txtHeightResult.Text += $"Message receive: {message} \n\r";
                 }
             });
         }

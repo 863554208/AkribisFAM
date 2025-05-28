@@ -221,8 +221,9 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-
-            stations = new ObservableCollection<ConveyorWorkStationControl>(stations);
+            itemControlStation.ItemsSource = null;
+            var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
+            itemControlStation.ItemsSource = stations2;
         }
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {

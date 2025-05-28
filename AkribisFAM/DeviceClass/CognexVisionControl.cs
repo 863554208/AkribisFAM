@@ -1,4 +1,5 @@
 ﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
@@ -28,8 +29,8 @@ namespace AkribisFAM.DeviceClass
         List<SinglePoint> feedar1pointList = new List<SinglePoint>();
         public enum FeederNum
         {
-            Feeder1,
-            Feeder2,
+            Feeder1 = 1,
+            Feeder2 = 2,
         }
         public CognexVisionControl() { }
 
@@ -54,18 +55,35 @@ namespace AkribisFAM.DeviceClass
             }
 
             snapFeederPath.Clear();
+            feedar1pointList.Clear();
             int index = 0;
-            foreach (var Point in points)
+            int count = 0;
+            double start_pos_X = points[0].X;
+            double start_pos_Y = points[0].Y;
+            double end_pos_X = points[1].X;
+            double end_pos_Y = points[1].Y;
+            for (int i = 0; i < 4; i++)
+            {
+                feedar1pointList.Add(new SinglePoint()
+                {
+                    X = start_pos_X + 16 * i,
+                    Y = start_pos_Y,
+                    Z = 0,
+                    R = 0,
+                });
+            }
+            foreach (var Point in feedar1pointList)
             {
                 FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition()
                 {
-                    SN1 = "ASDASD",
-                    RawMaterialName1 = "FOAM",
-                    FOV = index.ToString(),
+                    SN1 = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    RawMaterialName1 = "Foam",
+                    FOV = (count + 1).ToString(),
                     Photo_X1 = Point.X.ToString(),
                     Photo_Y1 = Point.Y.ToString(),
                     Photo_R1 = "0"
                 };
+                count++;
                 snapFeederPath.Add(sendTLMCamreaposition1);
             }
 
@@ -75,8 +93,19 @@ namespace AkribisFAM.DeviceClass
                 Logger.WriteLog("Failed to send TLM");
                 return false;
             }
+            int retryCount = 0;
+            while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+            {
+                Thread.Sleep(300);
+                retryCount++;
 
-            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, points[0].X, 50, GlobalManager.Current.feedar1Points[1].X, 1);
+                if (retryCount > 10) return false;
+            }
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, points[0].X, 16, points[0].X + 16 * 3, 1);
+            //AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, 105, 16, 105 + 16 * 3, 1);
+            Thread.Sleep(300);
+            //AkrAction.Current.EventEnable(AxisName.FSX);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
 
             //移动到拍照结束点
             if (!MoveFoamEndingPos(feeder))
@@ -84,9 +113,14 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
+            AkrAction.Current.EventDisable(AxisName.FSX);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
+
             ////接受Cognex的信息
             List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
             msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+
+
 
             Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
             return true;
@@ -123,14 +157,14 @@ namespace AkribisFAM.DeviceClass
 
 
             //移动到拍照起始点urrent.MoveNoWait(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
-            if (!(App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker1, 90) &&
-                App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker2, 90) &&
-                App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker3, 90) &&
-                    App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker4, 90)))
-            {
+            //if (!(App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker1, 90) &&
+            //    App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker2, 90) &&
+            //    App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker3, 90) &&
+            //        App.assemblyGantryControl.TRotate(AssemblyGantryControl.Picker.Picker4, 90)))
+            //{
 
-                return false;
-            }
+            //    return false;
+            //}
 
 
             Logger.WriteLog("CCD2准备移动到拍照位置");
@@ -139,7 +173,10 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-
+            if (!App.assemblyGantryControl.ZCamPos(AssemblyGantryControl.Picker.Picker1))
+            {
+                return false;
+            }
             AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[0].X - 16 * 3, 2);
             Thread.Sleep(200);
 
@@ -190,7 +227,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照起始点
-            return (AkrAction.Current.MoveNoWait(AxisName.FSX, points[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
+            return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
             AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
 
 
@@ -206,7 +243,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            return (AkrAction.Current.MoveNoWait(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
+            return (AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
             AkrAction.Current.Move(AxisName.FSY, points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
 
         }
@@ -228,7 +265,10 @@ namespace AkribisFAM.DeviceClass
 
         public bool Vision1OnTheFlyPalletTrigger(int TotalRow, int TotalColumn)
         {
-            CalculateSnapPosition(TotalRow, TotalRow);
+            if (!App.assemblyGantryControl.ZUpAll())
+                return false;
+
+            CalculateSnapPosition(TotalRow, TotalColumn);
             CalculateFlySnapPath(TotalRow, TotalColumn);
             PopulateSendString(TotalRow, TotalColumn);
             return VisionTriggerMove();
@@ -289,14 +329,15 @@ namespace AkribisFAM.DeviceClass
         }
         public void CalculateFlySnapPath(int TotalRow, int TotalColumn)
         {
+
             double start_pos_X = GlobalManager.Current.snapPalletePoints[0].X;
             double start_pos_Y = GlobalManager.Current.snapPalletePoints[0].Y;
-            int totalRow = TotalRow; //Recipe. Row
-            int totalColumn = TotalColumn; //Recipe.Colum
+            int totalRow = TotalRow;
+            int totalColumn = TotalColumn;
             int gap_X = GlobalManager.Current.PalleteGap_X;
             int gap_Y = GlobalManager.Current.PalleteGap_Y;
-            //double end_pos_X = (totalColumn - 1) * gap_X;
-            //double end_pos_Y = (totalRow - 1) * gap_Y;
+            double end_pos_X = (totalColumn - 1) * gap_X;
+            double end_pos_Y = (totalRow - 1) * gap_Y;
 
             snapPalleteList.Clear();
 
@@ -395,7 +436,7 @@ namespace AkribisFAM.DeviceClass
                     Thread.Sleep(300);
 
                     if (AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count].X + GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-                    AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX) !=0)
+                    AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX) != 0)
                     {
                         return false;
                     }
@@ -448,7 +489,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照起始点
-            return AkrAction.Current.MoveNoWait(AxisName.FSX, points[0].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
+            return AkrAction.Current.Move(AxisName.FSX, points[0].X - 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
               AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0;
 
         }
@@ -472,8 +513,8 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照结束点
-            return (AkrAction.Current.MoveNoWait(AxisName.FSX, points[1].X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-            AkrAction.Current.Move(AxisName.FSY, points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
+            return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
+            AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
         }
     }
 }

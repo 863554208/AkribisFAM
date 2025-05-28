@@ -58,6 +58,7 @@ namespace AkribisFAM
             feeder1 = new FeederControl(1);
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
+            assemblyGantryControl = new AssemblyGantryControl();
 
             //TODO
             //try

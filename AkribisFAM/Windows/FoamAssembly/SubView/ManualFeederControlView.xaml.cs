@@ -185,7 +185,7 @@ namespace AkribisFAM.Windows
         private void btnRetract_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
-            FeederExtendPressed?.Invoke(this, EventArgs.Empty);
+            FeederRetractPressed?.Invoke(this, EventArgs.Empty);
         }
 
         private void btnFeederVacOn_Click(object sender, System.Windows.RoutedEventArgs e)

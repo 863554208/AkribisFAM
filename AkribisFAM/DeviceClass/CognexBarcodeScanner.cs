@@ -15,6 +15,11 @@ namespace AkribisFAM.DeviceClass
         public int ScanBarcode(out string readout)
         {
             readout = "";
+            if (!Task_Scanner.TriggScannerSendData())
+            {
+
+                return (int)ErrorCode.BarocdeScan_Failed;
+            }
             var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
             if (error == ErrorCode.BarocdeScan_Failed)
