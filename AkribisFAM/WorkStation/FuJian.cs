@@ -104,7 +104,7 @@ namespace AkribisFAM.WorkStation
         {
             DateTime time = DateTime.Now;
             bool ret = false;
-            errorCode = ErrorCode.WaitIO;
+            errorCode = ErrorCode.TimeOut;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
                 if (ReadIO(index) == value)
@@ -193,7 +193,7 @@ namespace AkribisFAM.WorkStation
             int cnt;
             //撕膜
             actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
-            errorCode = ErrorCode.WaitMotion;
+            errorCode = ErrorCode.TimeOut;
             if (CheckState(actionret == 0) == 1)
             {
                 return false;
@@ -245,7 +245,7 @@ namespace AkribisFAM.WorkStation
                 }
                 Thread.Sleep(100);
                 //移动撕膜
-                errorCode = ErrorCode.WaitMotion;
+                errorCode = ErrorCode.TimeOut;
                 if (Math.Abs(GlobalManager.Current.TearX) > 0.001)
                 {
                     AkrAction.Current.MoveRelNoWait(AxisName.PRX, GlobalManager.Current.TearX, GlobalManager.Current.TearXvel);
@@ -270,7 +270,7 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 Logger.WriteLog("ASDDDDDDDDDDDDDE");
-                errorCode = ErrorCode.WaitMotion;
+                errorCode = ErrorCode.TimeOut;
                 actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(actionret == 0) == 1)
                 {
@@ -320,7 +320,7 @@ namespace AkribisFAM.WorkStation
                 {
                     return false;
                 }
-                errorCode = ErrorCode.WaitMotion;
+                errorCode = ErrorCode.TimeOut;
                 actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
                 if (CheckState(actionret == 0) == 1)
                 {
@@ -336,7 +336,7 @@ namespace AkribisFAM.WorkStation
             //复检
             int modulestatecnt = 0;
             int actionret;
-            errorCode = ErrorCode.WaitMotion;
+            errorCode = ErrorCode.TimeOut;
             actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
             if (CheckState(actionret == 0) == 1)
             {
@@ -390,7 +390,7 @@ namespace AkribisFAM.WorkStation
                     int cogres;
                     bool ret = int.TryParse(Errcode, out cogres);
                     Logger.WriteLog("CCD3 获取康耐视数据" + Errcode);
-                    errorCode = ErrorCode.CognexErr;
+                    errorCode = ErrorCode.TimeOut;
                     if (CheckState(ret) == 1)
                     {
                         return false;
@@ -419,7 +419,7 @@ namespace AkribisFAM.WorkStation
             int actionret;
             GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
-            errorCode = ErrorCode.WaitMotion;
+            errorCode = ErrorCode.TimeOut;
             actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
             if (CheckState(actionret == 0) == 1)
             {

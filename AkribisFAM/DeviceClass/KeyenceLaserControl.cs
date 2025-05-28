@@ -21,14 +21,14 @@ namespace AkribisFAM.DeviceClass
             };
             string req = "1,0" + "\r";
             sendKDistanceAppend.Add(temp);
-            if (!Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, req))
+            if (!Task_KEYENCEDistance.SendMSData())
             {
                 Logger.WriteLog("Failed to send MS Data");
                 return false;
             }
 
             //得到测量结果
-            AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
+            AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData();
             if (AcceptKDistanceAppend != null)
             {
                 Logger.WriteLog("Failed to receive MS response");

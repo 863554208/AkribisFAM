@@ -25,7 +25,7 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4Initialized_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_3Initialized_feeder1 : IO_INFunction_Table.IN4_7Initialized_feeder2;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
 
@@ -34,7 +34,7 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_1Alarm_feeder1 : IO_INFunction_Table.IN4_5Alarm_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_2Alarm_feeder1 : IO_INFunction_Table.IN4_6Alarm_feeder2;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
@@ -42,7 +42,7 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_6Platform_has_label_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_1Platform_has_label_feeder1 : IO_INFunction_Table.IN4_5Platform_has_label_feeder2;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
