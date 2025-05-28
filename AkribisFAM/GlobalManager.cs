@@ -125,6 +125,13 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
+        public Queue<string> BarcodeQueue;
+        public bool IsUseMES = false;
+
+        //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
+        public int LaserHeightDelay = 50;
+
+        public double[][] laser_data;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -162,6 +169,16 @@ namespace AkribisFAM
         public int PalleteGap_Y = 40;
         public int TotalRow = 3;
         public int TotalColumn = 4;
+
+        public SinglePoint RecheckRecylePos = new SinglePoint();
+        public SinglePoint SafeZPos = new SinglePoint();
+        public SinglePoint StartPoint = new SinglePoint();
+        public double TearX = 0;
+        public double TearY = 0;
+        public double TearZ = 0;
+        public double TearXvel = 0;
+        public double TearYvel = 0;
+        public double TearZvel = 0;
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -276,7 +293,9 @@ namespace AkribisFAM
         public int BadFoamCount { get; set; }
 
         //总共需要安装的穴位总数
-        public int total_Assemble_Count { get; set; }
+        public int total_Assemble_Count = 12;
+
+        public int laser_point_length = 4;
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
         public bool lailiao_SaoMa { get; set; }
@@ -305,10 +324,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 8;
+        const int Lailiao_stepnum = 10;
         const int Zuzhuang_stepnum = 10;
-        const int FuJian_stepnum = 5;
-        const int Reject_stepnum = 5;
+        const int FuJian_stepnum = 10;
+        const int Reject_stepnum = 10;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
@@ -371,6 +390,15 @@ namespace AkribisFAM
                     _current = new GlobalManager();
                 }
                 return _current;
+            }
+        }
+
+        private void InitializeLaserData()
+        {
+            laser_data = new double[total_Assemble_Count][];
+            for (int i = 0; i < TotalRow; i++)
+            {
+                laser_data[i] = new double[laser_point_length];
             }
         }
 
@@ -442,9 +470,8 @@ namespace AkribisFAM
 
             //StartErrorMonitor();
 
+            InitializeLaserData();
 
-            IsAInTarget = false;
-            IsBInTarget = false;
             IsPause = false;
 
         }
@@ -874,10 +901,10 @@ namespace AkribisFAM
         public enum AxisSpeed
         {
             //AGM800[0]
-            LSX = 200,
-            LSY = 200,
-            FSX = 120,
-            FSY = 120,
+            LSX = 100,
+            LSY = 100,
+            FSX = 50,
+            FSY = 50,
             BL5 = 100,
             BR5 = 100,
 
@@ -909,10 +936,10 @@ namespace AkribisFAM
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 2000,
-            LSY = 2000,
-            FSX = 800,
-            FSY = 800,
+            LSX = 1000,
+            LSY = 1000,
+            FSX = 500,
+            FSY = 500,
             BL5 = 500,
             BR5 = 500,
 

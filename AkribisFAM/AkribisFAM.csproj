@@ -212,6 +212,7 @@
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="Util\Parser.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="Windows\Action.cs" />
