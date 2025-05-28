@@ -28,8 +28,12 @@ namespace AkribisFAM.Windows
         public MainContent()
         {
             InitializeComponent();
-   
 
+            ScanningGunValue.Text = "ABC12345678911111";
+            NozzleForce1Value.Text = "112.3N";
+            NozzleForce2Value.Text = "11.8N";
+            NozzleForce3Value.Text = "12.1N";
+            NozzleForce4Value.Text = "11.9N";
         }
 
 

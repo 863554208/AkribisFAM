@@ -5,11 +5,51 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="1000">
+             d:DesignHeight="450" d:DesignWidth="1000" FontSize="15">
 
-    <Grid>
-        <Image Source="/Windows/001.png"/>
+    <Grid >
+        <Grid.Background>
+            <ImageBrush ImageSource="/Windows/001.png" Stretch="Fill"/>
+        </Grid.Background>
+        <!-- 右下角文本区域 -->
+        <StackPanel Orientation="Vertical"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Right"
+            Margin="15"
+            Background="#AA000000"
+            MaxWidth="400" >
 
+            <!-- 扫描枪数据 -->
+            <StackPanel Orientation="Horizontal" Margin="5 5 5 10">
+                <TextBlock  Text="{DynamicResource ScanningGun}" Foreground="White" />
+                <TextBlock x:Name="ScanningGunValue" Text="" Foreground="White"  />
+            </StackPanel>
+
+            <!-- 吸嘴力控值1 -->
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="{DynamicResource NozzleForce1}" Foreground="White" />
+                <TextBlock x:Name="NozzleForce1Value" Text="" Foreground="White"  />
+            </StackPanel>
+
+            <!-- 吸嘴力控值2 -->
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="{DynamicResource NozzleForce2}" Foreground="White" />
+                <TextBlock x:Name="NozzleForce2Value" Text="" Foreground="White"  />
+            </StackPanel>
+
+            <!-- 吸嘴力控值3 -->
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="{DynamicResource NozzleForce3}" Foreground="White" />
+                <TextBlock x:Name="NozzleForce3Value" Text="" Foreground="White" />
+            </StackPanel>
+
+            <!-- 吸嘴力控值4 -->
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="{DynamicResource NozzleForce4}" Foreground="White" />
+                <TextBlock x:Name="NozzleForce4Value" Text="" Foreground="White"  />
+            </StackPanel>
+
+        </StackPanel>
 
     </Grid>
 </UserControl>
