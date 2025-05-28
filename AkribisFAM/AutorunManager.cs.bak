@@ -306,7 +306,7 @@ namespace AkribisFAM
             //20250519 测试 【史彦洋】 追加 Start
             CylinderDown();
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
-
+            return true;
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
@@ -354,16 +354,19 @@ namespace AkribisFAM
             Thread.Sleep(300);
             //轴回原点
 
-			// Home whole system
+            // Home whole system
             AkrAction.Current.StartSystemHome();
-            
-            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
-            //AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            //while()
+            AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            //if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
+            //AkrAction.Current.WaitAllHomingFinished();
 
+<<<<<<< HEAD
+=======
+            if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
+
+>>>>>>> Raymond_A1-516_AddManualPage
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 

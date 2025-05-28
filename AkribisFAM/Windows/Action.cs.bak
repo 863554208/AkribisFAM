@@ -2,7 +2,6 @@
 using AkribisFAM.AAmotionFAM;
 using AkribisFAM.Helper;
 using AkribisFAM.Util;
-using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using HslCommunication.Profinet.Delta;
 using LiveCharts.Wpf;
@@ -59,7 +58,6 @@ namespace AkribisFAM.WorkStation
         }
 
         private CancellationTokenSource _cts;
-        private HomingWindow _homingWindow;
 
         //public int axisSetParams(String AxisName, Int32 iSpeed, Int32 iAcc, Int32 iDec, Int32 iKDec, Int32 iJerk)
         //{
@@ -645,14 +643,14 @@ namespace AkribisFAM.WorkStation
             string err = string.Format("第{0}个AGM800的第{1}个轴回零成功", (agmIndex + 1).ToString(), axisRefNum.ToString());
             return 0;
         }
-        public int WaitHomingFinished(GlobalManager.AxisName axisName, CancellationToken token, int timeout = 30000)
+        public int WaitHomingFinished(GlobalManager.AxisName axisName, CancellationToken token)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
             DateTime now = DateTime.Now;
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
             {
-                if ((DateTime.Now - now).TotalMilliseconds > timeout)
+                if ((DateTime.Now - now).TotalMilliseconds > 30000)
                 {
                     string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
                     Logger.WriteLog(temp);
@@ -724,7 +722,7 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-/// <summary>
+        /// <summary>
         /// Performs the homing sequence for all machine axes concurrently.
         /// Each axis homing method returns 0 on success or a negative value on failure.
         /// Logs and reports the result of the homing sequence.
@@ -734,14 +732,6 @@ namespace AkribisFAM.WorkStation
             // Cancel any previous operations
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
-
-            _homingWindow = new HomingWindow(() =>
-            {
-                CancelSystemHome();
-                _homingWindow?.Close();
-            });
-            _homingWindow.Topmost = true;
-            _homingWindow.Show();
 
             Task.Run(() => SystemHome(_cts.Token));
         }
@@ -807,18 +797,12 @@ namespace AkribisFAM.WorkStation
                 case Modules.LaiLiao:
                     // ABSOLUTE MOTOR NO HOMING, MOVE SAFE POSITION
                     // Safe position is not yet available
-                    if (Move(AxisName.LSX, 0, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX) != 0) return -1;
-                    if (Move(AxisName.LSY, 0, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY) != 0) return -1;
-
-                    // WAIT MOVE TO FINISH
-                    if (WaitHomingFinished(AxisName.LSX, token) != 0) return -1;
-                    if (WaitHomingFinished(AxisName.LSY, token) != 0) return -1;
 
                     break;
                 case Modules.ZuZhuang:
                     // MOVE Z HARDSTOP FIRST FOR SAFETY
-                    if (HomeToHardStop(AxisName.PICK1_Z, token, 20000, false) != 0) return -1;
-                    if (HomeToHardStop(AxisName.PICK2_Z, token, 20000, false) != 0) return -1;
+                    if (HomeZHardStop(AxisName.PICK1_Z, token, false) != 0) return -1;
+                    if (HomeZHardStop(AxisName.PICK2_Z, token, false) != 0) return -1;
                     //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
                     //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
 
@@ -829,18 +813,18 @@ namespace AkribisFAM.WorkStation
                     //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
 
                     // HOME XY
-                    if (Home_v2(AxisName.FSX, token, false) != 0) return -1;
-                    if (Home_v2(AxisName.FSY, token, false) != 0) return -1;
+                    if (Home(AxisName.FSX, token, false) != 0) return -1;
+                    if (Home(AxisName.FSY, token, false) != 0) return -1;
 
                     // WAIT HOMING TO FINISH
                     if (WaitHomingFinished(AxisName.FSX, token) != 0) return -1;
                     if (WaitHomingFinished(AxisName.FSY, token) != 0) return -1;
 
                     // HOME Z
-                    if (Home_v2(AxisName.PICK1_Z, token, false) != 0) return -1;
-                    if (Home_v2(AxisName.PICK1_T, token, false) != 0) return -1;
-                    if (Home_v2(AxisName.PICK2_Z, token, false) != 0) return -1;
-                    if (Home_v2(AxisName.PICK2_T, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK1_Z, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK1_T, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK2_Z, token, false) != 0) return -1;
+                    if (Home(AxisName.PICK2_T, token, false) != 0) return -1;
                     //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
                     //if (Home(AxisName.PICK3_T, false) != 0) return -1;
                     //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
@@ -857,23 +841,22 @@ namespace AkribisFAM.WorkStation
                     //if (WaitHomingFinished(AxisName.PICK4_T) != 0) return -1;
                     break;
                 case Modules.FuJian:
-                    //// MOVE Z HARDSTOP FIRST FOR SAFETY
-                    //if (HomeToHardStop(AxisName.PRZ, token, 20000, false) != 0) return -1;
-                    if (Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ, (int)AxisAcc.PRZ) != 0) return -1;
+                    // MOVE Z HARDSTOP FIRST FOR SAFETY
+                    if (HomeZHardStop(AxisName.PRZ, token, false) != 0) return -1;
 
-                    // WAIT MOVE/HOMING TO FINISH
+                    // WAIT HOMING TO FINISH
                     if (WaitHomingFinished(AxisName.PRZ, token) != 0) return -1;
 
                     // HOME XY
-                    if (Home_v2(AxisName.PRX, token, false) != 0) return -1;
-                    if (Home_v2(AxisName.PRY, token, false) != 0) return -1;
+                    if (Home(AxisName.PRX, token, false) != 0) return -1;
+                    if (Home(AxisName.PRY, token, false) != 0) return -1;
 
                     // WAIT HOMING TO FINISH
                     if (WaitHomingFinished(AxisName.PRX, token) != 0) return -1;
                     if (WaitHomingFinished(AxisName.PRY, token) != 0) return -1;
 
                     // HOME Z First for safety
-                    if (Home_v2(AxisName.PRZ, token, false) != 0) return -1;
+                    if (Home(AxisName.PRZ, token, false) != 0) return -1;
 
                     // WAIT HOMING TO FINISH
                     if (WaitHomingFinished(AxisName.PRZ, token) != 0) return -1;
@@ -883,39 +866,6 @@ namespace AkribisFAM.WorkStation
                     return -1;
             }
             return ret;
-        }
-
-        public List<GlobalManager.AxisName> GetAllAxisName(Modules module)
-        {
-            List<GlobalManager.AxisName> axisNames = new List<GlobalManager.AxisName>();
-            switch (module)
-            {
-                case Modules.LaiLiao:
-                    axisNames.Add(AxisName.LSX);
-                    axisNames.Add(AxisName.LSY);
-                    break;
-                case Modules.ZuZhuang:
-                    axisNames.Add(AxisName.FSX);
-                    axisNames.Add(AxisName.FSY);
-
-                    axisNames.Add(AxisName.PICK1_Z);
-                    axisNames.Add(AxisName.PICK1_T);
-                    axisNames.Add(AxisName.PICK2_Z);
-                    axisNames.Add(AxisName.PICK2_T);
-                    axisNames.Add(AxisName.PICK3_Z);
-                    axisNames.Add(AxisName.PICK3_T);
-                    axisNames.Add(AxisName.PICK4_Z);
-                    axisNames.Add(AxisName.PICK4_T);
-                    break;
-                case Modules.FuJian:
-                    axisNames.Add(AxisName.PRX);
-                    axisNames.Add(AxisName.PRY);
-                    axisNames.Add(AxisName.PRZ);
-                    break;
-                default:
-                    return null;
-            }
-            return axisNames;
         }
 
         public int Home(AxisName axisName, bool waitHomeComplete = true)
@@ -968,27 +918,6 @@ namespace AkribisFAM.WorkStation
                 return -1;
             }
         }
-        public int Home_v2(AxisName axisName, CancellationToken token, bool waitHomeComplete = true)
-        {
-            int agmIndex = (int)axisName / 8;
-            int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex],
-                             GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),
-                             false,
-                             true,
-                             -10000,
-                             100000,
-                             1000000,
-                             0,
-                             20000);
-
-            if (waitHomeComplete)
-            {
-                // Wait for homing to finish
-                return WaitHomingFinished(axisName, token);
-            }
-            return 0;
-        }
         public int HomeZHardStop(AxisName axisName, bool waitHomeComplete = true)
         {
             var homeFileDir = "D:\\akribisfam_config\\HomeFileZHardStop\\";
@@ -1039,26 +968,7 @@ namespace AkribisFAM.WorkStation
                 return -1;
             }
         }
-        public int HomeToHardStop(AxisName axisName, CancellationToken token, int timeout = 30000, bool waitHomeComplete = true)
-        {
-            int agmIndex = (int)axisName / 8;
-            int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.HomeToHardStop(AAmotionFAM.AGM800.Current.controller[agmIndex],
-                                       GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),
-                                       4000,
-                                       -10000,
-                                       100000,
-                                       1000000,
-                                       0,
-                                       20000);
 
-            if (waitHomeComplete)
-            {
-                // Wait for homing to finish
-                return WaitHomingFinished(axisName, token, timeout);
-            }
-            return 0;
-        }
         public int axisAllZHome(String path)
         {
             int agmIndex;
@@ -1282,7 +1192,44 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
+<<<<<<< HEAD
+        public List<GlobalManager.AxisName> GetAllAxisName(Modules module)
+        {
+            List<GlobalManager.AxisName> axisNames = new List<GlobalManager.AxisName>();
+            switch (module)
+            {
+                case Modules.LaiLiao:
+                    axisNames.Add(AxisName.LSX);
+                    axisNames.Add(AxisName.LSY);
+                    break;
+                case Modules.ZuZhuang:
+                    axisNames.Add(AxisName.FSX);
+                    axisNames.Add(AxisName.FSY);
+
+                    axisNames.Add(AxisName.PICK1_Z);
+                    axisNames.Add(AxisName.PICK1_T);
+                    axisNames.Add(AxisName.PICK2_Z);
+                    axisNames.Add(AxisName.PICK2_T);
+                    axisNames.Add(AxisName.PICK3_Z);
+                    axisNames.Add(AxisName.PICK3_T);
+                    axisNames.Add(AxisName.PICK4_Z);
+                    axisNames.Add(AxisName.PICK4_T);
+                    break;
+                case Modules.FuJian:
+                    axisNames.Add(AxisName.PRX);
+                    axisNames.Add(AxisName.PRY);
+                    axisNames.Add(AxisName.PRZ);
+                    break;
+                default:
+                    return null;
+            }
+            return axisNames;
+        }
+
+        public int ToPulse(AxisName axisName ,double? mm)
+=======
         public int ToPulse(AxisName axisName, double? mm)
+>>>>>>> Raymond_A1-516_AddManualPage
         {
             if (mm == null) mm = 0;
             switch (axisName)
