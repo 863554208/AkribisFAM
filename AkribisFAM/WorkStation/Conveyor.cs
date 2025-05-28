@@ -1,28 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
-using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
-using LiveCharts.SeriesAlgorithms;
-using YamlDotNet.Core;
-using HslCommunication;
 using static AkribisFAM.GlobalManager;
-using static AAComm.Extensions.AACommFwInfo;
-using AkribisFAM.Windows;
-using System.Windows;
-using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
-using System.Diagnostics.Eventing.Reader;
-using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
-using static AkribisFAM.CommunicationProtocol.Task_TTNCamreaFunction;
-using Newtonsoft.Json;
-using System.IO;
 using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
@@ -117,6 +97,11 @@ namespace AkribisFAM.WorkStation
         {
             AkrAction.Current.MoveConveyor(vel);
         }
+
+        public void MoveConveyorAll(int vel)
+        {
+            AkrAction.Current.MoveConveyorAll(vel);
+        }
         public void StopConveyor()
         {
             AkrAction.Current.StopConveyor();
@@ -183,7 +168,7 @@ namespace AkribisFAM.WorkStation
 
         }
 
-        public void LiftUpRelatedTray(IO_OutFunction_Table IOName1,IO_OutFunction_Table IOName2,IO_OutFunction_Table IOName3,IO_OutFunction_Table IOName4,IO_INFunction_Table IOName5,IO_INFunction_Table IOName6)
+        public void LiftUpRelatedTray(IO_OutFunction_Table IOName1, IO_OutFunction_Table IOName2, IO_OutFunction_Table IOName3, IO_OutFunction_Table IOName4, IO_INFunction_Table IOName5, IO_INFunction_Table IOName6)
         {
             SetIO(IOName1, 1);
             SetIO(IOName2, 0);
@@ -195,6 +180,219 @@ namespace AkribisFAM.WorkStation
             WaitIO(99999, IOName6, true);
 
         }
+   
+        public bool GateUp(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_INFunction_Table IOName3;
+            IO_INFunction_Table IOName4;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract;
+                    IOName3 = IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos;
+
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract;
+                    IOName3 = IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract;
+                    IOName3 = IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract;
+                    IOName3 = IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos;
+                    break;
+                default:
+                    return false;
+            }
+            SetIO(IOName1, 1);
+            SetIO(IOName2, 0);
+
+            return (WaitIO(99999, IOName3, false) &&
+            WaitIO(99999, IOName4, true));
+
+        }
+        public bool GateDown(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_INFunction_Table IOName3;
+            IO_INFunction_Table IOName4;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract;
+                    IOName3 = IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos;
+
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract;
+                    IOName3 = IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract;
+                    IOName3 = IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract;
+                    IOName3 = IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos;
+                    break;
+                default:
+                    return false;
+            }
+            SetIO(IOName1, 0);
+            SetIO(IOName2, 1);
+
+            return (WaitIO(99999, IOName3, true) &&
+            WaitIO(99999, IOName4, false));
+
+        }
+        public bool LiftUpRelatedTray(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_OutFunction_Table IOName3;
+            IO_OutFunction_Table IOName4;
+            IO_INFunction_Table IOName5;
+            IO_INFunction_Table IOName6;
+            IO_INFunction_Table IOName7;
+            IO_INFunction_Table IOName8;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract;
+
+
+                    IOName5 = IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos;
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
+                    break;
+                default:
+                    return false;
+            }
+
+            SetIO(IOName1, 1);
+            SetIO(IOName2, 0);
+
+            SetIO(IOName3, 1);
+            SetIO(IOName4, 0);
+
+            return (WaitIO(99999, IOName5, false) &&
+            WaitIO(99999, IOName6, false) &&
+            WaitIO(99999, IOName7, true) &&
+            WaitIO(99999, IOName8, true));
+
+        }
+
+        public bool LiftDownRelatedTray(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_OutFunction_Table IOName3;
+            IO_OutFunction_Table IOName4;
+            IO_INFunction_Table IOName5;
+            IO_INFunction_Table IOName6;
+            IO_INFunction_Table IOName7;
+            IO_INFunction_Table IOName8;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract;
+
+
+                    IOName5 = IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos;
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
+                    break;
+                default:
+                    return false;
+            }
+
+            SetIO(IOName1, 0);
+            SetIO(IOName2, 1);
+
+            SetIO(IOName3, 0);
+            SetIO(IOName4, 1);
+
+            return (WaitIO(99999, IOName5, true) &&
+            WaitIO(99999, IOName6, true) &&
+            WaitIO(99999, IOName7, false) &&
+            WaitIO(99999, IOName8, false));
+
+        }
+
         public override void AutoRun(CancellationToken token)
         {
             while (true)
@@ -315,7 +513,7 @@ namespace AkribisFAM.WorkStation
                 bool IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
                 Logger.WriteLog("皮带任务_等待任一料盘触发流出阻挡气缸光电信号");
-                System.Threading.Thread.Sleep(2000);
+                System.Threading.Thread.Sleep(3000);
                 //while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
                 //{
                 //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
@@ -470,9 +668,6 @@ namespace AkribisFAM.WorkStation
                 StopConveyor();
                 System.Threading.Thread.Sleep(200);
                 goto STEP_JudgeAllStationTrayNumberIsZero;
-
-
-
 
 
             //处理进入设备内的第一个料盘

@@ -1,11 +1,4 @@
-﻿using AAMotion;
-using AkribisFAM.AAmotionFAM;
-using AkribisFAM.Helper;
-using AkribisFAM.Util;
-using AkribisFAM.WorkStation;
-using HslCommunication.Profinet.Delta;
-using LiveCharts.Wpf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -16,6 +9,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AAMotion;
+using AkribisFAM.AAmotionFAM;
+using AkribisFAM.Util;
+using AkribisFAM.WorkStation;
+using HslCommunication.Profinet.Delta;
+using LiveCharts.Wpf;
 using YamlDotNet.Core.Tokens;
 using static AkribisFAM.GlobalManager;
 
@@ -185,11 +184,11 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
-        public void SetSingleEvent(GlobalManager.AxisName axisName , double? pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        public void SetSingleEvent(GlobalManager.AxisName axisName, double? pos, int eventSelect, int? eventPulseRes = null, int? eventPulseWid = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName,pos), eventSelect,eventPulseRes, eventPulseWid);
+            AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, pos), eventSelect, eventPulseRes, eventPulseWid);
         }
 
         public void SetEventFixedGapPEG(GlobalManager.AxisName axisName, double? beginPos, double? eventGap, double? eventEndPos, int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
@@ -228,7 +227,7 @@ namespace AkribisFAM.WorkStation
             {
                 decel = accel;
             }
-                
+
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
             return 0;
@@ -323,26 +322,32 @@ namespace AkribisFAM.WorkStation
         public int ZAxisInSafeZone(GlobalManager.AxisName axisName)
         {
             if(axisName == AxisName.PRZ || axisName == AxisName.PICK1_Z || axisName == AxisName.PICK2_Z || axisName == AxisName.PICK3_Z && axisName != AxisName.PICK3_Z) return 0;
+
             if (!JudgeZAxis(AxisName.PRZ))
             {
-                if(ZUp(AxisName.PRZ, AxisSpeed.PRZ) !=0) return -1;
+                return -1;
+                //if(ZUp(AxisName.PRZ, AxisSpeed.PRZ) !=0) return -1;
             }
 
             if (!JudgeZAxis(AxisName.PICK1_Z))
             {
-                if(ZUp(AxisName.PICK1_Z, AxisSpeed.PICK1_Z)!=0) return -1;
+                return -1;
+                //if (ZUp(AxisName.PICK1_Z, AxisSpeed.PICK1_Z)!=0) return -1;
             }
             if (!JudgeZAxis(AxisName.PICK2_Z))
             {
-                if(ZUp(AxisName.PICK2_Z, AxisSpeed.PICK2_Z)!=0) return -1;
+                return -1;
+                //if(ZUp(AxisName.PICK2_Z, AxisSpeed.PICK2_Z)!=0) return -1;
             }
             if (!JudgeZAxis(AxisName.PICK3_Z))
             {
-                if(ZUp(AxisName.PICK3_Z, AxisSpeed.PICK3_Z)!=0) return -1;
+                return -1;
+                //if(ZUp(AxisName.PICK3_Z, AxisSpeed.PICK3_Z)!=0) return -1;
             }
             if (!JudgeZAxis(AxisName.PICK4_Z))
             {
-                if(ZUp(AxisName.PICK4_Z, AxisSpeed.PICK4_Z)!=0) return -1;
+                return -1;
+                //if(ZUp(AxisName.PICK4_Z, AxisSpeed.PICK4_Z)!=0) return -1;
             }
 
             return 0;
@@ -363,7 +368,7 @@ namespace AkribisFAM.WorkStation
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
 
-            //if (ZAxisInSafeZone(axisName)!=0) return -1;
+            if (ZAxisInSafeZone(axisName) != 0) return -1;
 
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             if (decel == null) decel = accel;
@@ -371,32 +376,36 @@ namespace AkribisFAM.WorkStation
             Logger.WriteLog(temp);
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
 
-            //设定一个预期的移动时间
-            //int nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
-            //double timeThreshold = 0.0;
-            //if (speed !=null)
-            //{
-            //    double  temp_now_Pos = nowPos;
-            //    double temp_target_pos = (double)position;
-            //    double temp_speed = (double)speed;
-            //    timeThreshold =(Math.Abs(temp_target_pos - temp_now_Pos) / temp_speed) * 1.5;
-            //}
 
-            
-            //DateTime now  = DateTime.Now;
+            DateTime startTime = DateTime.Now;
+            TimeSpan timeoutDuration = TimeSpan.FromSeconds(10); 
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
-                ////TODO 加入退出机制
-                //if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
-                //{
-                //    string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
-                //    Logger.WriteLog(err);
-                //    return -1;
-                //}
 
-                Thread.Sleep(50);
+                if (DateTime.Now - startTime > timeoutDuration)
+                {
+                    Logger.WriteLog("超时：运动未到达目标位置。");
+                    return -1; 
+                }
+
+                string temp2 = string.Format("等待第{0}个AGM800的第{1}个轴PTP运动到位", (agmIndex + 1).ToString(), (axisRefNum + 1).ToString());
+                Logger.WriteLog(temp2);
+                Thread.Sleep(100);
             }
-            return 0;
+
+            DateTime starttime = DateTime.Now;
+            while ((DateTime.Now - starttime).TotalMilliseconds <3000)
+            {
+                var current_Pos = ToMilimeter(axisName, AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos);
+                if (position.GetValueOrDefault() - current_Pos < 0.005)
+                {
+                    return 0;
+                }
+            }
+
+            string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动到位，执行下一步", (agmIndex+1).ToString(), (axisRefNum+1).ToString());
+            Logger.WriteLog(err);
+            return -1;
         }
 
 
@@ -404,7 +413,7 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            if(decel== null) decel = accel;
+            if (decel == null) decel = accel;
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveRel(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
 
@@ -446,7 +455,7 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-        public void JogMove(GlobalManager.AxisName axisName , int dir , double vel)
+        public void JogMove(GlobalManager.AxisName axisName, int dir, double vel)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
@@ -464,7 +473,7 @@ namespace AkribisFAM.WorkStation
                 AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Stop();
             }
             catch (Exception e) { }
-            
+
         }
 
         public bool MoveNGConveyor(int vel)
@@ -484,7 +493,7 @@ namespace AkribisFAM.WorkStation
 
         public bool MoveConveyor(int vel)
         {
-            JogMove(GlobalManager.AxisName.BL1 ,1 , vel);
+            JogMove(GlobalManager.AxisName.BL1, 1, vel);
             JogMove(GlobalManager.AxisName.BL2, 1, vel);
             JogMove(GlobalManager.AxisName.BL3, 1, vel);
             JogMove(GlobalManager.AxisName.BL4, 1, vel);
@@ -496,7 +505,55 @@ namespace AkribisFAM.WorkStation
             //JogMove(GlobalManager.AxisName.BR5, 1, 10000);
             return true;
         }
+        public bool MoveConveyorAll(int vel)
+        {
+            JogMove(GlobalManager.AxisName.BL1, 1, vel);
+            JogMove(GlobalManager.AxisName.BL2, 1, vel);
+            JogMove(GlobalManager.AxisName.BL3, 1, vel);
+            JogMove(GlobalManager.AxisName.BL4, 1, vel);
+            JogMove(GlobalManager.AxisName.BL5, 1, vel);
+            JogMove(GlobalManager.AxisName.BR1, 1, vel);
+            JogMove(GlobalManager.AxisName.BR2, 1, vel);
+            JogMove(GlobalManager.AxisName.BR3, 1, vel);
+            JogMove(GlobalManager.AxisName.BR4, 1, vel);
+            JogMove(GlobalManager.AxisName.BR5, 1, vel);
+            return true;
+        }
+        public bool MoveSubConveyor(int vel)
+        {
+            switch (vel)
+            {
+                case 1:
+                    {
+                        JogMove(GlobalManager.AxisName.BL1, 1, vel);
+                        JogMove(GlobalManager.AxisName.BL2, 1, vel);
+                        return true;
+                    }
+                case 2:
+                    {
+                        JogMove(GlobalManager.AxisName.BL1, 1, vel);
+                        JogMove(GlobalManager.AxisName.BL2, 1, vel);
 
+                        return true;
+                    }
+                case 3:
+                    {
+                        JogMove(GlobalManager.AxisName.BL1, 1, vel);
+                        JogMove(GlobalManager.AxisName.BL2, 1, vel);
+
+                        return true;
+                    }
+                case 4:
+                    {
+                        JogMove(GlobalManager.AxisName.BL1, 1, vel);
+                        JogMove(GlobalManager.AxisName.BL2, 1, vel);
+
+                        return true;
+                    }
+                default:
+                    return false;
+            }
+        }
         public bool StopConveyor()
         {
             Stop(GlobalManager.AxisName.BL1);
@@ -544,7 +601,9 @@ namespace AkribisFAM.WorkStation
             ret += WaitHomingFinished(AxisName.PRY);
             ret += WaitHomingFinished(AxisName.PRZ);
 
-            if (ret < 0) return -1; 
+            ret += WaitHomingFinished(AxisName.PICK1_T);
+            ret += WaitHomingFinished(AxisName.PICK2_T);
+            if (ret != 0) return -1; 
 
             return 0;
         }
@@ -554,16 +613,12 @@ namespace AkribisFAM.WorkStation
             int ret = 0;
 
             ret += WaitHomingFinished(AxisName.PICK1_Z);
-            //ret += WaitHomingFinished(AxisName.PICK1_T);
             ret += WaitHomingFinished(AxisName.PICK2_Z);
-            //ret += WaitHomingFinished(AxisName.PICK2_T);
             //ret += WaitHomingFinished(AxisName.PICK3_Z);
-            //ret += WaitHomingFinished(AxisName.PICK3_T);
             //ret += WaitHomingFinished(AxisName.PICK4_Z);
-            //ret += WaitHomingFinished(AxisName.PICK4_T);
 
 
-            if (ret < 0) return -1;
+            if (ret > 0) return -1;
 
             return 0;
         }
@@ -579,12 +634,12 @@ namespace AkribisFAM.WorkStation
                 {
                     string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex+1).ToString(), axisRefNum.ToString());
                     Logger.WriteLog(temp);
-                    return -1;
+                    return 1;
                 }
 
                 Thread.Sleep(50);
             }
-            string err = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
+            string err = string.Format("第{0}个AGM800的第{1}个轴回零成功", (agmIndex + 1).ToString(), axisRefNum.ToString());
             return 0;
         }
         public int WaitHomingFinished(GlobalManager.AxisName axisName, CancellationToken token)
@@ -666,7 +721,7 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-        /// <summary>
+/// <summary>
         /// Performs the homing sequence for all machine axes concurrently.
         /// Each axis homing method returns 0 on success or a negative value on failure.
         /// Logs and reports the result of the homing sequence.
@@ -912,7 +967,6 @@ namespace AkribisFAM.WorkStation
                 return -1;
             }
         }
-
         public int axisAllZHome(String path)
         {
             int agmIndex;
@@ -940,9 +994,11 @@ namespace AkribisFAM.WorkStation
             //axisRefNum = temp % 8;
             //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZ\\PICK4_Z_homing.hseq");
 
-            Thread.Sleep(10000);
+            //Thread.Sleep(10000);
             return (int)ACTTION_ERR.NONE;
         }
+
+    
 
         public int axisAllTHome(String path)
         {
@@ -956,10 +1012,10 @@ namespace AkribisFAM.WorkStation
             axisRefNum = temp % 8;
             AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK1_T_homing.hseq");
 
-            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_T");
-            //agmIndex = temp / 8;
-            //axisRefNum = temp % 8;
-            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK2_T_homing.hseq");
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_T");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileT\\PICK2_T_homing.hseq");
 
             //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_T");
             //agmIndex = temp / 8;
@@ -1134,42 +1190,9 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-        public List<GlobalManager.AxisName> GetAllAxisName(Modules module)
+        public int ToPulse(AxisName axisName, double? mm)
         {
-            List<GlobalManager.AxisName> axisNames = new List<GlobalManager.AxisName>();
-            switch (module)
-            {
-                case Modules.LaiLiao:
-                    axisNames.Add(AxisName.LSX);
-                    axisNames.Add(AxisName.LSY);
-                    break;
-                case Modules.ZuZhuang:
-                    axisNames.Add(AxisName.FSX);
-                    axisNames.Add(AxisName.FSY);
-
-                    axisNames.Add(AxisName.PICK1_Z);
-                    axisNames.Add(AxisName.PICK1_T);
-                    axisNames.Add(AxisName.PICK2_Z);
-                    axisNames.Add(AxisName.PICK2_T);
-                    axisNames.Add(AxisName.PICK3_Z);
-                    axisNames.Add(AxisName.PICK3_T);
-                    axisNames.Add(AxisName.PICK4_Z);
-                    axisNames.Add(AxisName.PICK4_T);
-                    break;
-                case Modules.FuJian:
-                    axisNames.Add(AxisName.PRX);
-                    axisNames.Add(AxisName.PRY);
-                    axisNames.Add(AxisName.PRZ);
-                    break;
-                default:
-                    return null;
-            }
-            return axisNames;
-        }
-
-        public int ToPulse(AxisName axisName ,double? mm)
-        {
-            if( mm==null) mm = 0;
+            if (mm == null) mm = 0;
             switch (axisName)
             {
                 case AxisName.LSX:
@@ -1212,13 +1235,13 @@ namespace AkribisFAM.WorkStation
                     return (int)(51200 / 78 * mm);
 
                 case AxisName.BR5:
-                    return (int)(51200/78 * mm);
+                    return (int)(51200 / 78 * mm);
 
                 case AxisName.PICK1_Z:
                     return (int)(2000 * mm);
 
                 case AxisName.PICK1_T:
-                    return (int)(192000  * mm / 360);
+                    return (int)(192000 * mm / 360);
 
                 case AxisName.PICK2_Z:
                     return (int)(2000 * mm);
@@ -1315,7 +1338,7 @@ namespace AkribisFAM.WorkStation
                     return (double)(pulse / 2000.0);
 
                 case AxisName.PICK3_T:
-                    return (double)( (pulse / 192000.0) * 360 );
+                    return (double)((pulse / 192000.0) * 360);
 
                 case AxisName.PICK4_Z:
                     return (double)(pulse / 2000.0);
@@ -1342,7 +1365,7 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.SetPosition(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),0);
+            AAMotionAPI.SetPosition(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), 0);
             return 1;
         }
 
@@ -1367,7 +1390,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.NONE;
             }
             catch (Exception e)
-            { 
+            {
                 return (int)ACTTION_ERR.GTOUPERR;
             }
 
@@ -1383,8 +1406,8 @@ namespace AkribisFAM.WorkStation
             ret += axisEnable(AxisName.PICK2_T, enable);
             //ret += axisEnable(AxisName.PICK3_Z, enable);
             //ret += axisEnable(AxisName.PICK3_T, enable);
-            ret += axisEnable(AxisName.PICK4_Z, enable);
-            ret += axisEnable(AxisName.PICK4_T, enable);
+            //ret += axisEnable(AxisName.PICK4_Z, enable);
+            //ret += axisEnable(AxisName.PICK4_T, enable);
 
 
             if (ret != 0)
@@ -1436,6 +1459,61 @@ namespace AkribisFAM.WorkStation
 
             return (int)ACTTION_ERR.NONE;
         }
+        public int axisAllZHome_HardStop()
+        {
+            int agmIndex;
+            int axisRefNum;
+            int temp;
 
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK1_Z_hardstop.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
+
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK4_Z_hardstop.hseq");
+
+            return (int)ACTTION_ERR.NONE;
+        }
+        //public int axisAllZHome_HardStop()
+        //{
+        //    int agmIndex;
+        //    int axisRefNum;
+        //    int temp;
+
+        //    temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
+        //    agmIndex = temp / 8;
+        //    axisRefNum = temp % 8;
+        //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK1_Z_hardstop.hseq");
+
+        //    temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
+        //    agmIndex = temp / 8;
+        //    axisRefNum = temp % 8;
+        //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
+
+        //    //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+        //    //agmIndex = temp / 8;
+        //    //axisRefNum = temp % 8;
+        //    //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
+
+        //    //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+        //    //agmIndex = temp / 8;
+        //    //axisRefNum = temp % 8;
+        //    //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK4_Z_hardstop.hseq");
+
+        //    return (int)ACTTION_ERR.NONE;
+        //}
     }
 }

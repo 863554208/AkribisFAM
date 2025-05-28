@@ -129,7 +129,7 @@ namespace AkribisFAM.WorkStation
         {
             DateTime time = DateTime.Now;
             bool ret = false;
-            errorCode = ErrorCode.IOErr;
+            errorCode = ErrorCode.TimeOut;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
                 if (ReadIO(index) == value)
@@ -143,142 +143,23 @@ namespace AkribisFAM.WorkStation
             return ret;
         }
 		
-        public void WaitConveyor(int delta, IO[] IOarr, int type)
-        {
-            //DateTime time = DateTime.Now;
-
-            //if (delta != 0 && IOarr != null)
-            //{
-            //    while ((DateTime.Now - time).TotalMilliseconds < delta)
-            //    {
-            //        int judge = 0;
-            //        foreach (var item in IOarr)
-            //        {
-            //            var res = ReadIO(item) ? 1 : 0;
-            //            judge += res;
-            //        }
-
-            //        if (judge > 0)
-            //        {
-            //            break;
-            //        }
-            //        Thread.Sleep(50);
-            //    }
-            //}
-            //else
-            //{
-            //    switch (type)
-            //    {
-            //        case 2:
-            //            while (DropNGPallete() == 1) ;
-            //            break;
-
-            //    }
-            //}
-        }
-
-        public void ResumeConveyor()
-        {
-            if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station3_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed)
-            {
-                //低速运动
-                MoveConveyor(100);
-            }
-            else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station3_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed)
-            {
-                MoveConveyor((int)AxisSpeed.BL1);
-            }
-        }
 
         public bool hasNGboard;
 
-
-        public bool BoardIn(bool temp_isNG)
-        {
-            ///传送带高速移动
-            MoveNGConveyor((int)AxisSpeed.BL4);
-            WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
-            Thread.Sleep(200);
-            WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
-            Thread.Sleep(1000);
-            WaitIO(999999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
-            if (temp_isNG)
-            {
-                //NG料盘顶起
-                SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
-                WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
-                SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
-                SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
-                WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
-
-            }
-
-            return true;
-        }
-        #region 老的boardIn 函数
-        //public bool BoardInOld()
-        //{
-        //    bool ret;
-        //    //进入后改回false
-        //    Set("IO_test4", false);
-        //    Set("station4_IsBoardInHighSpeed", true);
-
-        //    //传送带高速移动
-        //    MoveConveyor((int)AxisSpeed.BL4);
-        //    MoveNGConveyor((int)AxisSpeed.BL4);
-
-        //    errorCode = ErrorCode.AGM800Err;
-        //    if (CheckState(true) == 1) return false;
-
-        //    //等待减速IO
-        //    ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
-        //    //挡板气缸上气
-        //    SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
-        //    SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
-
-        //    Set("station4_IsBoardInHighSpeed", false);
-
-        //    Set("station4_IsBoardInLowSpeed", true);
-        //    if (CheckState(ret) == 1)   return false;
-
-        //    //传送带减速
-        //    MoveConveyor(10);
-        //    //等待停止IO
-        //    ret = WaitIO(9999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
-        //    Set("station4_IsBoardInLowSpeed", false); 
-        //    Set("station4_IsLifting", true);
-        //    if (CheckState(ret) == 1)
-        //    {
-        //        return false;
-        //    }
-        //    board_count += 1;
-        //    //停止传送带
-        //    StopConveyor();
-        //    if (CheckState(ret) == 1)
-        //    {
-        //        return false;
-        //    }
-        //    Set("station4_IsLifting", false);
-        //    Set("station4_IsBoardIn", false);
-        //    return true;
-        //}
-        #endregion
         private bool ActionNG() {
-            bool ret;
+            bool ret, ret1;
             //顶起气缸上气
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
             Set("station4_IsLifting", false);
             //先等待有信号，再等待没信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
-            //ResumeConveyor();
+            ret = WaitIO(999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, true);
             if (CheckState(ret) == 1)
             {
                 return false;
             }
             Thread.Sleep(300);
-            ret = WaitIO(9999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
+            ret = WaitIO(999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -287,20 +168,19 @@ namespace AkribisFAM.WorkStation
             //顶起气缸下降
             SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
             SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
-            if (CheckState(true) == 1)
+            ret = WaitIO(999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
+            ret1 = WaitIO(999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, true);
+            if (CheckState(ret&&ret1) == 1)
             {
                 return false;
             }
             //挡板气缸下降
             SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 0);
             SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
-            if (CheckState(true) == 1)
-            {
-                return false;
-            }
             //等待挡板下降到位信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
-            if (CheckState(ret) == 1)
+            ret = WaitIO(999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            ret1 = WaitIO(999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            if (CheckState(ret && ret1) == 1)
             {
                 return false;
             }
@@ -308,11 +188,6 @@ namespace AkribisFAM.WorkStation
             hasNGboard = true;
 
             DetectNG();
-            //Task<bool> task = new Task<bool>(() =>
-            //{
-            //    return DetectNG();
-            //});
-            //task.Start();
             return true;
         }
 
@@ -327,8 +202,7 @@ namespace AkribisFAM.WorkStation
                 return false;
             }
             //等待允许出料信号
-            ret = WaitIO(999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
-            
+            ret = WaitIO(99999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);   
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -341,7 +215,7 @@ namespace AkribisFAM.WorkStation
                 return false;
             }
             //等待挡板下降到位信号
-            ret = WaitIO(9999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
+            ret = WaitIO(999, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos, true);
             if (CheckState(ret) == 1)
             {
                 return false;
@@ -354,7 +228,7 @@ namespace AkribisFAM.WorkStation
             //打开蜂鸣器
             SetIO(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             //等待取走信号
-            bool ret = WaitIO(999999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);
+            bool ret = WaitIO(99999, IO_INFunction_Table.IN6_0NG_plate_1_in_position, false);//wait 100s
             if (CheckState(ret) == 1)
             {
                 //关闭蜂鸣器
@@ -380,6 +254,7 @@ namespace AkribisFAM.WorkStation
             else
             {
                 GlobalManager.Current.Reject_state[GlobalManager.Current.current_Reject_step] = 1;
+                GlobalManager.Current.IsPause = true;
                 ErrorManager.Current.Insert(errorCode);
             }
             GlobalManager.Current.Reject_CheckState();
@@ -415,16 +290,22 @@ namespace AkribisFAM.WorkStation
         public override void AutoRun(CancellationToken token)
         {
             GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
+            bool ret, ret1;
             try
             {
                 while (true)
                 {
                 step1:
+                    GlobalManager.Current.current_Reject_step = 1;
                     Debug.WriteLine("NG工位阻挡气缸上升");
                     SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
                     SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
-                    WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
-
+                    ret = WaitIO(999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
+                    ret1 = WaitIO(999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, false);
+                    if (CheckState(ret && ret1) == 1)
+                    {
+                        break;
+                    }
                     Debug.WriteLine("NG工位允许进料盘");
                     GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
 
@@ -448,72 +329,97 @@ namespace AkribisFAM.WorkStation
                     //获取当前料盘是否NG
                     temp_isNG = GlobalManager.Current.isNGPallete;
                     GlobalManager.Current.isNGPallete = false;
-                    GlobalManager.Current.current_Reject_step = 1;
 
                 step2:
+                    GlobalManager.Current.current_Reject_step = 2;
                     Console.WriteLine("NG工位皮带高速运行");
                     MoveNGConveyor((int)AxisSpeed.BL4);
-                    WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
+                    ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, true);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     Thread.Sleep(200);
-                    WaitIO(9999999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
-
+                    ret = WaitIO(9999, IO_INFunction_Table.IN1_3Slowdown_Sign4, false);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     Console.WriteLine("NG工位皮带低速运行");
                     Thread.Sleep(GlobalManager.Current.NGTrayDelaytime);
                     MoveNGConveyor(30);
-                    WaitIO(999999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
+                    ret = WaitIO(19999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     StopNGConveyor();
 
                 step3:
-
+                    GlobalManager.Current.current_Reject_step = 3;
                     if (temp_isNG)
                     {
                         //需要等到上次的NG料盘已经被取走。再进行顶起当前NG料盘的动作。TODO
                         //NG料盘顶起
                         SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 1);
                         SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 0);
-                        WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
-
+                        ret = WaitIO(999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, true);
+                        ret1 = WaitIO(999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, false);
+                        if (CheckState(ret&&ret1) == 1)
+                        {
+                            break;
+                        }
                         Thread.Sleep(1000);
                         SetIO(IO_OutFunction_Table.OUT1_124_lift_cylinder_extend, 0);
                         SetIO(IO_OutFunction_Table.OUT1_134_lift_cylinder_retract, 1);
-                        WaitIO(9999999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
-
+                        ret = WaitIO(999, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos, false);
+                        ret1 = WaitIO(999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, true);
+                        if (CheckState(ret && ret1) == 1)
+                        {
+                            break;
+                        }
                         //设置标志位，通知操作员取出NG料盘。需要启动另外一个线程来做提示TODO
 
                         goto step1;
                     }
 
                 step4:
-
+                    GlobalManager.Current.current_Reject_step = 4;
                     Console.WriteLine("NG工位向下游设备请求送料盘");
                     SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 1);
-                    WaitIO(9999999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+                    ret = WaitIO(99999, IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE, true);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     Console.WriteLine("等到下游设备允许送板信号");
                     SetIO(IO_OutFunction_Table.OUT7_1BOARD_AVAILABLE, 0);
 
                     Console.WriteLine("NG工位出料阻挡气缸下降");
                     SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 0);
                     SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 1);
-                    WaitIO(9999999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, true);
-
+                    ret = WaitIO(999, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos, true);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     MoveNGConveyor((int)AxisSpeed.BL4);
 
                     //确保料盘送入下游设备
                     Console.WriteLine("等待NG工位料盘流出信号被触发");
-                    WaitIO(9999999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, true);
+                    ret = WaitIO(9999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, true);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     Console.WriteLine("等待NG工位料盘流出信号消失");
-                    WaitIO(9999999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, false);
+                    ret = WaitIO(9999, IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4, false);
+                    if (CheckState(ret) == 1)
+                    {
+                        break;
+                    }
                     StopConveyor();
                     goto step1;
-
-
-                    //BoardIn(temp_isNG);
-                    if (GlobalManager.Current.Reject_exit) break;
-
-                    //step2:
-                    //    GlobalManager.Current.current_Reject_step = 2;
-                    //    Step2();
-                    //    if (GlobalManager.Current.Reject_exit) break;
 
                 }
             }

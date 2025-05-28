@@ -66,7 +66,7 @@ namespace AkribisFAM.CommunicationProtocol
                 clientNameToEndpoint.TryAdd(ClientNames.scanner, ((string ip, int port))((obj["scanner"]["IP"]).ToString(), (obj["scanner"]["Port"])));
                 clientNameToEndpoint.TryAdd(ClientNames.mes, ((string ip, int port))((obj["mes"]["IP"]).ToString(), (obj["mes"]["Port"])));
                 clientNameToEndpoint.TryAdd(ClientNames.ModbusTCP, ((string ip, int port))((obj["ModbusTCP"]["IP"]).ToString(), (obj["ModbusTCP"]["Port"])));
-                clientNameToEndpoint.TryAdd(ClientNames.Pressure_sensor, ((string ip, int port))((obj["Pressure_sensor"]["IP"]).ToString(), (obj["Pressure_sensor"]["Port"])));
+                //clientNameToEndpoint.TryAdd(ClientNames.Pressure_sensor, ((string ip, int port))((obj["Pressure_sensor"]["IP"]).ToString(), (obj["Pressure_sensor"]["Port"])));
                 // 其他客户端可以继续添加
             }
             catch (Exception ex)
@@ -241,6 +241,20 @@ namespace AkribisFAM.CommunicationProtocol
                 return worker.GetCachedMessages();
             }
             return new List<string>();
+        }
+
+        //check connection
+        public static void CheckClients()
+        {
+            if (namedClients != null & namedClients.Count > 0)
+            {
+                foreach (var client in namedClients)
+                {
+                    var clientname = client.Key;
+                    var clientworker = client.Value;
+                    clientworker.CheckServerStatus();  
+                }
+            }
         }
     }
 }
