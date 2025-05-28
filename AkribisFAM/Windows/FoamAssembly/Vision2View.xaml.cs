@@ -48,5 +48,10 @@ namespace AkribisFAM.Windows
                 MessageBox.Show("Fail to move vision 2 ending position");
             }
         }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            txtResult.Text = "";
+        }
     }
 }

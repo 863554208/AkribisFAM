@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using static AkribisFAM.CommunicationProtocol.AssUpCamrea.Pushcommand;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Pushcommand;
 
 namespace AkribisFAM.CommunicationProtocol
 {
     #region//基恩士测距
-    class KEYENCEDistance
+    public class KEYENCEDistance
     {
         #region//发送的指令
         public class Pushcommand
@@ -42,8 +36,24 @@ namespace AkribisFAM.CommunicationProtocol
     #endregion
 
 
-    class Task_KEYENCEDistance
+   public class Task_KEYENCEDistance
     {
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
+
+        public static event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public static void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public static event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public static void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public enum KEYENCEDistanceProcessCommand
         {
             MS,//定位载具
@@ -117,6 +127,7 @@ namespace AkribisFAM.CommunicationProtocol
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到测高数据: " + VisionAcceptData);
+                ReceiveMessage(VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;
@@ -192,6 +203,8 @@ namespace AkribisFAM.CommunicationProtocol
         private static bool VisionpositionPushcommand2(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.lazer, VisionSendCommand);
+
+            SendMessage(VisionSendCommand);
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

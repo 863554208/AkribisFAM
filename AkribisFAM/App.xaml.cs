@@ -28,6 +28,7 @@ namespace AkribisFAM
         public static AssemblyGantryControl assemblyGantryControl;
         public static FeederControl feeder1;
         public static FeederControl feeder2;
+        public static CognexBarcodeScanner scanner;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -56,6 +57,7 @@ namespace AkribisFAM
             vision1 = new CognexVisionControl();
             feeder1 = new FeederControl(1);
             feeder2 = new FeederControl(2);
+            scanner = new CognexBarcodeScanner();
 
             //TODO
             //try

@@ -1,4 +1,5 @@
-﻿using AkribisFAM.Manager;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace AkribisFAM.Windows
     {
         LaserHeighCheckVM vm;
         bool stopAllMotion = false;
+        string Result = "";
         class LaserHeighCheckVM
         {
 
@@ -54,6 +56,56 @@ namespace AkribisFAM.Windows
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
 
+            Task_KEYENCEDistance.OnMessageReceive += Task_KEYENCEDistance_OnMessageReceive;
+            Task_KEYENCEDistance.OnMessageSent += Task_KEYENCEDistance_OnMessageSent;
+            Task_Scanner.OnMessageReceive += Task_Scanner_OnMessageReceive;
+            Task_Scanner.OnMessageSent += Task_Scanner_OnMessageSent;
+            
+
+        }
+
+        private void Task_Scanner_OnMessageSent(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtHeightResult.Text += $"Message sent: {message}";
+                }
+            });
+        }
+
+        private void Task_Scanner_OnMessageReceive(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtHeightResult.Text += $"Message receive: {message}";
+                }
+            });
+        }
+
+        private void Task_KEYENCEDistance_OnMessageSent(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtHeightResult.Text += $"Message sent: {message}";
+                }
+            });
+        }
+
+        private void Task_KEYENCEDistance_OnMessageReceive(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtHeightResult.Text += $"Message receive: {message}";
+                }
+            });
         }
 
         private void cbxTrayType_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -142,6 +194,7 @@ namespace AkribisFAM.Windows
 
         private void btnCheckAllTeachPoint_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            Result = "";
             stopAllMotion = false;
             if (vm != null)
             {
@@ -165,6 +218,7 @@ namespace AkribisFAM.Windows
                                     MessageBox.Show("Failed to measure");
                                     return;
                                 }
+                                Result = readout.ToString();
 
                                 Thread.Sleep(50);
                             }
@@ -173,16 +227,48 @@ namespace AkribisFAM.Windows
                     }
 
                 });
+            }
+
+            txtHeightResult.Text += Result;
+        }
+
+        private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            stopAllMotion = true;
+            Task.Run(() =>
+            {
+                AkrAction.Current.StopAllAxis();
+            });
+        }
+
+
+        private void btnTriggerLaser_Click(object sender, RoutedEventArgs e)
+        {
+            if (!App.laser.Measure(out int readout))
+            {
+                MessageBox.Show("Failed to measure");
+            }
+            //Result += readout.ToString();
+        }
+
+        private void btnTriggerScanner_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.scanner.ScanBarcode(out string readout) != 0)
+            {
+                MessageBox.Show("Failed to measure");
+            }
+            //Result += readout.ToString();
+        }
+
+        private void btnClearBarcode_Click(object sender, RoutedEventArgs e)
+        {
+
+            txtTrayBarcode.Text = "";
+        }
+
+        private void btnClearLaser_Click(object sender, RoutedEventArgs e)
+        {
+            txtHeightResult.Text = "";
         }
     }
-
-    private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
-    {
-        stopAllMotion = true;
-        Task.Run(() =>
-        {
-            AkrAction.Current.StopAllAxis();
-        });
-    }
-}
 }
