@@ -14,6 +14,12 @@
     <sys:String x:Key="CTlab">CT:</sys:String>
     <sys:String x:Key="UPHlab">UPH:</sys:String>
 
+    <sys:String x:Key="ScanningGun">扫描枪数据：</sys:String>
+    <sys:String x:Key="NozzleForce1">吸嘴1力控值：</sys:String>
+    <sys:String x:Key="NozzleForce2">吸嘴2力控值：</sys:String>
+    <sys:String x:Key="NozzleForce3">吸嘴3力控值：</sys:String>
+    <sys:String x:Key="NozzleForce4">吸嘴4力控值：</sys:String>
+
     <sys:String x:Key="DeviceBtn">设备</sys:String>
     <sys:String x:Key="ScanningGunBtn">扫码枪</sys:String>
     <sys:String x:Key="RangefinderBtn">测距仪</sys:String>
@@ -42,8 +48,8 @@
     <sys:String x:Key="TextNowAxisEN">使能</sys:String>
     <sys:String x:Key="TextNowAxisInPos">到位</sys:String>
     <sys:String x:Key="TextNowAxisHome">原点</sys:String>
-    <sys:String x:Key="TextNowLimit+">硬限位+</sys:String>
-    <sys:String x:Key="TextNowLimit-">硬限位-</sys:String>
+    <sys:String x:Key="TextNowLimit+">光电限位+</sys:String>
+    <sys:String x:Key="TextNowLimit-">光电限位-</sys:String>
     <sys:String x:Key="TextNowSwLimit-">软限位-</sys:String>
     <sys:String x:Key="TextNowSwLimit+">软限位+</sys:String>
     <sys:String x:Key="TextNowAxisErr">报警</sys:String>
