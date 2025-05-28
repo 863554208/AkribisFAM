@@ -177,6 +177,7 @@
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
     <Compile Include="DeviceClass\AssemblyGantryControl.cs" />
+    <Compile Include="DeviceClass\CognexBarcodeScanner.cs" />
     <Compile Include="DeviceClass\CognexVisionControl.cs" />
     <Compile Include="DeviceClass\FeederControl.cs" />
     <Compile Include="DeviceClass\KeyenceLaserControl.cs" />

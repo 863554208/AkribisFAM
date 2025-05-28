@@ -21,6 +21,7 @@ namespace AkribisFAM.DeviceClass
         List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
         List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> palletePath = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition>();
         List<AssUpCamrea.Pushcommand.SendGTCommandAppend> fetchMatrial = new List<AssUpCamrea.Pushcommand.SendGTCommandAppend>();
+        public List<string> msg = new List<string>();
 
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();

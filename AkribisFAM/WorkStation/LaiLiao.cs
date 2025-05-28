@@ -189,6 +189,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ErrorCode.BarocdeScan_Failed;
             }
 
+            Logger.WriteLog($"Readout scanner : {barcode} ");
             GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
 
             //global switch for using mes system

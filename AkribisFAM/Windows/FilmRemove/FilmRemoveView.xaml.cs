@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using AkribisFAM.Manager;
+using AkribisFAM;
 using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
@@ -80,6 +82,20 @@ namespace AkribisFAM.Windows
                 Column = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartColumn,
             };
             DataContext = vm;
+        }
+
+        private void btnFilmRemove_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            //stopAllMotion = true;
+            //Task.Run(() =>
+            //{
+            //    AkribisFAM.Current.StopAllAxis();
+            //});
         }
     }
 }

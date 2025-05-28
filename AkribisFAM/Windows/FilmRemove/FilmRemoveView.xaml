@@ -21,6 +21,9 @@
 
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
             <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
+            <Button x:Name="btnFilmRemove" Grid.Column="2" Content="Remove All Films" HorizontalAlignment="Right" Click="btnFilmRemove_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
+
         </Grid>
         <ScrollViewer Grid.Row="1" CanContentScroll="True">
             <Grid>

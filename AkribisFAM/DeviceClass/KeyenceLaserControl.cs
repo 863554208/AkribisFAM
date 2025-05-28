@@ -9,7 +9,22 @@ namespace AkribisFAM.DeviceClass
         List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptKDistanceAppend = new List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend>();
         List<KEYENCEDistance.Pushcommand.SendKDistanceAppend> sendKDistanceAppend = new List<KEYENCEDistance.Pushcommand.SendKDistanceAppend>();
 
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
 
+        public event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public bool Measure(out int result)
         {
             result = -999;

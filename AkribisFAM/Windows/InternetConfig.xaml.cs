@@ -57,16 +57,16 @@ namespace AkribisFAM.Windows
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if(TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
-            {
-                string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
-                double result = Parser.TryParseTwoValues(press);
-                PressureInfo.Text = result.ToString()+"N";
-            }
-            else
-            {
+            //if(TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+            //{
+            //    string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
+            //    double result = Parser.TryParseTwoValues(press);
+            //    PressureInfo.Text = result.ToString()+"N";
+            //}
+            //else
+            //{
 
-            }
+            //}
         }
 
         private void Readdevicesjson()//读IP地址和端口号

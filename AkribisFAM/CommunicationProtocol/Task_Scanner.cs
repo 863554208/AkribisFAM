@@ -1,17 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using AkribisFAM.Manager;
-using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 
 namespace AkribisFAM.CommunicationProtocol
 {
-    class Task_Scanner
+    public class Task_Scanner
     {
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
+
+        public static event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public static void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public static event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public static void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public enum ScannerProcessCommand
         {
             Trigger,//触发扫码枪
@@ -43,7 +53,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-       
+
         public static (string Result, ErrorCode Error) TriggScannerAcceptData()//扫码返回SN
         {
             try
@@ -95,16 +105,19 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return false;
             }
+
             if (VisionAcceptCommand.Contains("\r\n"))
             {
                 VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
             }
+            ReceiveMessage(VisionAcceptCommand);
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.scanner, VisionSendCommand + "\r\n");
+            SendMessage(VisionSendCommand);
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

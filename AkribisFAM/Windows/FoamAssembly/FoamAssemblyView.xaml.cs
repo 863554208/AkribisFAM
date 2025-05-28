@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.DeviceClass;
 using AkribisFAM.Manager;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
@@ -50,6 +51,31 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
+
+            Task_AssUpCameraFunction.OnMessageReceive += Task_AssUpCameraFunction_OnMessageReceive;
+            Task_AssUpCameraFunction.OnMessageSent += Task_AssUpCameraFunction_OnMessageSent;
+        }
+
+        private void Task_AssUpCameraFunction_OnMessageSent(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtResult.Text += $"Message sent: {message}";
+                }
+            });
+        }
+
+        private void Task_AssUpCameraFunction_OnMessageReceive(object sender, string message)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (this.IsVisible)
+                {
+                    txtResult.Text += $"Message received: {message}";
+                }
+            });
         }
 
         private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -145,6 +171,11 @@ namespace AkribisFAM.Windows
         private void cbxTrayType_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
 
+        }
+
+        private void btnClear_Click(object sender, RoutedEventArgs e)
+        {
+            txtResult.Text = "";
         }
     }
 }
