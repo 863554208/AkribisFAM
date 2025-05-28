@@ -50,10 +50,9 @@ namespace AkribisFAM.Manager
         Cognex_DisConnected = 0x000A,
         OUT3_1_PNP_Gantry_vacuum1_Release_Error = 0x000B,
         OUT3_2_PNP_Gantry_vacuum2_Release_Error = 0x000C,
-
-        WaitMotion,
-        WaitIO,
-        CognexErr,
+        WaitMotion = 0x000D,
+        WaitIO =0x000E,
+        CognexErr=0x000F
     }
 
     public struct ErrorInfo
