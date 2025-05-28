@@ -721,34 +721,7 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-        public int axisAllZHome_HardStop()
-        {
-            int agmIndex;
-            int axisRefNum;
-            int temp;
-
-            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
-            agmIndex = temp / 8;
-            axisRefNum = temp % 8;
-            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK1_Z_hardstop.hseq");
-
-            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
-            agmIndex = temp / 8;
-            axisRefNum = temp % 8;
-            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
-
-            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
-            //agmIndex = temp / 8;
-            //axisRefNum = temp % 8;
-            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
-
-            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
-            //agmIndex = temp / 8;
-            //axisRefNum = temp % 8;
-            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK4_Z_hardstop.hseq");
-
-            return (int)ACTTION_ERR.NONE;
-        }
+    
 
         public int axisAllTHome(String path)
         {
@@ -1225,10 +1198,10 @@ namespace AkribisFAM.WorkStation
             axisRefNum = temp % 8;
             AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
 
-            //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
-            //agmIndex = temp / 8;
-            //axisRefNum = temp % 8;
-            //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
+            temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+            agmIndex = temp / 8;
+            axisRefNum = temp % 8;
+            AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
 
             temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
             agmIndex = temp / 8;
@@ -1237,5 +1210,33 @@ namespace AkribisFAM.WorkStation
 
             return (int)ACTTION_ERR.NONE;
         }
+        //public int axisAllZHome_HardStop()
+        //{
+        //    int agmIndex;
+        //    int axisRefNum;
+        //    int temp;
+
+        //    temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK1_Z");
+        //    agmIndex = temp / 8;
+        //    axisRefNum = temp % 8;
+        //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK1_Z_hardstop.hseq");
+
+        //    temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK2_Z");
+        //    agmIndex = temp / 8;
+        //    axisRefNum = temp % 8;
+        //    AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK2_Z_hardstop.hseq");
+
+        //    //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK3_Z");
+        //    //agmIndex = temp / 8;
+        //    //axisRefNum = temp % 8;
+        //    //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK3_Z_hardstop.hseq");
+
+        //    //temp = (int)GlobalManager.Current.GetAxisNameFromString("PICK4_Z");
+        //    //agmIndex = temp / 8;
+        //    //axisRefNum = temp % 8;
+        //    //AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), "D:\\akribisfam_config\\HomeFileZHardStop\\PICK4_Z_hardstop.hseq");
+
+        //    return (int)ACTTION_ERR.NONE;
+        //}
     }
 }
