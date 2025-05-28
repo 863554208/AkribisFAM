@@ -51,7 +51,23 @@ public class MoveView
                     {
                         try
                         {
-                            motionAction(axisName, paramArray);
+                            int agmIndex = (int)axisName / 8;
+                            int axisRefNum = (int)axisName % 8;
+                            bool connectState = AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].IsConnected;
+                            if (!connectState)
+                            {
+                                error_message = $"执行运动指令失败。轴：" + agmIndex + "未连接！";
+                                error_code = -5;
+
+                            }
+                            else
+                            {
+                                AAMotionAPI.MotorOn(AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));// 上使能
+                                motionAction(axisName, paramArray);
+                            }
+                            //AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+
+
                         }
                         catch (TimeoutException tex)
                         {
@@ -76,7 +92,19 @@ public class MoveView
                 else
                 {
                     error_code = -2;
-                    error_message = $"参数无效：必须是 object[] 且长度为 {expectedLength}。";
+
+                    // 尝试将 param 展开为字符串显示
+                    string paramContent = "";
+                    if (param is object[] rawArray)
+                    {
+                        paramContent = string.Join(", ", rawArray.Select((p, i) => $"[{i}]={p ?? "null"}"));
+                    }
+                    else
+                    {
+                        paramContent = param?.ToString() ?? "null";
+                    }
+
+                    error_message = $"参数无效：必须是 object[] 且长度为 {expectedLength}。实际参数：{paramContent}";
                     break;
                 }
             }
@@ -90,7 +118,7 @@ public class MoveView
         return error_code;
     }
 
-    public static int MovePTP(params  object[][] parameters)
+    public static int MovePTP(params object[][] parameters)
     {
         return ProcessMotion(parameters, 5, "MovePTP 错误", (axisName, paramArray) =>
         {
@@ -100,15 +128,15 @@ public class MoveView
             AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
                 .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum))
                 .MoveAbs(
-                    ToPulse(axisName, (double)paramArray[1]),
-                    ToPulse(axisName, (double)paramArray[2]),
-                    ToPulse(axisName, (double)paramArray[3]),
-                    ToPulse(axisName, (double)paramArray[4])
+                    ToPulse(axisName, Convert.ToDouble(paramArray[1])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[2])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[3])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[4]))
                 );
         });
     }
 
-    public static int MoveJog(params  object[][] parameters)
+    public static int MoveJog(params object[][] parameters)
     {
         return ProcessMotion(parameters, 3, "MoveJog 错误", (axisName, paramArray) =>
         {
@@ -118,12 +146,12 @@ public class MoveView
             AAMotionAPI.Jog(
                 AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex],
                 GlobalManager.Current.GetAxisRefFromInteger(axisRefNum),
-                (int)paramArray[1] * ToPulse(axisName, (double)paramArray[2])
+                (int)paramArray[1] * ToPulse(axisName, Convert.ToDouble(paramArray[2]))
             );
         });
     }
 
-    public static int MoveRelative(params  object[][] parameters)
+    public static int MoveRelative(params object[][] parameters)
     {
         return ProcessMotion(parameters, 5, "MoveRelative 错误", (axisName, paramArray) =>
         {
@@ -133,15 +161,15 @@ public class MoveView
             AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
                 .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum))
                 .MoveRel(
-                    ToPulse(axisName, (double)paramArray[1]),
-                    ToPulse(axisName, (double)paramArray[2]),
-                    ToPulse(axisName, (double)paramArray[3]),
-                    ToPulse(axisName, (double)paramArray[4])
+                    ToPulse(axisName, Convert.ToDouble(paramArray[1])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[2])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[3])),
+                    ToPulse(axisName, Convert.ToDouble(paramArray[4]))
                 );
         });
     }
 
-    public static int MoveStop(params  object[][] parameters)
+    public static int MoveStop(params object[][] parameters)
     {
         return ProcessMotion(parameters, 1, "MoveStop 错误", (axisName, paramArray) =>
         {
@@ -154,7 +182,7 @@ public class MoveView
         });
     }
 
-    public static int WaitAxisArrived(params  object[][] parameters)
+    public static int WaitAxisArrived(params object[][] parameters)
     {
         return ProcessMotion(parameters, 1, "WaitAxisArrived 错误", (axisName, paramArray) =>
         {
@@ -162,8 +190,7 @@ public class MoveView
             int axisRefNum = (int)axisName % 8;
             DateTime start = DateTime.Now;
 
-            while (AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex]
-                .GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            while (AkribisFAM.AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 if ((DateTime.Now - start).TotalMilliseconds > 20000)
                 {

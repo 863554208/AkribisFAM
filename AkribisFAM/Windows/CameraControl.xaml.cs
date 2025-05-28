@@ -18,6 +18,7 @@ using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
+using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
 using Microsoft.Win32;
@@ -191,7 +192,7 @@ namespace AkribisFAM.Windows
             //if (Calibstatus_Click)
             //{
                 FileHelper.LoadConfig(posFileName[3], out CamerCalibProcess.Instance.CalibrationPoints);
-                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 17)
+                if (CamerCalibProcess.Instance.CalibrationPoints.ZuZhuangPointList.Count != 18)
                 {
                     MessageBox.Show("Point Number is incorrect!");
                     return;

@@ -192,15 +192,15 @@ namespace AkribisFAM.CommunicationProtocol
         IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
         IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
 
-        IN4_0Initialized_feeder1,
-        IN4_1Alarm_feeder1,
-        IN4_2Platform_has_label_feeder1,
-        IN4_3Backup_Platform_2_has_label_feeder1,
+        IN4_0Backup_Platform_2_has_label_feeder1,
+        IN4_1Platform_has_label_feeder1,
+        IN4_2Alarm_feeder1,
+        IN4_3Initialized_feeder1,
 
-        IN4_4Initialized_feeder2,
-        IN4_5Alarm_feeder2,
-        IN4_6Platform_has_label_feeder2,
-        IN4_7Backup_Platform_2_has_label_feeder2,
+        IN4_4Backup_Platform_2_has_label_feeder2,
+        IN4_5Platform_has_label_feeder2,
+        IN4_6Alarm_feeder2,
+        IN4_7Initialized_feeder2,
 
         IN4_8Feeder1_limit_cylinder_extend_InPos,
         IN4_9Feeder1_limit_cylinder_retract_InPos,
@@ -330,21 +330,6 @@ namespace AkribisFAM.CommunicationProtocol
 
         public void ReadIO_status()
         {
-            //foreach (var IOname in IO_OutFunctionnames)
-            //{
-            //    var IOnamekey = IOname.Key;
-            //    var IOnamevalue = IOname.Value;
-            //    bool results = ModbusTCPWorker.GetInstance().Read_Coil(520);
-
-            //    //OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
-            //}
-
-
-
-
-
-
-            ErrorManager.Current.ModbusErrCnt = 0;
             //循环读取输出IO
             Task.Run(new Action(() =>
             {
@@ -352,7 +337,7 @@ namespace AkribisFAM.CommunicationProtocol
 
                 while (true)
                 {
-                    foreach (var IOname in IO_OutFunctionnames)
+                    Parallel.ForEach(IO_OutFunctionnames, IOname =>
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
@@ -361,30 +346,20 @@ namespace AkribisFAM.CommunicationProtocol
                         if (ret == false)
                         {
                             OutIO_status[(int)IOnamekey] = -1;
-                            ErrorManager.Current.ModbusErrCnt++;
-                            if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit)
-                            {
-                                ModbusTCPWorker.GetInstance().Disconnect();
-                                Thread.Sleep(1000);
-                                bool initret = ModbusTCPWorker.GetInstance().Initializate();
-                                if (initret == false)
-                                {
-                                    ErrorManager.Current.Insert(ErrorCode.IODisconnect);
-                                    return;
-                                }
-                            }
                         }
-                        else {
+                        else
+                        {
                             if (IOstatus)
                             {
                                 OutIO_status[(int)IOnamekey] = 0;
                             }
-                            else {
+                            else
+                            {
                                 OutIO_status[(int)IOnamekey] = 1;
                             }
                         }
-                    }
-                    Thread.Sleep(5);
+                    });
+                    Thread.Sleep(10);
                 }
             }));
             //循环读取输入IO
@@ -392,7 +367,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 while (true)
                 {
-                    foreach (var IOname in IO_INFunctionnames)
+                    Parallel.ForEach(IO_INFunctionnames, IOname =>
                     {
                         var IOnamekey = IOname.Key;
                         var IOnamevalue = IOname.Value;
@@ -401,20 +376,9 @@ namespace AkribisFAM.CommunicationProtocol
                         if (ret == false)
                         {
                             INIO_status[(int)IOnamekey] = -1;
-                            ErrorManager.Current.ModbusErrCnt++;
-                            if (ErrorManager.Current.ModbusErrCnt > ErrorManager.ModbusErrCntLimit)
-                            {
-                                ModbusTCPWorker.GetInstance().Disconnect();
-                                Thread.Sleep(1000);
-                                bool initret = ModbusTCPWorker.GetInstance().Initializate();
-                                if (initret == false)
-                                {
-                                    ErrorManager.Current.Insert(ErrorCode.IODisconnect);
-                                    return;
-                                }
-                            }
                         }
-                        else {
+                        else
+                        {
                             if (IOstatus)
                             {
                                 INIO_status[(int)IOnamekey] = 0;
@@ -424,8 +388,8 @@ namespace AkribisFAM.CommunicationProtocol
                                 INIO_status[(int)IOnamekey] = 1;
                             }
                         }
-                    }
-                    Thread.Sleep(5);
+                    });
+                    Thread.Sleep(10);
                 }
             }));
         }
@@ -436,8 +400,8 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
                 {
-                    string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    Logger.WriteLog(err);
+                    //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                    //Logger.WriteLog(err);
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
                     if (!Sucessstatus)
                     {
@@ -454,8 +418,8 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
                 {
-                    string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    Logger.WriteLog(err);
+                    //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                    //Logger.WriteLog(err);
 
                     bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
                     if (!Sucessstatus)
