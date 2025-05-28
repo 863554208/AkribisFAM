@@ -57,13 +57,20 @@ namespace AkribisFAM.Windows
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if(TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+            try
             {
-                string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
-                double result = Parser.TryParseTwoValues(press);
-                PressureInfo.Text = result.ToString()+"N";
+                if (TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+                {
+                    string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
+                    double result = Parser.TryParseTwoValues(press);
+                    PressureInfo.Text = result.ToString() + "N";
+                }
+                else
+                {
+
+                }
             }
-            else
+            catch (Exception)
             {
 
             }

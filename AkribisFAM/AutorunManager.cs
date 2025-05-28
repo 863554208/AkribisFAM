@@ -141,9 +141,9 @@ namespace AkribisFAM
                     List<Task> tasks = new List<Task>();
 
                     tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
                     await Task.WhenAll(tasks);
@@ -304,9 +304,11 @@ namespace AkribisFAM
         {
 
             //20250519 测试 【史彦洋】 追加 Start
-            CylinderDown();
-            Conveyor.Current.AllWorkStopCylinderAct(1, 0);
-            return true;
+            //CylinderDown();
+            //Conveyor.Current.AllWorkStopCylinderAct(1, 0);
+            //return true;
+
+
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
@@ -330,8 +332,8 @@ namespace AkribisFAM
 
 
             //先对Z轴hardstop回零
-            AkrAction.Current.axisAllZHome_HardStop();
-            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+            //AkrAction.Current.axisAllZHome_HardStop();
+            //if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
 
 
@@ -355,9 +357,7 @@ namespace AkribisFAM
             //轴回原点
 
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
-            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
-
-            //while()
+            //AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
             if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
 
@@ -415,8 +415,8 @@ namespace AkribisFAM
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
-            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+            //AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+            //if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);
