@@ -6,53 +6,35 @@
               xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851" FontSize="16">
-    <UserControl.Resources>
-        <Style x:Key="SelectableButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="Tag" Value="Selected">
-                                <Setter TargetName="border" Property="Background" Value="#a7c0ec"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFE0E0E0"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
-    <Grid Margin="5">
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- 第一行：自适应内容高度 -->
-            <RowDefinition Height="*"/>
-            <!-- 第二行：占满剩余空间 -->
-        </Grid.RowDefinitions>
+    <TabControl TabStripPlacement="Left" >
+        <TabItem Header="Conveyor">
+            <local:ConveyorControlView/>
+        </TabItem>
+        <TabItem Header="Laser Height">
+            <local:LaserHeighCheckView/>
+        </TabItem>
 
-        <!-- 第一行按钮区域 -->
-        <Border Grid.Row="0" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="轴调试"  Name="AxisDebug" Style="{StaticResource SelectableButtonStyle}"  Width="80" Click="AxisConfigure_Click"/>
-                <Button Content="气动调试" Name="AirDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="AirControl_Click"/>
-                <Button Content="相机调试" Name="CameraDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="CameraControl_Click"/>
-                <Button Content="IO调试" Name="IoDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" Click="IOConfigure_Click"/>
-                <Button Content="流程调试" Name="ProgressDebug" Style="{StaticResource SelectableButtonStyle}" Width="80" />
-            </StackPanel>
-        </Border>
+        <TabItem Header="Feeder Foam Picking">
+            <local:FeederView/>
+        </TabItem>
 
-    </Grid>
+        <TabItem Header="CCD 2 Coordinate Check">
+            <local:Vision2View />
+        </TabItem>
+
+        <!--<TabItem Header="Pallet on the fly">
+         <local:Vision3PalletOnTheFly/>
+     </TabItem>-->
+        <TabItem Header="Foam Assembly">
+            <local:FoamAssemblyView/>
+        </TabItem>
+
+
+        <TabItem Header="Film Remove">
+            <local:FilmRemoveView/>
+        </TabItem>
+
+
+
+    </TabControl>
 </UserControl>

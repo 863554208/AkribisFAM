@@ -20,8 +20,11 @@ namespace AkribisFAM.Windows
             try
             {
                 var dc = (SinglePoint)DataContext;
-                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
-                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                {
+                    MessageBox.Show("failed");
+                }
 
             }
             catch (System.Exception)
@@ -37,7 +40,7 @@ namespace AkribisFAM.Windows
             try
             {
                 var dc = (SinglePoint)DataContext;
-                if (AkrAction.Current.MoveNoWait(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
                 AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
                 {
                     MessageBox.Show("Failed to move position");

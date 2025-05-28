@@ -87,18 +87,6 @@ namespace AkribisFAM.Windows
             DataContext = vm;
             itemControl.ItemsSource = vm.Points;
         }
-        public class SinglePointExt : SinglePoint
-        {
-            private int teachPointIndex;
-
-            public int TeachPointIndex
-            {
-                get { return teachPointIndex; }
-                set { teachPointIndex = value; }
-            }
-
-            public SinglePointExt() { }
-        }
         private void PointXYPickerMoveAndPlaceView_PickerMovePressed(object sender, EventArgs e)
         {
             Button button = sender as Button;
@@ -147,4 +135,17 @@ namespace AkribisFAM.Windows
 
         }
     }
+    public class SinglePointExt : SinglePoint
+    {
+        private int teachPointIndex;
+
+        public int TeachPointIndex
+        {
+            get { return teachPointIndex; }
+            set { teachPointIndex = value; }
+        }
+
+        public SinglePointExt() { }
+    }
+
 }

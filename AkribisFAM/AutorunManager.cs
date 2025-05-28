@@ -89,7 +89,7 @@ namespace AkribisFAM
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
@@ -327,7 +327,7 @@ namespace AkribisFAM
             Thread.Sleep(300);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
-            AkrAction.Current.axisAllZAxisEnable(true);
+            //AkrAction.Current.axisAllZAxisEnable(true);
             Thread.Sleep(200);
 
 
@@ -359,10 +359,10 @@ namespace AkribisFAM
             AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             //AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
+            //if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
 
             //把旋转轴的当前位置作为0位置
-            AkrAction.Current.SetZeroAll();
+            //AkrAction.Current.SetZeroAll();
 
 
             if (LaiLiao.Current.board_count != 0 || ZuZhuang.Current.board_count != 0 || FuJian.Current.board_count != 0 || Reject.Current.board_count != 0)

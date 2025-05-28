@@ -1149,9 +1149,9 @@ namespace AkribisFAM.WorkStation
             //ret += axisEnable(AxisName.PICK3_T, enable);
             //ret += axisEnable(AxisName.PICK4_Z, enable);
             //ret += axisEnable(AxisName.PICK4_T, enable);
-            ret += axisEnable(AxisName.PRX, enable);
-            ret += axisEnable(AxisName.PRY, enable);
-            ret += axisEnable(AxisName.PRZ, enable);
+            //ret += axisEnable(AxisName.PRX, enable);
+            //ret += axisEnable(AxisName.PRY, enable);
+            //ret += axisEnable(AxisName.PRZ, enable);
 
             if (ret != 0)
             {
