@@ -698,78 +698,78 @@ namespace AkribisFAM.WorkStation
         public int LowerCCD()
         {
 
-            //ccd2SnapPath.Clear();
-            //int count = 0;
-            //var start_x = GlobalManager.Current.lowerCCDPoints[0].X;
-            //var start_y = GlobalManager.Current.lowerCCDPoints[0].Y;
-            //for (int i = 0; i < 4; i++)
-            //{
+            ccd2SnapPath.Clear();
+            int count = 0;
+            var start_x = GlobalManager.Current.lowerCCDPoints[0].X;
+            var start_y = GlobalManager.Current.lowerCCDPoints[0].Y;
+            for (int i = 0; i < 4; i++)
+            {
 
-            //    PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition SendTLNCamreaposition = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition()
-            //    {
-            //        SN = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-            //        NozzleID = (count +1).ToString(),
-            //        RawMaterialName = "Foam",
-            //        CaveID = "0",
-            //        TargetMaterialName1 = "Foam->Moudel",
-            //        Photo_X1 = (start_x - i * 16).ToString(),
-            //        Photo_Y1 = (start_y).ToString(),
-            //        Photo_R1 = "90.0",
+                PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition SendTLNCamreaposition = new PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition()
+                {
+                    SN = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    NozzleID = (count + 1).ToString(),
+                    RawMaterialName = "Foam",
+                    CaveID = "0",
+                    TargetMaterialName1 = "Foam->Moudel",
+                    Photo_X1 = (start_x - i * 16).ToString(),
+                    Photo_Y1 = (start_y).ToString(),
+                    Photo_R1 = "90.0",
 
-            //    };
-            //    ccd2SnapPath.Add(SendTLNCamreaposition);
-            //    count++;
-            //}
-
-
-            //AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
-            //Thread.Sleep(300);
+                };
+                ccd2SnapPath.Add(SendTLNCamreaposition);
+                count++;
+            }
 
 
-            ////移动到拍照起始点
-            //AkrAction.Current.MoveNoWait(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
-            //AkrAction.Current.Move(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
+            Thread.Sleep(300);
 
 
-            //Logger.WriteLog("CCD2准备移动到拍照位置");
-
-            //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X +16 , (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            //AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
-
-            //AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[0].X - 16 * 3 , 2);
-            //Thread.Sleep(200);
+            //移动到拍照起始点
+            AkrAction.Current.MoveNoWait(AxisName.PICK2_T, 90, (int)AxisSpeed.PICK2_T);
+            AkrAction.Current.Move(AxisName.PICK1_T, 90, (int)AxisSpeed.PICK1_T);
 
 
-            //Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand.TLN, ccd2SnapPath);
-            //Thread.Sleep(100);
-            ////给Cognex发拍照信息
-            //Logger.WriteLog("CCD2 开始接受COGNEX的OK信息");
-            //while (Task_PrecisionDownCamreaFunction.TriggDownCamreaready() != "OK")
-            //{
-            //    string res = "接收到的信息是:" + Task_PrecisionDownCamreaFunction.TriggDownCamreaready();
-            //    Logger.WriteLog(res);
-            //    Thread.Sleep(300);
-            //}
-            //Logger.WriteLog("CCD2 接受完成COGNEX的OK信息");
-            //Thread.Sleep(30);
-            //AkrAction.Current.EventEnable(AxisName.FSX);
-            //AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response6);
-            //Thread.Sleep(200);
+            Logger.WriteLog("CCD2准备移动到拍照位置");
 
-            //Logger.WriteLog("开始CCD2运动1");
-            ////移动到拍照结束点
-            //AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 *4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            //Thread.Sleep(200);
-            //Logger.WriteLog("结束CCD2运动1");
-            //AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
-            ////接受Cognex信息
-            ////List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
-            ////AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+            AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
 
-            //AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z);
-            ////AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z);
-            ////AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z);
-            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[0].X - 16 * 3, 2);
+            Thread.Sleep(200);
+
+
+            Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNSendData(PrecisionDownCamreaProcessCommand.TLN, ccd2SnapPath);
+            Thread.Sleep(100);
+            //给Cognex发拍照信息
+            Logger.WriteLog("CCD2 开始接受COGNEX的OK信息");
+            while (Task_PrecisionDownCamreaFunction.TriggDownCamreaready() != "OK")
+            {
+                string res = "接收到的信息是:" + Task_PrecisionDownCamreaFunction.TriggDownCamreaready();
+                Logger.WriteLog(res);
+                Thread.Sleep(300);
+            }
+            Logger.WriteLog("CCD2 接受完成COGNEX的OK信息");
+            Thread.Sleep(30);
+            AkrAction.Current.EventEnable(AxisName.FSX);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response6);
+            Thread.Sleep(200);
+
+            Logger.WriteLog("开始CCD2运动1");
+            //移动到拍照结束点
+            AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
+            Thread.Sleep(200);
+            Logger.WriteLog("结束CCD2运动1");
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
+            //接受Cognex信息
+            //List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+            //AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+
+            AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.MoveNoWait(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z);
+            //AkrAction.Current.MoveNoWait(AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z);
+            AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z);
 
 
             return 0;

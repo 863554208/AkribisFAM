@@ -182,6 +182,8 @@ namespace AkribisFAM.WorkStation
 
         public int ScanBarcode()
         {
+
+            Task_Scanner.TriggScannerSendData();
             var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
             if (error == ErrorCode.BarocdeScan_Failed)

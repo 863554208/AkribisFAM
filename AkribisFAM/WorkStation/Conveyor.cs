@@ -107,7 +107,7 @@ namespace AkribisFAM.WorkStation
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(10);
             }
 
             return ret;
@@ -213,6 +213,7 @@ namespace AkribisFAM.WorkStation
                 GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
 
                 GlobalManager.Current.flag_Bypass = 0;
+
 
 
             STEP_JudgeAllStationTrayNumberIsZero:
