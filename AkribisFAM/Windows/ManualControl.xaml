@@ -5,40 +5,36 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
               xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TabControl TabStripPlacement="Left" >
-            <TabItem Header="Conveyor">
-                <local:ConveyorControlView/>
-            </TabItem>
-            <TabItem Header="Laser Height">
-                <local:LaserHeighCheckView/>
-            </TabItem>
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851" FontSize="16">
+    <TabControl TabStripPlacement="Left" >
+        <TabItem Header="Conveyor">
+            <local:ConveyorControlView/>
+        </TabItem>
+        <TabItem Header="Laser Height">
+            <local:LaserHeighCheckView/>
+        </TabItem>
 
-            <TabItem Header="Feeder Foam Picking">
-                <local:FeederView/>
-            </TabItem>
+        <TabItem Header="Feeder Foam Picking">
+            <local:FeederView/>
+        </TabItem>
 
-            <TabItem Header="CCD 2 Coordinate Check">
-                <local:Vision2View />
-            </TabItem>
+        <TabItem Header="CCD 2 Coordinate Check">
+            <local:Vision2View />
+        </TabItem>
 
-            <!--<TabItem Header="Pallet on the fly">
-                <local:Vision3PalletOnTheFly/>
-            </TabItem>-->
-            <TabItem Header="Foam Assembly">
-                <local:FoamAssemblyView/>
-            </TabItem>
+        <!--<TabItem Header="Pallet on the fly">
+         <local:Vision3PalletOnTheFly/>
+     </TabItem>-->
+        <TabItem Header="Foam Assembly">
+            <local:FoamAssemblyView/>
+        </TabItem>
 
 
-            <TabItem Header="Film Remove">
-                <local:FilmRemoveView/>
-            </TabItem>
+        <TabItem Header="Film Remove">
+            <local:FilmRemoveView/>
+        </TabItem>
 
 
-       
-        </TabControl>
 
-    </Grid>
+    </TabControl>
 </UserControl>

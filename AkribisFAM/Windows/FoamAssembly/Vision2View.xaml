@@ -52,7 +52,7 @@
                 <Border BorderBrush="Gray" BorderThickness="0 0 0 2" Margin="3" Grid.Row="0" VerticalAlignment="Top">
                     <Label Content="Vision 2 Check" FontWeight="Bold" FontSize="14"/>
                 </Border>
-                <TextBlock x:Name="txtResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" />
+                <TextBlock x:Name="txtResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" TextWrapping="Wrap"/>
                 <Button x:Name="btnClear" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClear_Click"/>
             </Grid>
         </Grid>

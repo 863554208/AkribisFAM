@@ -41,7 +41,7 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:PointXYMoveRemoveInspectView  Margin="5"/>
+                            <local:PointXYMoveRemoveInspectView  Margin="5" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

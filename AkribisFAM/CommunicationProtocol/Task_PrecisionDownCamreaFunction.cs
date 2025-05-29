@@ -63,7 +63,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         public static void SendMessage(string msg)
         {
-            OnMessageSent.Invoke(null, msg);
+           // OnMessageSent.Invoke(null, msg);
         }
         public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
 

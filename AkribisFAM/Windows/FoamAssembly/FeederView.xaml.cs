@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using AkribisFAM.CommunicationProtocol;
@@ -255,11 +256,15 @@ namespace AkribisFAM.Windows
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
-            {
+            //Task.Run(() =>
+            //{
 
-                System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
-            }
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+                {
+
+                   // System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
+                }
+            //});
         }
 
         private void ManualFeederControlView_PickerZUpPressed(object sender, EventArgs e)

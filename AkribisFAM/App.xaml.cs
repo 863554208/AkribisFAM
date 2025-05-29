@@ -58,6 +58,7 @@ namespace AkribisFAM
             feeder1 = new FeederControl(1);
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
+            assemblyGantryControl = new AssemblyGantryControl();
 
             //TODO
             //try
@@ -111,7 +112,7 @@ namespace AkribisFAM
             {
                 string[] agm800_IP = new string[]
                 {
-                    "172.1.1.101",
+                    "172.1.1.105",
                     "172.1.1.102",
                     "172.1.1.103",
                     "172.1.1.104"

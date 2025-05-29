@@ -213,112 +213,140 @@ namespace AkribisFAM.WorkStation
             {
                 if (count % 4 == 0) 
                 {
-                    var arr1 = new object[] { AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    //var arr1 = new object[] { AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    //var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-                    int moveToPointX = MoveView.MovePTP(arr1);
-                    int moveToPointY = MoveView.MovePTP(arr2);
 
-                    if ((int)moveToPointX > 0x1000) return moveToPointX;
-                    CheckState(moveToPointX);
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
 
-                    if ((int)moveToPointY > 0x1000) return moveToPointY;
-                    CheckState(moveToPointY);
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
 
-                    int waitPointX = WaitFor_X_AxesArrival();
-                    if((int)waitPointX > 0x1000) return waitPointX;
-                    CheckState(waitPointX);
+                    if(y_move != 0) return y_move;
+                    CheckState(y_move);
 
-                    int waitPointY = WaitFor_Y_AxesArrival();
-                    if ((int)waitPointY > 0x1000) return waitPointY;
-                    CheckState(waitPointY);
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
 
-                    //int laserProc = TriggerLaser(count);
-                    //if ((int)laserProc >= 0x1000) return laserProc;
-                    //CheckState(laserProc);
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
+
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
+
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
                     count++;
                 }
                 if (count % 4 == 1) 
                 {
-                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
 
-                    int moveToPointX = MoveView.MovePTP(arr1);
-                    int moveToPointY = MoveView.MovePTP(arr2);
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
 
-                    if ((int)moveToPointX > 0x1000) return moveToPointX;
-                    CheckState(moveToPointX);
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
 
-                    if ((int)moveToPointY > 0x1000) return moveToPointY;
-                    CheckState(moveToPointY);
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
 
-                    int waitPointX = WaitFor_X_AxesArrival();
-                    if ((int)waitPointX > 0x1000) return waitPointX;
-                    CheckState(waitPointX);
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
 
-                    int waitPointY = WaitFor_Y_AxesArrival();
-                    if ((int)waitPointY > 0x1000) return waitPointY;
-                    CheckState(waitPointY);
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
 
-                    //int laserProc = TriggerLaser(count);
-                    //if ((int)laserProc >= 0x1000) return laserProc;
-                    //CheckState(laserProc);
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
 
                     count++;
                 }
                 if (count %4 == 2)
                 {
-                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY,(int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
 
-                    int moveToPointX = MoveView.MovePTP(arr1);
-                    int moveToPointY = MoveView.MovePTP(arr2);
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
 
-                    if ((int)moveToPointX > 0x1000) return moveToPointX;
-                    CheckState(moveToPointX);
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
 
-                    if ((int)moveToPointY > 0x1000) return moveToPointY;
-                    CheckState(moveToPointY);
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
 
-                    int waitPointX = WaitFor_X_AxesArrival();
-                    if ((int)waitPointX > 0x1000) return waitPointX;
-                    CheckState(waitPointX);
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
 
-                    int waitPointY = WaitFor_Y_AxesArrival();
-                    if ((int)waitPointY > 0x1000) return waitPointY;
-                    CheckState(waitPointY);
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
 
-                    //int laserProc = TriggerLaser(count);
-                    //if ((int)laserProc >= 0x1000) return laserProc;
-                    //CheckState(laserProc);
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
 
                     count++;
                 }
                 if (count % 4 == 3)
                 {
-                    var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-                    var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
 
-                    int moveToPointX = MoveView.MovePTP(arr1);
-                    int moveToPointY = MoveView.MovePTP(arr2);
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
 
-                    if ((int)moveToPointX > 0x1000) return moveToPointX;
-                    CheckState(moveToPointX);
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
 
-                    if ((int)moveToPointY > 0x1000) return moveToPointY;
-                    CheckState(moveToPointY);
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
 
-                    int waitPointX = WaitFor_X_AxesArrival();
-                    if ((int)waitPointX > 0x1000) return waitPointX;
-                    CheckState(waitPointX);
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
 
-                    int waitPointY = WaitFor_Y_AxesArrival();
-                    if ((int)waitPointY > 0x1000) return waitPointY;
-                    CheckState(waitPointY);
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
 
-                    //int laserProc = TriggerLaser(count);
-                    //if ((int)laserProc >= 0x1000) return laserProc;
-                    //CheckState(laserProc);
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
 
                     count++;
                 }

@@ -61,7 +61,7 @@
                             <Label Content="Cognex Barcode Scanner" FontWeight="Bold" FontSize="14"/>
                         </Border>
                         <Button x:Name="btnTriggerScanner" Content="Scan" Margin="3" Grid.Row="1" Click="btnTriggerScanner_Click"/>
-                        <TextBlock x:Name="txtTrayBarcode" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" />
+                        <TextBlock x:Name="txtTrayBarcode" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" TextWrapping="Wrap"/>
                         <Button x:Name="btnClearBarcode" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClearBarcode_Click"/>
                     </Grid>
                     <Grid Margin="5" Grid.Row="1">
@@ -75,7 +75,7 @@
                             <Label Content="Cognex Barcode Scanner" FontWeight="Bold" FontSize="14"/>
                         </Border>
                         <Button x:Name="btnTriggerLaser" Content="Measure" Margin="3" Grid.Row="1" Click="btnTriggerLaser_Click"/>
-                        <TextBlock x:Name="txtHeightResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" />
+                        <TextBlock x:Name="txtHeightResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" TextWrapping="Wrap" />
                         <Button x:Name="btnClearLaser" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClearLaser_Click"/>
                     </Grid>
                 </Grid>

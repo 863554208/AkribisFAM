@@ -44,7 +44,7 @@ namespace AkribisFAM.DeviceClass
 
             //得到测量结果
             AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData();
-            if (AcceptKDistanceAppend != null)
+            if (AcceptKDistanceAppend == null)
             {
                 Logger.WriteLog("Failed to receive MS response");
                 return false;

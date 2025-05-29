@@ -26,9 +26,9 @@
                     <Label Content="{Binding Y}" FontSize="16" Foreground="DarkRed" />
                 </StackPanel>
             </StackPanel>
-            <Button x:Name="btnMoveToPos" Margin="10" Content="Move"/>
-            <Button x:Name="btnRemoveFilm"  Margin="10" Content="Remove Film"/>
-            <Button x:Name="btnInspect"  Margin="10" Content="Inspect"/>
+            <Button x:Name="btnMoveToPos" Margin="10" Content="Move" Click="btnMoveToPos_Click"/>
+            <Button x:Name="btnRemoveFilm"  Margin="10" Content="Remove Film" Click="btnRemoveFilm_Click"/>
+            <Button x:Name="btnInspect"  Margin="10" Content="Inspect" Click="btnInspect_Click"/>
 
         </StackPanel>
     </Border>

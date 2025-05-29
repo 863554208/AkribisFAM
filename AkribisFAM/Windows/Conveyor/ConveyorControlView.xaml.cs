@@ -1,8 +1,11 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.WorkStation;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
 namespace AkribisFAM.Windows
@@ -21,7 +24,7 @@ namespace AkribisFAM.Windows
             InitializeComponent();
 
             _timer = new System.Timers.Timer(1000);
-            
+
 
             ConveyorWorkStationControl laserStation = new ConveyorWorkStationControl()
             {
@@ -88,7 +91,7 @@ namespace AkribisFAM.Windows
 
                 },
                 LifterOutList = new ObservableCollection<IO_OutFunction_Table>()
-                { 
+                {
                     IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend ,
                     IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract ,
                     IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend ,
@@ -218,10 +221,22 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            stations = stations;
+            var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    itemControlStation.ItemsSource = null;
+                    itemControlStation.ItemsSource = stations2;
+                }
+                catch (Exception ex)
+                {
 
+                    throw;
+                }
+            });
         }
-       private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Conveyor.Current.MoveConveyorAll((int)AxisSpeed.BL1);
         }
@@ -240,14 +255,32 @@ namespace AkribisFAM.Windows
         {
             var control = (GateControlView)sender;
             var station = (ConveyorWorkStationControl)control.DataContext;
-            Conveyor.Current.GateDown(station.StationNumber);
+            Task.Run(() =>
+            {
+
+                if (!Conveyor.Current.GateDown(station.StationNumber))
+                {
+                    //MessageBox.Show("Failed");
+                }
+            }
+          );
         }
 
         private void GateControlView_GateZUpPressed(object sender, System.EventArgs e)
         {
             var control = (GateControlView)sender;
             var station = (ConveyorWorkStationControl)control.DataContext;
-            Conveyor.Current.GateUp(station.StationNumber);
+            Task.Run(() =>
+            {
+
+                if (!Conveyor.Current.GateUp(station.StationNumber))
+                {
+                    //MessageBox.Show("Failed");
+                }
+            }
+            );
+
+
         }
 
         private void GateControlView_LifterZDownPressed(object sender, System.EventArgs e)
@@ -255,14 +288,35 @@ namespace AkribisFAM.Windows
 
             var control = (GateControlView)sender;
             var station = (ConveyorWorkStationControl)control.DataContext;
-            Conveyor.Current.LiftDownRelatedTray(station.StationNumber);
+            //Conveyor.Current.LiftDownRelatedTray(station.StationNumber);
+            Task.Run(() =>
+            {
+
+                if (!Conveyor.Current.LiftDownRelatedTray(station.StationNumber))
+                {
+                    //MessageBox.Show("Failed");
+                }
+            });
         }
 
         private void GateControlView_LifterZUpPressed(object sender, System.EventArgs e)
         {
             var control = (GateControlView)sender;
             var station = (ConveyorWorkStationControl)control.DataContext;
-            Conveyor.Current.LiftUpRelatedTray(station.StationNumber);
+            //Conveyor.Current.LiftUpRelatedTray(station.StationNumber);
+            Task.Run(() =>
+            {
+
+                if (!Conveyor.Current.LiftUpRelatedTray(station.StationNumber))
+                {
+                    //MessageBox.Show("Failed");
+                }
+            });
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _timer.Stop();
         }
     }
 
@@ -357,12 +411,12 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            ConveyorInList = ConveyorInList;
-            ConveyorOutList = ConveyorOutList;
-            LifterInList = LifterInList;
-            LifterOutList = LifterOutList;
-            GateInList = GateInList;
-            GateOutList = GateOutList;
+            ConveyorInList = new ObservableCollection<IO_INFunction_Table>(ConveyorInList);
+            ConveyorOutList = new ObservableCollection<IO_OutFunction_Table>(ConveyorOutList);
+            LifterInList = new ObservableCollection<IO_INFunction_Table>(LifterInList); ;
+            LifterOutList = new ObservableCollection<IO_OutFunction_Table>(LifterOutList); ;
+            GateInList = new ObservableCollection<IO_INFunction_Table>(GateInList); ;
+            GateOutList = new ObservableCollection<IO_OutFunction_Table>(GateOutList); ;
 
         }
     }
