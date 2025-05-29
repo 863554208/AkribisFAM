@@ -7,13 +7,11 @@ namespace AkribisFAM.DeviceClass
     public class FeederControl
     {
         private int feederNumber;
-
         public int FeederNumber
         {
             get { return feederNumber; }
             set { feederNumber = value; }
         }
-
         public FeederControl(int num)
         {
             if (num == 1 || num == 2)
@@ -38,7 +36,7 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
-        public bool IsFoamsIn
+        public bool hasPartsIn
         {
             get
             {
@@ -46,7 +44,7 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
-        public bool IsAutoRunReady => IsInitialized && !hasAlarm && IsLock && IsDrawerInPos && IsAllVacPressureOk;
+        //public bool IsAutoRunReady => IsInitialized && !hasAlarm && IsLock && IsDrawerInPos && IsAllVacPressureOk;
         public bool IsLock
         {
             get
@@ -56,7 +54,6 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input1] == 0 && IOManager.Instance.INIO_status[(int)input2] == 1;
             }
         }
-
         public bool IsUnlock
         {
             get
@@ -66,7 +63,6 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input1] == 1 && IOManager.Instance.INIO_status[(int)input2] == 0;
             }
         }
-
         public bool IsDrawerInPos
         {
             get
@@ -91,11 +87,13 @@ namespace AkribisFAM.DeviceClass
                 return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
-        public bool IsAllVacPressureOk
+        public bool IsAllVacPressureOk => IsVac1PressureOk && IsVac2PressureOk;
+        public bool HavePartsPlaced
         {
             get
             {
-                return IsVac1PressureOk && IsVac2PressureOk;
+                IO_INFunction_Table input1 = FeederNumber == 1 ? IO_INFunction_Table.IN4_12Feeder1_drawer_InPos : IO_INFunction_Table.IN4_13Feeder2_drawer_InPos;
+                return IOManager.Instance.INIO_status[(int)input1] == 0;
             }
         }
 
@@ -236,12 +234,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
             //Check feeder foam present
-            if (IsFoamsIn)
-            {
-                return false;
-            }
-
-            if (!IsLock)
+            if (hasPartsIn)
             {
                 return false;
             }
@@ -259,15 +252,13 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-
-            //Check if part has been insert successfully
-            if (!IsFoamsIn)
+            System.Threading.Thread.Sleep(10);
+            if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 0))
             {
                 return false;
             }
 
             return true;
-
         }
         public bool ClearError()
         {
