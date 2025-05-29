@@ -99,8 +99,8 @@ namespace AkribisFAM
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
-            FuJian.Current.readPointJson();
             Logger.WriteLog("MainWindow init");
+            IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 1;
             _timer.Start();
 
             //END Add
@@ -133,6 +133,8 @@ namespace AkribisFAM
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (StateManager.Current.State == StateCode.RUNNING)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -140,8 +142,12 @@ namespace AkribisFAM
                     performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
                 }));
             }
+            else {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 1;
+            }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
                 StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -158,6 +164,7 @@ namespace AkribisFAM
             }
             if (StateManager.Current.State == StateCode.IDLE)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
                 StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -776,6 +783,7 @@ namespace AkribisFAM
                 GlobalManager.Current.current_Zuzhuang_step = 0;
                 GlobalManager.Current.current_FuJian_step = 0;
                 GlobalManager.Current.current_Reject_step = 0;
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 0;
             }
         }
 
