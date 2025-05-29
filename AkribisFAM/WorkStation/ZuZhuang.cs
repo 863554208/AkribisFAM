@@ -21,6 +21,9 @@ namespace AkribisFAM.WorkStation
 {
     internal class ZuZhuang : WorkStationBase
     {
+
+        public SinglePoint[] PickPositions = new SinglePoint[4];
+        public SinglePoint[] PlacePositions = new SinglePoint[4];
         private static ZuZhuang _instance;
         public override string Name => nameof(ZuZhuang);
 
@@ -1352,7 +1355,6 @@ namespace AkribisFAM.WorkStation
                 Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
             };
         }
-        public SinglePoint[] PickPositions = new SinglePoint[4];
         public SinglePoint GetPickPosition(int Nozzlenum, int Fovnum)
         {
             SinglePoint singlePoint = new SinglePoint();
@@ -1390,6 +1392,7 @@ namespace AkribisFAM.WorkStation
                 singlePoint.R = double.Parse(GMout.Unload_R);
                 singlePoint.Z = 0.0;
             }
+            PlacePositions[Nozzlenum] = singlePoint;
             return singlePoint;
         }
 

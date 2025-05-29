@@ -283,7 +283,7 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.assemblyGantryControl.ZPickPosition((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
+            if (!App.assemblyGantryControl.ZPickDownPosition((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move picker {num} Z down");
             }

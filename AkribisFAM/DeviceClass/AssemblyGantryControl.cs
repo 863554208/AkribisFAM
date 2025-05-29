@@ -1,9 +1,14 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
+using LiveCharts;
+using LiveCharts.Wpf;
 using System;
+using System.Collections.Generic;
 using System.Threading;
+using System.Windows.Documents;
 using static AkribisFAM.GlobalManager;
+using static HslCommunication.Profinet.Knx.KnxCode;
 
 namespace AkribisFAM.DeviceClass
 {
@@ -161,9 +166,9 @@ namespace AkribisFAM.DeviceClass
         }
         public bool ZPickPositionAll()
         {
-            return ZPickPosition(Picker.Picker1) && ZPickPosition(Picker.Picker2) && ZPickPosition(Picker.Picker3) && ZPickPosition(Picker.Picker4);
+            return ZPickDownPosition(Picker.Picker1) && ZPickDownPosition(Picker.Picker2) && ZPickDownPosition(Picker.Picker3) && ZPickDownPosition(Picker.Picker4);
         }
-        public bool ZPickPosition(Picker picker)
+        public bool ZPickDownPosition(Picker picker)
         {
             if (IsBypass(picker))
             {
@@ -201,7 +206,7 @@ namespace AkribisFAM.DeviceClass
             return AkrAction.Current.Move(axis, sp.Z, (int)speed) == 0;
 
         }
-  
+
         public bool ZLoadCellPosition(Picker picker)
         {
             if (IsBypass(picker))
@@ -419,41 +424,187 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (!CallCalib())
+            if (!CallCalib(pickerNum))
             {
                 ZUp(pickerNum);
                 return false;
             }
-           
+
             return ZUp(pickerNum);
         }
 
-        public bool CallCalib()
+        public bool CallCalib(Picker picker)
         {
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[101]=1000", out string response44);
-            Logger.WriteLog("开始发送力控信号");
-            Thread.Sleep(100);
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[102]=5000", out string response123);
-            Logger.WriteLog("力控信号111");
-            Thread.Sleep(50);
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=2", out string response4);
-            Logger.WriteLog("力控信号222");
+            string programNumber = "-1";
+            string axis = "";
+            int startCurrent = 0;
+            int stepSize = 500;
+            int stepMultiply = 5;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    programNumber = "6";
+                    axis = "A";
+                    break;
+                case Picker.Picker2:
+                    programNumber = "7";
+                    axis = "C";
+                    break;
+                case Picker.Picker3:
+                    programNumber = "8";
+                    axis = "E";
+                    break;
+                case Picker.Picker4:
+                    programNumber = "9";
+                    axis = "G";
+                    break;
+                default:
+                    return false;
+            }
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[101]=1000", out string response44); //current
+            //Logger.WriteLog("开始发送力控信号");
+            //Thread.Sleep(100);
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[102]=5000", out string response123); // time
+            //Logger.WriteLog("力控信号111");
+            //Thread.Sleep(50);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[800]={programNumber}", out string response4);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[112]={stepSize}", out string response5);
 
+            NewtonCurrentList.Clear();
+            for (int i = 0; i < stepMultiply; i++)
+            {
+                IncreaseForce(axis);
+                if (!GetData(axis))
+                {
+                    return false;
+                }
+            }
+            if (!EndCalibProcess(axis))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        private void IncreaseForce(string axisCode)
+        {
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[110]=1", out string response5);
+
+        }
+        private bool GetData(string axisCode)
+        {
             DateTime start = DateTime.Now;
-            while ((DateTime.Now- start).TotalMilliseconds <3000)
-            { 
-                AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]", out string response5);
-                if (response5.Equals("0"))
+            while ((DateTime.Now - start).TotalMilliseconds < 3000)
+            {
+                //wait done signal
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[110]", out string done);
+                if (done.Equals("0"))
+                {
+                    IncreaseCurrent(axisCode, out string current);
+                    double N = ReadLoadCell();
+                    NewtonCurrentList.Add(new NewtonCurrent()
+                    {
+                        Newton = N,
+                        Current = double.Parse(current),
+                    });
+                    break;
+                }
+                Thread.Sleep(10);
+            }
+
+            return false;
+
+        }
+        public enum OperationMode
+        {
+            CurrentControl = 1,
+            VelocityControl = 2,
+            PositionControl =3
+        }
+        private bool WaitProcessDone(string axisCode)
+        {
+            DateTime start = DateTime.Now;
+            while ((DateTime.Now - start).TotalMilliseconds < 3000)
+            {
+                //wait done signal
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[800]", out string done); // operation
+                if (done.Equals("0"))
                 {
                     return true;
                 }
                 Thread.Sleep(10);
             }
-
-
-            //change back to ptp mode
             return false;
         }
+        private bool WaitModeToPositionControl(string axisCode)
+        {
+            DateTime start = DateTime.Now;
+            while ((DateTime.Now - start).TotalMilliseconds < 3000)
+            {
+                //wait done signal
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}OperationMode", out string done); // operation
+                if (done.Equals(((int)OperationMode.PositionControl).ToString()))
+                {
+                    break;
+                }
+                Thread.Sleep(10);
+            }
+            return false;
+        }
+
+        public bool EndCalibProcess(string axisCode)
+        {
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[111]=1", out string response5); // close agito
+
+            if (!WaitProcessDone(axisCode))
+            {
+
+                return false;
+            }  
+            if (!WaitModeToPositionControl(axisCode))
+            {
+
+                return false;
+            }
+
+            return true;
+       
+
+        }
+        public bool IncreaseCurrent(string axisCode, out string current)
+        {
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}ACurrCmdVal[1]", out current);
+            return true;
+        }
+        public double ReadLoadCell()
+        {
+            string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
+            return Parser.TryParseTwoValues(press);
+        }
+
+
+        public List<NewtonCurrent> NewtonCurrentList = new List<NewtonCurrent>();
+        public class NewtonCurrent
+        {
+
+            private double current;
+
+            public double Current
+            {
+                get { return current; }
+                set { current = value; }
+            }
+
+            private double newton;
+
+            public double Newton
+            {
+                get { return newton; }
+                set { newton = value; }
+            }
+        }
+
+
         public bool MovePlacePos(Picker pickerNum, int fovNum)
         {
             if (!ZUpAll())
@@ -500,6 +651,10 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
+            if (!TCompensatePlaceAll())
+            {
+                return false;
+            }
 
             if (!ZSafe(pickerNum)) // change to force mode
             {
@@ -511,13 +666,6 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-
-            if (!ZUp(pickerNum))
-            {
-                return false;
-            }
-            Thread.Sleep(200);
-
             return ZUp(pickerNum);
         }
         public bool PickFoam(Picker pickerNum, int fovNum)
@@ -545,7 +693,7 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!ZPickPosition(pickerNum))
+            if (!ZPickDownPosition(pickerNum))
             {
                 ZUp(pickerNum);
                 return false;
@@ -554,7 +702,11 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            return ZUp(pickerNum);
+            if (!TCompensatePick(pickerNum))
+            {
+                return false;
+            }
+            return true;
 
         }
 
@@ -584,12 +736,12 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!TCompensate())
+            if (!TCompensatePickAll())
             {
                 return false;
             }
             //rotate after picked
-            var res = ZPickPosition(Picker.Picker1) && ZPickPosition(Picker.Picker2) && ZPickPosition(Picker.Picker3);
+            var res = ZPickDownPosition(Picker.Picker1) && ZPickDownPosition(Picker.Picker2) && ZPickDownPosition(Picker.Picker3);
             //var res = res && ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
             res = res && ZSafe(Picker.Picker1) && ZSafe(Picker.Picker2) && ZSafe(Picker.Picker3);
 
@@ -601,7 +753,7 @@ namespace AkribisFAM.DeviceClass
             return res;
         }
 
-        public bool TRotate(Picker picker, int angle)
+        public bool TRotate(Picker picker, double angle)
         {
             if (IsBypass(picker))
             {
@@ -642,9 +794,33 @@ namespace AkribisFAM.DeviceClass
         {
             return TZero(Picker.Picker1) && TZero(Picker.Picker2) && TZero(Picker.Picker3) && TZero(Picker.Picker4);
         }
-        public bool TCompensate()
+        public bool TCompensatePickAll()
         {
-            return TRotate(Picker.Picker1, 0) && TRotate(Picker.Picker2, 0) && TRotate(Picker.Picker3, 0) && TRotate(Picker.Picker4, 0);
+            return TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4);
+        }
+        public bool TCompensatePlaceAll()
+        {
+            return TCompensatePlace(Picker.Picker1) && TCompensatePlace(Picker.Picker2) && TCompensatePlace(Picker.Picker3) && TCompensatePlace(Picker.Picker4);
+        }
+        public bool TCompensatePick(Picker picker)
+        {
+            if (IsBypass(picker))
+            {
+                return true;
+            }
+
+            return TRotate(picker, ZuZhuang.Current.PickPositions[(int)picker].R);
+        }
+
+        public bool TCompensatePlace(Picker picker)
+        {
+            if (IsBypass(picker))
+            {
+                return true;
+            }
+
+
+            return TRotate(picker, ZuZhuang.Current.PlacePositions[(int)picker].R);
         }
         public bool VacOnAll()
         {
