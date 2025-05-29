@@ -112,15 +112,15 @@ namespace AkribisFAM.Windows
             stationPoints = new StationPoints();
             FileHelper.LoadConfig(posFileName[0], out stationPoints);
             //20250523 点位从json文件里读取 【史彦洋】 Start
-            
+
             LoadPoints();
             //20250523 点位从json文件里读取 【史彦洋】 Start
             InitTabs(stationPoints);
 
-            
+
             //END ADD
         }
-
+      
         public static void LoadPoints()
         {
             List<string> posFilePre = new List<string>();
@@ -635,7 +635,7 @@ namespace AkribisFAM.Windows
                     panel.Children.Add(rowPanel);
 
                 }
-                else if(pt.type == 1)
+                else if (pt.type == 1)
                 {
                     // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
                     int totalPoints = pt.row * pt.col;
@@ -822,7 +822,7 @@ namespace AkribisFAM.Windows
                         matrixInputs.Add(inputRow);
                         panel.Children.Add(rowPanel);
 
-                        
+
                     }
 
                     ButtonAutoData.Click += (s, e) =>
@@ -997,7 +997,11 @@ namespace AkribisFAM.Windows
                 }
             }
 
-            return new ScrollViewer { Content = panel,VerticalScrollBarVisibility = ScrollBarVisibility.Auto,HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+            return new ScrollViewer
+            {
+                Content = panel,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
             };
         }
         private FrameworkElement CreateLabeledTextBox(string label, double initialValue, out TextBox tb, Action<string> onTextChanged = null)
@@ -1045,7 +1049,7 @@ namespace AkribisFAM.Windows
             return panel;
         }
 
-        private Button GreateButton(List<int> axisIndex,StackPanel backSP)
+        private Button GreateButton(List<int> axisIndex, StackPanel backSP)
         {
             // 添加 Teaching Point 按钮
             var teachBtn = new Button
@@ -1182,9 +1186,24 @@ namespace AkribisFAM.Windows
             int selectedIndex = CboxNowType.SelectedIndex;
             string jsonFile = posFileName[selectedIndex];
             if (SaveAllTabsData(jsonFile))
-                MessageBox.Show("保存点位成功"+ posFilePre[selectedIndex]);
+            {
+                GlobalManager.Current.laserPoints.Clear();
+                GlobalManager.Current.feedar1Points.Clear();
+                GlobalManager.Current.feedar2Points.Clear();
+                GlobalManager.Current.pickFoam1Points.Clear();
+                GlobalManager.Current.pickFoam2Points.Clear();
+                GlobalManager.Current.lowerCCDPoints.Clear();
+                GlobalManager.Current.dropBadFoamPoints.Clear();
+                GlobalManager.Current.snapPalletePoints.Clear();
+                GlobalManager.Current.placeFoamPoints.Clear();
+                GlobalManager.Current.recheckPoints.Clear();
+                GlobalManager.Current.tearingPoints.Clear();
+                ParameterConfig.LoadPoints();
+
+                MessageBox.Show("保存点位成功" + posFilePre[selectedIndex]);
+            }
             else
-                MessageBox.Show("保存点位失败"+ posFilePre[selectedIndex]);
+                MessageBox.Show("保存点位失败" + posFilePre[selectedIndex]);
         }
 
 
@@ -1195,7 +1214,7 @@ namespace AkribisFAM.Windows
             //{
             //    if (tabObj is TabItem tabItem)
             //    {
-                    RegisterHandlersInContainer(AxisGrid);
+            RegisterHandlersInContainer(AxisGrid);
             //    }
             //}
         }
@@ -1362,11 +1381,11 @@ namespace AkribisFAM.Windows
             return obj;
         }
 
-        private void ReadAxisParamJson() 
+        private void ReadAxisParamJson()
         {
             try
             {
-                string folder = Directory.GetCurrentDirectory(); 
+                string folder = Directory.GetCurrentDirectory();
                 string path = folder + "\\AxisParams.json";
 
                 int ret = LoadConfig(path);
@@ -1386,22 +1405,23 @@ namespace AkribisFAM.Windows
                 {
                     string speedname = item.Key + "_Speed";
                     TextBox tbspeed = (TextBox)FindObject(speedname);
-                    tbspeed.Text = ((double)item.Value ).ToString();
+                    tbspeed.Text = ((double)item.Value).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
                 {
                     string accname = item.Key + "_Acc";
                     TextBox tbacc = (TextBox)FindObject(accname);
-                    tbacc.Text = ((double)item.Value ).ToString();
+                    tbacc.Text = ((double)item.Value).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
                 {
                     string decname = item.Key + "_Dec";
                     TextBox tbdec = (TextBox)FindObject(decname);
-                    tbdec.Text = ((double)item.Value ).ToString();
+                    tbdec.Text = ((double)item.Value).ToString();
                 }
             }
-            catch { 
+            catch
+            {
 
             }
         }
@@ -1514,7 +1534,8 @@ namespace AkribisFAM.Windows
                         break;
                 }
             }
-            else {
+            else
+            {
                 while (true)
                 {
                     mtop += 1;
@@ -2304,7 +2325,7 @@ namespace AkribisFAM.Windows
                 Picker_FOAM_Count = GenerateRandomNumber(2, 5);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length-1) + $"{Picker_FOAM_Count}";
+                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length - 1) + $"{Picker_FOAM_Count}";
                 }));
                 if (BadFoamCount > 0)
                 {
@@ -3241,7 +3262,7 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void AddStationData(int listIndex,Point point)
+        private void AddStationData(int listIndex, Point point)
         {
             if (listIndex == 0)
             {
@@ -3349,7 +3370,7 @@ namespace AkribisFAM.Windows
 
                 mainPanel.Children.Add(rowPanel);
 
-                AddStationData(selectIndex,pt);
+                AddStationData(selectIndex, pt);
 
             }
             else if (data == 1)
@@ -3593,7 +3614,7 @@ namespace AkribisFAM.Windows
 
                 AddStationData(selectIndex, pt);
             }
-            else if(data == 2)
+            else if (data == 2)
             {
                 //var rowPanel = new StackPanel
                 //{

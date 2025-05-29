@@ -125,7 +125,7 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
-        public Queue<string> BarcodeQueue;
+        public Queue<string> BarcodeQueue = new Queue<string>();
         public bool IsUseMES = false;
 
         //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
@@ -919,14 +919,14 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 100,
-            PICK1_T = 200,
-            PICK2_Z = 100,
-            PICK2_T = 200,
-            PICK3_Z = 8,
-            PICK3_T = 8,
-            PICK4_Z = 8,
-            PICK4_T = 8,
+            PICK1_Z = 20,
+            PICK1_T = 90,
+            PICK2_Z = 20,
+            PICK2_T = 90,
+            PICK3_Z = 20,
+            PICK3_T = 90,
+            PICK4_Z = 20,
+            PICK4_T = 90,
 
             //AGM800[3]
             PRX = 200,

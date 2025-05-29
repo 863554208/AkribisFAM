@@ -61,7 +61,7 @@ namespace AkribisFAM
         private bool isResetButtonTriggered = false;
 
         MainContent mainContent;
-        ManualControl manualControl;
+        HardwareControl hardwareControl;
         ParameterConfig parameterConfig;
         Performance performance;
         InternetConfig internetConfig;
@@ -93,7 +93,7 @@ namespace AkribisFAM
             StateManager.Current.currentNG = 0;
             //Add By YXW
             mainContent = new MainContent();
-            manualControl = new ManualControl();
+            hardwareControl = new HardwareControl();
             performance = new Performance();
             parameterConfig = new ParameterConfig();
             internetConfig = new InternetConfig();
@@ -387,7 +387,7 @@ namespace AkribisFAM
         private void ManualControlButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = manualControl; // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = hardwareControl; // ManualDebugScreen 是你定义的用户控件或界面
         }
 
         private void ParameterConfigButton_Click(object sender, RoutedEventArgs e)
