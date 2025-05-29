@@ -162,7 +162,10 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.ErrorHandling:
                     // Perform recovery or wait for manual reset
-                    currentStep = FeederSequenceStep.ReturnToPreviousStep;
+                    if (_feeder.IsInitialized)
+                    {
+                        currentStep = FeederSequenceStep.Initialize;
+                    }
                     break;
 
                 case FeederSequenceStep.ReturnToPreviousStep:
