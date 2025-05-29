@@ -99,19 +99,26 @@ namespace AkribisFAM.Windows
 
         }
 
-        private void Cam3Calibbtn_Click(object sender, RoutedEventArgs e)
+        private async void Cam3Calibbtn_Click(object sender, RoutedEventArgs e)
         {
-            CamerCalibProcess.Instance.ReCheckCalibration();
+            try
+            {
+                await Task.Run(() => CamerCalibProcess.Instance.ReCheckCalibration());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Universal Calibration Failed!" + ex.Message);
+            }
         }
 
-        private void UniversalCalibbtn_Click(object sender, RoutedEventArgs e)
+        private async void UniversalCalibbtn_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("Universal Calibration?", "Confirming", MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.OK)
             {
                 try
                 {
-                    CamerCalibProcess.Instance.AllCalibrationFinished();
+                    await Task.Run(() => CamerCalibProcess.Instance.AllCalibrationFinished()); 
                 }
                 catch (Exception ex)
                 {
