@@ -286,7 +286,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
                 Thread.Sleep(500);
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
-                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 1);
+                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
                 //夹爪气缸缩回
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
