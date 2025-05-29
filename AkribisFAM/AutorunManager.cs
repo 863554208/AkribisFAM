@@ -47,7 +47,6 @@ namespace AkribisFAM
             hasReseted = false;
         }
 
-        Worker _loopWorker;
 
 
         public static bool CheckTaskReady()
@@ -395,7 +394,7 @@ namespace AkribisFAM
             GlobalManager.Current.Lailiao_exit = false;
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
-
+            GlobalManager.Current.Reject_exit = false;
 
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
