@@ -129,7 +129,7 @@ namespace AkribisFAM.WorkStation
         {
             DateTime time = DateTime.Now;
             bool ret = false;
-            errorCode = ErrorCode.WaitIO;
+            errorCode = ErrorCode.TimeOut;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
                 if (ReadIO(index) == value)
