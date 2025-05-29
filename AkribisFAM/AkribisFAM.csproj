@@ -176,6 +176,7 @@
     <Compile Include="CommunicationProtocol\Task_ResetCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
+    <Compile Include="DeviceClass\FilmRemoveGantryControl.cs" />
     <Compile Include="DeviceClass\AssemblyGantryControl.cs" />
     <Compile Include="DeviceClass\CognexBarcodeScanner.cs" />
     <Compile Include="DeviceClass\CognexVisionControl.cs" />

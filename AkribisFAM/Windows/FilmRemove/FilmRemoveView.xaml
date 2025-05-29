@@ -61,13 +61,13 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Button x:Name="btnZUp" Content="ZUp" Margin="3"  Grid.Column="0" Grid.Row="0"/>
-                            <Button x:Name="btnZDown" Content="ZDown" Margin="3"   Grid.Column="1" Grid.Row="0"/>
+                            <Button x:Name="btnZUp" Content="ZUp" Margin="3"  Grid.Column="0" Grid.Row="0" Click="btnZUp_Click"/>
+                            <Button x:Name="btnZDown" Content="ZDown" Margin="3"   Grid.Column="1" Grid.Row="0" Click="btnZDown_Click"/>
 
-                            <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="3"  Grid.Column="0" Grid.Row="1"/>
-                            <Button x:Name="btnClawClose" Content="Claw Close" Margin="3"  Grid.Column="1" Grid.Row="1"/>
-                            <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="3"  Grid.Column="0" Grid.Row="2"/>
-                            <Button x:Name="btnReject" Content="Toss film" Margin="3"  Grid.Column="1" Grid.Row="2"/>
+                            <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="3"  Grid.Column="0" Grid.Row="1" Click="btnClawOpen_Click"/>
+                            <Button x:Name="btnClawClose" Content="Claw Close" Margin="3"  Grid.Column="1" Grid.Row="1" Click="btnClawClose_Click"/>
+                            <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="3"  Grid.Column="0" Grid.Row="2" Click="btnMoveToRejectPos_Click"/>
+                            <Button x:Name="btnReject" Content="Toss film" Margin="3"  Grid.Column="1" Grid.Row="2" Click="btnReject_Click"/>
                         </Grid>
                     </StackPanel>
                 </StackPanel>

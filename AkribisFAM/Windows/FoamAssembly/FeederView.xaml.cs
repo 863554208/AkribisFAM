@@ -283,7 +283,7 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.assemblyGantryControl.ZDown((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
+            if (!App.assemblyGantryControl.ZPickPosition((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move picker {num} Z down");
             }
@@ -307,7 +307,7 @@ namespace AkribisFAM.Windows
         private void ManualFeederControlView_PickerOffAirPressed(object sender, EventArgs e)
         {
             var control = (ManualFeederControlView)sender;
-            App.assemblyGantryControl.Off((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+            App.assemblyGantryControl.VacOff((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
         }
 
         private void ManualFeederControlView_PickerMoveFoam1Pressed(object sender, EventArgs e)

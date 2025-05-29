@@ -328,6 +328,53 @@ namespace AkribisFAM.Windows
                         GlobalManager.Current.placeFoamPoints.Add(temp);
                     }
                 }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZPickPos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZPickPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZCam2Pos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZCam2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZSafePos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZSafePoints.Add(temp);
+                    }
+                }
+                if (Node.name != null && Node.name.Equals("Pickers_LoadCell"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerLoadCellPoints.Add(temp);
+                    }
+                }
             }
 
             foreach (var Node in GlobalManager.Current.stationPoints.FuJianPointList)

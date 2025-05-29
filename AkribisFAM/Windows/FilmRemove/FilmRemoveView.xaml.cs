@@ -97,5 +97,35 @@ namespace AkribisFAM.Windows
             //    AkribisFAM.Current.StopAllAxis();
             //});
         }
+
+        private void btnZUp_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnZDown_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnClawOpen_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnClawClose_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnMoveToRejectPos_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnReject_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+
+        }
     }
 }

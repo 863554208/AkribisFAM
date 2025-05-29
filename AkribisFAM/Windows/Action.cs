@@ -302,23 +302,27 @@ namespace AkribisFAM.WorkStation
             }
             return 0;
         }
-        public bool JudgeZAxis(GlobalManager.AxisName axisName)
+        public bool JudgeZAxis(GlobalManager.AxisName axisName, double safePos = 5)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
             int nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
-            if(ToMilimeter(axisName , nowPos) > 5 ) return false;
+            if(ToMilimeter(axisName , nowPos) > safePos) return false;
             return true;
         }
 
         public int ZAxisInSafeZone(GlobalManager.AxisName axisName)
         {
+            var z1 = ZuZhuang.Current.GetZSafePosition(1).Z;
+            var z2 = ZuZhuang.Current.GetZSafePosition(2).Z;
+            var z3 = ZuZhuang.Current.GetZSafePosition(3).Z;
+            var z4 = ZuZhuang.Current.GetZSafePosition(4).Z;
             switch (axisName)
             {
                 case AxisName.FSX:
-                    return JudgeZAxis(AxisName.PICK1_Z) && JudgeZAxis(AxisName.PICK2_Z) && JudgeZAxis(AxisName.PICK3_Z) && JudgeZAxis(AxisName.PICK3_Z) ? 0 : -1;
+                    return JudgeZAxis(AxisName.PICK1_Z, z1) && JudgeZAxis(AxisName.PICK2_Z, z2) && JudgeZAxis(AxisName.PICK3_Z, z3) && JudgeZAxis(AxisName.PICK3_Z, z4) ? 0 : -1;
                 case AxisName.FSY:
-                    return JudgeZAxis(AxisName.PICK1_Z) && JudgeZAxis(AxisName.PICK2_Z) && JudgeZAxis(AxisName.PICK3_Z) && JudgeZAxis(AxisName.PICK3_Z) ? 0 : -1;
+                    return JudgeZAxis(AxisName.PICK1_Z, z1) && JudgeZAxis(AxisName.PICK2_Z, z2) && JudgeZAxis(AxisName.PICK3_Z, z3) && JudgeZAxis(AxisName.PICK3_Z, z4) ? 0 : -1;
                 case AxisName.PRX:
                     return JudgeZAxis(AxisName.PRZ)? 0 : -1;
                 case AxisName.PRY:
@@ -344,7 +348,7 @@ namespace AkribisFAM.WorkStation
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
 
-            //if (ZAxisInSafeZone(axisName) != 0) return -1;
+            if (ZAxisInSafeZone(axisName) != 0) return -1;
 
             AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
             if (decel == null) decel = accel;
