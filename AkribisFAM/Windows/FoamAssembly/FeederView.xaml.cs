@@ -1,12 +1,12 @@
-﻿using System;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Manager;
 using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
@@ -478,6 +478,57 @@ namespace AkribisFAM.Windows
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             txtResult.Text = "";
+        }
+
+        private void btnMoveLoadCellPicker1_Click(object sender, RoutedEventArgs e)
+        {
+           if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnMoveLoadCellPicker2_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker2))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnMoveLoadCellPicker3_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker3))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnMoveLoadCellPicker4_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker4))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            if (!App.assemblyGantryControl.ApplyForce((int)DeviceClass.AssemblyGantryControl.Picker.Picker2,2044))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
         }
     }
 

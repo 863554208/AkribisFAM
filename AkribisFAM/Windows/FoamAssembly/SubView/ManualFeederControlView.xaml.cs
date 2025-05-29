@@ -78,6 +78,8 @@ namespace AkribisFAM.Windows
 
         private void btnVis1OTF_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            App.assemblyGantryControl.BypassPicker3 = true;
+            App.assemblyGantryControl.BypassPicker4 = true;
             VisionOTFPressed?.Invoke(this, EventArgs.Empty);
         }
 

@@ -100,22 +100,41 @@ namespace AkribisFAM.Windows
 
         private void btnZUp_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            if (!App.filmRemoveGantryControl.ZUp())
+            {
 
+            }
         }
 
         private void btnZDown_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
+            if (!App.filmRemoveGantryControl.ZDown())
+            {
+
+            }
         }
 
         private void btnClawOpen_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            Task.Run(() =>
+            {
+                if (!App.filmRemoveGantryControl.ClawOpen())
+                {
 
+                }
+            });
         }
 
         private void btnClawClose_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            Task.Run(() =>
+            {
+                if (!App.filmRemoveGantryControl.ClawClose())
+                {
 
+                }
+            });
         }
 
         private void btnMoveToRejectPos_Click(object sender, System.Windows.RoutedEventArgs e)

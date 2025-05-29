@@ -19,11 +19,16 @@ namespace AkribisFAM.Windows
             try
             {
                 var dc = (SinglePointExt)DataContext;
-                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                //App.assemblyGantryControl
+                if (!App.filmRemoveGantryControl.MovePos(dc.X, dc.Y))
                 {
-                    System.Windows.Forms.MessageBox.Show("failed");
+                    return;
                 }
+                //if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                //AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                //{
+                //    System.Windows.Forms.MessageBox.Show("failed");
+                //}
 
             }
             catch (System.Exception)

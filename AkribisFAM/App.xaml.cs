@@ -26,6 +26,7 @@ namespace AkribisFAM
         public static KeyenceLaserControl laser;
         public static CognexVisionControl vision1;
         public static AssemblyGantryControl assemblyGantryControl;
+        public static FilmRemoveGantryControl filmRemoveGantryControl;
         public static FeederControl feeder1;
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
@@ -59,7 +60,10 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            filmRemoveGantryControl = new FilmRemoveGantryControl();
 
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
             //TODO
             //try
             //{

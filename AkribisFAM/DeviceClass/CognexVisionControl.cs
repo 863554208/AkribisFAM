@@ -173,8 +173,9 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!App.assemblyGantryControl.ZCamPos(AssemblyGantryControl.Picker.Picker1))
+            if (!App.assemblyGantryControl.ZCamPosAll())
             {
+                App.assemblyGantryControl.ZUpAll();
                 return false;
             }
             AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[0].X - 16 * 3, 2);

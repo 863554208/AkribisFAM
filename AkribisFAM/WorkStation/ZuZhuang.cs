@@ -1380,7 +1380,7 @@ namespace AkribisFAM.WorkStation
             SinglePoint singlePoint = new SinglePoint();
 
             if (Nozzlenum < 1 || Nozzlenum > 4) return singlePoint;
-            if (Fovnum < 1 || Fovnum > 4) return singlePoint;
+            if (Fovnum < 1 || Fovnum > 20) return singlePoint;
 
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);

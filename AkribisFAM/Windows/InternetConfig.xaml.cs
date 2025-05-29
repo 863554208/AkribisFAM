@@ -99,8 +99,8 @@ namespace AkribisFAM.Windows
                 this.mes_Port.Text = (obj["mes"]["Port"]).ToString();
                 this.ModbusTCP_IP.Text = (obj["ModbusTCP"]["IP"]).ToString();
                 this.ModbusTCP_Port.Text = (obj["ModbusTCP"]["Port"]).ToString();
-                //this.Pressure_sensor_IP.Text = (obj["Pressure_sensor"]["IP"]).ToString();
-                //this.Pressure_sensor_Port.Text = (obj["Pressure_sensor"]["Port"]).ToString();
+                this.Pressure_sensor_IP.Text = (obj["Pressure_sensor"]["IP"]).ToString();
+                this.Pressure_sensor_Port.Text = (obj["Pressure_sensor"]["Port"]).ToString();
             }
             catch (Exception ex) {
                 MessageBox.Show("Read device IP failed!");

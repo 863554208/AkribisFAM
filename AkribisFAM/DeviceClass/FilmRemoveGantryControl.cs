@@ -3,6 +3,7 @@ using AkribisFAM.WorkStation;
 using LiveCharts.Wpf;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using YamlDotNet.Core.Tokens;
 using static AkribisFAM.GlobalManager;
 
@@ -143,7 +144,7 @@ namespace AkribisFAM.DeviceClass
             return AkrAction.Current.Move(axis, 15.5, (int)speed) == 0;
 
         }
-        
+
         public bool ZSafe(Picker picker)
         {
             return false;
@@ -177,19 +178,35 @@ namespace AkribisFAM.DeviceClass
             //return AkrAction.Current.Move(axis, 5.5, (int)speed) == 0;
 
         }
-        public bool ZUpAll()
+        public bool ZUp()
         {
 
             return AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ) == 0;
         }
+        public bool ZDown()
+        {
 
+            return AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ) == 0;
+        }
         public bool ClawClose()
         {
-            return false;
+            bool res = false;
+            Task.Run(() =>
+            {
+
+                res = IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0) &&
+     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
+            });
+            return res;
+        }
+        public bool ClawOpen()
+        {
+            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1) &&
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
         }
         public bool MovePos(double x, double y)
         {
-            if (!ZUpAll())
+            if (!ZUp())
             {
                 return false;
             }
@@ -204,7 +221,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool MovePickPos(Picker pickerNum, int fovNum)
         {
-            if (!ZUpAll())
+            if (!ZUp())
             {
                 return false;
             }
@@ -218,22 +235,22 @@ namespace AkribisFAM.DeviceClass
             }
             return true;
         }
-        public bool MovePlacePos(Picker pickerNum, int fovNum)
-        {
-            if (!ZUpAll())
-            {
-                return false;
-            }
+        //public bool MovePlacePos()
+        //{
+        //    //if (!ZUp())
+        //    //{
+        //    //    return false;
+        //    //}
 
-            SinglePoint res1 = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
-            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-            AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
-            {
+        //    ////SinglePoint res1 = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
+        //    //if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
+        //    //AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+        //    //{
 
-                return false;
-            }
-            return true;
-        }
+        //    //    return false;
+        //    //}
+        //    //return true;
+        //}
         public SinglePoint GetPlacePosition(int Nozzlenum, int Fovnum)
         {
             SinglePoint singlePoint = new SinglePoint();
@@ -249,35 +266,35 @@ namespace AkribisFAM.DeviceClass
             }
             return singlePoint;
         }
-        public bool PlaceFoam(Picker pickerNum, int fovNum)
-        {
-            //var temp = GetPlacePosition((int)pickerNum, fovNum);
-            if (!ZUpAll())
-            {
-                return false;
-            }
-            if (!MovePlacePos(pickerNum,fovNum))
-            {
-                return false;
-            }
+        //public bool PlaceFoam(Picker pickerNum, int fovNum)
+        //{
+        //    //var temp = GetPlacePosition((int)pickerNum, fovNum);
+        //    if (!ZUp())
+        //    {
+        //        return false;
+        //    }
+        //    if (!MovePlacePos(pickerNum,fovNum))
+        //    {
+        //        return false;
+        //    }
 
-            if (!ZSafe(pickerNum))
-            {
-                return false;
-            }
-            
-            if (!Off(pickerNum))
-            {
-                return false;
-            }
+        //    if (!ZSafe(pickerNum))
+        //    {
+        //        return false;
+        //    }
 
-            Thread.Sleep(200);
+        //    if (!Off(pickerNum))
+        //    {
+        //        return false;
+        //    }
 
-            return ZUp(pickerNum);
-        }
+        //    Thread.Sleep(200);
+
+        //    return ZUp(pickerNum);
+        //}
         public bool PickFoam(Picker pickerNum, int fovNum)
         {
-            if (!ZUpAll())
+            if (!ZUp())
             {
                 return false;
             }
@@ -305,7 +322,7 @@ namespace AkribisFAM.DeviceClass
 
         public bool PickAllFoam()
         {
-            if (!ZUpAll())
+            if (!ZUp())
             {
                 return false;
             }

@@ -370,7 +370,10 @@ namespace AkribisFAM.Windows
                     {
                         SinglePoint temp = new SinglePoint()
                         {
-                            Z = pointList.childPos[2]
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
                         };
                         GlobalManager.Current.pickerLoadCellPoints.Add(temp);
                     }
