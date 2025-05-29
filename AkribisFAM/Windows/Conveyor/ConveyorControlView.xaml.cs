@@ -221,9 +221,20 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            itemControlStation.ItemsSource = null;
             var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
-            itemControlStation.ItemsSource = stations2;
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    itemControlStation.ItemsSource = null;
+                    itemControlStation.ItemsSource = stations2;
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            });
         }
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -301,6 +312,11 @@ namespace AkribisFAM.Windows
                     //MessageBox.Show("Failed");
                 }
             });
+        }
+
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _timer.Stop();
         }
     }
 
@@ -396,7 +412,7 @@ namespace AkribisFAM.Windows
         private void TickTime()
         {
             ConveyorInList = new ObservableCollection<IO_INFunction_Table>(ConveyorInList);
-            ConveyorOutList = new ObservableCollection<IO_OutFunction_Table>(ConveyorOutList) ;
+            ConveyorOutList = new ObservableCollection<IO_OutFunction_Table>(ConveyorOutList);
             LifterInList = new ObservableCollection<IO_INFunction_Table>(LifterInList); ;
             LifterOutList = new ObservableCollection<IO_OutFunction_Table>(LifterOutList); ;
             GateInList = new ObservableCollection<IO_INFunction_Table>(GateInList); ;
