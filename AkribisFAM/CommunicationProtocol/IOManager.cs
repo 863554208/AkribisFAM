@@ -359,7 +359,7 @@ namespace AkribisFAM.CommunicationProtocol
                             }
                         }
                     });
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
                 }
             }));
             //循环读取输入IO
@@ -389,7 +389,7 @@ namespace AkribisFAM.CommunicationProtocol
                             }
                         }
                     });
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
                 }
             }));
         }

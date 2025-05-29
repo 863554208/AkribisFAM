@@ -18,6 +18,7 @@ using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
 using System.Reflection;
 using System.Windows.Threading;
 using System.Windows.Forms;
+using HslCommunication.CNC.Fanuc;
 
 namespace AkribisFAM.WorkStation
 {
@@ -84,18 +85,42 @@ namespace AkribisFAM.WorkStation
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
         }
+        private int[] signalval = new int[10];
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
             bool ret = false;
+            int cnt = 0;
+            for (int i = 0; i < signalval.Length; i++)
+            {
+                signalval[i] = 0;
+            }
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
+                int validx = 0;
+                if (cnt < 10)
+                {
+                    validx = cnt;
+                }
+                else
+                {
+                    validx = cnt % 10;
+                }
                 if (ReadIO(index) == value)
+                {
+                    signalval[validx] = 1;
+                }
+                else
+                {
+                    signalval[validx] = 0;
+                }
+                cnt++;
+                if (signalval.Sum() >= 8)
                 {
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
@@ -236,162 +261,7 @@ namespace AkribisFAM.WorkStation
             #endregion
         }
 
-        public int FeederSelected = 0;
-        public bool FeederIsRunning = true;
-        public bool feeder1empty = false;
-        public bool feeder2empty = false;
-        public bool feeder1alarm = false;
-        public bool feeder2alarm = false;
-        public bool feeder1Inpos = false;
-        public bool feeder2Inpos = false;
 
-        private int Limittime = 9999;
-        private int CheckFeeder()
-        {
-            bool ret1, ret2;
-            while (FeederIsRunning)
-            {
-                Thread.Sleep(100);
-                FeederSelected = 0;
-                if (ReadIO(IO_INFunction_Table.IN4_12Feeder1_drawer_InPos) == true)
-                {
-                    if (ReadIO(IO_INFunction_Table.IN5_10Feeder1) == true)
-                    {
-                        SetIO(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 1);
-                        SetIO(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 0);
-                        ret1 = WaitIO(999, IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos, true);
-                        ret2 = WaitIO(999, IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos, false);
-                        if (ret1 && ret2 != true)
-                        {
-                            ErrorManager.Current.Insert(ErrorCode.WaitFeeder);
-                            Thread.Sleep(Limittime);
-                            ret1 = WaitIO(999, IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos, true);
-                            ret2 = WaitIO(999, IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos, false);
-                            if (ret1 && ret2 != true)
-                                break;
-                        }
-                    }
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_13Feeder2_drawer_InPos) == true)
-                {
-                    if (ReadIO(IO_INFunction_Table.IN5_11Feeder2) == true)
-                    {
-                        SetIO(IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend, 1);
-                        SetIO(IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract, 0);
-                        ret1 = WaitIO(999, IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos, true);
-                        ret2 = WaitIO(999, IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos, false);
-                        if (ret1 && ret2 != true)
-                        {
-                            ErrorManager.Current.Insert(ErrorCode.WaitFeeder);
-                            Thread.Sleep(Limittime);
-                            ret1 = WaitIO(999, IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos, true);
-                            ret2 = WaitIO(999, IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos, false);
-                            if (ret1 && ret2 != true)
-                                break;
-                        }
-                    }
-                }
-
-                if (ReadIO(IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos) == false || ReadIO(IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos) == true)
-                {
-                    ErrorManager.Current.Insert(ErrorCode.Feeder1Empty);
-                    feeder1empty = true;
-                }
-                else {
-                    feeder1empty = false;
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos) == false || ReadIO(IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos) == true)
-                {
-                    ErrorManager.Current.Insert(ErrorCode.Feeder2Empty);
-                    feeder2empty = true;
-                }
-                else {
-                    feeder2empty = false;
-                }
-                if (feeder1empty && feeder2empty)
-                {
-                    ErrorManager.Current.Insert(ErrorCode.FeederEmpty);
-                    continue;
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_2Alarm_feeder1) == true)
-                {
-                    feeder1alarm = true;
-                    ErrorManager.Current.Insert(ErrorCode.Feeder1Alarm);
-                }
-                else {
-                    feeder1alarm = false;
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_6Alarm_feeder2) == false)
-                {
-                    feeder2alarm = true;
-                    ErrorManager.Current.Insert(ErrorCode.Feeder2Alarm);
-                }
-                else {
-                    feeder2alarm = false;
-                }
-                if (feeder1alarm && feeder2alarm)
-                {
-                    ErrorManager.Current.Insert(ErrorCode.FeederErr);
-                    continue;
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos) == true && ReadIO(IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos) == false && ReadIO(IO_INFunction_Table.IN4_2Alarm_feeder1) == false)
-                {
-                    if (ReadIO(IO_INFunction_Table.IN4_1Platform_has_label_feeder1) == true)
-                    {
-                        FeederSelected = 1;
-                        continue;
-                    }
-                    else
-                    {
-                        SetIO(IO_OutFunction_Table.OUT4_9Run_feeder1, 1);
-                        bool ret = WaitIO(4999, IO_INFunction_Table.IN4_1Platform_has_label_feeder1, true);
-                        if (ret == false)
-                        {
-                            ErrorManager.Current.Insert(ErrorCode.WaitFeeder);
-                            Thread.Sleep(Limittime);
-                            ret = WaitIO(4999, IO_INFunction_Table.IN4_1Platform_has_label_feeder1, true);
-                            if (ret == false)
-                                break;
-                        }
-                        else
-                        {
-                            SetIO(IO_OutFunction_Table.OUT4_9Run_feeder1, 0);
-                            FeederSelected = 1;
-                            continue;
-                        }
-                    }
-                }
-                if (ReadIO(IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos) == true && ReadIO(IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos) == false && ReadIO(IO_INFunction_Table.IN4_6Alarm_feeder2) == false)
-                {
-                    if (ReadIO(IO_INFunction_Table.IN4_5Platform_has_label_feeder2) == true)
-                    {
-                        FeederSelected = 2;
-                        continue;
-                    }
-                    else
-                    {
-                        SetIO(IO_OutFunction_Table.OUT4_13Run_feeder2, 1);
-                        bool ret = WaitIO(4999, IO_INFunction_Table.IN4_5Platform_has_label_feeder2, true);
-                        if (ret == false)
-                        {
-                            ErrorManager.Current.Insert(ErrorCode.WaitFeeder);
-                            Thread.Sleep(Limittime);
-                            ret = WaitIO(4999, IO_INFunction_Table.IN4_5Platform_has_label_feeder2, true);
-                            if (ret == false)
-                                break;
-                        }
-                        else
-                        {
-                            SetIO(IO_OutFunction_Table.OUT4_13Run_feeder2, 0);
-                            FeederSelected = 2;
-                            continue;
-                        }
-                    }
-                }
-            }
-            MessageBox.Show("Feeder offline!");
-            return 0;
-        }
 
         public void WaitConveyor(int type)
         {

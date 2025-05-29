@@ -47,7 +47,6 @@ namespace AkribisFAM
             hasReseted = false;
         }
 
-        Worker _loopWorker;
 
 
         public static bool CheckTaskReady()
@@ -331,12 +330,6 @@ namespace AkribisFAM
 
 
 
-            //先对Z轴hardstop回零
-            AkrAction.Current.axisAllZHome_HardStop();
-            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
-
-
-
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
             Thread.Sleep(300);
             //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
@@ -396,7 +389,7 @@ namespace AkribisFAM
             GlobalManager.Current.Lailiao_exit = false;
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
-
+            GlobalManager.Current.Reject_exit = false;
 
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);

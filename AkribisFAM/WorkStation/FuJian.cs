@@ -100,25 +100,48 @@ namespace AkribisFAM.WorkStation
         }
 
 
+        private int[] signalval = new int[10];
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
             bool ret = false;
-            errorCode = ErrorCode.WaitIO;
+            int cnt = 0;
+            for (int i = 0; i < signalval.Length; i++)
+            {
+                signalval[i] = 0;
+            }
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
+                int validx = 0;
+                if (cnt < 10)
+                {
+                    validx = cnt;
+                }
+                else
+                {
+                    validx = cnt % 10;
+                }
                 if (ReadIO(index) == value)
+                {
+                    signalval[validx] = 1;
+                }
+                else
+                {
+                    signalval[validx] = 0;
+                }
+                cnt++;
+                if (signalval.Sum() >= 8)
                 {
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
         }
 
-		
+
 
         public int CheckState(bool state)
         {
@@ -136,54 +159,6 @@ namespace AkribisFAM.WorkStation
             GlobalManager.Current.FuJian_CheckState();
             WarningManager.Current.WaiFuJian();
             return 0;
-        }
-
-        [JsonObject]
-        public class FuJianPoint
-        {
-            [JsonProperty("X")]
-            public double x { get; set; }
-            [JsonProperty("Y")]
-            public double y { get; set; }
-            [JsonProperty("Z")]
-            public double z { get; set; }
-        }
-
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>();//26
-
-        public StationPoints stationPoints = new StationPoints();
-        public void readPointJson() {
-            try
-            {
-                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                string path = folder + "\\FuJianPoints.json";
-                string content = File.ReadAllText(path);
-                Pointlist = JsonConvert.DeserializeObject<List<FuJianPoint>>(content);
-                if (Pointlist == null)
-                {
-                    return;
-                }
-                //string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                //string path = folder + "\\Station_points5.json";
-                //FileHelper.LoadConfig<StationPoints>(path, out stationPoints);
-                //for(int i = 0; i < stationPoints.FuJianPointList.Count; ++i)
-                //{
-                //    FuJianPoint fuJianPoint = new FuJianPoint();
-                //    fuJianPoint.x = stationPoints.FuJianPointList[i].X;
-                //    fuJianPoint.y = stationPoints.FuJianPointList[i].Y;
-                //    fuJianPoint.z = stationPoints.FuJianPointList[i].Z;
-                //    Pointlist.Add(fuJianPoint);
-                //}
-                //if (stationPoints == null)
-                //{
-                //    return;
-                //}
-            }
-            catch
-            {
-                //配置读取失败
-                return;
-            }
         }
 
         public bool Tearing()

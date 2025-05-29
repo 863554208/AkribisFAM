@@ -49,7 +49,7 @@
         </StackPanel>
 
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+        <StackPanel x:Name="AxisPanel" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
             <TextBlock Text="Select Axis" Margin="0 0 20 0" VerticalAlignment="Center" />
             <RadioButton Name="RaBtnX" Content="X" Width="60" IsChecked="True" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
             <RadioButton Name="RaBtnY" Content="Y" Width="60" Style="{StaticResource MaterialDesignFilterChipPrimaryOutlineCheckBox}" GroupName="Options" Margin="5" />
@@ -70,8 +70,8 @@
         </StackPanel>
 
         <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-            <Button x:Name="btnJogPlus" Content="JOG+" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5"/>
-            <Button x:Name="btnJogMinus" Content="JOG-" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5"/>
+            <Button x:Name="btnJogPlus" Content="JOG+" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" PreviewMouseDown="JogForwordButton_MouseDown" PreviewMouseUp="JogForwordButton_MouseUp"/>
+            <Button x:Name="btnJogMinus" Content="JOG-" Style="{StaticResource MaterialDesignRaisedButton}" Width="100" Margin="5" PreviewMouseDown="JogBackwordButton_MouseDown" PreviewMouseUp="JogBackwordButton_MouseUp"/>
         </StackPanel>
     </Grid>
 </Window>

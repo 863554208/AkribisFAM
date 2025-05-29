@@ -125,24 +125,47 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
+        private int[] signalval = new int[10];
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
             bool ret = false;
-            errorCode = ErrorCode.WaitIO;
+            int cnt = 0;
+            for (int i = 0; i < signalval.Length; i++)
+            {
+                signalval[i] = 0;
+            }
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
+                int validx = 0;
+                if (cnt < 10)
+                {
+                    validx = cnt;
+                }
+                else
+                {
+                    validx = cnt % 10;
+                }
                 if (ReadIO(index) == value)
+                {
+                    signalval[validx] = 1;
+                }
+                else
+                {
+                    signalval[validx] = 0;
+                }
+                cnt++;
+                if (signalval.Sum() >= 8)
                 {
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
         }
-		
+
 
         public bool hasNGboard;
 
