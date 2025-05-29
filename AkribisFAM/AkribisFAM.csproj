@@ -202,6 +202,7 @@
     <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\LoadCellCalibration.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\RecipeManager.cs" />
     <Compile Include="Manager\StateManager.cs" />

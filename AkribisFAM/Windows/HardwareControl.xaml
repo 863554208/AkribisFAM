@@ -29,6 +29,8 @@
             <TabItem Header="IO调试" >
                 <local:IOConfigure/>
             </TabItem>
+            <TabItem Header="Load Cell Calibration">
+            </TabItem>
             <TabItem Header="流程调试" >
                 <local:ManualControl/>
             </TabItem>

@@ -30,6 +30,7 @@ namespace AkribisFAM
         public static FeederControl feeder1;
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
+        public static LoadCellCalibration calib;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -61,6 +62,7 @@ namespace AkribisFAM
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
             filmRemoveGantryControl = new FilmRemoveGantryControl();
+            calib = new LoadCellCalibration();
 
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;

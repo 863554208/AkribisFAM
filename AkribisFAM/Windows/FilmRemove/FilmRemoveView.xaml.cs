@@ -5,8 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using AkribisFAM.Manager;
-using AkribisFAM;
-using static AkribisFAM.Windows.FoamAssemblyView;
+using System.Threading;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using AkribisFAM.WorkStation;
 
 namespace AkribisFAM.Windows
 {
@@ -17,8 +18,22 @@ namespace AkribisFAM.Windows
     {
         FilmRemoveVM vm;
         bool stopAllMotion = false;
-        class FilmRemoveVM
+        class FilmRemoveVM : ViewModelBase
         {
+            private int totalProcess;
+
+            public int TotalProcess
+            {
+                get { return totalProcess; }
+                set { totalProcess = value; OnPropertyChanged(); }
+            }
+            private int progress;
+
+            public int Progress
+            {
+                get { return progress; }
+                set { progress = value; OnPropertyChanged(); }
+            }
 
             private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
 
@@ -77,6 +92,7 @@ namespace AkribisFAM.Windows
 
             vm = new FilmRemoveVM()
             {
+                TotalProcess = 0,
                 Points = points,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,
                 Column = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartColumn,
@@ -84,26 +100,81 @@ namespace AkribisFAM.Windows
             DataContext = vm;
         }
 
-        private void btnFilmRemove_Click(object sender, System.Windows.RoutedEventArgs e)
+        private async void btnFilmRemove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            stopAllMotion = false;
+            vm.TotalProcess = 3 * vm.Row * vm.Column;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+            await Task.Run(() =>
+              {
 
+                  foreach (var point in vm.Points)
+                  {
+                      if (stopAllMotion) return;
+
+                      if (!App.filmRemoveGantryControl.RemoveFilm(point.X, point.Y))
+                      {
+                          return;
+                      }
+                      vm.Progress++;
+                      if (!App.filmRemoveGantryControl.Toss())
+                      {
+                          return;
+                      }
+                      vm.Progress++;
+
+                      Thread.Sleep(100);
+
+                  }
+                  foreach (var point in vm.Points)
+                  {
+                      if (stopAllMotion) return;
+
+                      if (!App.filmRemoveGantryControl.MoveToVisionPos(point.X, point.Y))
+                      {
+                          return;
+                      }
+                      if (!App.vision1.CheckFilm(point.TeachPointIndex, vm.Row, vm.Column))
+                      {
+                          return;
+                      }
+                      vm.Progress++;
+
+                      Thread.Sleep(100);
+                  }
+
+              });
+
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            //stopAllMotion = true;
-            //Task.Run(() =>
-            //{
-            //    AkribisFAM.Current.StopAllAxis();
-            //});
+            stopAllMotion = true;
+            Task.Run(() =>
+            {
+                AkrAction.Current.StopAllAxis();
+            });
         }
 
         private void btnZUp_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (!App.filmRemoveGantryControl.ZUp())
+            Task.Run(() =>
             {
+                if (!App.filmRemoveGantryControl.ZUp())
+                {
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
+                        //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
+                    });
+                }
+            });
 
-            }
         }
 
         private void btnZDown_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -111,7 +182,11 @@ namespace AkribisFAM.Windows
 
             if (!App.filmRemoveGantryControl.ZDown())
             {
-
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
+                    //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
+                });
             }
         }
 
@@ -121,7 +196,11 @@ namespace AkribisFAM.Windows
             {
                 if (!App.filmRemoveGantryControl.ClawOpen())
                 {
-
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
+                        //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
+                    });
                 }
             });
         }
@@ -132,7 +211,11 @@ namespace AkribisFAM.Windows
             {
                 if (!App.filmRemoveGantryControl.ClawClose())
                 {
-
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
+                        //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
+                    });
                 }
             });
         }
@@ -140,11 +223,60 @@ namespace AkribisFAM.Windows
         private void btnMoveToRejectPos_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
+            if (!App.filmRemoveGantryControl.MoveToBinPos())
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
+                    //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
+                });
+            };
         }
 
-        private void btnReject_Click(object sender, System.Windows.RoutedEventArgs e)
+
+        private void PointXYMoveRemoveInspectView_VisionInspectPressed(object sender, EventArgs e)
+        {
+            PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
+            SinglePointExt points = (SinglePointExt)view.DataContext;
+            if (!App.filmRemoveGantryControl.MoveToVisionPos(points.X, points.Y))
+            {
+                return;
+            }
+
+            if (!App.vision1.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
+            {
+                return;
+            }
+        }
+
+        private void PointXYMoveRemoveInspectView_MovePressed(object sender, EventArgs e)
+        {
+            PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
+            SinglePointExt points = (SinglePointExt)view.DataContext;
+            if (!App.filmRemoveGantryControl.MoveToVisionPos(points.X, points.Y))
+            {
+                return;
+            }
+
+        }
+
+        private void PointXYMoveRemoveInspectView_RemoveFilmPressed(object sender, EventArgs e)
+        {
+            PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
+            SinglePointExt points = (SinglePointExt)view.DataContext;
+            if (!App.filmRemoveGantryControl.RemoveFilm(points.X, points.Y))
+            {
+                return;
+            }
+        }
+
+        private void btnToss_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
+            if (!App.filmRemoveGantryControl.Toss())
+            {
+
+            }
         }
     }
 }

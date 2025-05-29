@@ -1,5 +1,6 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
+using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,8 +38,8 @@ namespace AkribisFAM.Windows
                 {
                     IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
                     IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
-                    IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
-                    IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -85,8 +86,8 @@ namespace AkribisFAM.Windows
                 FeederName = "Feeder 2",
                 PickerInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
-                    IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
                     IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
                     IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
@@ -149,7 +150,7 @@ namespace AkribisFAM.Windows
             });
         }
 
-    
+
 
         private void Feeder_OnMessageSent(object sender, string message)
         {
@@ -167,9 +168,22 @@ namespace AkribisFAM.Windows
             feeders = feeders;
 
         }
-        class FeederVM
+        class FeederVM : ViewModelBase
         {
+            private int totalProcess;
 
+            public int TotalProcess
+            {
+                get { return totalProcess; }
+                set { totalProcess = value; OnPropertyChanged(); }
+            }
+            private int progress;
+
+            public int Progress
+            {
+                get { return progress; }
+                set { progress = value; OnPropertyChanged(); }
+            }
             private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
 
             public ObservableCollection<SinglePointExt> Points
@@ -259,11 +273,11 @@ namespace AkribisFAM.Windows
             //Task.Run(() =>
             //{
 
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
-                {
+            if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+            {
 
-                   // System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
-                }
+                // System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
+            }
             //});
         }
 
@@ -482,7 +496,7 @@ namespace AkribisFAM.Windows
 
         private void btnMoveLoadCellPicker1_Click(object sender, RoutedEventArgs e)
         {
-           if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
             {
 
                 System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
@@ -524,11 +538,136 @@ namespace AkribisFAM.Windows
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            if (!App.assemblyGantryControl.ApplyForce((int)DeviceClass.AssemblyGantryControl.Picker.Picker2,2044))
+            stopAllMotion = true;
+            Task.Run(() =>
+            {
+                AkrAction.Current.StopAllAxis();
+            });
+            //if (!App.assemblyGantryControl.ApplyForce((int)DeviceClass.AssemblyGantryControl.Picker.Picker2, 2044))
+            //{
+
+            //    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            //}
+        }
+
+
+
+        private async void btnPickAndPlace1_Click(object sender, RoutedEventArgs e)
+        {
+            stopAllMotion = false;
+            vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+
+            await Task.Run(() =>
+            {
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                {
+
+                    return;
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.assemblyGantryControl.PickAllFoam())
+                {
+
+                    return;
+
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision2OnTheFlyTrigger())
+                {
+
+                    return;
+                }
+                vm.Progress += 1;
+
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                {
+
+                    return;
+                }
+
+                vm.Progress += 12;
+
+                //if (!App.assemblyGantryControl.PlaceFoam()) 
+                //{
+
+                //    return;
+                //}
+
+                vm.Progress += 4;
+
+            });
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private async void btnPickAndPlace2_Click(object sender, RoutedEventArgs e)
+        {
+            stopAllMotion = false;
+            vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+
+            await Task.Run(() =>
             {
 
-                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
-            }
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                {
+
+                    return;
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.assemblyGantryControl.PickAllFoam())
+                {
+
+                    return;
+
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision2OnTheFlyTrigger())
+                {
+
+                    return;
+                }
+                vm.Progress += 1;
+
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                {
+
+                    return;
+                }
+
+                vm.Progress += 12;
+
+                //if (!App.assemblyGantryControl.PlaceFoam()) 
+                //{
+
+                //    return;
+                //}
+
+                vm.Progress += 4;
+            });
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
         }
     }
 

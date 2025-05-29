@@ -1,21 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using AAMotion;
-using AkribisFAM.AAmotionFAM;
 using AkribisFAM.Util;
-using AkribisFAM.WorkStation;
-using HslCommunication.Profinet.Delta;
-using LiveCharts.Wpf;
-using YamlDotNet.Core.Tokens;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.WorkStation
@@ -183,11 +170,11 @@ namespace AkribisFAM.WorkStation
             AAMotionAPI.SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, pos), eventSelect, eventPulseRes, eventPulseWid);
         }
 
-        public void SetEventFixedGapPEG(GlobalManager.AxisName axisName, double? beginPos, double? eventGap, double? eventEndPos, int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        public void SetEventFixedGapPEG(GlobalManager.AxisName axisName, double? beginPos, double? eventGap, double? eventEndPos, int eventSelect, int? eventPulseRes = null, int? eventPulseWid = null)
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            AAMotionAPI.SetEventFixedGapPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, beginPos), ToPulse(axisName, eventGap), ToPulse(axisName, eventEndPos), eventSelect, eventPulseRes,220000);
+            AAMotionAPI.SetEventFixedGapPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, beginPos), ToPulse(axisName, eventGap), ToPulse(axisName, eventEndPos), eventSelect, eventPulseRes, 220000);
         }
 
         public void EventEnable(GlobalManager.AxisName axisName)
@@ -259,9 +246,9 @@ namespace AkribisFAM.WorkStation
         }
 
         //让所有Z轴回到安全位置
-        public int ZUp(GlobalManager.AxisName axisName ,GlobalManager.AxisSpeed axisSpeed)
+        public int ZUp(GlobalManager.AxisName axisName, GlobalManager.AxisSpeed axisSpeed)
         {
-            return MoveZ(axisName, -5 ,(double)axisSpeed);
+            return MoveZ(axisName, -5, (double)axisSpeed);
         }
 
 
@@ -291,7 +278,7 @@ namespace AkribisFAM.WorkStation
             while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
             {
                 //TODO 加入退出机制
-                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold *1000)
+                if ((DateTime.Now - now).TotalMilliseconds > timeThreshold * 1000)
                 {
                     string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动失败", agmIndex.ToString(), axisRefNum.ToString());
                     Logger.WriteLog(err);
@@ -307,7 +294,7 @@ namespace AkribisFAM.WorkStation
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
             int nowPos = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
-            if(ToMilimeter(axisName , nowPos) > safePos) return false;
+            if (ToMilimeter(axisName, nowPos) > safePos) return false;
             return true;
         }
 
@@ -324,7 +311,7 @@ namespace AkribisFAM.WorkStation
                 case AxisName.FSY:
                     return JudgeZAxis(AxisName.PICK1_Z, z1) && JudgeZAxis(AxisName.PICK2_Z, z2) && JudgeZAxis(AxisName.PICK3_Z, z3) && JudgeZAxis(AxisName.PICK3_Z, z4) ? 0 : -1;
                 case AxisName.PRX:
-                    return JudgeZAxis(AxisName.PRZ)? 0 : -1;
+                    return JudgeZAxis(AxisName.PRZ) ? 0 : -1;
                 case AxisName.PRY:
                     return JudgeZAxis(AxisName.PRZ) ? 0 : -1;
                 default:
@@ -337,7 +324,7 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-            var a =AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
+            var a = AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos;
             var real_pos = ToMilimeter(axisName, a);
             string temp = string.Format("第{0}个轴的实际位置是 {1}", axisName.ToString(), real_pos.ToString());
             Logger.WriteLog(temp);
@@ -347,43 +334,52 @@ namespace AkribisFAM.WorkStation
         {
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
-
-            if (ZAxisInSafeZone(axisName) != 0) return -1;
-
-            AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
-            if (decel == null) decel = accel;
-
-            AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
-
-
-            DateTime startTime = DateTime.Now;
-            TimeSpan timeoutDuration = TimeSpan.FromSeconds(10); 
-            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
+            try
             {
 
-                if (DateTime.Now - startTime > timeoutDuration)
+                if (ZAxisInSafeZone(axisName) != 0)
+                    return -1;
+
+                AAMotionAPI.MotorOn(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum));
+                if (decel == null) decel = accel;
+
+                AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
+
+
+                DateTime startTime = DateTime.Now;
+                TimeSpan timeoutDuration = TimeSpan.FromSeconds(10);
+                while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4)
                 {
-                    Logger.WriteLog("超时：运动未到达目标位置。");
-                    return -1; 
+
+                    if (DateTime.Now - startTime > timeoutDuration)
+                    {
+                        Logger.WriteLog("超时：运动未到达目标位置。");
+                        return -1;
+                    }
+
+                    string temp2 = string.Format("等待第{0}个AGM800的第{1}个轴PTP运动到位", (agmIndex + 1).ToString(), (axisRefNum + 1).ToString());
+                    Logger.WriteLog(temp2);
+                    Thread.Sleep(100);
                 }
 
-                string temp2 = string.Format("等待第{0}个AGM800的第{1}个轴PTP运动到位", (agmIndex + 1).ToString(), (axisRefNum + 1).ToString());
-                Logger.WriteLog(temp2);
-                Thread.Sleep(100);
-            }
+                DateTime starttime = DateTime.Now;
+                while ((DateTime.Now - starttime).TotalMilliseconds < 3000)
+                {
+                    var current_Pos = ToMilimeter(axisName, AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos);
+                    if (position.GetValueOrDefault() - current_Pos < 0.005)
+                    {
+                        return 0;
+                    }
+                }
 
-            DateTime starttime = DateTime.Now;
-            while ((DateTime.Now - starttime).TotalMilliseconds <3000)
+                string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动到位，执行下一步", (agmIndex + 1).ToString(), (axisRefNum + 1).ToString());
+                Logger.WriteLog(err);
+
+            }
+            catch (Exception ex)
             {
-                var current_Pos = ToMilimeter(axisName, AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).Pos);
-                if (position.GetValueOrDefault() - current_Pos < 0.005)
-                {
-                    return 0;
-                }
+                return -1;
             }
-
-            string err = string.Format("第{0}个AGM800的第{1}个轴PTP运动到位，执行下一步", (agmIndex+1).ToString(), (axisRefNum+1).ToString());
-            Logger.WriteLog(err);
             return -1;
         }
 
@@ -559,8 +555,8 @@ namespace AkribisFAM.WorkStation
             Stop(AxisName.PICK2_T);
             Stop(AxisName.PICK3_Z);
             Stop(AxisName.PICK3_T);
-            //Stop(AxisName.PICK4_Z);
-            //Stop(AxisName.PICK4_T);
+            Stop(AxisName.PICK4_Z);
+            Stop(AxisName.PICK4_T);
             Stop(AxisName.PRX);
             Stop(AxisName.PRY);
             Stop(AxisName.PRZ);
@@ -582,7 +578,7 @@ namespace AkribisFAM.WorkStation
 
             //ret += WaitHomingFinished(AxisName.PICK1_T);
             //ret += WaitHomingFinished(AxisName.PICK2_T);
-            if (ret != 0) return -1; 
+            if (ret != 0) return -1;
 
             return 0;
         }
@@ -607,11 +603,11 @@ namespace AkribisFAM.WorkStation
             int agmIndex = (int)axisName / 8;
             int axisRefNum = (int)axisName % 8;
             DateTime now = DateTime.Now;
-            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat!= 100)
+            while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
             {
                 if ((DateTime.Now - now).TotalMilliseconds > 30000)
                 {
-                    string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex+1).ToString(), axisRefNum.ToString());
+                    string temp = string.Format("第{0}个AGM800的第{1}个轴回零失败", (agmIndex + 1).ToString(), axisRefNum.ToString());
                     Logger.WriteLog(temp);
                     return 1;
                 }
@@ -708,7 +704,7 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
-    
+
 
         public int axisAllTHome(String path)
         {
@@ -1169,6 +1165,6 @@ namespace AkribisFAM.WorkStation
 
             return (int)ACTTION_ERR.NONE;
         }
-        
+
     }
 }

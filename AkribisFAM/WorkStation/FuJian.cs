@@ -352,7 +352,7 @@ namespace AkribisFAM.WorkStation
                         k = j + i * GlobalManager.Current.TotalColumn;
                     }
                     else {
-                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn;
+                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn; 
                     }
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
                     //移动到穴位

@@ -10,12 +10,15 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Background="LightGray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -30,9 +33,11 @@
             <Button x:Name="btnMoveLoadCellPicker2" Content="Picker2Load" Grid.Column="4" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker2_Click"/>
             <Button x:Name="btnMoveLoadCellPicker3" Content="Picker3Load" Grid.Column="5" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker3_Click"/>
             <Button x:Name="btnMoveLoadCellPicker4" Content="Picker4Load" Grid.Column="6" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker4_Click"/>
-            <Button x:Name="btnStop" Content="Stop" Grid.Column="7" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
+            <Button x:Name="btnRunPickAndPlaceProcess1" Content="Pick and place f1" Grid.Column="7" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace1_Click"/>
+            <Button x:Name="btnRunPickAndPlaceProcess2" Content="Pick and place f2" Grid.Column="8" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace2_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="9" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid x:Name="grpControl" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="4*"/>
                 <ColumnDefinition Width="*"/>
@@ -92,6 +97,7 @@
             </Grid>
 
         </Grid>
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
 
     </Grid>
 </UserControl>
