@@ -78,6 +78,7 @@ namespace AkribisFAM.WorkStation
 
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
+            delta = 3000;
             DateTime time = DateTime.Now;
             bool ret = false;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
@@ -220,8 +221,8 @@ namespace AkribisFAM.WorkStation
             SetIO(IOName1, 1);
             SetIO(IOName2, 0);
 
-            return (WaitIO(99999, IOName3, false) &&
-            WaitIO(99999, IOName4, true));
+            return (WaitIO(3000, IOName3, false) &&
+            WaitIO(3000, IOName4, true));
 
         }
         public bool GateDown(int workstationNum)
@@ -263,8 +264,8 @@ namespace AkribisFAM.WorkStation
             SetIO(IOName1, 0);
             SetIO(IOName2, 1);
 
-            return (WaitIO(99999, IOName3, true) &&
-            WaitIO(99999, IOName4, false));
+            return (WaitIO(3000, IOName3, true) &&
+            WaitIO(3000, IOName4, false));
 
         }
         public bool LiftUpRelatedTray(int workstationNum)
@@ -313,6 +314,22 @@ namespace AkribisFAM.WorkStation
                     IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
                     IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
                     break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+
+                    SetIO(IOName1, 1);
+                    SetIO(IOName2, 0);
+
+                    return WaitIO(3000, IOName5, true) &&
+            WaitIO(3000, IOName6, false);
                 default:
                     return false;
             }
@@ -376,6 +393,23 @@ namespace AkribisFAM.WorkStation
                     IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
                     IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
                     break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+
+                    SetIO(IOName1, 0);
+                    SetIO(IOName2, 1);
+
+                    return WaitIO(3000, IOName5, false) &&
+            WaitIO(3000, IOName6, true);
+                    //break;
                 default:
                     return false;
             }
@@ -386,10 +420,10 @@ namespace AkribisFAM.WorkStation
             SetIO(IOName3, 0);
             SetIO(IOName4, 1);
 
-            return (WaitIO(99999, IOName5, true) &&
-            WaitIO(99999, IOName6, true) &&
-            WaitIO(99999, IOName7, false) &&
-            WaitIO(99999, IOName8, false));
+            return (WaitIO(3000, IOName5, true) &&
+            WaitIO(3000, IOName6, true) &&
+            WaitIO(3000, IOName7, false) &&
+            WaitIO(3000, IOName8, false));
 
         }
 

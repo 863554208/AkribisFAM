@@ -1,8 +1,9 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
+﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
+using System;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace AkribisFAM.Windows
 {
@@ -16,6 +17,19 @@ namespace AkribisFAM.Windows
             InitializeComponent();
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
+
+            Task_PrecisionDownCamreaFunction.OnMessageReceive += Task_PrecisionDownCamreaFunction_OnMessageReceive;
+            Task_PrecisionDownCamreaFunction.OnMessageSent += Task_PrecisionDownCamreaFunction_OnMessageSent;
+        }
+
+        private void Task_PrecisionDownCamreaFunction_OnMessageSent(object sender, string message)
+        {
+            txtResult.Text += $"Message sent : {message}";
+        }
+
+        private void Task_PrecisionDownCamreaFunction_OnMessageReceive(object sender, string message)
+        {
+            txtResult.Text += $"Message received : {message}";
         }
 
         private void btnMoveStandby_Click(object sender, System.Windows.RoutedEventArgs e)

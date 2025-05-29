@@ -153,7 +153,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (!IOManager.Instance.IO_ControlStatus(vac1_release, 1))
+            if (!IOManager.Instance.IO_ControlStatus(vac1_release, 0))
             {
                 return false;
             }
@@ -163,7 +163,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (!IOManager.Instance.IO_ControlStatus(vac2_release, 1))
+            if (!IOManager.Instance.IO_ControlStatus(vac2_release, 0))
             {
                 return false;
             }
@@ -180,10 +180,10 @@ namespace AkribisFAM.DeviceClass
             IO_OutFunction_Table retract = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract : IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract;
 
 
-            if (!IsDrawerInPos)
-            {
-                return false;
-            }
+            //if (!IsDrawerInPos)
+            //{
+            //    return false;
+            //}
 
 
             if (!IOManager.Instance.IO_ControlStatus(extend, 1))
@@ -203,10 +203,10 @@ namespace AkribisFAM.DeviceClass
             IO_OutFunction_Table extend = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend : IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend;
             IO_OutFunction_Table retract = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract : IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract;
 
-            if (!IsDrawerInPos)
-            {
-                return false;
-            }
+            //if (!IsDrawerInPos)
+            //{
+            //    return false;
+            //}
 
 
             if (!IOManager.Instance.IO_ControlStatus(extend, 0))

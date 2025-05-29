@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Windows.LaserHeighCheckView;
+using System.Windows;
 
 namespace AkribisFAM.Windows
 {
@@ -21,7 +22,7 @@ namespace AkribisFAM.Windows
         {
             try
             {
-                var dc = (ObservableCollection<SinglePoint>)DataContext;
+                var dc = (ObservableCollection<SinglePointExt>)DataContext;
                 foreach (var pts in dc)
                 {
 

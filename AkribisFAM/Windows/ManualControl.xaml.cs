@@ -12,8 +12,9 @@ namespace AkribisFAM.Windows
             InitializeComponent();
         }
 
+        private void AirControl_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
 
-
-
+        }
     }
 }

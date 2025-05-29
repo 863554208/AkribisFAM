@@ -143,7 +143,38 @@ namespace AkribisFAM.DeviceClass
             return AkrAction.Current.Move(axis, 15.5, (int)speed) == 0;
 
         }
-        
+        public bool ZCamPos(Picker picker)
+        {
+            AxisName axis;
+            AxisSpeed speed;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = AxisName.PICK1_Z;
+                    speed = AxisSpeed.PICK1_Z;
+                    break;
+                case Picker.Picker2:
+
+                    axis = AxisName.PICK2_Z;
+                    speed = AxisSpeed.PICK2_Z;
+                    break;
+                case Picker.Picker3:
+
+                    axis = AxisName.PICK3_Z;
+                    speed = AxisSpeed.PICK3_Z;
+                    break;
+                case Picker.Picker4:
+
+                    axis = AxisName.PICK4_Z;
+                    speed = AxisSpeed.PICK4_Z;
+                    break;
+                default:
+                    return false;
+            }
+
+            return AkrAction.Current.Move(axis, 12, (int)speed) == 0;
+
+        }
         public bool ZSafe(Picker picker)
         {
             AxisName axis;
@@ -179,10 +210,15 @@ namespace AkribisFAM.DeviceClass
         public bool ZUpAll()
         {
 
+            //return AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z) == 0 &&
+            //    AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z) == 0 &&
+            //    AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z) == 0 &&
+            //    AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z) == 0;
+
+
             return AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z) == 0 &&
                 AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z) == 0 &&
-                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z) == 0 &&
-                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z) == 0;
+                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z) == 0;
         }
         public bool MovePickPos(Picker pickerNum, int fovNum)
         {
@@ -191,7 +227,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint res1 = ZuZhuang.Current.GetPickPosition((int)pickerNum, (int)pickerNum);
+            SinglePoint res1 = ZuZhuang.Current.GetPickPosition((int)pickerNum, (int)fovNum);
             if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
             AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
             {
@@ -253,6 +289,10 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
+            if (!ZUp(pickerNum))
+            {
+                return false;
+            }
             Thread.Sleep(200);
 
             return ZUp(pickerNum);
@@ -273,10 +313,10 @@ namespace AkribisFAM.DeviceClass
             }
 
 
-            if (!ZUp(pickerNum))
-            {
-                return false;
-            }
+            //if (!ZUp(pickerNum))
+            //{
+            //    return false;
+            //}
             if (!ZDown(pickerNum))
             {
                 return false;
@@ -312,9 +352,16 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            var res = TZero(Picker.Picker1) || TZero(Picker.Picker2) || TZero(Picker.Picker3) || TZero(Picker.Picker4);
-            res = res && ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
-            res = res && ZSafe(Picker.Picker1) || ZSafe(Picker.Picker2) || ZSafe(Picker.Picker3) || ZSafe(Picker.Picker4);
+            //rotate after picked
+            var res = ZDown(Picker.Picker1) && ZDown(Picker.Picker2) && ZDown(Picker.Picker3);
+            //var res = res && ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
+            res = res && ZSafe(Picker.Picker1) && ZSafe(Picker.Picker2) && ZSafe(Picker.Picker3);
+
+            res = TZero(Picker.Picker1) && TZero(Picker.Picker2);
+            //var res = TZero(Picker.Picker1) || TZero(Picker.Picker2) || TZero(Picker.Picker3) || TZero(Picker.Picker4);
+            //var res = ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
+            //var res = res && ZDown(Picker.Picker1) || ZDown(Picker.Picker2) || ZDown(Picker.Picker3) || ZDown(Picker.Picker4);
+           // res = res && ZSafe(Picker.Picker1) || ZSafe(Picker.Picker2) || ZSafe(Picker.Picker3) || ZSafe(Picker.Picker4);
             return res;
         }
         public bool TRotate(Picker picker, int angle)
@@ -379,7 +426,7 @@ namespace AkribisFAM.DeviceClass
             }
 
 
-            return AkrAction.Current.Move(axis, 0, (int)speed) == 0;
+            return AkrAction.Current.Move(axis, 180, (int)speed) == 0;
         }
         public bool ZUp(Picker picker)
         {
