@@ -93,21 +93,13 @@ namespace AkribisFAM.WorkStation
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
         }
+
         public int WaitIO(int delta, IO_INFunction_Table index, bool value, ErrorCode errorCode)
         {
             DateTime time = DateTime.Now;
             int ret = (int)ErrorCode.NoError;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
-                int validx = 0;
-                if (cnt < 10)
-                {
-                    validx = cnt;
-                }
-                else
-                {
-                    validx = cnt % 10;
-                }
                 if (ReadIO(index) == value)
                 {
                     ret = (int)ErrorCode.NoError;
