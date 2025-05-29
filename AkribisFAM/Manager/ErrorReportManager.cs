@@ -28,6 +28,7 @@ namespace AkribisFAM.Manager
         FeederErr = 0x8000,
         LaserErr = 0x9000,
         HardwareErr = 0xA000,
+        ProcessErr = 0xB000,
         //operation
         FeederEmpty = 0x0100,
         DoorOpened = 0x0200,
@@ -46,14 +47,12 @@ namespace AkribisFAM.Manager
         BarocdeScan_Failed = 0x0007,
         BarocdeScan_NoBarcode = 0x0008,
         Laser_Failed = 0x0009,
-        WaitIO = 0x000A,
-        WaitMotion = 0x000B,
-        CognexErr = 0x000C,
-        WaitFeeder = 0x000D,
-        Feeder1Empty = 0x000E,
-        Feeder2Empty = 0x000F,
-        Feeder1Alarm = 0x0010,
-        Feeder2Alarm = 0x0011
+        Cognex_DisConnected = 0x000A,
+        OUT3_1_PNP_Gantry_vacuum1_Release_Error = 0x000B,
+        OUT3_2_PNP_Gantry_vacuum2_Release_Error = 0x000C,
+        WaitMotion = 0x000D,
+        WaitIO =0x000E,
+        CognexErr=0x000F
     }
 
     public struct ErrorInfo

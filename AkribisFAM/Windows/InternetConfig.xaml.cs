@@ -57,13 +57,20 @@ namespace AkribisFAM.Windows
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if(TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+            try
             {
-                string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
-                double result = Parser.TryParseTwoValues(press);
-                PressureInfo.Text = result.ToString()+"N";
+                if (TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].isConnected == true)
+                {
+                    string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
+                    double result = Parser.TryParseTwoValues(press);
+                    PressureInfo.Text = result.ToString() + "N";
+                }
+                else
+                {
+
+                }
             }
-            else
+            catch (Exception)
             {
 
             }
@@ -92,8 +99,8 @@ namespace AkribisFAM.Windows
                 this.mes_Port.Text = (obj["mes"]["Port"]).ToString();
                 this.ModbusTCP_IP.Text = (obj["ModbusTCP"]["IP"]).ToString();
                 this.ModbusTCP_Port.Text = (obj["ModbusTCP"]["Port"]).ToString();
-                this.Pressure_sensor_IP.Text = (obj["Pressure_sensor"]["IP"]).ToString();
-                this.Pressure_sensor_Port.Text = (obj["Pressure_sensor"]["Port"]).ToString();
+                //this.Pressure_sensor_IP.Text = (obj["Pressure_sensor"]["IP"]).ToString();
+                //this.Pressure_sensor_Port.Text = (obj["Pressure_sensor"]["Port"]).ToString();
             }
             catch (Exception ex) {
                 MessageBox.Show("Read device IP failed!");

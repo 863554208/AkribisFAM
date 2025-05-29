@@ -112,15 +112,15 @@ namespace AkribisFAM.Windows
             stationPoints = new StationPoints();
             FileHelper.LoadConfig(posFileName[0], out stationPoints);
             //20250523 点位从json文件里读取 【史彦洋】 Start
-            
+
             LoadPoints();
             //20250523 点位从json文件里读取 【史彦洋】 Start
             InitTabs(stationPoints);
 
-            
+
             //END ADD
         }
-
+      
         public static void LoadPoints()
         {
             List<string> posFilePre = new List<string>();
@@ -635,7 +635,7 @@ namespace AkribisFAM.Windows
                     panel.Children.Add(rowPanel);
 
                 }
-                else if(pt.type == 1)
+                else if (pt.type == 1)
                 {
                     // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
                     int totalPoints = pt.row * pt.col;
@@ -725,7 +725,7 @@ namespace AkribisFAM.Windows
                     var ButtonAutoData = new Button
                     {
                         Content = "FillData",
-                        ToolTip = "Add the top left, top right and bottom left points to fillData",
+                        ToolTip = "Add the top left, bottom left, bottom right points to fillData",
                         Margin = new Thickness(8, 0, 0, 0),
                         Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
                     };
@@ -754,13 +754,29 @@ namespace AkribisFAM.Windows
                             string displayName = child.childName[0];
                             var pos = child.childPos;
 
+                            // 默认背景颜色
+                            Brush background = new SolidColorBrush(Colors.LightGray);
+                            // 是否需要设置角点高亮（至少 2行2列）
+                            bool highlightCorners = pt.row >= 2 && pt.col >= 2;
+                            // 三个角点统一高亮为 #E0E0E0
+                            bool isCorner = highlightCorners && (
+                                (r == 0 && c == 0) ||                            // 左上角 C
+                                (r == pt.row - 1 && c == 0) ||                   // 左下角 A
+                                (r == pt.row - 1 && c == pt.col - 1)             // 右下角 B
+                            );
+
+                            if (isCorner)
+                            {
+                                background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B2828282"));
+                            }
+
                             var pointPanel = new StackPanel
                             {
                                 Tag = "MatrixRow",
                                 Orientation = Orientation.Vertical,
                                 Margin = new Thickness(4),
                                 Width = 120,
-                                Background = new SolidColorBrush(Colors.LightGray),
+                                Background = background,
                             };
 
                             var tbID = new TextBlock
@@ -806,45 +822,105 @@ namespace AkribisFAM.Windows
                         matrixInputs.Add(inputRow);
                         panel.Children.Add(rowPanel);
 
-                        
+
                     }
 
                     ButtonAutoData.Click += (s, e) =>
                     {
                         if (pt.childList.Count != pt.row * pt.col) return;
 
-                        var topLeft = pt.childList[0].childPos;
-                        var topRight = pt.childList[pt.col - 1].childPos;
-                        var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+                        // 三个角的坐标（行列）
+                        int ax = 0, ay = pt.row - 1;        // 左下角 A → (2, 0)
+                        int dx = pt.col - 1, dy = pt.row - 1; // 右下角 D → (2, 2)
+                        int cx = 0, cy = 0;                 // 左上角 C → (0, 0)
 
-                        double[] vecX = new double[4];
-                        double[] vecY = new double[4];
-                        for (int i = 0; i < 4; i++)
-                        {
-                            vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
-                            vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
-                        }
+                        var A = pt.childList[ay * pt.col + ax].childPos; // 左下
+                        var D = pt.childList[dy * pt.col + dx].childPos; // 右下
+                        var C = pt.childList[cy * pt.col + cx].childPos; // 左上
 
-                        int idx = 0;
+                        // vecX: A -> D 水平方向向量
+                        // vecY: A -> C 垂直方向向量
+                        double[] vecX = new double[2];
+                        double[] vecY = new double[2];
+
+                        vecX[0] = (D[0] - A[0]) / (pt.col - 1); // X 水平方向单步增量
+                        vecX[1] = (D[1] - A[1]) / (pt.col - 1); // Y 水平方向单步增量
+
+                        vecY[0] = (C[0] - A[0]) / (pt.row - 1); // X 垂直方向单步增量
+                        vecY[1] = (C[1] - A[1]) / (pt.row - 1); // Y 垂直方向单步增量
+
+                        Console.WriteLine($"vecX: ({vecX[0]:0.####}, {vecX[1]:0.####})");
+                        Console.WriteLine($"vecY: ({vecY[0]:0.####}, {vecY[1]:0.####})");
+
+                        Console.WriteLine($"A (左下): {A[0]}, {A[1]}, {A[2]}, {A[3]}");
+                        Console.WriteLine($"D (右下): {D[0]}, {D[1]}, {D[2]}, {D[3]}");
+                        Console.WriteLine($"C (左上): {C[0]}, {C[1]}, {C[2]}, {C[3]}");
+
                         for (int r = 0; r < pt.row; r++)
                         {
                             for (int c = 0; c < pt.col; c++)
                             {
-                                var pos = pt.childList[idx++].childPos;
+                                int index = r * pt.col + c; // 保持顺序一致：从上到下、从左到右
 
-                                pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
-                                pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
-                                pos[2] = topLeft[2];
-                                pos[3] = topLeft[3];
+                                // 跳过已设置的三个角点
+                                if ((r == ay && c == ax) || (r == dy && c == dx) || (r == cy && c == cx))
+                                {
+                                    Console.WriteLine($"跳过基准点[{r},{c}]");
+                                    continue;
+                                }
+
+                                var pos = pt.childList[index].childPos;
+
+                                // 用 (pt.row - 1 - r) 来反转行，保证点[0,*]是左上角行
+                                pos[0] = A[0] + vecX[0] * c + vecY[0] * (pt.row - 1 - r); // X
+                                pos[1] = A[1] + vecX[1] * c + vecY[1] * (pt.row - 1 - r); // Y
+                                pos[2] = A[2]; // Z 保持不变
+                                pos[3] = A[3]; // R 保持不变
 
                                 var boxes = matrixInputs[r][c];
-                                boxes[0].Text = pos[0].ToString("0.###");
-                                boxes[1].Text = pos[1].ToString("0.###");
-                                boxes[2].Text = pos[2].ToString("0.###");
-                                boxes[3].Text = pos[3].ToString("0.###");
+                                boxes[0].Text = pos[0].ToString("F3");
+                                boxes[1].Text = pos[1].ToString("F3");
+                                boxes[2].Text = pos[2].ToString("F3");
+                                boxes[3].Text = pos[3].ToString("F3");
+
+                                Console.WriteLine($"点[{r},{c}]: X={pos[0]:0.###}, Y={pos[1]:0.###}, Z={pos[2]}, R={pos[3]}");
                             }
                         }
                     };
+
+                    //if (pt.childList.Count != pt.row * pt.col) return;
+
+                    //var topLeft = pt.childList[0].childPos;
+                    //var topRight = pt.childList[pt.col - 1].childPos;
+                    //var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                    //double[] vecX = new double[4];
+                    //double[] vecY = new double[4];
+                    //for (int i = 0; i < 4; i++)
+                    //{
+                    //    vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                    //    vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                    //}
+
+                    //int idx = 0;
+                    //for (int r = 0; r < pt.row; r++)
+                    //{
+                    //    for (int c = 0; c < pt.col; c++)
+                    //    {
+                    //        var pos = pt.childList[idx++].childPos;
+
+                    //        pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                    //        pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                    //        pos[2] = topLeft[2];
+                    //        pos[3] = topLeft[3];
+
+                    //        var boxes = matrixInputs[r][c];
+                    //        boxes[0].Text = pos[0].ToString("0.###");
+                    //        boxes[1].Text = pos[1].ToString("0.###");
+                    //        boxes[2].Text = pos[2].ToString("0.###");
+                    //        boxes[3].Text = pos[3].ToString("0.###");
+                    //    }
+                    //}
 
                 }
                 else
@@ -921,7 +997,11 @@ namespace AkribisFAM.Windows
                 }
             }
 
-            return new ScrollViewer { Content = panel,VerticalScrollBarVisibility = ScrollBarVisibility.Auto,HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+            return new ScrollViewer
+            {
+                Content = panel,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
             };
         }
         private FrameworkElement CreateLabeledTextBox(string label, double initialValue, out TextBox tb, Action<string> onTextChanged = null)
@@ -969,7 +1049,7 @@ namespace AkribisFAM.Windows
             return panel;
         }
 
-        private Button GreateButton(List<int> axisIndex,StackPanel backSP)
+        private Button GreateButton(List<int> axisIndex, StackPanel backSP)
         {
             // 添加 Teaching Point 按钮
             var teachBtn = new Button
@@ -1106,9 +1186,24 @@ namespace AkribisFAM.Windows
             int selectedIndex = CboxNowType.SelectedIndex;
             string jsonFile = posFileName[selectedIndex];
             if (SaveAllTabsData(jsonFile))
-                MessageBox.Show("保存点位成功"+ posFilePre[selectedIndex]);
+            {
+                GlobalManager.Current.laserPoints.Clear();
+                GlobalManager.Current.feedar1Points.Clear();
+                GlobalManager.Current.feedar2Points.Clear();
+                GlobalManager.Current.pickFoam1Points.Clear();
+                GlobalManager.Current.pickFoam2Points.Clear();
+                GlobalManager.Current.lowerCCDPoints.Clear();
+                GlobalManager.Current.dropBadFoamPoints.Clear();
+                GlobalManager.Current.snapPalletePoints.Clear();
+                GlobalManager.Current.placeFoamPoints.Clear();
+                GlobalManager.Current.recheckPoints.Clear();
+                GlobalManager.Current.tearingPoints.Clear();
+                ParameterConfig.LoadPoints();
+
+                MessageBox.Show("保存点位成功" + posFilePre[selectedIndex]);
+            }
             else
-                MessageBox.Show("保存点位失败"+ posFilePre[selectedIndex]);
+                MessageBox.Show("保存点位失败" + posFilePre[selectedIndex]);
         }
 
 
@@ -1119,7 +1214,7 @@ namespace AkribisFAM.Windows
             //{
             //    if (tabObj is TabItem tabItem)
             //    {
-                    RegisterHandlersInContainer(AxisGrid);
+            RegisterHandlersInContainer(AxisGrid);
             //    }
             //}
         }
@@ -1286,11 +1381,11 @@ namespace AkribisFAM.Windows
             return obj;
         }
 
-        private void ReadAxisParamJson() 
+        private void ReadAxisParamJson()
         {
             try
             {
-                string folder = Directory.GetCurrentDirectory(); 
+                string folder = Directory.GetCurrentDirectory();
                 string path = folder + "\\AxisParams.json";
 
                 int ret = LoadConfig(path);
@@ -1310,22 +1405,23 @@ namespace AkribisFAM.Windows
                 {
                     string speedname = item.Key + "_Speed";
                     TextBox tbspeed = (TextBox)FindObject(speedname);
-                    tbspeed.Text = ((double)item.Value ).ToString();
+                    tbspeed.Text = ((double)item.Value).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
                 {
                     string accname = item.Key + "_Acc";
                     TextBox tbacc = (TextBox)FindObject(accname);
-                    tbacc.Text = ((double)item.Value ).ToString();
+                    tbacc.Text = ((double)item.Value).ToString();
                 }
                 foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
                 {
                     string decname = item.Key + "_Dec";
                     TextBox tbdec = (TextBox)FindObject(decname);
-                    tbdec.Text = ((double)item.Value ).ToString();
+                    tbdec.Text = ((double)item.Value).ToString();
                 }
             }
-            catch { 
+            catch
+            {
 
             }
         }
@@ -1438,7 +1534,8 @@ namespace AkribisFAM.Windows
                         break;
                 }
             }
-            else {
+            else
+            {
                 while (true)
                 {
                     mtop += 1;
@@ -2228,7 +2325,7 @@ namespace AkribisFAM.Windows
                 Picker_FOAM_Count = GenerateRandomNumber(2, 5);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length-1) + $"{Picker_FOAM_Count}";
+                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length - 1) + $"{Picker_FOAM_Count}";
                 }));
                 if (BadFoamCount > 0)
                 {
@@ -3165,7 +3262,7 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void AddStationData(int listIndex,Point point)
+        private void AddStationData(int listIndex, Point point)
         {
             if (listIndex == 0)
             {
@@ -3273,7 +3370,7 @@ namespace AkribisFAM.Windows
 
                 mainPanel.Children.Add(rowPanel);
 
-                AddStationData(selectIndex,pt);
+                AddStationData(selectIndex, pt);
 
             }
             else if (data == 1)
@@ -3370,7 +3467,7 @@ namespace AkribisFAM.Windows
                 var ButtonAutoData = new Button
                 {
                     Content = "FillData",
-                    ToolTip = "Add the top left, top right and bottom left points to fillData",
+                    ToolTip = "Add top left, bottom left, bottom right points to fillData",
                     Margin = new Thickness(8, 0, 0, 0),
                     Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
                 };
@@ -3396,13 +3493,32 @@ namespace AkribisFAM.Windows
                         string displayName = child.childName[0];
                         var pos = child.childPos;
 
+
+                        // 默认背景颜色
+                        Brush background = new SolidColorBrush(Colors.LightGray);
+                        // 是否需要设置角点高亮（至少 2行2列）
+                        bool highlightCorners = pt.row >= 2 && pt.col >= 2;
+                        // 三个角点统一高亮为 #E0E0E0
+                        bool isCorner = highlightCorners && (
+                            (r == 0 && c == 0) ||                            // 左上角 C
+                            (r == pt.row - 1 && c == 0) ||                   // 左下角 A
+                            (r == pt.row - 1 && c == pt.col - 1)             // 右下角 B
+                        );
+
+                        if (isCorner)
+                        {
+                            background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B2828282"));
+                        }
+
+
+
                         var pointPanel = new StackPanel
                         {
                             Tag = "MatrixRow",
                             Orientation = System.Windows.Controls.Orientation.Vertical,
                             Margin = new Thickness(4),
                             Width = 120,
-                            Background = new SolidColorBrush(Colors.LightGray),
+                            Background = background,
                         };
 
                         var tbID = new TextBlock
@@ -3437,42 +3553,68 @@ namespace AkribisFAM.Windows
                 {
                     if (pt.childList.Count != pt.row * pt.col) return;
 
-                    var topLeft = pt.childList[0].childPos;
-                    var topRight = pt.childList[pt.col - 1].childPos;
-                    var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+                    // 三个角的坐标（行列）
+                    int ax = 0, ay = pt.row - 1;        // 左下角 A → (2, 0)
+                    int dx = pt.col - 1, dy = pt.row - 1; // 右下角 D → (2, 2)
+                    int cx = 0, cy = 0;                 // 左上角 C → (0, 0)
 
-                    double[] vecX = new double[4];
-                    double[] vecY = new double[4];
-                    for (int i = 0; i < 4; i++)
-                    {
-                        vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
-                        vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
-                    }
+                    var A = pt.childList[ay * pt.col + ax].childPos; // 左下
+                    var D = pt.childList[dy * pt.col + dx].childPos; // 右下
+                    var C = pt.childList[cy * pt.col + cx].childPos; // 左上
 
-                    int idx = 0;
+                    // vecX: A -> D 水平方向向量
+                    // vecY: A -> C 垂直方向向量
+                    double[] vecX = new double[2];
+                    double[] vecY = new double[2];
+
+                    vecX[0] = (D[0] - A[0]) / (pt.col - 1); // X 水平方向单步增量
+                    vecX[1] = (D[1] - A[1]) / (pt.col - 1); // Y 水平方向单步增量
+
+                    vecY[0] = (C[0] - A[0]) / (pt.row - 1); // X 垂直方向单步增量
+                    vecY[1] = (C[1] - A[1]) / (pt.row - 1); // Y 垂直方向单步增量
+
+                    Console.WriteLine($"vecX: ({vecX[0]:0.####}, {vecX[1]:0.####})");
+                    Console.WriteLine($"vecY: ({vecY[0]:0.####}, {vecY[1]:0.####})");
+
+                    Console.WriteLine($"A (左下): {A[0]}, {A[1]}, {A[2]}, {A[3]}");
+                    Console.WriteLine($"D (右下): {D[0]}, {D[1]}, {D[2]}, {D[3]}");
+                    Console.WriteLine($"C (左上): {C[0]}, {C[1]}, {C[2]}, {C[3]}");
+
                     for (int r = 0; r < pt.row; r++)
                     {
                         for (int c = 0; c < pt.col; c++)
                         {
-                            var pos = pt.childList[idx++].childPos;
+                            int index = r * pt.col + c; // 保持顺序一致：从上到下、从左到右
 
-                            pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
-                            pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
-                            pos[2] = topLeft[2];
-                            pos[3] = topLeft[3];
+                            // 跳过已设置的三个角点
+                            if ((r == ay && c == ax) || (r == dy && c == dx) || (r == cy && c == cx))
+                            {
+                                Console.WriteLine($"跳过基准点[{r},{c}]");
+                                continue;
+                            }
+
+                            var pos = pt.childList[index].childPos;
+
+                            // 用 (pt.row - 1 - r) 来反转行，保证点[0,*]是左上角行
+                            pos[0] = A[0] + vecX[0] * c + vecY[0] * (pt.row - 1 - r); // X
+                            pos[1] = A[1] + vecX[1] * c + vecY[1] * (pt.row - 1 - r); // Y
+                            pos[2] = A[2]; // Z 保持不变
+                            pos[3] = A[3]; // R 保持不变
 
                             var boxes = matrixInputs[r][c];
-                            boxes[0].Text = pos[0].ToString("0.###");
-                            boxes[1].Text = pos[1].ToString("0.###");
-                            boxes[2].Text = pos[2].ToString("0.###");
-                            boxes[3].Text = pos[3].ToString("0.###");
+                            boxes[0].Text = pos[0].ToString("F3");
+                            boxes[1].Text = pos[1].ToString("F3");
+                            boxes[2].Text = pos[2].ToString("F3");
+                            boxes[3].Text = pos[3].ToString("F3");
+
+                            Console.WriteLine($"点[{r},{c}]: X={pos[0]:0.###}, Y={pos[1]:0.###}, Z={pos[2]}, R={pos[3]}");
                         }
                     }
                 };
 
                 AddStationData(selectIndex, pt);
             }
-            else if(data == 2)
+            else if (data == 2)
             {
                 //var rowPanel = new StackPanel
                 //{

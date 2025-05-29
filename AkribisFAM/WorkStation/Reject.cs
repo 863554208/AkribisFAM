@@ -130,6 +130,7 @@ namespace AkribisFAM.WorkStation
         {
             DateTime time = DateTime.Now;
             bool ret = false;
+            errorCode = ErrorCode.WaitIO;
             int cnt = 0;
             for (int i = 0; i < signalval.Length; i++)
             {
