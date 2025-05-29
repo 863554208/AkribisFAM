@@ -468,36 +468,36 @@ namespace AkribisFAM.DeviceClass
             //Logger.WriteLog("力控信号111");
             //Thread.Sleep(50);
             AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[800]={programNumber}", out string response4);
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[112]={stepSize}", out string response5);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GenData[{(int)picker}12]={stepSize}", out string response5);
 
             NewtonCurrentList.Clear();
             for (int i = 0; i < stepMultiply; i++)
             {
-                IncreaseForce(axis);
-                if (!GetData(axis))
+                IncreaseForce(axis, ((int)picker).ToString());
+                if (!GetData(axis, ((int)picker).ToString()))
                 {
                     return false;
                 }
             }
-            if (!EndCalibProcess(axis))
+            if (!EndCalibProcess(axis, ((int)picker).ToString()))
             {
                 return false;
             }
 
             return true;
         }
-        private void IncreaseForce(string axisCode)
+        private void IncreaseForce(string axisCode, string pickerNum)
         {
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[110]=1", out string response5);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNum}10]=1", out string response5);
 
         }
-        private bool GetData(string axisCode)
+        private bool GetData(string axisCode, string pickerNum)
         {
             DateTime start = DateTime.Now;
             while ((DateTime.Now - start).TotalMilliseconds < 3000)
             {
                 //wait done signal
-                AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[110]", out string done);
+                AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNum}10]", out string done);
                 if (done.Equals("0"))
                 {
                     IncreaseCurrent(axisCode, out string current);
@@ -552,9 +552,9 @@ namespace AkribisFAM.DeviceClass
             return false;
         }
 
-        public bool EndCalibProcess(string axisCode)
+        public bool EndCalibProcess(string axisCode, string pickerNUm)
         {
-            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[111]=1", out string response5); // close agito
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNUm}11]=1", out string response5); // close agito
 
             if (!WaitProcessDone(axisCode))
             {
