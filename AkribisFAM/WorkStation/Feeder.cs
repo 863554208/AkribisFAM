@@ -12,6 +12,21 @@ namespace AkribisFAM.WorkStation
 {
     internal class Feeder : WorkStationBase
     {
+        private static Feeder _instance;
+        public static Feeder Current
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new Feeder();
+                    }
+                }
+                return _instance;
+            }
+        }
         public enum FeederSequenceStep
         {
             Idle,                   // Default state

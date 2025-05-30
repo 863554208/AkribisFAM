@@ -23,6 +23,11 @@ namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
+        private static int _movestep = 0;
+        private bool _isProcessingDone = false;
+        private int _BarcodeScanRetryCount = 0;
+        private int _BarcodeScanRetryMax = 5;
+
 
         public enum LailiaoStep
         {
@@ -180,27 +185,29 @@ namespace AkribisFAM.WorkStation
             return MoveView.WaitAxisArrived(new object[] { AxisName.LSY });
         }
 
-        public int ScanBarcode()
+        public int ScanBarcode(out string result)
         {
+            result = string.Empty;
             var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
             if (error == ErrorCode.BarocdeScan_Failed)
             {
                 return (int)ErrorCode.BarocdeScan_Failed;
             }
+            result = barcode;
 
-            Logger.WriteLog($"Readout scanner : {barcode} ");
-            GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
+            Logger.WriteLog($"Barcode Scanner Result: {barcode}");
+            //GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
 
-            //global switch for using mes system
-            if (GlobalManager.Current.IsUseMES)
-            {
-                // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
-            }
-            else
-            {
-                GlobalManager.Current.IsByPass = false;
-            }
+            ////global switch for using mes system
+            //if (GlobalManager.Current.IsUseMES)
+            //{
+            //    // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
+            //}
+            //else
+            //{
+            //    GlobalManager.Current.IsByPass = false;
+            //}
 
             return (int)ErrorCode.NoError;
         }
@@ -411,7 +418,7 @@ namespace AkribisFAM.WorkStation
             switch (type)
             {
                 case 2: 
-                    return ScanBarcode();
+                    return ScanBarcode(out string result);
 
                 case 3:
                     return LaserHeight();
@@ -661,123 +668,194 @@ namespace AkribisFAM.WorkStation
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+        private bool _isTrayReadyToProcess = false;
+        public void SetTrayReadyToProcess()
+        {
+            _isTrayReadyToProcess = true;
+        }
+        public bool IsProcessOngoing()
+        {
+            return !_isProcessingDone;
+        }
+        private void ProcessingDone()
+        {
+            _isProcessingDone = true;
+            _isTrayReadyToProcess = false;
+        }
+        private void StartProcessing()
+        {
+            _isProcessingDone = false;
+        }
 
         public override void AutoRun(CancellationToken token)
         {
-            try
+
+            // WAIT FOR TRAY IN POSITION
+            if (_movestep == 0) 
             {
-                while (true)
+                if (_isTrayReadyToProcess)
                 {
-                    //20250519 测试 【史彦洋】 追加 Start
-                    //Console.WriteLine("lailiao ceshi 1");
-                    //Thread.Sleep(1000);
-                    //continue;
+                    StartProcessing();
+                    _movestep = 1;
+                }
+            }
+            
+            // SCAN BARCODE
+            if (_movestep == 1)
+            {
+                if (ScanBarcode(out string barcode) == 0)
+                {
+                    _movestep = 2;
+                }
+                else
+                {
+                    _BarcodeScanRetryCount++;
+                    Logger.WriteLog($"Barcode scan failed. Retry count {_BarcodeScanRetryCount}");
 
-
-                    step1: bool ret = Step1();
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (!ret) continue;
-
-                    step2: 
-                        int ret2 = Step2();
-                        if (ret2 != 0)
-                        {
-                            ShowErrorMessage(ret2);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.IsByPass) goto step4;
-
-                    step3: 
-                        int ret3 = Step3();
-                        if(ret3 != 0)
-                        {
-                            ShowErrorMessage(ret3);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-
-                    //出板
-                    step4:
-                        Boardout();
-
-                    #region 老代码
-                    //if (GlobalManager.Current.lailiao_ChuFaJinBan)
-                    //{
-                    //    //TODO 执行进板
-                    //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
-
-
-                    //    WorkState = 1;
-                    //    has_board = true;
-                    //    Console.WriteLine("检测到进板信号，已进板");
-                    //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
-                    //}
-
-                    //// 处理板
-                    //if (has_board && WorkState == 1)
-                    //{
-                    //    try
-                    //    {
-                    //        //执行完才能改变workstatiion
-                    //        WorkState = 2;
-
-                    //        //TODO 扫码枪扫码
-                    //        System.Threading.Thread.Sleep(1000);
-                    //        OnJinBanExecuted?.Invoke();
-                    //        GlobalManager.Current.lailiao_SaoMa = true;
-                    //        Console.WriteLine("扫码枪扫码已完成");
-
-                    //        bool asd = false;
-                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                    //        if (asd)
-                    //        {
-                    //            GlobalManager.Current.hive_Result = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            //TODO 基恩士激光测距
-                    //            System.Threading.Thread.Sleep(1000);
-                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                    //            OnLaserExecuted.Invoke();
-                    //            Console.WriteLine("激光测距已完成");
-                    //        }
-
-                    //        WorkState = 3; // 更新状态为出板
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        has_error = true; // 标记为出错
-                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                    //    }
-                    //}
-
-                    //// 出板
-                    //if (WorkState == 3 || has_error)
-                    //{
-                    //    if (has_error)
-                    //    {
-                    //        AutorunManager.Current.isRunning = false;
-                    //    }
-                    //    System.Threading.Thread.Sleep(1000);
-                    //    OnMovePalleteExecuted.Invoke();
-                    //    WorkState = 0;
-                    //    has_board = false;
-                    //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
-                    //    GlobalManager.Current.IO_test2 = true;
-                    //}
-
-                    #endregion
-
-                    System.Threading.Thread.Sleep(100);
+                    if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
+                    {
+                        // TODO: Handle maximum retries exceeded
+                        return; // Exit the process
+                    }
+                    return; // Retry scanning
                 }
             }
 
-            catch (Exception ex)
+            // LASER MEASUREMENT
+            if (_movestep == 3)
             {
-                AutorunManager.Current.isRunning = false;
-                ErrorReportManager.Report(ex);
+                if (LaserHeight() == 0)
+                {
+                    _movestep = 4;
+                }
+                else
+                {
+
+                }
             }
+
+            // PROCESSING DONE
+            if (_movestep == 4)
+            {
+                ProcessingDone();
+                _movestep = 0; // Reset for next tray
+            }
+
+
+            //try
+            //{
+            //        while (true)
+            //        {
+            //        //20250519 测试 【史彦洋】 追加 Start
+            //        //Console.WriteLine("lailiao ceshi 1");
+            //        //Thread.Sleep(1000);
+            //        //continue;
+
+
+            //        step1: bool ret = Step1();
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+            //            if (!ret) continue;
+
+            //            step2:
+            //            int ret2 = Step2();
+            //            if (ret2 != 0)
+            //            {
+            //                ShowErrorMessage(ret2);
+            //                break;
+            //            }
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+            //            if (GlobalManager.Current.IsByPass) goto step4;
+
+            //            step3:
+            //            int ret3 = Step3();
+            //            if (ret3 != 0)
+            //            {
+            //                ShowErrorMessage(ret3);
+            //                break;
+            //            }
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+
+            //            //出板
+            //            step4:
+            //            Boardout();
+
+            //            #region 老代码
+            //            //if (GlobalManager.Current.lailiao_ChuFaJinBan)
+            //            //{
+            //            //    //TODO 执行进板
+            //            //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
+
+
+            //            //    WorkState = 1;
+            //            //    has_board = true;
+            //            //    Console.WriteLine("检测到进板信号，已进板");
+            //            //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
+            //            //}
+
+            //            //// 处理板
+            //            //if (has_board && WorkState == 1)
+            //            //{
+            //            //    try
+            //            //    {
+            //            //        //执行完才能改变workstatiion
+            //            //        WorkState = 2;
+
+            //            //        //TODO 扫码枪扫码
+            //            //        System.Threading.Thread.Sleep(1000);
+            //            //        OnJinBanExecuted?.Invoke();
+            //            //        GlobalManager.Current.lailiao_SaoMa = true;
+            //            //        Console.WriteLine("扫码枪扫码已完成");
+
+            //            //        bool asd = false;
+            //            //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
+            //            //        if (asd)
+            //            //        {
+            //            //            GlobalManager.Current.hive_Result = false;
+            //            //        }
+            //            //        else
+            //            //        {
+            //            //            //TODO 基恩士激光测距
+            //            //            System.Threading.Thread.Sleep(1000);
+            //            //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
+            //            //            OnLaserExecuted.Invoke();
+            //            //            Console.WriteLine("激光测距已完成");
+            //            //        }
+
+            //            //        WorkState = 3; // 更新状态为出板
+            //            //    }
+            //            //    catch (Exception ex)
+            //            //    {
+            //            //        has_error = true; // 标记为出错
+            //            //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
+            //            //    }
+            //            //}
+
+            //            //// 出板
+            //            //if (WorkState == 3 || has_error)
+            //            //{
+            //            //    if (has_error)
+            //            //    {
+            //            //        AutorunManager.Current.isRunning = false;
+            //            //    }
+            //            //    System.Threading.Thread.Sleep(1000);
+            //            //    OnMovePalleteExecuted.Invoke();
+            //            //    WorkState = 0;
+            //            //    has_board = false;
+            //            //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
+            //            //    GlobalManager.Current.IO_test2 = true;
+            //            //}
+
+            //            #endregion
+
+            //            System.Threading.Thread.Sleep(100);
+            //        }
+            //    }
+
+            //    catch (Exception ex)
+            //    {
+            //        AutorunManager.Current.isRunning = false;
+            //        ErrorReportManager.Report(ex);
+            //    }
         }
     }
 }

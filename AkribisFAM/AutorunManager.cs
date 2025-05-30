@@ -144,7 +144,8 @@ namespace AkribisFAM
                     //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
-
+                    tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
+                    
                     await Task.WhenAll(tasks);
                 }
                 catch (Exception ex) 
