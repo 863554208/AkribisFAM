@@ -520,6 +520,10 @@ namespace AkribisFAM.DeviceClass
             return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
             AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
         }
+        public bool Trigger()
+        {
+            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+        }
 
         public bool CheckFilm(int index, int totalRow, int totalColumn)
         {

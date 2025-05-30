@@ -76,7 +76,7 @@ namespace AkribisFAM.Windows
             if (stationsPoints == null) return;
 
             //var laser = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
-            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
+            var laser = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
             if (laser == null) return;
 
             lsp = laser.childList.Select((x, index) => new SinglePointExt
@@ -136,10 +136,14 @@ namespace AkribisFAM.Windows
                       {
                           return;
                       }
-                      if (!App.vision1.CheckFilm(point.TeachPointIndex, vm.Row, vm.Column))
+                      if (!App.vision1.Trigger())
                       {
                           return;
                       }
+                      //if (!App.vision1.CheckFilm(point.TeachPointIndex, vm.Row, vm.Column))
+                      //{
+                      //    return;
+                      //}
                       vm.Progress++;
 
                       Thread.Sleep(100);
@@ -202,6 +206,10 @@ namespace AkribisFAM.Windows
                         //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
                     });
                 }
+                else
+                {
+                    Thread.Sleep(1);
+                }
             });
         }
 
@@ -217,6 +225,11 @@ namespace AkribisFAM.Windows
                         //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
                     });
                 }
+                else
+                {
+
+                    Thread.Sleep(1);
+                }
             });
         }
 
@@ -230,33 +243,49 @@ namespace AkribisFAM.Windows
                     //AKBMessageBox.ShowDialog("Failed to Z up", "Motion failed",
                     //msgIcon: AKBMessageBox.MessageBoxIcon.Completed);
                 });
-            };
+            }
+            ;
         }
 
 
-        private void PointXYMoveRemoveInspectView_VisionInspectPressed(object sender, EventArgs e)
+        private async void PointXYMoveRemoveInspectView_VisionInspectPressed(object sender, EventArgs e)
         {
             PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
             SinglePointExt points = (SinglePointExt)view.DataContext;
-            if (!App.filmRemoveGantryControl.MoveToVisionPos(points.X, points.Y))
+            await Task.Run(() =>
             {
-                return;
-            }
 
-            if (!App.vision1.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
-            {
-                return;
-            }
+                if (!App.filmRemoveGantryControl.MoveToVisionPos(points.X, points.Y))
+                {
+                    return;
+                }
+
+                if (!App.vision1.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
+                {
+                    return;
+                }
+
+                if (!App.vision1.Trigger())
+                {
+                    return;
+                }
+            });
         }
 
-        private void PointXYMoveRemoveInspectView_MovePressed(object sender, EventArgs e)
+
+        private async void PointXYMoveRemoveInspectView_MovePressed(object sender, EventArgs e)
         {
             PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
             SinglePointExt points = (SinglePointExt)view.DataContext;
-            if (!App.filmRemoveGantryControl.MoveToVisionPos(points.X, points.Y))
+            await Task.Run(() =>
             {
-                return;
-            }
+
+                if (!App.filmRemoveGantryControl.MovePos(points.X, points.Y))
+                {
+                    return;
+                }
+
+            });
 
         }
 
@@ -264,10 +293,13 @@ namespace AkribisFAM.Windows
         {
             PointXYMoveRemoveInspectView view = (PointXYMoveRemoveInspectView)sender;
             SinglePointExt points = (SinglePointExt)view.DataContext;
-            if (!App.filmRemoveGantryControl.RemoveFilm(points.X, points.Y))
+            Task.Run(() =>
             {
-                return;
-            }
+                if (!App.filmRemoveGantryControl.RemoveFilm(points.X, points.Y))
+                {
+                    return;
+                }
+            });
         }
 
         private void btnToss_Click(object sender, System.Windows.RoutedEventArgs e)

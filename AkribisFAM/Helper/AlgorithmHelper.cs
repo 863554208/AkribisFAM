@@ -135,7 +135,7 @@ namespace AkribisFAM.Helper
         /// <returns>The zigzag index (k)</returns>
         public static int GetZigzagIndexFromFlat(int index, int totalRows, int totalColumns)
         {
-            if (index < 0 || index >= totalRows * totalColumns)
+            if (index < 0 || index > totalRows * totalColumns)
                 throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
 
             int row = index / totalColumns;

@@ -92,7 +92,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT5_4Backup,
         OUT5_5Reserve,
         OUT5_6Reserve,
-        OUT5_7Reserve,
+        OUT5_7Reserve,//rename to camera trigger
         OUT5_8Feeder_vacuum1_Supply,
         OUT5_9Feeder_vacuum1_Release,
         OUT5_10Feeder_vacuum2_Supply,

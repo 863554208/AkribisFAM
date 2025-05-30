@@ -62,6 +62,8 @@ namespace AkribisFAM
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
             filmRemoveGantryControl = new FilmRemoveGantryControl();
+            filmRemoveGantryControl.XOffset = 25.4;
+            filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
 
             App.assemblyGantryControl.BypassPicker4 = true;
