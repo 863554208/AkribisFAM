@@ -22,6 +22,8 @@ namespace AkribisFAM.WorkStation
     internal class ZuZhuang : WorkStationBase
     {
         private static ZuZhuang _instance;
+        private static int _movestep = 0;
+        private bool _isProcessingDone = false;
         public override string Name => nameof(ZuZhuang);
 
         int delta = 0;
@@ -1337,10 +1339,75 @@ namespace AkribisFAM.WorkStation
             return singlePoint;
         }
 
-
+        private bool _isTrayReadyToProcess = false;
+        public void SetTrayReadyToProcess()
+        {
+            _isTrayReadyToProcess = true;
+        }
+        public bool IsProcessOngoing()
+        {
+            return !_isProcessingDone;
+        }
+        private void ProcessingDone()
+        {
+            _isProcessingDone = true;
+            _isTrayReadyToProcess = false;
+        }
+        private void StartProcessing()
+        {
+            _isProcessingDone = false;
+        }
 
         public async override void AutoRun(CancellationToken token)
         {
+            // FEEDER ON THE FLY INSPECT
+            if (_movestep == 0)
+            {
+                if (SnapFeedar() == 0)
+                {
+                    _movestep = 1;
+                } else
+                {
+
+                }
+            }
+            
+            // PICK FOAM
+            if (_movestep == 1)
+            {
+                if (PickFoam() == 0)
+                {
+                    _movestep = 2;
+                }
+                else
+                {
+
+                }
+            }
+            
+
+            LowerCCD();
+            DropBadFoam();
+
+
+            // WAIT FOR TRAY IN POSITION
+            if (_movestep == 5)
+            {
+                if (_isTrayReadyToProcess)
+                {
+                    StartProcessing();
+                    _movestep = 1;
+                }
+            }
+
+          
+            SnapPallete();
+            PlaceFoam();
+
+
+
+
+
             board_count = 0;
             GlobalManager.Current.current_Assembled = 0;
             GlobalManager.Current.total_Assemble_Count = 12;
