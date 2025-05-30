@@ -132,6 +132,8 @@ namespace AkribisFAM
         public int LaserHeightDelay = 50;
 
         public double[][] laser_data;
+
+        public bool isLowerCCD = false;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
