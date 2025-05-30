@@ -26,13 +26,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         Nozzle3,
         Nozzle4
     }
-    struct Pointposition
-    {
-        public double X;
-        public double Y;
-        public double Z;
-        public double R;
-    }
+
     enum MovingCameraCalibposition
     {
         FeedDischarging,

@@ -277,6 +277,7 @@ namespace AkribisFAM.Windows
                 tbNowPos.Text = axis.nowPos.ToString();
                 tbTargetPos.Text = axis.tarpos.ToString();
                 tbAxisVel.Text = axis.vel.ToString();
+                IsAxisEnable.IsChecked = axis.AxisStat[0];
 
                 if (axis.AxisStat.Count < statList.Count)
                 {

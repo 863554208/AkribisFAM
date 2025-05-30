@@ -96,6 +96,7 @@ namespace AkribisFAM.WorkStation
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
         }
+
         public int WaitIO(int delta, IO_INFunction_Table index, bool value, ErrorCode errorCode)
         {
             DateTime time = DateTime.Now;
