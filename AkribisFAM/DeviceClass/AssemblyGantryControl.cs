@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using YamlDotNet.Serialization.NodeTypeResolvers;
+using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.LoadCellCalibration;
 using static HslCommunication.Profinet.Knx.KnxCode;
@@ -480,7 +481,123 @@ namespace AkribisFAM.DeviceClass
 
             return ZUp(pickerNum);
         }
+        public bool IsPtpMode(Picker picker)
+        {
 
+            string axis = "";
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = "A";
+                    break;
+                case Picker.Picker2:
+                    axis = "C";
+                    break;
+                case Picker.Picker3:
+                    axis = "E";
+                    break;
+                case Picker.Picker4:
+                    axis = "G";
+                    break;
+                default:
+                    break;
+            }
+            if (!(AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}OperationMode", out string response) && response == "3"))//1
+                return false;
+
+            return true;
+
+        }
+        public bool IsCurrentMode(Picker picker)
+        {
+
+            string axis = "";
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = "A";
+                    break;
+                case Picker.Picker2:
+                    axis = "C";
+                    break;
+                case Picker.Picker3:
+                    axis = "E";
+                    break;
+                case Picker.Picker4:
+                    axis = "G";
+                    break;
+                default:
+                    break;
+            }
+            if (!(AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}OperationMode", out string response) && response == "1"))
+                return false;
+
+            return true;
+
+        }
+        public bool SetPositionMode(Picker picker)
+        {
+            string axis = "";
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = "A";
+                    break;
+                case Picker.Picker2:
+                    axis = "C";
+                    break;
+                case Picker.Picker3:
+                    axis = "E";
+                    break;
+                case Picker.Picker4:
+                    axis = "G";
+                    break;
+                default:
+                    break;
+            }
+
+            if (!(AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GoToPosMode", out string response) && response == "OK"))
+                return false;
+
+            return true;
+
+        }
+        public bool SetPositionMode(string axiscode)
+        {
+
+            if (!(AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axiscode}GoToPosMode", out string response) && response == "OK"))
+                return false;
+
+            return true;
+
+        }
+        public bool SetCurrMode(Picker picker)
+        {
+            string axis = "";
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    axis = "A";
+                    break;
+                case Picker.Picker2:
+                    axis = "C";
+                    break;
+                case Picker.Picker3:
+                    axis = "E";
+                    break;
+                case Picker.Picker4:
+                    axis = "G";
+                    break;
+                default:
+                    break;
+            }
+
+            if (!(AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axis}GoToCurrMode", out string response) && response == "OK"))
+                return false;
+
+            return true;
+            
+        }
         public bool CallCalib(Picker picker)
         {
             string programNumber = "-1";
@@ -533,17 +650,24 @@ namespace AkribisFAM.DeviceClass
 
 
             App.calib.NewtonCurrentList[(int)picker-1].Clear();
-            List <NewtonCurrent>  data = new List<NewtonCurrent>();
+            NewtonCurrent  data = new NewtonCurrent();
+            List<NewtonCurrent>  list = new List<NewtonCurrent>();
             for (int i = 0; i < stepMultiply; i++)
             {
+                if (!IsCurrentMode(picker) && !SetCurrMode(picker))
+                {
+                        return false;
+                }
                 IncreaseForce(axis, ((int)picker).ToString());
                 if (!GetData(axis, ((int)picker).ToString(), out data))
                 {
                     return false;
                 }
-                Thread.Sleep(500);
+                Thread.Sleep(200);
+                list.Add(data);
             }
-            var usefuldata = data.Where(x => x.Newton > 0.05).ToList();
+            
+            var usefuldata = list.Where(x => x.Newton > 0.05).ToList();
             App.calib.NewtonCurrentList[(int)picker - 1] = usefuldata;
 
             var (m, c) = CalculateLinearCoefficients(usefuldata.Select(x => x.Newton).ToList(), usefuldata.Select(x => x.Current).ToList());
@@ -564,9 +688,10 @@ namespace AkribisFAM.DeviceClass
         }
         public bool ApplyForce(int axis, double newton)
         {
-            int timePush = 2000;
+            int timePush = 1000;
             int curret_whole = 2000;
             var current = PredictCurrent(newton, App.calib.Models[axis - 1].m, App.calib.Models[axis - 1].C);
+            current = 1500;
             if (current >= 2500)
             {
                 return false;
@@ -590,12 +715,14 @@ namespace AkribisFAM.DeviceClass
 
             if (!WaitForceDone())
             {
+                SetPositionMode($"{axis}");
                 return false;
             }
 
 
             if (!WaitModeToPositionControl($"{axis}"))
             {
+                SetPositionMode($"{axis}");
                 return false;
             }
 
@@ -625,9 +752,9 @@ namespace AkribisFAM.DeviceClass
             AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNum}10]=1", out string response5);
 
         }
-        private bool GetData(string axisCode, string pickerNum, out List<NewtonCurrent> data)
+        private bool GetData(string axisCode, string pickerNum, out NewtonCurrent data)
         {
-            data = new List<NewtonCurrent>();
+            data = null;
             DateTime start = DateTime.Now;
             while ((DateTime.Now - start).TotalMilliseconds < 3000)
             {
@@ -637,11 +764,11 @@ namespace AkribisFAM.DeviceClass
                 {
                     GetCurrent(axisCode, out string current);
                     double N = ReadLoadCell();
-                    data.Add(new NewtonCurrent()
+                    data = new NewtonCurrent()
                     {
                         Newton = N,
                         Current = double.Parse(current),
-                    });
+                    };
                     return true;
                 }
                 Thread.Sleep(10);
@@ -691,17 +818,17 @@ namespace AkribisFAM.DeviceClass
         {
             AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNUm}11]=1", out string response5); // close agito
 
-            if (!WaitProcessDone(axisCode))
-            {
-
-                return false;
-            }
+         
             if (!WaitModeToPositionControl(axisCode))
             {
-
+                SetPositionMode(axisCode);
                 return false;
             }
-
+            if (!WaitProcessDone(axisCode))
+            {
+                SetPositionMode(axisCode);
+                return false;
+            }
             return true;
 
 
@@ -782,6 +909,12 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
+            //if (!ApplyForce((int)pickerNum,1)) // change to force mode
+            //{
+            //    ZUp(pickerNum);
+            //    return false;
+            //}
+
             if (!VacOff(pickerNum))
             {
                 return false;
@@ -803,7 +936,10 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-
+            if (!TRotate(pickerNum, 0))
+            {
+                return false;
+            }
             if (!TCompensatePick(pickerNum))
             {
                 return false;

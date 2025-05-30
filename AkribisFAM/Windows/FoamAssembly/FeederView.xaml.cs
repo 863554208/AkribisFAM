@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
@@ -132,7 +133,7 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
-
+            
             _timer = new System.Timers.Timer(200);
             _timer.Elapsed += (s, e) => TickTime();
             _timer.AutoReset = true;
@@ -165,7 +166,7 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            feeders = feeders;
+            //feeders = feeders;
 
         }
         class FeederVM : ViewModelBase
@@ -216,7 +217,7 @@ namespace AkribisFAM.Windows
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
 
-            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Feedar1 Points"));
+            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
             if (laser == null) return;
 
             lsp = laser.childList.Select((x, index) => new SinglePointExt
@@ -265,20 +266,47 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
+        private async void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
         {
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            //Task.Run(() =>
-            //{
-
-            if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+            await Task.Run(() =>
             {
 
-                // System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
-            }
-            //});
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+                {
+                    return;
+                }
+                
+                //if (!App.assemblyGantryControl.PickFoam(Picker.Picker1,1))
+                //{
+                //    return;
+
+                //}
+                //if (!App.assemblyGantryControl.PickFoam(Picker.Picker2, 2))
+                //{
+                //    return;
+
+                //}
+                //if (!App.vision1.Vision2OnTheFlyTrigger())
+                //{
+                //    return;
+                //}
+                //if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                //{
+                //    return;
+                //}
+                //if (!App.assemblyGantryControl.PlaceFoam(Picker.Picker1, 1))
+                //{
+                //    return;
+                //}
+
+                //if (!App.assemblyGantryControl.PlaceFoam(Picker.Picker2, 2))
+                //{
+                //    return;
+                //}
+            });
         }
 
         private void ManualFeederControlView_PickerZUpPressed(object sender, EventArgs e)
@@ -496,22 +524,28 @@ namespace AkribisFAM.Windows
 
         private void btnMoveLoadCellPicker1_Click(object sender, RoutedEventArgs e)
         {
-            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            Task.Run(() =>
             {
-
-                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
-            }
+                if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+                }
+            });
         }
 
         private void btnMoveLoadCellPicker2_Click(object sender, RoutedEventArgs e)
         {
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
-            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker2))
+            Task.Run(() =>
             {
-
-                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
-            }
+                if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker2))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+                }
+            });
         }
 
         private void btnMoveLoadCellPicker3_Click(object sender, RoutedEventArgs e)

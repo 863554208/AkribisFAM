@@ -3,6 +3,7 @@ using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -319,6 +320,7 @@ namespace AkribisFAM.Windows
         {
             _timer.Stop();
         }
+    
     }
 
 

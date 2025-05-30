@@ -16,9 +16,9 @@ namespace AkribisFAM.Manager
                 NewtonCurrentList[i] = new List<NewtonCurrent>();
             }
             LoadCellCalibration calib;
-            if (!FileHelper.Load(out calib))
+            if (!FileHelper.Load(out calib) && calib!=null)
             {
-                
+                Models = calib.Models;
             }
 
         }
