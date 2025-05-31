@@ -13,8 +13,8 @@ namespace AkribisFAM.CommunicationProtocol
     // TcpClientWorker 类用于管理每个TCP客户端的连接、消息收发和重连机制
     class TcpClientWorker
     {
-        private readonly string host;  // 存储服务器的IP地址
-        private readonly int port;    // 存储服务器的端口
+        public string host;  // 存储服务器的IP地址
+        public int port;    // 存储服务器的端口
         private Socket socket = null;        // 用来进行TCP连接的Socket对象
         private readonly object socketLock = new object();  // 用于锁定socket，防止并发访问
         private volatile bool isRunning = true;  //控制线程运行,控制客户端是否继续运行
