@@ -60,30 +60,11 @@ namespace AkribisFAM
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
 
-            //TODO
-            //try
-            //{
-            //    // 初始化数据库连接
-            //    DatabaseManager.Initialize();
 
-            //    // 插入数据
-            //    DatabaseManager.Insert("MyDatabase.db");
+            //20250530 测试mes的tcp连接 【史彦洋】 Start
 
-            //    Console.WriteLine("数据插入成功！");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"操作失败: {ex.Message}");
-            //}
-            //finally
-            //{
-            //    // 关闭数据库连接
-            //    DatabaseManager.Shutdown();
-            //}
-            //ZuZhuang.Current.test();
+            //20250530 测试mes的tcp连接 【史彦洋】 End
 
-            //加载激光测距点位信息
-            //LoadLaserPoints();
             SetLanguage("en-US");
 
 

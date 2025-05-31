@@ -390,6 +390,14 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public int UploadMES()
+        {
+
+            Task_CreateMesSocket.UploadMessage();
+            return 0;
+        }
+
+
         public bool BoardOut()
         {
             int actionret;
@@ -435,6 +443,7 @@ namespace AkribisFAM.WorkStation
                 step3:
                     GlobalManager.Current.current_FuJian_step = 3;
                     Recheck();
+                    UploadMES();
                     if (GlobalManager.Current.FuJian_exit) break;
                 step4:
                     GlobalManager.Current.current_FuJian_step = 4;

@@ -19,6 +19,7 @@ using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
 using Microsoft.SqlServer.Server;
 using AkribisFAM.Util;
 using System.Windows;
+using System.Net.Sockets;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -194,10 +195,53 @@ namespace AkribisFAM.WorkStation
             Logger.WriteLog($"Readout scanner : {barcode} ");
             GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
 
+            int byPassMsg_maxTryCount = 3;
+            int byPassMsg_Count = 0;
             //global switch for using mes system
             if (GlobalManager.Current.IsUseMES)
             {
-                // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
+                if (Task_CreateMesSocket.CreateNewSocket()==0)
+                {
+                    Logger.WriteLog("Start Sending Barcode to Bali ......");
+                    TcpClient firstClient = GlobalManager.Current.tcpQueue.Peek();
+                    if (barcode != "NULL")
+                    {
+                        while (true) 
+                        {
+                            if(byPassMsg_Count > byPassMsg_maxTryCount)
+                            {
+                                Logger.WriteLog("Failed To Receive byPassMsg");
+                                //Stop the machine
+                            }
+                            string req = Task_CreateMesSocket.Compose(barcode, "station_id");
+                            int res = Task_CreateMesSocket.Write(firstClient, req);
+                            Thread.Sleep(500);
+                            string byPassMsg = Task_CreateMesSocket.Read(firstClient);
+                            if (byPassMsg != null) 
+                            {
+                                if (byPassMsg.Contains("OK"))
+                                {
+                                    GlobalManager.Current.IsByPass = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    GlobalManager.Current.IsByPass = true;
+                                    break;
+                                }
+
+                            }
+
+                            byPassMsg_Count++;
+                        }
+
+                    }
+                }
+                else
+                {
+                    //TODO : Stop the machine or bypass
+                }
+                
             }
             else
             {
