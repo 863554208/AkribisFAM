@@ -84,11 +84,11 @@ namespace AkribisFAM.WorkStation
         {
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
-                return true;
+                return false;
             }
             else if (IOManager.Instance.INIO_status[(int)index] == 1)
             {
-                return false;
+                return true;
             }
             else
             {

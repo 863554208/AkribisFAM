@@ -57,6 +57,7 @@ namespace AkribisFAM.WorkStation
 
         public bool ReadIO(IO_INFunction_Table index)
         {
+            //return AutorunManager.Current.ReadIO(index);
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
                 return true;
@@ -448,7 +449,7 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return !ReadIO(IOName1) && ReadIO(IOName2); //IO is inverted. TBC
+            return ReadIO(IOName1) && !ReadIO(IOName2); //IO is inverted. TBC
         }
         public bool GateDownSensorCheck(ConveyorStation workstationNum)
         {
@@ -477,7 +478,7 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return ReadIO(IOName1) && !ReadIO(IOName2);
+            return !ReadIO(IOName1) && ReadIO(IOName2);
         }
 
         public bool LiftUpRelatedTraySensorCheck(ConveyorStation workstationNum)
@@ -568,33 +569,33 @@ namespace AkribisFAM.WorkStation
             switch (workstationNum)
             {
                 case ConveyorStation.Laser:
-                    IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
+                    //IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
                     IOName2 = IO_INFunction_Table.IN1_4Stop_Sign1;
                     break;
                 case ConveyorStation.Foam:
-                    IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
+                    //IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
                     IOName2 = IO_INFunction_Table.IN1_5Stop_Sign2;
                     break;
                 case ConveyorStation.Recheck:
-                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN1_6Stop_Sign3;
                     break;
                 case ConveyorStation.Reject:
-                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN1_7Stop_Sign4;
                     break;
                 default:
                     return false;
             }
 
-            return !ReadIO(IOName1) && !ReadIO(IOName2);
+            return /*!ReadIO(IOName1) &&*/ ReadIO(IOName2);
         }
 
         public bool TrayAtRejectStation()
         {
             IO_INFunction_Table IOName1 = IO_INFunction_Table.IN6_0NG_plate_1_in_position;
 
-            return !ReadIO(IOName1);
+            return ReadIO(IOName1);
         }
         public bool RejectCoverClose()
         {
@@ -612,26 +613,26 @@ namespace AkribisFAM.WorkStation
             switch (workstationNum)
             {
                 case ConveyorStation.Laser:
-                    IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
+                    //IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
                     IOName2 = IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1;
                     break;
                 case ConveyorStation.Foam:
-                    IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
+                    //IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
                     IOName2 = IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2;
                     break;
                 case ConveyorStation.Recheck:
-                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3;
                     break;
                 case ConveyorStation.Reject:
-                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4;
                     break;
                 default:
                     return false;
             }
 
-            return ReadIO(IOName1) && ReadIO(IOName2);
+            return /*ReadIO(IOName1) &&*/ ReadIO(IOName2);
         }
         public bool TraySeatProperly(ConveyorStation workstationNum)
         {
@@ -655,7 +656,7 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return !ReadIO(IOName1);
+            return ReadIO(IOName1);
         }
 
         #endregion
@@ -1382,7 +1383,7 @@ namespace AkribisFAM.WorkStation
             if (MoveConveyorAll() != 0) return;
             try
             {
-                while (true)
+                //while (true)
                 {
 
                     //todo: check machine stop to exit thread.
@@ -1422,7 +1423,7 @@ namespace AkribisFAM.WorkStation
                                             }
                                         }
                                         ///////////////////////////////
-                                        steps[(int)currentstation] = 1;
+                                        steps[(int)currentstation] = 2;
                                     }
 
                                     break;
@@ -1527,6 +1528,10 @@ namespace AkribisFAM.WorkStation
                                     //{
                                     if (TraySeatProperly(currentstation))
                                     {
+                                        //// REMOVE
+                                        //steps[(int)currentstation] = 4;
+                                        //break;
+                                        ////
                                         switch (currentstation)
                                         {
                                             case ConveyorStation.Laser:
@@ -1616,6 +1621,8 @@ namespace AkribisFAM.WorkStation
                                 case 0: //set station ready to process
                                     StationReadyStatus[(int)currentstation] = true;
                                     steps[(int)currentstation] = 1;
+                                    // PAUL TEMP
+                                    LaiLiao.Current.SetTrayReadyToProcess();
                                     break;
                                 case 1: //lower stopper
                                     status[(int)currentstation] = GateDown(currentstation, false);
@@ -1645,12 +1652,17 @@ namespace AkribisFAM.WorkStation
                                 case 3: //wait station complete signal from main process - decide pass or fail
                                     if (currentstation != ConveyorStation.Reject)
                                     {
+                                        //// REMOVE
+                                        //StationReadyStatus[(int)currentstation] = false;
+                                        //StationTrayStatus[(int)currentstation] = true;
+                                        ////
                                         if (!StationReadyStatus[(int)currentstation])
                                         {
                                             ConveyorTrays[(int)currentstation].isFail =
                                                 !StationTrayStatus[(int)currentstation];
                                             steps[(int)currentstation] = 4;
                                         }
+                                        
                                     }
                                     else //reject handle
                                     {
@@ -1811,6 +1823,13 @@ namespace AkribisFAM.WorkStation
         //Fail available (output M2 to M3) = send to next machine if fail board can be sent
         public void CheckSMEMAInput(out bool canSendTrayOut, out bool isGoodTrayAvailable, out bool isBypassTrayAvailable)
         {
+            if (true) // Bypass SMEMA TODO: add bypass in settings
+            {
+                canSendTrayOut = true;
+                isGoodTrayAvailable = true;
+                isBypassTrayAvailable = true;
+                return;
+            }
             canSendTrayOut = ReadIO(IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE);
             isGoodTrayAvailable = ReadIO(IO_INFunction_Table.IN7_0BOARD_AVAILABLE);
             isBypassTrayAvailable = ReadIO(IO_INFunction_Table.IN7_2MACHINE_READY_TO_RECEIVE);

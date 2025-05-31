@@ -119,11 +119,11 @@ namespace AkribisFAM.WorkStation
         {
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
-                return true;
+                return false;
             }
             else if (IOManager.Instance.INIO_status[(int)index] == 1)
             {
-                return false;
+                return true;
             }
             else
             {
@@ -742,11 +742,11 @@ namespace AkribisFAM.WorkStation
             }
 
             // SEND REQUEST BARCODE DATA
-            if (_movestep == 3)
+            if (_movestep == 2)
             {
                 if (true) // TODO: ADD SERVER REQUEST HERE
                 {
-                    _movestep = 4;
+                    _movestep = 3;
                 }
                 else
                 {
@@ -755,7 +755,7 @@ namespace AkribisFAM.WorkStation
             }
 
             // LASER MEASUREMENT
-            if (_movestep == 4)
+            if (_movestep == 3)
             {
                 var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
                 if (laserSeqResult == 1)

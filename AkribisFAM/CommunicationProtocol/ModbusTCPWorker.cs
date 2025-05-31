@@ -31,9 +31,10 @@ namespace AkribisFAM.CommunicationProtocol
                 {
                     _instance = new ModbusTCPWorker();
                 }
+                return _instance;
             //}
             //Console.WriteLine(_instance);
-            return _instance;
+            
 
         }
         public bool Initializate()

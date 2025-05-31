@@ -128,7 +128,7 @@ namespace AkribisFAM
             try
             {
                 Trace.WriteLine("Autorun Process");
-
+                Logger.WriteLog("Autorun Process Start");
                 Clear();
                 ParameterConfig.LoadPoints();
                 //打开力控
@@ -143,8 +143,8 @@ namespace AkribisFAM
                     //tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
                     
                     await Task.WhenAll(tasks);
                 }
@@ -167,7 +167,7 @@ namespace AkribisFAM
             {
                 Trace.WriteLine("Final Process");
             }
-
+            Logger.WriteLog("Autorun Process End");
         }
 
         private bool IsSafe()

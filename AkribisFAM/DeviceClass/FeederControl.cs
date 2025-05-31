@@ -23,7 +23,8 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_3Initialized_feeder1 : IO_INFunction_Table.IN4_7Initialized_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4BInitialized_feeder2;
+                var test = (int)input;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
 
@@ -32,7 +33,7 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_2Alarm_feeder1 : IO_INFunction_Table.IN4_6Alarm_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_1Alarm_feeder1 : IO_INFunction_Table.IN4_51Alarm_feeder2;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
@@ -40,7 +41,8 @@ namespace AkribisFAM.DeviceClass
         {
             get
             {
-                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_1Platform_has_label_feeder1 : IO_INFunction_Table.IN4_5Platform_has_label_feeder2;
+                IO_INFunction_Table input = FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_6Platform_has_label_feeder2;
+                var IOnum = (int)input;
                 return IOManager.Instance.INIO_status[(int)input] == 0;
             }
         }
@@ -107,10 +109,10 @@ namespace AkribisFAM.DeviceClass
         public bool VacOn(bool checkVacSuccess = false)
         {
 
-            IO_OutFunction_Table vac1_supply = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_8Feeder_vacuum1_Supply : IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply;
-            IO_OutFunction_Table vac1_release = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_9Feeder_vacuum1_Release : IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release;
-            IO_OutFunction_Table vac2_supply = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_10Feeder_vacuum2_Supply : IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply;
-            IO_OutFunction_Table vac2_release = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_11Feeder_vacuum2_Release : IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release; ;
+            IO_OutFunction_Table vac1_supply = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_8Feeder_vacuum1_Supply : IO_OutFunction_Table.OUT5_12Feeder_vacuum3_Supply;
+            IO_OutFunction_Table vac1_release = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_9Feeder_vacuum1_Release : IO_OutFunction_Table.OUT5_13Feeder_vacuum3_Release;
+            IO_OutFunction_Table vac2_supply = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_10Feeder_vacuum2_Supply : IO_OutFunction_Table.OUT5_14Feeder_vacuum4_Supply;
+            IO_OutFunction_Table vac2_release = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_11Feeder_vacuum2_Release : IO_OutFunction_Table.OUT5_15Feeder_vacuum4_Release; ;
 
             if (!IOManager.Instance.IO_ControlStatus(vac1_supply, 1))
             {
@@ -180,10 +182,10 @@ namespace AkribisFAM.DeviceClass
             IO_OutFunction_Table retract = FeederNumber == 1 ? IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract : IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract;
 
 
-            //if (!IsDrawerInPos)
-            //{
-            //    return false;
-            //}
+            if (!IsDrawerInPos)
+            {
+                return false;
+            }
 
 
             if (!IOManager.Instance.IO_ControlStatus(extend, 1))
@@ -224,7 +226,7 @@ namespace AkribisFAM.DeviceClass
         public bool Index()
         {
             //Check feeder init status
-            if (IsInitialized)
+            if (!IsInitialized)
             {
                 return false;
             }
@@ -248,12 +250,13 @@ namespace AkribisFAM.DeviceClass
             }
 
             //Index and feed in material
-            if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 1))
+            var IO = feederNumber == 1 ? IO_OutFunction_Table.OUT4_9Run_feeder1 : IO_OutFunction_Table.OUT4_13Run_feeder2;
+            if (!IOManager.Instance.IO_ControlStatus(IO, 1))
             {
                 return false;
             }
-            System.Threading.Thread.Sleep(10);
-            if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 0))
+            System.Threading.Thread.Sleep(100);
+            if (!IOManager.Instance.IO_ControlStatus(IO, 0))
             {
                 return false;
             }

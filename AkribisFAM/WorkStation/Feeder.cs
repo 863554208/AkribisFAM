@@ -1,5 +1,6 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.DeviceClass;
+using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,24 @@ namespace AkribisFAM.WorkStation
 
         public override string Name => throw new NotImplementedException();
 
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            //return AutorunManager.Current.ReadIO(index);
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
+        }
+
         FeederControl _feeder = new FeederControl(1);
         private void LoadFeederControl(FeederControl feeder)
         {
@@ -68,6 +87,7 @@ namespace AkribisFAM.WorkStation
         
         public override void AutoRun(CancellationToken token)
         {
+        
             switch (currentStep)
             {
                 case FeederSequenceStep.Initialize:
@@ -84,11 +104,19 @@ namespace AkribisFAM.WorkStation
                     break;
 
                 case FeederSequenceStep.StartFeeding:
-                    if (_feeder.IsInitialized)
+                    if (IsInitialized(_feeder))
                     {
-                        _feeder.Index(); // Start the indexing process
-                        SeqStartTime = DateTime.Now;
-                        currentStep = FeederSequenceStep.VerifyPartInPosition;
+                        if (_feeder.hasPartsIn)
+                        {
+                            currentStep = FeederSequenceStep.WaitTillAllPartsPicked;
+                        }
+                        else
+                        {
+                            _feeder.Index(); // Start the indexing process
+                            SeqStartTime = DateTime.Now;
+                            currentStep = FeederSequenceStep.VerifyPartInPosition;
+                        }
+                            
                     }
                     else
                     {
@@ -116,8 +144,8 @@ namespace AkribisFAM.WorkStation
                             currentStep = FeederSequenceStep.SwitchFeeder;
                         } else
                         {
-                            Logger.WriteLog("Part not detected in feeder within timeout period.");
-                            currentStep = FeederSequenceStep.ErrorDetected;
+                            //Logger.WriteLog("Part not detected in feeder within timeout period.");
+                            //currentStep = FeederSequenceStep.ErrorDetected;
                         }
                         break;
                     }
@@ -177,7 +205,7 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.ErrorHandling:
                     // Perform recovery or wait for manual reset
-                    if (_feeder.IsInitialized)
+                    if (IsInitialized(_feeder))
                     {
                         currentStep = FeederSequenceStep.Initialize;
                     }
@@ -191,6 +219,16 @@ namespace AkribisFAM.WorkStation
                 default:
                     break;
             }
+        }
+        private bool IsInitialized(FeederControl feeder)
+        {
+            var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4BInitialized_feeder2;
+            return ReadIO(IO);
+        }
+        private bool HasPartIn(FeederControl feeder)
+        {
+            var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2;
+            return ReadIO(IO);
         }
         public void SetIO(IO_OutFunction_Table index, int value)
         {
