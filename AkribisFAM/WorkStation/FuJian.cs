@@ -328,7 +328,7 @@ namespace AkribisFAM.WorkStation
                         k = j + i * GlobalManager.Current.TotalColumn;
                     }
                     else {
-                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn;
+                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn; 
                     }
                     k = GlobalManager.Current.TotalRow * GlobalManager.Current.TotalColumn - 1 - k;
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
@@ -391,6 +391,14 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public int UploadMES()
+        {
+
+            Task_CreateMesSocket.UploadMessage();
+            return 0;
+        }
+
+
         public bool BoardOut()
         {
             int actionret;
@@ -436,6 +444,7 @@ namespace AkribisFAM.WorkStation
                 step3:
                     GlobalManager.Current.current_FuJian_step = 3;
                     Recheck();
+                    UploadMES();
                     if (GlobalManager.Current.FuJian_exit) break;
                 step4:
                     GlobalManager.Current.current_FuJian_step = 4;

@@ -1,46 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
 using AkribisFAM.Util;
 using System.Globalization;
 using System.Windows.Markup;
-using WpfExtensions.Xaml;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using AkribisFAM.WorkStation;
-using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
-using AAMotion;
 using static AkribisFAM.Manager.StateManager;
-using static System.Windows.Forms.AxHost;
-using System.Net.Http;
 using AkribisFAM.CommunicationProtocol;
-using System.Reflection;
-using YamlDotNet.Core.Tokens;
-using System.Windows.Media.Media3D;
-using AkribisFAM.Helper;
-using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
-using Newtonsoft.Json.Linq;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
+using System.Reflection;
 
 namespace AkribisFAM
 {
@@ -101,7 +80,7 @@ namespace AkribisFAM
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
             _timer.Start();
-
+            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
         }
 
@@ -628,8 +607,6 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("startautorun clicked!");
-            Logger.WriteLog("startautorun clicked!");
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;

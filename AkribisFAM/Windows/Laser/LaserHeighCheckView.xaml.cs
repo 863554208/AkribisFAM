@@ -5,14 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Media3D;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
 {
@@ -24,8 +21,22 @@ namespace AkribisFAM.Windows
         LaserHeighCheckVM vm;
         bool stopAllMotion = false;
         string Result = "";
-        class LaserHeighCheckVM
+        class LaserHeighCheckVM : ViewModelBase
         {
+            private int totalProcess;
+
+            public int TotalProcess
+            {
+                get { return totalProcess; }
+                set { totalProcess = value; OnPropertyChanged(); }
+            }
+            private int progress;
+
+            public int Progress
+            {
+                get { return progress; }
+                set { progress = value; OnPropertyChanged(); }
+            }
 
             private List<ObservableCollection<SinglePointExt>> points = new List<ObservableCollection<SinglePointExt>>();
 
@@ -60,7 +71,7 @@ namespace AkribisFAM.Windows
             Task_KEYENCEDistance.OnMessageSent += Task_KEYENCEDistance_OnMessageSent;
             Task_Scanner.OnMessageReceive += Task_Scanner_OnMessageReceive;
             Task_Scanner.OnMessageSent += Task_Scanner_OnMessageSent;
-            
+
 
         }
 
@@ -192,36 +203,41 @@ namespace AkribisFAM.Windows
             //DataContext = Points;
         }
 
-        private void btnCheckAllTeachPoint_Click(object sender, System.Windows.RoutedEventArgs e)
+        private async void btnCheckAllTeachPoint_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Result = "";
             stopAllMotion = false;
+            stopAllMotion = false;
+            vm.TotalProcess = 4 * vm.Row * vm.Column;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+
             if (vm != null)
             {
-                Task.Run(() =>
+              await  Task.Run(() =>
                 {
                     foreach (var pts in vm.Points)
                     {
                         foreach (var pt in pts)
                         {
-                            if (!stopAllMotion)
+                            if (stopAllMotion) return;
+
+                            if (AkrAction.Current.Move(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
+                                    AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
                             {
-                                if (AkrAction.Current.Move(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                                        AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
-                                {
-                                    MessageBox.Show("Failed to move position");
-                                    return;
-                                }
-
-                                if (!App.laser.Measure(out int readout))
-                                {
-                                    MessageBox.Show("Failed to measure");
-                                    return;
-                                }
-                                Result = readout.ToString();
-
-                                Thread.Sleep(50);
+                                //MessageBox.Show("Failed to move position");
+                                return;
                             }
+
+                            if (!App.laser.Measure(out int readout))
+                            {
+                                //MessageBox.Show("Failed to measure");
+                                return;
+                            }
+                            vm.Progress++;
+                            Result = readout.ToString();
+
                             Thread.Sleep(50);
                         }
                     }
@@ -230,6 +246,9 @@ namespace AkribisFAM.Windows
             }
 
             txtHeightResult.Text += Result;
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)

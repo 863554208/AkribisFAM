@@ -22,6 +22,7 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
 using System.Windows.Documents;
+using System.Net.Sockets;
 
 namespace AkribisFAM
 {
@@ -126,12 +127,15 @@ namespace AkribisFAM
         private System.Timers.Timer PosTimer;
 
         public Queue<string> BarcodeQueue = new Queue<string>();
+        public Queue<TcpClient> tcpQueue = new Queue<TcpClient> ();
         public bool IsUseMES = false;
 
         //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
         public int LaserHeightDelay = 50;
 
         public double[][] laser_data;
+
+        public bool isLowerCCD = false;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -237,6 +241,11 @@ namespace AkribisFAM
         public bool isRun = false;
 
         public List<SinglePoint> laserPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> pickerZPickPoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerZCam2Points = new List<SinglePoint>();
+        public List<SinglePoint> pickerZSafePoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerLoadCellPoints = new List<SinglePoint>();
 
         public List<SinglePoint> feedar1Points = new List<SinglePoint>();
 
@@ -539,7 +548,7 @@ namespace AkribisFAM
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
-                if (FeederRetry_Count > 10)
+                if (FeederRetry_Count > 100)
                 {
                     return false;
                 }
@@ -900,13 +909,46 @@ namespace AkribisFAM
         }
         public enum AxisSpeed
         {
+            ////AGM800[0]
+            //LSX = 100,
+            //LSY = 100,
+            //FSX = 50,
+            //FSY = 50,
+            //BL5 = 100,
+            //BR5 = 100,
+
+            ////AGM800[1]
+            //BL1 = 100,
+            //BL2 = 100,
+            //BL3 = 100,
+            //BL4 = 100,
+            //BR1 = 100,
+            //BR2 = 100,
+            //BR3 = 100,
+            //BR4 = 100,
+
+            ////AGM800[2]
+            //PICK1_Z = 20,
+            //PICK1_T = 90,
+            //PICK2_Z = 20,
+            //PICK2_T = 90,
+            //PICK3_Z = 20,
+            //PICK3_T = 90,
+            //PICK4_Z = 20,
+            //PICK4_T = 90,
+
+            ////AGM800[3]
+            //PRX = 200,
+            //PRY = 200,
+            //PRZ = 30,
+
             //AGM800[0]
-            LSX = 100,
-            LSY = 100,
+            LSX = 50,
+            LSY = 50,
             FSX = 50,
             FSY = 50,
-            BL5 = 100,
-            BR5 = 100,
+            BL5 = 50,
+            BR5 = 50,
 
             //AGM800[1]
             BL1 = 100,
@@ -929,9 +971,10 @@ namespace AkribisFAM
             PICK4_T = 90,
 
             //AGM800[3]
-            PRX = 200,
-            PRY = 200,
-            PRZ = 30,
+            PRX = 50,
+            PRY = 50,
+            PRZ = 10,
+
         }
         public enum AxisAcc
         {

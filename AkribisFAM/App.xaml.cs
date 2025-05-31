@@ -26,9 +26,11 @@ namespace AkribisFAM
         public static KeyenceLaserControl laser;
         public static CognexVisionControl vision1;
         public static AssemblyGantryControl assemblyGantryControl;
+        public static FilmRemoveGantryControl filmRemoveGantryControl;
         public static FeederControl feeder1;
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
+        public static LoadCellCalibration calib;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -59,31 +61,23 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            filmRemoveGantryControl = new FilmRemoveGantryControl();
+            filmRemoveGantryControl.XOffset = 25.4;
+            filmRemoveGantryControl.YOffset = 56.3;
+            calib = new LoadCellCalibration();
 
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
             //TODO
             //try
             //{
             //    // 初始化数据库连接
             //    DatabaseManager.Initialize();
 
-            //    // 插入数据
-            //    DatabaseManager.Insert("MyDatabase.db");
+            //20250530 测试mes的tcp连接 【史彦洋】 Start
 
-            //    Console.WriteLine("数据插入成功！");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"操作失败: {ex.Message}");
-            //}
-            //finally
-            //{
-            //    // 关闭数据库连接
-            //    DatabaseManager.Shutdown();
-            //}
-            //ZuZhuang.Current.test();
+            //20250530 测试mes的tcp连接 【史彦洋】 End
 
-            //加载激光测距点位信息
-            //LoadLaserPoints();
             SetLanguage("en-US");
 
 

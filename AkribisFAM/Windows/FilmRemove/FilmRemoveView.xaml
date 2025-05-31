@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Background="LightGray">
             <Grid.ColumnDefinitions>
@@ -25,7 +26,7 @@
             <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
 
         </Grid>
-        <ScrollViewer Grid.Row="1" CanContentScroll="True">
+        <ScrollViewer x:Name="grpControl" Grid.Row="1" CanContentScroll="True">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
@@ -41,7 +42,10 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:PointXYMoveRemoveInspectView  Margin="5" />
+                            <local:PointXYMoveRemoveInspectView  Margin="5" 
+                                                                 MovePressed="PointXYMoveRemoveInspectView_MovePressed"
+                                                                 RemoveFilmPressed="PointXYMoveRemoveInspectView_RemoveFilmPressed"
+                                                                 VisionInspectPressed="PointXYMoveRemoveInspectView_VisionInspectPressed"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -61,13 +65,13 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Button x:Name="btnZUp" Content="ZUp" Margin="3"  Grid.Column="0" Grid.Row="0"/>
-                            <Button x:Name="btnZDown" Content="ZDown" Margin="3"   Grid.Column="1" Grid.Row="0"/>
+                            <Button x:Name="btnZUp" Content="ZUp" Margin="3"  Grid.Column="0" Grid.Row="0" Click="btnZUp_Click"/>
+                            <Button x:Name="btnZDown" Content="ZDown" Margin="3"   Grid.Column="1" Grid.Row="0" Click="btnZDown_Click"/>
 
-                            <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="3"  Grid.Column="0" Grid.Row="1"/>
-                            <Button x:Name="btnClawClose" Content="Claw Close" Margin="3"  Grid.Column="1" Grid.Row="1"/>
-                            <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="3"  Grid.Column="0" Grid.Row="2"/>
-                            <Button x:Name="btnReject" Content="Toss film" Margin="3"  Grid.Column="1" Grid.Row="2"/>
+                            <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="3"  Grid.Column="0" Grid.Row="1" Click="btnClawOpen_Click"/>
+                            <Button x:Name="btnClawClose" Content="Claw Close" Margin="3"  Grid.Column="1" Grid.Row="1" Click="btnClawClose_Click"/>
+                            <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="3"  Grid.Column="0" Grid.Row="2" Click="btnMoveToRejectPos_Click"/>
+                            <Button x:Name="btnToss" Content="Toss film" Margin="3"  Grid.Column="1" Grid.Row="2" Click="btnToss_Click"/>
                         </Grid>
                     </StackPanel>
                 </StackPanel>
@@ -76,5 +80,6 @@
         </ScrollViewer>
 
 
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
     </Grid>
 </UserControl>

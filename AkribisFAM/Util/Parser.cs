@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace AkribisFAM.Util
 {
+    using System;
+    using System.Globalization;
+    using System.Runtime.CompilerServices;
+
     public class Parser
     {
         /// <summary>

@@ -52,7 +52,8 @@ namespace AkribisFAM.Manager
         OUT3_2_PNP_Gantry_vacuum2_Release_Error = 0x000C,
         WaitMotion = 0x000D,
         WaitIO =0x000E,
-        CognexErr=0x000F
+        CognexErr=0x000F,
+        Nozzle1_feedback = 0x0010,
     }
 
     public struct ErrorInfo

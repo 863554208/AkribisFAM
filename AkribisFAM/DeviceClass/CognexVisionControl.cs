@@ -1,15 +1,18 @@
 ﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Helper;
 using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Mapping;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
+using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.DeviceClass
@@ -173,8 +176,9 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!App.assemblyGantryControl.ZCamPos(AssemblyGantryControl.Picker.Picker1))
+            if (!App.assemblyGantryControl.ZCamPosAll())
             {
+                App.assemblyGantryControl.ZUpAll();
                 return false;
             }
             AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X, -16, GlobalManager.Current.lowerCCDPoints[0].X - 16 * 3, 2);
@@ -515,6 +519,33 @@ namespace AkribisFAM.DeviceClass
             //移动到拍照结束点
             return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
             AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
+        }
+        public bool Trigger()
+        {
+            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+        }
+
+        public bool CheckFilm(int index, int totalRow, int totalColumn)
+        {
+            //return true;
+            var trayIndex = AlgorithmHelper.GetZigzagIndexFromFlat(index, totalRow, totalColumn);
+            string command = "SN" + "sqcode" + $"+{trayIndex}," + $"{trayIndex}," + "Foam+Moudel," + "0.000,0.000,0.000";
+            TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+
+            Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
+            DateTime start = DateTime.Now;
+            while ((start - DateTime.Now).TotalMilliseconds < 3000)
+            {
+                if (Task_RecheckCamreaFunction.TriggRecheckCamreaready() != "OK")
+                {
+                    string res = "接收到的信息是:" + Task_RecheckCamreaFunction.TriggRecheckCamreaready();
+                    return true;
+                }
+            }
+            Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
+
+            return true;
+
         }
     }
 }

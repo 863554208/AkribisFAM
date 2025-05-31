@@ -29,6 +29,8 @@
             <TabItem Header="{DynamicResource IODebug}" >
                 <local:IOConfigure/>
             </TabItem>
+            <TabItem Header="Load Cell Calibration">
+            </TabItem>
             <TabItem Header="{DynamicResource ProcessDebug}" >
                 <local:ManualControl/>
             </TabItem>
