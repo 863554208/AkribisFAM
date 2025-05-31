@@ -1,12 +1,14 @@
-﻿using System;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
+using AkribisFAM.WorkStation;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Manager;
+using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 using static AkribisFAM.Windows.FoamAssemblyView;
 
 namespace AkribisFAM.Windows
@@ -37,8 +39,8 @@ namespace AkribisFAM.Windows
                 {
                     IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
                     IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
-                    IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
-                    IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -85,8 +87,8 @@ namespace AkribisFAM.Windows
                 FeederName = "Feeder 2",
                 PickerInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
-                    IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
+                    //IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
                     IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
                     IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
@@ -131,7 +133,7 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
-
+            
             _timer = new System.Timers.Timer(200);
             _timer.Elapsed += (s, e) => TickTime();
             _timer.AutoReset = true;
@@ -149,7 +151,7 @@ namespace AkribisFAM.Windows
             });
         }
 
-    
+
 
         private void Feeder_OnMessageSent(object sender, string message)
         {
@@ -164,12 +166,25 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            feeders = feeders;
+            //feeders = feeders;
 
         }
-        class FeederVM
+        class FeederVM : ViewModelBase
         {
+            private int totalProcess;
 
+            public int TotalProcess
+            {
+                get { return totalProcess; }
+                set { totalProcess = value; OnPropertyChanged(); }
+            }
+            private int progress;
+
+            public int Progress
+            {
+                get { return progress; }
+                set { progress = value; OnPropertyChanged(); }
+            }
             private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
 
             public ObservableCollection<SinglePointExt> Points
@@ -202,7 +217,7 @@ namespace AkribisFAM.Windows
             var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
             if (stationsPoints == null) return;
 
-            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Feedar1 Points"));
+            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
             if (laser == null) return;
 
             lsp = laser.childList.Select((x, index) => new SinglePointExt
@@ -251,20 +266,47 @@ namespace AkribisFAM.Windows
             }
         }
 
-        private void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
+        private async void ManualFeederControlView_VisionOTFPressed(object sender, EventArgs e)
         {
 
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
-            //Task.Run(() =>
-            //{
+            await Task.Run(() =>
+            {
 
                 if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
                 {
-
-                   // System.Windows.Forms.MessageBox.Show($"Failed to operate on the fly trigger");
+                    return;
                 }
-            //});
+                
+                //if (!App.assemblyGantryControl.PickFoam(Picker.Picker1,1))
+                //{
+                //    return;
+
+                //}
+                //if (!App.assemblyGantryControl.PickFoam(Picker.Picker2, 2))
+                //{
+                //    return;
+
+                //}
+                //if (!App.vision1.Vision2OnTheFlyTrigger())
+                //{
+                //    return;
+                //}
+                //if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                //{
+                //    return;
+                //}
+                //if (!App.assemblyGantryControl.PlaceFoam(Picker.Picker1, 1))
+                //{
+                //    return;
+                //}
+
+                //if (!App.assemblyGantryControl.PlaceFoam(Picker.Picker2, 2))
+                //{
+                //    return;
+                //}
+            });
         }
 
         private void ManualFeederControlView_PickerZUpPressed(object sender, EventArgs e)
@@ -283,7 +325,7 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.assemblyGantryControl.ZDown((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
+            if (!App.assemblyGantryControl.ZPickDownPosition((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move picker {num} Z down");
             }
@@ -307,7 +349,7 @@ namespace AkribisFAM.Windows
         private void ManualFeederControlView_PickerOffAirPressed(object sender, EventArgs e)
         {
             var control = (ManualFeederControlView)sender;
-            App.assemblyGantryControl.Off((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
+            App.assemblyGantryControl.VacOff((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker);
         }
 
         private void ManualFeederControlView_PickerMoveFoam1Pressed(object sender, EventArgs e)
@@ -478,6 +520,188 @@ namespace AkribisFAM.Windows
         private void btnClear_Click(object sender, RoutedEventArgs e)
         {
             txtResult.Text = "";
+        }
+
+        private void btnMoveLoadCellPicker1_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            Task.Run(() =>
+            {
+                if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker1))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+                }
+            });
+        }
+
+        private void btnMoveLoadCellPicker2_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            Task.Run(() =>
+            {
+                if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker2))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+                }
+            });
+        }
+
+        private void btnMoveLoadCellPicker3_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker3))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnMoveLoadCellPicker4_Click(object sender, RoutedEventArgs e)
+        {
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            if (!App.assemblyGantryControl.TriggerCalib(DeviceClass.AssemblyGantryControl.Picker.Picker4))
+            {
+
+                System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            }
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+            stopAllMotion = true;
+            Task.Run(() =>
+            {
+                AkrAction.Current.StopAllAxis();
+            });
+            //if (!App.assemblyGantryControl.ApplyForce((int)DeviceClass.AssemblyGantryControl.Picker.Picker2, 2044))
+            //{
+
+            //    System.Windows.Forms.MessageBox.Show($"Failed to move load cell");
+            //}
+        }
+
+
+
+        private async void btnPickAndPlace1_Click(object sender, RoutedEventArgs e)
+        {
+            stopAllMotion = false;
+            vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+
+            await Task.Run(() =>
+            {
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                {
+
+                    return;
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.assemblyGantryControl.PickAllFoam())
+                {
+
+                    return;
+
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision2OnTheFlyTrigger())
+                {
+
+                    return;
+                }
+                vm.Progress += 1;
+
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                {
+
+                    return;
+                }
+
+                vm.Progress += 12;
+
+                //if (!App.assemblyGantryControl.PlaceFoam()) 
+                //{
+
+                //    return;
+                //}
+
+                vm.Progress += 4;
+
+            });
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
+        }
+
+        private async void btnPickAndPlace2_Click(object sender, RoutedEventArgs e)
+        {
+            stopAllMotion = false;
+            vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
+            vm.Progress = 0;
+            grpControl.IsEnabled = false;
+            pbProgress.Visibility = System.Windows.Visibility.Visible;
+
+            await Task.Run(() =>
+            {
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                {
+
+                    return;
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.assemblyGantryControl.PickAllFoam())
+                {
+
+                    return;
+
+                }
+                vm.Progress += 4;
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision2OnTheFlyTrigger())
+                {
+
+                    return;
+                }
+                vm.Progress += 1;
+
+
+                if (stopAllMotion) return;
+                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                {
+
+                    return;
+                }
+
+                vm.Progress += 12;
+
+                //if (!App.assemblyGantryControl.PlaceFoam()) 
+                //{
+
+                //    return;
+                //}
+
+                vm.Progress += 4;
+            });
+            vm.Progress = 0;
+            grpControl.IsEnabled = true;
+            pbProgress.Visibility = System.Windows.Visibility.Hidden;
         }
     }
 

@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Background="LightGray">
             <Grid.ColumnDefinitions>
@@ -25,7 +26,7 @@
             <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Height Check All" HorizontalAlignment="Right" Click="btnCheckAllTeachPoint_Click"/>
             <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
         </Grid>
-        <ScrollViewer Grid.Row="1">
+        <ScrollViewer x:Name="grpControl" Grid.Row="1">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="4*"/>
@@ -72,7 +73,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Border BorderBrush="Gray" BorderThickness="0 0 0 2" Margin="3" Grid.Row="0" VerticalAlignment="Top">
-                            <Label Content="Cognex Barcode Scanner" FontWeight="Bold" FontSize="14"/>
+                            <Label Content="Keyence Laser Scanner" FontWeight="Bold" FontSize="14"/>
                         </Border>
                         <Button x:Name="btnTriggerLaser" Content="Measure" Margin="3" Grid.Row="1" Click="btnTriggerLaser_Click"/>
                         <TextBlock x:Name="txtHeightResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" TextWrapping="Wrap" />
@@ -82,5 +83,6 @@
             </Grid>
         </ScrollViewer>
 
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
     </Grid>
 </UserControl>

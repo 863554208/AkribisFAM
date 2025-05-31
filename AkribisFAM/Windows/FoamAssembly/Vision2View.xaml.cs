@@ -2,6 +2,7 @@
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -24,20 +25,27 @@ namespace AkribisFAM.Windows
 
         private void Task_PrecisionDownCamreaFunction_OnMessageSent(object sender, string message)
         {
-            txtResult.Text += $"Message sent : {message}";
+            Dispatcher.Invoke(() =>
+
+              txtResult.Text += $"Message sent : {message}"
+          );
         }
 
         private void Task_PrecisionDownCamreaFunction_OnMessageReceive(object sender, string message)
         {
-            txtResult.Text += $"Message received : {message}";
+            Thread.Sleep(1);
+            Dispatcher.Invoke(() =>
+
+                txtResult.Text += $"Message received : {message}"
+            );
         }
 
         private void btnMoveStandby_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (!App.vision1.MoveVision2StandbyPos())
             {
-                MessageBox.Show("Fail to move vision 2 standby position"); 
-            }    
+                MessageBox.Show("Fail to move vision 2 standby position");
+            }
         }
 
         private void btnMoveEnding_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -53,7 +61,7 @@ namespace AkribisFAM.Windows
             AkrAction.Current.StopAllAxis();
         }
 
-      
+
 
         private void btnVis2OTF_Click(object sender, RoutedEventArgs e)
         {

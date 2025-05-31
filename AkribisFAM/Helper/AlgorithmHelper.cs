@@ -99,6 +99,53 @@ namespace AkribisFAM.Helper
             return expectedTime * timeoutFactor;    // 返回安全放大的超时时间（秒）
         }
 
+        /// <summary>
+        /// Computes the 1D zigzag index (k) for a given 2D row and column.
+        /// </summary>
+        /// <param name="row">Target row (0-based)</param>
+        /// <param name="column">Target column (0-based)</param>
+        /// <param name="totalRows">Total number of rows</param>
+        /// <param name="totalColumns">Total number of columns</param>
+        /// <returns>The zigzag-mapped index k</returns>
+        public static int GetZigzagIndex(int row, int column, int totalRows, int totalColumns)
+        {
+            if (row < 0 || row >= totalRows)
+                throw new ArgumentOutOfRangeException(nameof(row), "Row is out of range.");
+
+            if (column < 0 || column >= totalColumns)
+                throw new ArgumentOutOfRangeException(nameof(column), "Column is out of range.");
+
+            if (row % 2 == 0)
+            {
+                return column + row * totalColumns;
+            }
+            else
+            {
+                return (totalColumns - 1 - column) + row * totalColumns;
+            }
+
+
+        }
+        /// <summary>
+        /// Computes the zigzag index (k) from a row-major flat index.
+        /// </summary>
+        /// <param name="index">Row-major flat index</param>
+        /// <param name="totalRows">Total rows in the 2D grid</param>
+        /// <param name="totalColumns">Total columns in the 2D grid</param>
+        /// <returns>The zigzag index (k)</returns>
+        public static int GetZigzagIndexFromFlat(int index, int totalRows, int totalColumns)
+        {
+            if (index < 0 || index > totalRows * totalColumns)
+                throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+
+            int row = index / totalColumns;
+            int column = index % totalColumns;
+
+            return row % 2 == 0
+                ? column + row * totalColumns
+                : (totalColumns - 1 - column) + row * totalColumns;
+        }
+
 
     }
 }

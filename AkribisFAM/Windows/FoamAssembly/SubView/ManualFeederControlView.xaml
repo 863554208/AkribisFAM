@@ -44,7 +44,7 @@
             <StackPanel Orientation="Vertical" Grid.Row="2" >
                 <Label Content="APC Pickers Motion" Width="150" FontWeight="Bold"  FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <ListBox x:Name="RadioButtonGroupChoiceChipPrimaryOutline" IsEnabled="{Binding MotionButtonEnable}" Style="{StaticResource MaterialDesignChoiceChipPrimaryOutlineListBox}" Margin="0 0 0 10">
-                    <ListBoxItem x:Name="btnPicker1" Content="Picker1" Selected="btnPicker_Selected"/>
+                    <ListBoxItem x:Name="btnPicker1" Content="Picker1" Selected="btnPicker_Selected" IsSelected="True"/>
                     <ListBoxItem x:Name="btnPicker2" Content="Picker2" Selected="btnPicker_Selected"/>
                     <ListBoxItem x:Name="btnPicker3" Content="Picker3" Selected="btnPicker_Selected"/>
                     <ListBoxItem x:Name="btnPicker4" Content="Picker4" Selected="btnPicker_Selected"/>

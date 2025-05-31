@@ -21,6 +21,9 @@ namespace AkribisFAM.WorkStation
 {
     internal class ZuZhuang : WorkStationBase
     {
+
+        public SinglePoint[] PickPositions = new SinglePoint[4];
+        public SinglePoint[] PlacePositions = new SinglePoint[4];
         private static ZuZhuang _instance;
         public override string Name => nameof(ZuZhuang);
 
@@ -408,9 +411,9 @@ namespace AkribisFAM.WorkStation
                 if (waitPointY > 0x1000) return waitPointY;
                 CheckState(waitPointY);
 
-                if(!Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath))
+                if (!Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath))
 
-                Logger.WriteLog("发送好数据");
+                    Logger.WriteLog("发送好数据");
                 int retryCount = 0;
                 while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
                 {
@@ -1305,10 +1308,61 @@ namespace AkribisFAM.WorkStation
 
             return true;
         }
-
+      
+        public SinglePoint GetZPickPosition(int pickerNum)
+        {
+            if (GlobalManager.Current.pickerZSafePoints.Count < 1)
+            {
+                return new SinglePoint();
+            }
+            return new SinglePoint()
+            {
+                Z = GlobalManager.Current.pickerZPickPoints[pickerNum - 1].Z
+            };
+        }
+        public SinglePoint GetZCam2Position(int pickerNum)
+        {
+            if (GlobalManager.Current.pickerZSafePoints.Count <1)
+            {
+                return new SinglePoint();
+            }
+            return new SinglePoint()
+            {
+                Z = GlobalManager.Current.pickerZCam2Points[pickerNum - 1].Z
+            };
+        }
+        public SinglePoint GetZSafePosition(int pickerNum)
+        {
+            if (GlobalManager.Current.pickerZSafePoints.Count < 1)
+            {
+                return new SinglePoint();
+            }
+            return new SinglePoint()
+            {
+                Z = GlobalManager.Current.pickerZSafePoints[pickerNum - 1].Z
+            };
+        }
+        public SinglePoint GetLoadCellPosition(int pickerNum)
+        {
+            if (GlobalManager.Current.pickerLoadCellPoints.Count < 1)
+            {
+                return new SinglePoint();
+            }
+            return new SinglePoint()
+            {
+                X = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].X,
+                Y = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Y,
+                R = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].R,
+                Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
+            };
+        }
         public SinglePoint GetPickPosition(int Nozzlenum, int Fovnum)
         {
             SinglePoint singlePoint = new SinglePoint();
+
+            if (Nozzlenum < 1 || Nozzlenum > 4) return singlePoint;
+            if (Fovnum < 1 || Fovnum > 4) return singlePoint;
+
             string command = "GM,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "1";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             FeedUpCamrea.Acceptcommand.AcceptGMCommandAppend GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGMAcceptData(FeedupCameraProcessCommand.GM)[0];
@@ -1318,12 +1372,17 @@ namespace AkribisFAM.WorkStation
                 singlePoint.Y = double.Parse(GMout.Pick_Y);
                 singlePoint.R = double.Parse(GMout.Pick_R);
             }
+            PickPositions[Nozzlenum] = singlePoint;
             return singlePoint;
         }
 
         public SinglePoint GetPlacePosition(int Nozzlenum, int Fovnum)
         {
             SinglePoint singlePoint = new SinglePoint();
+
+            if (Nozzlenum < 1 || Nozzlenum > 4) return singlePoint;
+            if (Fovnum < 1 || Fovnum > 20) return singlePoint;
+
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             var GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGTAcceptData()[0];
@@ -1334,6 +1393,7 @@ namespace AkribisFAM.WorkStation
                 singlePoint.R = double.Parse(GMout.Unload_R);
                 singlePoint.Z = 0.0;
             }
+            PlacePositions[Nozzlenum] = singlePoint;
             return singlePoint;
         }
 
