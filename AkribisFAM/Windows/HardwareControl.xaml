@@ -17,19 +17,19 @@
   materialDesign:ColorZoneAssist.Foreground="White"
   materialDesign:ColorZoneAssist.Mode="Custom"
   Style="{StaticResource MaterialDesignFilledTabControl}">
-            <TabItem Header="轴调试" Foreground="Black" >
+            <TabItem Header="{DynamicResource AxisDebug}" Foreground="Black" >
                 <local:AxisControl/>
             </TabItem>
-            <TabItem Header="气动调试" >
+            <TabItem Header="{DynamicResource AirDebug}" >
                 <local:AirControl/>
             </TabItem>
-            <TabItem Header="相机调试">
+            <TabItem Header="{DynamicResource CameraDebug}">
                 <local:CameraControl/>
             </TabItem>
-            <TabItem Header="IO调试" >
+            <TabItem Header="{DynamicResource IODebug}" >
                 <local:IOConfigure/>
             </TabItem>
-            <TabItem Header="流程调试" >
+            <TabItem Header="{DynamicResource ProcessDebug}" >
                 <local:ManualControl/>
             </TabItem>
         </TabControl>

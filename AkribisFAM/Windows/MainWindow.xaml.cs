@@ -100,7 +100,6 @@ namespace AkribisFAM
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
-            IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 1;
             _timer.Start();
 
             //END Add
@@ -133,8 +132,8 @@ namespace AkribisFAM
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (StateManager.Current.State == StateCode.RUNNING)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -143,11 +142,11 @@ namespace AkribisFAM
                 }));
             }
             else {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
             }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
                 StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -164,7 +163,7 @@ namespace AkribisFAM
             }
             if (StateManager.Current.State == StateCode.IDLE)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
                 StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -224,9 +223,29 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                //button panel
                 BlinkLightFeeder1();
                 BlinkLightFeeder2();
+                ControlButton();
             }));
+        }
+
+        private void ControlButton() {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_8Run] == 0)
+            {
+                StartAutoRun_Click(StartAutoRunButton, new RoutedEventArgs());
+            }
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_9Stop] == 0)
+            {
+                PauseAutoRun_Click(PauseAutoRunButton, new RoutedEventArgs());
+            }
+            if (AutorunManager.Current.hasReseted == true)
+            {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 1);
+            }
+            else {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 0);
+            }
         }
 
         private void BlinkLightFeeder1()
@@ -235,28 +254,28 @@ namespace AkribisFAM
             {
                 if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] == 1)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
                 }
                 else
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 0);
                 }
                 if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0) {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend] = 0;
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 0);
                 }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 1)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 0);
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 0)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
                 if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend] = 1;
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 1);
                 }
             }
         }
@@ -267,29 +286,29 @@ namespace AkribisFAM
             {
                 if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] == 1)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 1);
                 }
                 else
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 0);
                 }
                 if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend] = 0;
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract, 0);
                 }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 1)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 0);
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 0)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 1);
                 if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend] = 1;
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract, 1);
                 }
             }
         }
@@ -609,6 +628,8 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            MessageBox.Show("startautorun clicked!");
+            Logger.WriteLog("startautorun clicked!");
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;

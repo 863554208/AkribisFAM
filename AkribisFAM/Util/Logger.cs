@@ -10,7 +10,7 @@ namespace AkribisFAM.Util
 {
     public static class Logger
     {
-        private static readonly BlockingCollection<string> _logQueue = new BlockingCollection<string>(new ConcurrentQueue<string>());
+        public static readonly BlockingCollection<string> _logQueue = new BlockingCollection<string>(new ConcurrentQueue<string>());
         //private static readonly string _baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         //private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; // 5MB
         private static readonly string _baseDirectory = @" D:\Users\qiuxg\Desktop\新建文件夹(3)";//日志储存位置
