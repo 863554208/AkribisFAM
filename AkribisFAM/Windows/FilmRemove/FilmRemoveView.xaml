@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.FilmRemoveView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
+            <Button x:Name="btnFilmRemove" Grid.Column="2" Content="Remove All Films" HorizontalAlignment="Right" Click="btnFilmRemove_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
+
+        </Grid>
+        <ScrollViewer x:Name="grpControl" Grid.Row="1" CanContentScroll="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <ItemsControl ItemsSource="{Binding Points}">
+                    <ItemsControl.ItemsPanel>
+
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:PointXYMoveRemoveInspectView  Margin="5" 
+                                                                 MovePressed="PointXYMoveRemoveInspectView_MovePressed"
+                                                                 RemoveFilmPressed="PointXYMoveRemoveInspectView_RemoveFilmPressed"
+                                                                 VisionInspectPressed="PointXYMoveRemoveInspectView_VisionInspectPressed"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+
+                    <Border BorderBrush="Gray" BorderThickness="0 0 0 1" >
+                        <Label Content="Nozzle" FontSize="20"/>
+                    </Border>
+                    <StackPanel Orientation="Vertical"  Background="LightGray">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions >
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Button x:Name="btnZUp" Content="ZUp" Margin="3"  Grid.Column="0" Grid.Row="0" Click="btnZUp_Click"/>
+                            <Button x:Name="btnZDown" Content="ZDown" Margin="3"   Grid.Column="1" Grid.Row="0" Click="btnZDown_Click"/>
+
+                            <Button x:Name="btnClawOpen" Content="Claw Open"  Margin="3"  Grid.Column="0" Grid.Row="1" Click="btnClawOpen_Click"/>
+                            <Button x:Name="btnClawClose" Content="Claw Close" Margin="3"  Grid.Column="1" Grid.Row="1" Click="btnClawClose_Click"/>
+                            <Button x:Name="btnMoveToRejectPos" Content="Move to reject bin" Margin="3"  Grid.Column="0" Grid.Row="2" Click="btnMoveToRejectPos_Click"/>
+                            <Button x:Name="btnToss" Content="Toss film" Margin="3"  Grid.Column="1" Grid.Row="2" Click="btnToss_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+        </ScrollViewer>
+
+
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
+    </Grid>
+</UserControl>

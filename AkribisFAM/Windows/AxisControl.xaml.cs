@@ -28,6 +28,7 @@ using System.Windows.Threading;
 using System.Reflection;
 using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
 namespace AkribisFAM.Windows
 {
@@ -47,12 +48,32 @@ namespace AkribisFAM.Windows
 
 
         private List<SingleAxis> _axisDataList = new List<SingleAxis>();
+        private List<AxisRowControls> axisRows = new List<AxisRowControls>();
+
         //private Dictionary<int, string> _homefileDict = new Dictionary<int, string>();
 
         public List<SingleAxis> AxisDataList
         {
             get { return _axisDataList; }
             set { _axisDataList = value; }
+        }
+
+        public class AxisRowControls
+        {
+            public int AxisIndex { get; set; } // 轴索引
+
+            public TextBlock AxisNameText { get; set; }
+            public TextBlock CurrentPosText { get; set; }
+            public TextBlock TargetPosText { get; set; }
+
+            public Ellipse EnableStatus { get; set; }
+            public Ellipse InPosStatus { get; set; }
+            public Ellipse HomeStatus { get; set; }
+            public Ellipse ErrStatus { get; set; }
+            public Ellipse LimitPStatus { get; set; }
+            public Ellipse LimitNStatus { get; set; }
+            public Ellipse SwLimitPStatus { get; set; }
+            public Ellipse SwLimitNStatus { get; set; }
         }
 
         public class SingleAxis
@@ -90,8 +111,22 @@ namespace AkribisFAM.Windows
                 AxisDataList.Add(temp);
             }
 
-            //SingleAxis af = new SingleAxis();
-            //updateAxisData(af);
+            initUIAllAxisStat();
+
+
+            //示例
+            // 设置第3个轴的目标位置
+            axisRows[2].TargetPosText.Text = "123.456";
+
+            // 设置第5个轴的报警状态为红色
+            axisRows[4].ErrStatus.Fill = Brushes.Red;
+
+            // 设置第10个轴的报警状态为绿色
+            axisRows[9].HomeStatus.Fill = Brushes.Green;
+
+            // 设置第25个轴的目标位置
+            axisRows[24].CurrentPosText.Text = "99925.55";
+
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(300);
@@ -141,12 +176,23 @@ namespace AkribisFAM.Windows
                 AxisName axisName = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
                 if (result == MessageBoxResult.OK)
                 {
-                    string path = Directory.GetCurrentDirectory() + "\\homming\\" + axisName.ToString() + "_homing.hseq";
+
+                    string path = "D:\\akribisfam_config\\HomeFileT\\" + axisName.ToString() + "_homing.hseq";
                     int agmIndex = (int)axisName / 8;
                     int axisRefNum = (int)axisName % 8;
+                    DateTime time = DateTime.Now;
                     try
                     {
+                        AkrAction.Current.axisEnable(axisName, true);
                         AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), path);
+                        while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
+                        {
+                            if ((DateTime.Now - time).TotalMilliseconds > 30000) {
+                                MessageBox.Show("Homing TimeOut!");
+                                break;//30sec break
+                            }
+                            Thread.Sleep(50);
+                        }
                     }
                     catch(Exception ex)
                     {
@@ -163,17 +209,12 @@ namespace AkribisFAM.Windows
         }
 
         private int _pressProgress;
-        private const int PressDuration = 3; // 3秒
+        private const int PressDuration = 3; // 3sec
         private int Home_trigger = 0;
         private void Button_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _pressProgress = 0;
             Home_trigger = 1;
-        }
-
-        private void Button_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-
         }
 
 
@@ -236,6 +277,7 @@ namespace AkribisFAM.Windows
                 tbNowPos.Text = axis.nowPos.ToString();
                 tbTargetPos.Text = axis.tarpos.ToString();
                 tbAxisVel.Text = axis.vel.ToString();
+                IsAxisEnable.IsChecked = axis.AxisStat[0];
 
                 if (axis.AxisStat.Count < statList.Count)
                 {
@@ -288,6 +330,18 @@ namespace AkribisFAM.Windows
             updateAxisData(axis);
         }
 
+        private bool CheckConn()
+        {
+            foreach (var item in AAmotionFAM.AGM800.Current.controller)
+            {
+                if (!item.IsConnected)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private void CboxNowAxis_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int nowAxis = CboxNowAxis.SelectedIndex;
@@ -297,6 +351,9 @@ namespace AkribisFAM.Windows
                 AxisListBox.SelectedIndex = nowAxis;
             }
             nowAxisIndex = nowAxis;
+
+            if (!CheckConn()) return;
+
             setUIAxisData(nowAxis);
 
         }
@@ -311,6 +368,9 @@ namespace AkribisFAM.Windows
             }
 
             nowAxisIndex = nowAxis;
+
+            if (!CheckConn()) return;
+
             setUIAxisData(nowAxis);
         }
 
@@ -335,6 +395,8 @@ namespace AkribisFAM.Windows
                 return;
             }
 
+            if (!CheckConn()) return;
+
             //Todo MoveAbs(nowAxisIndex,posValue,velValue,accValue)
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             //AkrAction.Current.Move(axis, posValue, velValue, accValue);
@@ -346,6 +408,8 @@ namespace AkribisFAM.Windows
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
+
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
 
@@ -354,29 +418,28 @@ namespace AkribisFAM.Windows
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             //Todo Home(nowAxisIndex)
-
 
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             if (btn != null && btn.IsChecked == true)
             {
                 AkrAction.Current.axisEnable(axis, true);
-                //Todo   Enable(nowAxisIndex)
             }
             else
             {
-                
                 AkrAction.Current.axisEnable(axis, false);
-                //关闭   DisEnable(nowAxisIndex)
             }
         }
         private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!CheckConn()) return;
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             if (btn != null && btn.IsChecked == true)
             {
@@ -448,10 +511,14 @@ namespace AkribisFAM.Windows
             {
                 currentIndex++;
             }
+
+            //AxisListBox.SelectedIndex = currentIndex;
         }
 
         private void JogForwordButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             if (!isJogging)
             {
                 isJogging = true;
@@ -460,12 +527,16 @@ namespace AkribisFAM.Windows
         }
         private void JogForwordButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             isJogging = false;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
         }
         private void JogBackwordButton_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             if (!isJogging)
             {
                 isJogging = true;
@@ -474,6 +545,8 @@ namespace AkribisFAM.Windows
         }
         private void JogBackwordButton_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (!CheckConn()) return;
+
             isJogging = false;
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.Stop(axis);
@@ -495,6 +568,116 @@ namespace AkribisFAM.Windows
 
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex + 1);
             AkrAction.Current.JogMove(axis, -1, velValue);
+        }
+
+        private void initUIAllAxisStat()
+        {
+            const int AxisNum = 25;
+            axisRows.Clear();
+
+            for (int i = 0; i < AxisNum; i++)
+            {
+                GridAllAxisStat.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                var lightGrayBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFF0F0F0"));
+                var bgColor = (i % 2 == 0) ? Brushes.White : lightGrayBrush;
+
+                string axisName = GlobalManager.Current.GetAxisStringFromInteger(i);
+
+                TextBlock axisNameTb, currentPosTb, targetPosTb;
+
+                GridAllAxisStat.Children.Add(CreateTextBlock(axisName, i + 1, 0, bgColor, out axisNameTb));
+                GridAllAxisStat.Children.Add(CreateTextBlock("", i + 1, 1, bgColor, out currentPosTb));
+                GridAllAxisStat.Children.Add(CreateTextBlock("", i + 1, 2, bgColor, out targetPosTb));
+
+                var rowControls = new AxisRowControls
+                {
+                    AxisIndex = i,
+                    AxisNameText = axisNameTb,
+                    CurrentPosText = currentPosTb,
+                    TargetPosText = targetPosTb,
+                };
+
+
+
+                // 创建 8 个状态圆
+                var ellipses = new List<Ellipse>();
+                for (int col = 3; col <= 10; col++)
+                {
+                    var ellipse = CreateEllipseCell(i + 1, col, bgColor);
+                    GridAllAxisStat.Children.Add(ellipse.container);
+                    ellipses.Add(ellipse.ellipse);
+                }
+
+                // 分配给对应字段
+                rowControls.EnableStatus = ellipses[0];
+                rowControls.InPosStatus = ellipses[1];
+                rowControls.HomeStatus = ellipses[2];
+                rowControls.ErrStatus = ellipses[3];
+                rowControls.LimitPStatus = ellipses[4];
+                rowControls.LimitNStatus = ellipses[5];
+                rowControls.SwLimitPStatus = ellipses[6];
+                rowControls.SwLimitNStatus = ellipses[7];
+
+                axisRows.Add(rowControls);
+            }
+
+        }
+
+        private Border CreateTextBlock(string text, int row, int col, Brush bg, out TextBlock tbOut)
+        {
+            var tb = new TextBlock
+            {
+                Text = text,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(2)
+            };
+
+            var border = new Border
+            {
+                Background = bg,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Child = tb
+            };
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+
+            tbOut = tb;
+            return border;
+        }
+
+        private (Ellipse ellipse, Border container) CreateEllipseCell(int row, int col, Brush bg)
+        {
+            var ellipse = new Ellipse
+            {
+                Width = 15,
+                Height = 15,
+                Fill = Brushes.Gray,
+                StrokeThickness = 1
+            };
+
+            var viewbox = new Viewbox
+            {
+                Width = 15,
+                Height = 15,
+                Stretch = Stretch.Uniform,
+                Child = ellipse
+            };
+
+            var border = new Border
+            {
+                Background = bg,
+                BorderBrush = Brushes.Black,
+                BorderThickness = new Thickness(1),
+                Child = viewbox
+            };
+
+            Grid.SetRow(border, row);
+            Grid.SetColumn(border, col);
+            return (ellipse, border);
         }
 
     }

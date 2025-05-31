@@ -11,183 +11,187 @@
         Title="Akribis FAM"
         WindowState="Maximized"
         Height="1000" Width="1600">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Theme/Generic.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
+	<Window.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="/Theme/Generic.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Window.Resources>
 
-    <!--************************************************************************************************************-->
-    <!--//Add By YXW 2025-5-16 ************************************************************-->
-    <!--************************************************************************************************************-->
-    <Grid x:Name="container" Margin="0" >
-        <!-- 定义三行 -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="10*" />
-            <RowDefinition Height="1*" />
-        </Grid.RowDefinitions>
+	<!--************************************************************************************************************-->
+	<!--//Add By YXW 2025-5-16 ************************************************************-->
+	<!--************************************************************************************************************-->
+	<Grid x:Name="container" Margin="0" >
+		<!-- 定义三行 -->
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*" />
+			<RowDefinition Height="10*" />
+			<RowDefinition Height="1*" />
+		</Grid.RowDefinitions>
 
-        <!-- 第一行，水平 StackPanel -->
-        <Grid Grid.Row="0" Background="WhiteSmoke">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="5*"/>
-                <!-- 左侧用户状态信息 -->
-                <ColumnDefinition Width="auto"/>
-                <!-- 中间按钮 -->
-                <ColumnDefinition Width="auto"/>
-                <!-- 报警按钮 -->
-                <ColumnDefinition Width="auto"/>
-                <!-- 时间显示 -->
-            </Grid.ColumnDefinitions>
+		<!-- 第一行，水平 StackPanel -->
+		<Grid Grid.Row="0" Background="WhiteSmoke">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="44"/>
+				<ColumnDefinition Width="173.162"/>
+				<ColumnDefinition Width="5*"/>
+				<!-- 左侧用户状态信息 -->
+				<ColumnDefinition Width="auto"/>
+				<!-- 中间按钮 -->
+				<ColumnDefinition Width="auto"/>
+				<!-- 报警按钮 -->
+				<ColumnDefinition Width="auto"/>
+				<!-- 时间显示 -->
+			</Grid.ColumnDefinitions>
 
-            <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png"  Grid.Column="0"/>
+			<StackPanel Orientation="Vertical"  Grid.Column="0" Grid.ColumnSpan="2">
+					<local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png" />
+					<Label x:Name="lblVersion"/>
+			</StackPanel>
 
-            <!-- 用户状态标签 -->
-            <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
-                <Button x:Name="btnUser" MinWidth="60" Click="btnUser_Click"
-                            Content="{materialDesign:PackIcon Account}"  
+			<!-- 用户状态标签 -->
+			<StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2">
+				<Button x:Name="btnUser" MinWidth="60" Click="btnUser_Click"
+                            Content="{materialDesign:PackIcon Account}"
                             ToolTip="User" />
-                 <Label Content="{DynamicResource UserLab}"  />
-                <Label Content="{Binding CurrentUser}" FontWeight="Bold" Margin="10 0" MouseDoubleClick="Label_MouseDoubleClick"/>
-                <Label Name="NowUserLab" />
+				<Label Content="{DynamicResource UserLab}"  />
+				<Label Content="{Binding CurrentUser}" FontWeight="Bold" Margin="10 0" MouseDoubleClick="Label_MouseDoubleClick"/>
+				<Label Name="NowUserLab" />
 
-                <Label Content="权限 : "  />
-                <Label Content="{Binding CurrentUserLevel}" FontWeight="Bold"/>
+				<Label Content="权限 : "  />
+				<Label Content="{Binding CurrentUserLevel}" FontWeight="Bold"/>
 
-                <Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
-                <Label Name="NowStateLab" />
+				<Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
+				<Label Name="NowStateLab" />
 
-                <Label Content="" />
-                <Label Name="NowState" />
+				<Label Content="" />
+				<Label Name="NowState" />
 
-                <Label Content="{DynamicResource CTlab}" />
-                <Label Name="CtValueLab" />
+				<Label Content="{DynamicResource CTlab}" />
+				<Label Name="CtValueLab" />
 
-                <Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
-                <Label Name="UphValueLab" />
-            </StackPanel>
+				<Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
+				<Label Name="UphValueLab" />
+			</StackPanel >
+			<!-- 按钮区域 -->
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="3" Grid.ColumnSpan="2" Margin="0,0,112,0">
+				<Button Name="BtnDevice" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnDevice_Click" />
+				<Button Name="BtnScanningGun" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnScanningGun_Click" />
+				<Button Name="BtnRangefinder" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnRangefinder_Click" />
+				<Button Name="BtnCamera1" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera1_Click" />
+				<Button Name="BtnCamera2" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera2_Click" />
+				<Button Name="BtnCamera3" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera3_Click" />
+			</StackPanel>
 
-            <!-- 按钮区域 -->
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2">
-                <Button Name="BtnDevice" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnDevice_Click" />
-                <Button Name="BtnScanningGun" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnScanningGun_Click" />
-                <Button Name="BtnRangefinder" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnRangefinder_Click" />
-                <Button Name="BtnCamera1" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera1_Click" />
-                <Button Name="BtnCamera2" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera2_Click" />
-                <Button Name="BtnCamera3" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera3_Click" />
-            </StackPanel>
+			<!-- 报警按钮 -->
+			<local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
+                            Click="Alarmbutton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Height="55" Width="72" Grid.Column="4" />
 
-            <!-- 报警按钮 -->
-            <local:PromptableButton Margin="20,0,20,0" x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
-                            Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="3" />
-
-            <!-- 当前时间 -->
-            <Border Margin="10 0 20 0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="4">
-                <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
+			<!-- 当前时间 -->
+			<Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5">
+				<TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />
-            </Border>
-        </Grid>
+			</Border>
+		</Grid>
 
-        <!-- 第二行，水平 StackPanel -->
-        <Grid Grid.Row="1" Background="#ebe8e8"
+		<!-- 第二行，水平 StackPanel -->
+		<Grid Grid.Row="1" Background="#ebe8e8"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="171*" />
-                <ColumnDefinition Width="1429*" />
-            </Grid.ColumnDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="171*" />
+				<ColumnDefinition Width="1429*" />
+			</Grid.ColumnDefinitions>
 
-            <!-- 左侧菜单 -->
-            <Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
-                <materialDesign:ColorZone Mode="PrimaryMid">
-                    <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+			<!-- 左侧菜单 -->
+			<Border Grid.Column="0" BorderBrush="Transparent" BorderThickness="1" VerticalAlignment="Stretch">
+				<materialDesign:ColorZone Mode="PrimaryMid">
+					<StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton x:Name="btnHome" Content="{DynamicResource Main Page}"
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton x:Name="btnHome" Content="{DynamicResource Main Page}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="82" IsChecked="True"
                          Click="MainWindowButton_Click"/>
-                        </Border>
+						</Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton x:Name="btnControl" Content="{DynamicResource Manual Control}"
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton x:Name="btnControl" Content="{DynamicResource Manual Control}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="77" IsChecked="False"
                          Click="ManualControlButton_Click"/>
-                        </Border>
+						</Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton x:Name="btnSetting" Content="{DynamicResource Parameter Setting}"
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton x:Name="btnSetting" Content="{DynamicResource Parameter Setting}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="76" IsChecked="False"
                          Click="ParameterConfigButton_Click"/>
-                        </Border>
+						</Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton x:Name="btnStatistics" Content="{DynamicResource Performance}"
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton x:Name="btnStatistics" Content="{DynamicResource Performance}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="75" IsChecked="False"
                          Click="PerformanceButton_Click"/>
-                        </Border>
+						</Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton x:Name="btnNetwork" Content="{DynamicResource Internet Config}"
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton x:Name="btnNetwork" Content="{DynamicResource Internet Config}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="76" IsChecked="False"
                          Click="InternetConfigButton_Click"/>
-                        </Border>
+						</Border>
 
-                        <Border BorderBrush="Gray" BorderThickness="1" Margin="2">
-                            <RadioButton 
+						<Border BorderBrush="Gray" BorderThickness="1" Margin="2">
+							<RadioButton
                                 x:Name="btnLog"
                                 Content="{DynamicResource Log}"
                          Style="{StaticResource MaterialDesignTabRadioButton}"
                          GroupName="NavGroup"
                          Height="75" IsChecked="False"
                          Click="DebugLogButton_Click"/>
-                        </Border>
+						</Border>
 
-                    </StackPanel>
-                </materialDesign:ColorZone>
-            </Border>
+					</StackPanel>
+				</materialDesign:ColorZone>
+			</Border>
 
-            <!-- 右侧内容 -->
-            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                <ContentControl Name="ContentDisplay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            </Border>
-        </Grid>
+			<!-- 右侧内容 -->
+			<Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+				<ContentControl Name="ContentDisplay" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+			</Border>
+		</Grid>
 
-        <!-- 第三行，水平 StackPanel -->
-        <Grid x:Name="gridControl" Grid.Row="2" Background="WhiteSmoke">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+		<!-- 第三行，水平 StackPanel -->
+		<Grid x:Name="gridControl" Grid.Row="2" Background="WhiteSmoke">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
 
-            <!-- 按钮组放在右边 -->
-            <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
-                <Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
-                <Button x:Name="PauseAutoRunButton" Background="Yellow" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
-                <Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
-                <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
-            </StackPanel>
-            <Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
-        </Grid>
-    </Grid>
+			<!-- 按钮组放在右边 -->
+			<StackPanel Orientation="Horizontal" Grid.Column="1">
+				<Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
+				<Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
+				<Button x:Name="PauseAutoRunButton" Background="Yellow" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
+				<Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+				<Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
+				<Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
+			</StackPanel>
+			<Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
+			<Button Content="testFeipai" HorizontalAlignment="Left" Margin="349,0,0,0" VerticalAlignment="Center" Height="37" Width="80" Click="TestFeiPai_Click"/>
+		</Grid>
+	</Grid>
 </Window>

@@ -23,6 +23,8 @@ namespace AkribisFAM.Windows
         public int SelectedType { get; private set; }
         public int SelectedRow { get; private set; }
         public int SelectedCol { get; private set; }
+
+        public List<int> AxexIndexList { get; private set; }
         public SelectPointType()
         {
             InitializeComponent();
@@ -40,6 +42,21 @@ namespace AkribisFAM.Windows
             ColInput.PreviewKeyDown += PositiveIntTextBox_PreviewKeyDown;
             DataObject.AddPastingHandler(ColInput, PositiveIntTextBox_Pasting);
             InputMethod.SetIsInputMethodEnabled(ColInput, false);
+
+            for (int i = 0; i < 25; i++)
+            {
+                string axisName = GlobalManager.Current.GetAxisStringFromInteger(i+1);
+                cBoxX.Items.Add(axisName);
+                cBoxY.Items.Add(axisName);
+                cBoxZ.Items.Add(axisName);
+                cBoxR.Items.Add(axisName);
+            }
+            cBoxX.SelectedIndex = 0;
+            cBoxY.SelectedIndex = 1;
+            cBoxZ.SelectedIndex = 2;
+            cBoxR.SelectedIndex = 3;
+
+            AxexIndexList = new List<int>();
         }
 
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
@@ -47,12 +64,24 @@ namespace AkribisFAM.Windows
             if (raBtnSingle.IsChecked == true)
             {
                 SelectedType = 0;
+
+                AxexIndexList.Add(cBoxX.SelectedIndex);
+                AxexIndexList.Add(cBoxY.SelectedIndex);
+                AxexIndexList.Add(cBoxZ.SelectedIndex);
+                AxexIndexList.Add(cBoxR.SelectedIndex);
+
                 this.Close();
             }else if (raBtnMatrix.IsChecked == true)
             {
                 SelectedType = 1;
                 SelectedRow = int.Parse(RowInput.Text.Trim());
                 SelectedCol = int.Parse(ColInput.Text.Trim());
+
+                AxexIndexList.Add(cBoxX.SelectedIndex);
+                AxexIndexList.Add(cBoxY.SelectedIndex);
+                AxexIndexList.Add(cBoxZ.SelectedIndex);
+                AxexIndexList.Add(cBoxR.SelectedIndex);
+
                 this.Close();
             }
             else if (raBtnGeneral.IsChecked == true)

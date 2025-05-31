@@ -1,28 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
-using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
-using LiveCharts.SeriesAlgorithms;
-using YamlDotNet.Core;
-using HslCommunication;
 using static AkribisFAM.GlobalManager;
-using static AAComm.Extensions.AACommFwInfo;
-using AkribisFAM.Windows;
-using System.Windows;
-using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
-using System.Diagnostics.Eventing.Reader;
-using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
-using static AkribisFAM.CommunicationProtocol.Task_TTNCamreaFunction;
-using Newtonsoft.Json;
-using System.IO;
 using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
@@ -98,6 +78,7 @@ namespace AkribisFAM.WorkStation
 
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
+            delta = 3000;
             DateTime time = DateTime.Now;
             bool ret = false;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
@@ -116,6 +97,11 @@ namespace AkribisFAM.WorkStation
         public void MoveConveyor(int vel)
         {
             AkrAction.Current.MoveConveyor(vel);
+        }
+
+        public void MoveConveyorAll(int vel)
+        {
+            AkrAction.Current.MoveConveyorAll(vel);
         }
         public void StopConveyor()
         {
@@ -163,6 +149,9 @@ namespace AkribisFAM.WorkStation
             SetIO(IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract, retractValue);
             SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, extendValue);
             SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, retractValue);
+            //SetIO(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, extendValue);
+            //SetIO(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, retractValue);
+
 
             if (extendValue == 1)
             {
@@ -180,7 +169,7 @@ namespace AkribisFAM.WorkStation
 
         }
 
-        public void LiftUpRelatedTray(IO_OutFunction_Table IOName1,IO_OutFunction_Table IOName2,IO_OutFunction_Table IOName3,IO_OutFunction_Table IOName4,IO_INFunction_Table IOName5,IO_INFunction_Table IOName6)
+        public void LiftUpRelatedTray(IO_OutFunction_Table IOName1, IO_OutFunction_Table IOName2, IO_OutFunction_Table IOName3, IO_OutFunction_Table IOName4, IO_INFunction_Table IOName5, IO_INFunction_Table IOName6)
         {
             SetIO(IOName1, 1);
             SetIO(IOName2, 0);
@@ -192,6 +181,252 @@ namespace AkribisFAM.WorkStation
             WaitIO(99999, IOName6, true);
 
         }
+   
+        public bool GateUp(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_INFunction_Table IOName3;
+            IO_INFunction_Table IOName4;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract;
+                    IOName3 = IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos;
+
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract;
+                    IOName3 = IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract;
+                    IOName3 = IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract;
+                    IOName3 = IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos;
+                    break;
+                default:
+                    return false;
+            }
+            SetIO(IOName1, 1);
+            SetIO(IOName2, 0);
+
+            return (WaitIO(3000, IOName3, false) &&
+            WaitIO(3000, IOName4, true));
+
+        }
+        public bool GateDown(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_INFunction_Table IOName3;
+            IO_INFunction_Table IOName4;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT2_0Stopping_Cylinder1_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_1Stopping_Cylinder1_retract;
+                    IOName3 = IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos;
+
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT2_2Stopping_Cylinder2_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_3Stopping_Cylinder2_retract;
+                    IOName3 = IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract;
+                    IOName3 = IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend;
+                    IOName2 = IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract;
+                    IOName3 = IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos;
+                    IOName4 = IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos;
+                    break;
+                default:
+                    return false;
+            }
+            SetIO(IOName1, 0);
+            SetIO(IOName2, 1);
+
+            return (WaitIO(3000, IOName3, true) &&
+            WaitIO(3000, IOName4, false));
+
+        }
+        public bool LiftUpRelatedTray(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_OutFunction_Table IOName3;
+            IO_OutFunction_Table IOName4;
+            IO_INFunction_Table IOName5;
+            IO_INFunction_Table IOName6;
+            IO_INFunction_Table IOName7;
+            IO_INFunction_Table IOName8;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract;
+
+
+                    IOName5 = IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos;
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+
+                    SetIO(IOName1, 1);
+                    SetIO(IOName2, 0);
+
+                    return WaitIO(3000, IOName5, true) &&
+            WaitIO(3000, IOName6, false);
+                default:
+                    return false;
+            }
+
+            SetIO(IOName1, 1);
+            SetIO(IOName2, 0);
+
+            SetIO(IOName3, 1);
+            SetIO(IOName4, 0);
+
+            return (WaitIO(99999, IOName5, false) &&
+            WaitIO(99999, IOName6, false) &&
+            WaitIO(99999, IOName7, true) &&
+            WaitIO(99999, IOName8, true));
+
+        }
+
+        public bool LiftDownRelatedTray(int workstationNum)
+        {
+            IO_OutFunction_Table IOName1;
+            IO_OutFunction_Table IOName2;
+            IO_OutFunction_Table IOName3;
+            IO_OutFunction_Table IOName4;
+            IO_INFunction_Table IOName5;
+            IO_INFunction_Table IOName6;
+            IO_INFunction_Table IOName7;
+            IO_INFunction_Table IOName8;
+            switch (workstationNum)
+            {
+                case 1:
+                    IOName1 = IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract;
+
+
+                    IOName5 = IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos;
+                    break;
+                case 2:
+                    IOName1 = IO_OutFunction_Table.OUT1_4Left_2_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_5Left_2_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_6Right_2_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_7Right_2_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos;
+                    break;
+                case 3:
+                    IOName1 = IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos;
+                    break;
+                case 4:
+                    IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
+                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
+
+                    IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
+                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+
+                    SetIO(IOName1, 0);
+                    SetIO(IOName2, 1);
+
+                    return WaitIO(3000, IOName5, false) &&
+            WaitIO(3000, IOName6, true);
+                    //break;
+                default:
+                    return false;
+            }
+
+            SetIO(IOName1, 0);
+            SetIO(IOName2, 1);
+
+            SetIO(IOName3, 0);
+            SetIO(IOName4, 1);
+
+            return (WaitIO(3000, IOName5, true) &&
+            WaitIO(3000, IOName6, true) &&
+            WaitIO(3000, IOName7, false) &&
+            WaitIO(3000, IOName8, false));
+
+        }
+
         public override void AutoRun(CancellationToken token)
         {
             while (true)
@@ -214,73 +449,18 @@ namespace AkribisFAM.WorkStation
 
             STEP_JudgeAllStationTrayNumberIsZero:
                 Logger.WriteLog("皮带任务_判断设备内有无料盘");
-                if (data_AllStationTrayNumber != 0)
+                if (data_AllStationTrayNumber == 0)
                 {
-                    goto STEP_WaitingAllTrayProcessCompleted;
+                    goto STEP_WaitUpstreamEquipmentHaveTray;
                 }
 
-            STEP_WaitUpstreamEquipmentHaveTray:
 
-                Logger.WriteLog("皮带任务_等待上游设备有料盘");
-                while (!GlobalManager.Current.IO_test1)
-                {
-                    Thread.Sleep(300);
-                }
-                GlobalManager.Current.IO_test1 = false;
-                //WaitIO(99999999, IO_INFunction_Table.IN7_0BOARD_AVAILABLE, true);
-
-                Logger.WriteLog("皮带任务_允许上游设备送料盘");
-                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
-
-                Logger.WriteLog("皮带任务_皮带高速运行");
-                MoveConveyor((int)AxisSpeed.BL1);
-
-            STEP_WaitSlowDownSig1:
-
-                Logger.WriteLog("皮带任务_等待测距位减速光电信号");
-                WaitIO(99999, IO_INFunction_Table.IN1_0Slowdown_Sign1, false);  //有信号时输入模块信号为0
-
-                Logger.WriteLog("皮带任务_禁止上游设备送料盘");
-                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
-
-                Logger.WriteLog("皮带任务_皮带低速运行");
-                MoveConveyor(10);
-
-            STEP_WaitStopSig1:
-                Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
-                WaitIO(99999, IO_INFunction_Table.IN1_4Stop_Sign1, true);
-                //可能需要延时一段时间TODO
-                Logger.WriteLog("皮带任务_皮带停止");
-                StopConveyor();  //函数体未实现
-
-
-            STEP_LiftCylinderExtend1:
-
-                Logger.WriteLog("皮带任务_顶起测距位料盘");
-                SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
-                SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
-                SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
-
-                Logger.WriteLog("皮带任务_等待测距位料盘被顶起");
-                WaitIO(99999999, IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos, true);
-                WaitIO(99999999, IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos, true);
-
-                Logger.WriteLog("皮带任务_设置测距位料盘就位");
-                GlobalManager.Current.flag_RangeFindingTrayArrived = 1;
-
-                Logger.WriteLog("皮带任务_所有工位料盘数量自增1(不包含NG工位)");
-                data_AllStationTrayNumber += 1;
-                goto STEP_JudgeAllStationTrayNumberIsZero;
-
+            //如果设备内已经有料盘，执行下面的逻辑
             STEP_WaitingAllTrayProcessCompleted:
                 Logger.WriteLog("皮带任务_等待所有工位料盘产品处理完成");
-                Logger.WriteLog("flag_TrayProcessCompletedNumber : " +GlobalManager.Current.flag_TrayProcessCompletedNumber.ToString());
-                while (data_AllStationTrayNumber != GlobalManager.Current.flag_TrayProcessCompletedNumber) { System.Threading.Thread.Sleep(30); }
-                GlobalManager.Current.flag_TrayProcessCompletedNumber = 0;
+                Logger.WriteLog("flag_TrayProcessCompletedNumber : " + GlobalManager.Current.flag_TrayProcessCompletedNumber.ToString());
 
-                Logger.WriteLog("皮带任务_等待NG工位允许料盘进入");
-                while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
+                while (data_AllStationTrayNumber != GlobalManager.Current.flag_TrayProcessCompletedNumber) { System.Threading.Thread.Sleep(30); }
 
 
             STEP_JudgeIsBypass:
@@ -290,12 +470,18 @@ namespace AkribisFAM.WorkStation
                     goto STEP_BypassStart;
                 }
 
+                GlobalManager.Current.flag_TrayProcessCompletedNumber = 0;
+
+
             STEP_JudeRecheckStationHaveTray:
                 Logger.WriteLog("皮带任务_判断复检工位是否有料盘");
                 if (GlobalManager.Current.flag_RecheckStationHaveTray == 0)
                 {
                     goto STEP_JudeUpstreamDeviceHaveTray;
                 }
+
+                Logger.WriteLog("皮带任务_等待NG工位允许料盘进入");
+                while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
 
             STEP_SetRecheckStationRequestOutflowTray:
                 Logger.WriteLog("皮带任务_设置复检工位请求流出料盘");
@@ -304,6 +490,7 @@ namespace AkribisFAM.WorkStation
 
                 Logger.WriteLog("皮带任务_所有工位料盘数量自减1(不包含NG工位)");
                 data_AllStationTrayNumber -= 1;
+
 
             STEP_JudeUpstreamDeviceHaveTray:
                 Logger.WriteLog("皮带任务_判断上游设备是否有料盘");
@@ -317,9 +504,32 @@ namespace AkribisFAM.WorkStation
                 }
                 GlobalManager.Current.IO_test1 = false;
 
+            STEP_JudeUpstreamDeviceTrayisFailed:
+
+                bool isFliledTray = WaitIO(999, IO_INFunction_Table.IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL, true);
+                if (isFliledTray)
+                {
+                    GlobalManager.Current.flag_Bypass = 1;
+                    Logger.WriteLog("皮带任务_上游设备输送failed料盘后等待NG工位允许进板");
+                    while (GlobalManager.Current.flag_NGStationAllowTrayEnter != 1) { System.Threading.Thread.Sleep(30); }
+
+                    Logger.WriteLog("皮带任务_isFliledTray后允许上游设备送料盘");
+                    SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+                    System.Threading.Thread.Sleep(1000);
+                    SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
+                    //ToBypassStep
+                }
+
+
+
             STEP_SetDeviceAllowEnterTray:
+
+                Logger.WriteLog("皮带任务_所有工位顶升气缸下降(不包含NG工位,先控制阻挡气缸下降再向上游设备要板)");
+                AllWorkLiftCylinderRetract();
+
                 Logger.WriteLog("皮带任务_再次允许上游设备送料盘");
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+
                 Logger.WriteLog("皮带任务_所有工位料盘数量再次自增1(不包含NG工位)");
                 data_AllStationTrayNumber += 1;
 
@@ -337,27 +547,28 @@ namespace AkribisFAM.WorkStation
                 bool IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
                 Logger.WriteLog("皮带任务_等待任一料盘触发流出阻挡气缸光电信号");
-                while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
-                {
-                    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
-                    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
-                    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
+                System.Threading.Thread.Sleep(3000);
+                //while (IN1_10 == false && IN1_11 == false && IN6_6 == false)   //任一光电被触发后，就退出循环
+                //{
+                //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
+                //    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
+                //    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
-                    System.Threading.Thread.Sleep(300);
+                //    System.Threading.Thread.Sleep(300);
 
-                }
+                //}
 
                 Logger.WriteLog("皮带任务_等待所有料盘流出阻挡气缸光电信号");
-                //如果上游设备延迟给料太晚，此次会有bug，后续再想方案处理TODO
-                while (IN1_10 == true || IN1_11 == true || IN6_6 == true)     //所有料盘流出此光电后，退出循环
-                {
-                    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
-                    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
-                    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
+                //如果上游设备延迟给料太久，此次会有bug，不影响整体测试。后续再想方案处理TODO
+                //while (IN1_10 == true || IN1_11 == true || IN6_6 == true)     //所有料盘流出此光电后，退出循环
+                //{
+                //    IN1_10 = ReadIO(IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1);
+                //    IN1_11 = ReadIO(IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2);
+                //    IN6_6 = ReadIO(IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3);
 
-                    System.Threading.Thread.Sleep(50);
+                //    System.Threading.Thread.Sleep(50);
 
-                }
+                //}
 
                 Logger.WriteLog("皮带任务_再次禁止上游设备送料盘");
                 SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
@@ -380,7 +591,7 @@ namespace AkribisFAM.WorkStation
                 }
             STEP_BeltSlowDown:
                 Logger.WriteLog("皮带任务_皮带减速");
-                MoveConveyor(10);
+                MoveConveyor(20);
 
             STEP_WaitAnyTrayArrived:
 
@@ -390,14 +601,16 @@ namespace AkribisFAM.WorkStation
                 bool IN1_6 = ReadIO(IO_INFunction_Table.IN1_6Stop_Sign3);
                 while (IN1_4 == false && IN1_5 == false && IN1_6 == false)
                 {
-                   IN1_4 = ReadIO(IO_INFunction_Table.IN1_4Stop_Sign1);
-                   IN1_5 = ReadIO(IO_INFunction_Table.IN1_5Stop_Sign2);
-                   IN1_6 = ReadIO(IO_INFunction_Table.IN1_6Stop_Sign3);
+                    IN1_4 = ReadIO(IO_INFunction_Table.IN1_4Stop_Sign1);
+                    IN1_5 = ReadIO(IO_INFunction_Table.IN1_5Stop_Sign2);
+                    IN1_6 = ReadIO(IO_INFunction_Table.IN1_6Stop_Sign3);
 
                     System.Threading.Thread.Sleep(10);
                 }
                 Logger.WriteLog("皮带任务_皮带停止");
-                StopConveyor();  //函数体未实现
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
+
             STEP_LiftUpRelatedTray:
                 //优先判断贴装位料盘
                 Logger.WriteLog("皮带任务_判断贴装位料盘是否到位");
@@ -442,7 +655,9 @@ namespace AkribisFAM.WorkStation
                                       IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos);
                     Logger.WriteLog("皮带任务_设置复检位料盘就位");
                     GlobalManager.Current.flag_RecheckTrayArrived = 1;
+                    GlobalManager.Current.flag_RecheckStationHaveTray = 1;
                 }
+
             STEP_WaitAllTrayIsArrived:
                 Logger.WriteLog("皮带任务_料盘就位数量自增1");
                 GlobalManager.Current.flag_TrayArrivedNumber += 1;
@@ -455,7 +670,7 @@ namespace AkribisFAM.WorkStation
             STEP_WaitStopCylinderRetract:
                 Logger.WriteLog("皮带任务_料盘就位数量和料盘处理完成数量清零");
                 GlobalManager.Current.flag_TrayArrivedNumber = 0;
-             
+
                 Logger.WriteLog("皮带任务_所有料盘顶升气缸下降(不包含NG工位)");
                 AllWorkStopCylinderAct(0, 1);
                 goto STEP_JudgeAllStationTrayNumberIsZero;
@@ -463,6 +678,8 @@ namespace AkribisFAM.WorkStation
 
 
 
+
+            //处理bypass料盘
             STEP_BypassStart:
                 GlobalManager.Current.flag_Bypass = 0;
 
@@ -482,8 +699,62 @@ namespace AkribisFAM.WorkStation
             STEP_BypassWaitSlowDownSig4:
                 WaitIO(99999, IO_INFunction_Table.IN1_7Stop_Sign4, true);
                 WaitIO(99999, IO_INFunction_Table.IN1_7Stop_Sign4, false);
-                StopConveyor();  //函数体未实现
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
                 goto STEP_JudgeAllStationTrayNumberIsZero;
+
+
+            //处理进入设备内的第一个料盘
+            STEP_WaitUpstreamEquipmentHaveTray:
+                Logger.WriteLog("皮带任务_等待上游设备有料盘");
+                while (!GlobalManager.Current.IO_test1)
+                {
+                    Thread.Sleep(300);
+                }
+                GlobalManager.Current.IO_test1 = false;
+                //WaitIO(99999999, IO_INFunction_Table.IN7_0BOARD_AVAILABLE, true);
+
+                Logger.WriteLog("皮带任务_允许上游设备送料盘");
+                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 1);
+
+                Logger.WriteLog("皮带任务_皮带高速运行");
+                MoveConveyor((int)AxisSpeed.BL1);
+
+            STEP_WaitSlowDownSig1:
+                Logger.WriteLog("皮带任务_等待测距位减速光电信号");
+                WaitIO(99999, IO_INFunction_Table.IN1_0Slowdown_Sign1, false);  //有信号时输入模块信号为0
+
+                Logger.WriteLog("皮带任务_禁止上游设备送料盘");
+                SetIO(IO_OutFunction_Table.OUT7_0MACHINE_READY_TO_RECEIVE, 0);
+
+                Logger.WriteLog("皮带任务_皮带低速运行");
+                MoveConveyor(20);
+
+            STEP_WaitStopSig1:
+                Logger.WriteLog("皮带任务_等待料盘到达测距位挡停气缸信号");
+                WaitIO(99999, IO_INFunction_Table.IN1_4Stop_Sign1, true);
+                Logger.WriteLog("皮带任务_皮带停止");
+                StopConveyor();
+                System.Threading.Thread.Sleep(200);
+
+            STEP_LiftCylinderExtend1:
+                Logger.WriteLog("皮带任务_顶起测距位料盘");
+                SetIO(IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, 0);
+                SetIO(IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, 1);
+                SetIO(IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, 0);
+
+                Logger.WriteLog("皮带任务_等待测距位料盘被顶起");
+                WaitIO(99999999, IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos, true);
+                WaitIO(99999999, IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos, true);
+
+                Logger.WriteLog("皮带任务_设置测距位料盘就位");
+                GlobalManager.Current.flag_RangeFindingTrayArrived = 1;
+
+                Logger.WriteLog("皮带任务_所有工位料盘数量自增1(不包含NG工位)");
+                data_AllStationTrayNumber += 1;
+                goto STEP_JudgeAllStationTrayNumberIsZero;
+
 
             }
 

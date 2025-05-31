@@ -258,5 +258,31 @@ namespace AkribisFAM.CommunicationProtocol
                 }
             }
         }
+
+        public bool IsConnected()
+        {
+            try
+            {
+                if (socket == null || !socket.Connected)
+                    return false;
+
+                // 发送0字节检测连接状态
+                socket.Send(new byte[0], 0, SocketFlags.None);
+                return true;
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+            {
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void CheckServerStatus()
+        {
+            isConnected = IsConnected();
+        }
     }
 }

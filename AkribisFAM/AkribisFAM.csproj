@@ -179,9 +179,17 @@
     <Compile Include="CommunicationProtocol\Task_ResetCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\TcpClientWorker.cs" />
     <Compile Include="CommunicationProtocol\TCPNetworkManage.cs" />
+    <Compile Include="DeviceClass\FilmRemoveGantryControl.cs" />
+    <Compile Include="DeviceClass\AssemblyGantryControl.cs" />
+    <Compile Include="DeviceClass\CognexBarcodeScanner.cs" />
+    <Compile Include="DeviceClass\CognexVisionControl.cs" />
+    <Compile Include="DeviceClass\FeederControl.cs" />
+    <Compile Include="DeviceClass\KeyenceLaserControl.cs" />
     <Compile Include="GlobalManager.cs" />
+    <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
+    <Compile Include="Helper\ViewModelBase.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
     <Compile Include="Helper\FileRecovery.cs" />
     <Compile Include="Lang\UI.Designer.cs">
@@ -197,7 +205,9 @@
     <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
+    <Compile Include="Manager\LoadCellCalibration.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
+    <Compile Include="Manager\RecipeManager.cs" />
     <Compile Include="Manager\MyDBContext.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
@@ -216,6 +226,7 @@
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="ViewModel\AKBMessageBoxVM.cs" />
+    <Compile Include="Util\Parser.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="ViewModel\UserVM.cs" />
@@ -239,6 +250,28 @@
     <Compile Include="Windows\CameraControl.xaml.cs">
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Converters\Converters.cs" />
+    <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
+      <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\Vision3PalletOnTheFly.xaml.cs">
+      <DependentUpon>Vision3PalletOnTheFly.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\LaserHeighCheckView.xaml.cs">
+      <DependentUpon>LaserHeighCheckView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Conveyor\ConveyorControlView.xaml.cs">
+      <DependentUpon>ConveyorControlView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\SubView\ProductXYPointsView.xaml.cs">
+      <DependentUpon>ProductXYPointsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\SubView\PointXYMoveView.xaml.cs">
+      <DependentUpon>PointXYMoveView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Conveyor\SubView\GateControlView.xaml.cs">
+      <DependentUpon>GateControlView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\CommonWindow\AKBMessageBox.xaml.cs">
       <DependentUpon>AKBMessageBox.xaml</DependentUpon>
     </Compile>
@@ -247,6 +280,30 @@
     </Compile>
     <Compile Include="Windows\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FilmRemove\FilmRemoveView.xaml.cs">
+      <DependentUpon>FilmRemoveView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\FoamAssemblyView.xaml.cs">
+      <DependentUpon>FoamAssemblyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\SubView\ManualFoamAssemblyOTFView.xaml.cs">
+      <DependentUpon>ManualFoamAssemblyOTFView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\SubView\ManualFoamAssemblyView.xaml.cs">
+      <DependentUpon>ManualFoamAssemblyView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FilmRemove\SubView\PointXYMoveRemoveInspectView.xaml.cs">
+      <DependentUpon>PointXYMoveRemoveInspectView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\Vision2View.xaml.cs">
+      <DependentUpon>Vision2View.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\FeederView.xaml.cs">
+      <DependentUpon>FeederView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FoamAssembly\SubView\ManualFeederControlView.xaml.cs">
+      <DependentUpon>ManualFeederControlView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\InternetConfig.xaml.cs">
       <DependentUpon>InternetConfig.xaml</DependentUpon>
@@ -260,9 +317,13 @@
     <Compile Include="Windows\MainContent.xaml.cs">
       <DependentUpon>MainContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\HardwareControl.xaml.cs">
+      <DependentUpon>HardwareControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\MoveView.cs" />
     <Compile Include="Windows\UserLogin.xaml.cs">
       <DependentUpon>UserLogin.xaml</DependentUpon>
     </Compile>
@@ -296,6 +357,34 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\Vision3PalletOnTheFly.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Laser\LaserHeighCheckView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Conveyor\ConveyorControlView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Laser\SubView\ProductXYPointsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Laser\SubView\PointXYMoveView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Conveyor\SubView\GateControlView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\CommonWindow\AKBMessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -303,6 +392,38 @@
     <Page Include="Windows\ErrorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\FilmRemove\FilmRemoveView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\FoamAssemblyView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\SubView\ManualFoamAssemblyOTFView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\SubView\ManualFoamAssemblyView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FilmRemove\SubView\PointXYMoveRemoveInspectView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\Vision2View.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\FeederView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FoamAssembly\SubView\ManualFeederControlView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -360,6 +481,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\HardwareControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\ManualControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -394,6 +519,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="devices.json" />
     <None Include="IOPoint.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -432,13 +558,11 @@
     <Resource Include="Windows\AKB.png" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Windows\001.png" />
     <Folder Include="DB\" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Properties\ChangeLog.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Windows\001.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />

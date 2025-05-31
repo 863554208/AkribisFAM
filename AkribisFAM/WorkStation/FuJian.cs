@@ -18,6 +18,11 @@ using static System.Windows.Forms.AxHost;
 using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using System.Diagnostics;
+using Newtonsoft.Json;
+using static AkribisFAM.WorkStation.Reject;
+using System.IO;
+using AkribisFAM.Helper;
+using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
 {
@@ -27,7 +32,7 @@ namespace AkribisFAM.WorkStation
         private static FuJian _instance;
         public override string Name => nameof(FuJian);
 
-        int delta = 0;
+        private ErrorCode errorCode;
         public int board_count = 0;
 
 
@@ -94,61 +99,50 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus( index , value);
         }
 
-        public void MoveConveyor(int vel)
-        {
-            AkrAction.Current.MoveConveyor(vel);
-        }
 
-        public void StopConveyor()
-        {
-            AkrAction.Current.StopConveyor();
-        }
-
+        private int[] signalval = new int[10];
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
             bool ret = false;
+            errorCode = ErrorCode.WaitIO;
+            int cnt = 0;
+            for (int i = 0; i < signalval.Length; i++)
+            {
+                signalval[i] = 0;
+            }
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
+                int validx = 0;
+                if (cnt < 10)
+                {
+                    validx = cnt;
+                }
+                else
+                {
+                    validx = cnt % 10;
+                }
                 if (ReadIO(index) == value)
+                {
+                    signalval[validx] = 1;
+                }
+                else
+                {
+                    signalval[validx] = 0;
+                }
+                cnt++;
+                if (signalval.Sum() >= 8)
                 {
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
         }
-        public void WaitConveyor(int type)
-        {
-            //DateTime time = DateTime.Now;
-            //bool ret = false;
-            //switch (type)
-            //{
-            //    case 2: 
-            //        while (ScanBarcode() == 1);
-            //        break;
 
-            //    case 4:
-            //        while(LaserHeight() ==1); 
-            //        break;
-            //}
-        }
 
-        public void ResumeConveyor()
-        {
-            if (GlobalManager.Current.station2_IsBoardInLowSpeed || GlobalManager.Current.station1_IsBoardInLowSpeed || GlobalManager.Current.station4_IsBoardInLowSpeed)
-            {
-                //低速运动
-                MoveConveyor(10);
-            }
-            else if (GlobalManager.Current.station2_IsBoardInHighSpeed || GlobalManager.Current.station1_IsBoardInHighSpeed || GlobalManager.Current.station4_IsBoardInHighSpeed)
-            {
-                MoveConveyor((int)AxisSpeed.BL1);
-            }
-        }
-		
 
         public int CheckState(bool state)
         {
@@ -160,120 +154,57 @@ namespace AkribisFAM.WorkStation
             else {
                 //报错
                 GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 1;
+                GlobalManager.Current.IsPause = true;
+                ErrorManager.Current.Insert(errorCode);
             }
             GlobalManager.Current.FuJian_CheckState();
             WarningManager.Current.WaiFuJian();
             return 0;
         }
 
-        public void WaitConveyor(int delta, int type)
-        {
-            //DateTime time = DateTime.Now;
-
-            //switch (type)
-            //{
-            //    case 2:
-            //        while (RemoveFilm() == 1) ;
-            //        break;
-            //    case 3:
-            //        while (CCD3ReCheck() == 1) ;
-            //        break;
-
-            //}
-        }
-
-        const int modulenum = 26;//1-12 撕膜 13收集 14-25复检 26z撕膜后z轴位置
-        public struct FuJianPoint
-        {
-            public double x;
-            public double y;
-            public double z;
-        }
-
-        public List<FuJianPoint> Pointlist = new List<FuJianPoint>(modulenum);
-
-        public bool BoardIn()
-        {
-            bool ret;
-            //进入后改回false
-            Set("IO_test3",false);
-            Set("station3_IsBoardInHighSpeed", true);
-
-            //传送带高速移动
-            MoveConveyor((int)AxisSpeed.BL3);
-
-            //等待减速IO
-            ret = WaitIO(999999, IO_INFunction_Table.IN1_2Slowdown_Sign3, false);
-            if (CheckState(ret) == 1) {
-                return false;
-            }
-            
-            //挡板气缸上气
-            SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 1);
-            SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 0);
-
-            Set("station3_IsBoardInHighSpeed", false);
-            Set("station3_IsBoardInLowSpeed", true);
-
-
-            //传送带减速
-            MoveConveyor(10);
-            //等待停止IO
-            ret =  WaitIO(999999, IO_INFunction_Table.IN1_6Stop_Sign3, true);
-
-            //if (CheckState(ret) == 1)
-            //{
-            //    return false;
-            //}
-
-            Set("station3_IsBoardInLowSpeed", false);
-            Set("station3_IsLifting", true);
-            //停止传送带
-            StopConveyor();
-            //顶起气缸上气
-            SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 1);
-            SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 0);
-            SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 1);
-            SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 0);
-            if (CheckState(ret) == 1)
-            {
-                return false;
-            }
-            //禁止来料
-            Set("station3_IsLifting", false);
-            Set("station3_IsBoardIn", false);
-
-            ResumeConveyor();
-            board_count += 1;
-
-            return true;
-        }
-
         public bool Tearing()
         {
-            bool ret;
+            bool ret, ret1;
+            int actionret;
+            int cnt;
             //撕膜
-            for(int i = 0; i < modulenum; ++i)
+            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            errorCode = ErrorCode.TimeOut;
+            if (CheckState(actionret == 0) == 1)
+            {
+                return false;
+            }
+            for (int i = 0; i < GlobalManager.Current.tearingPoints.Count; ++i)
             {
                 //移动到穴位
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
-                if (CheckState(true) == 1)
+                Logger.WriteLog("开始执行撕膜X");
+                actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.tearingPoints[i].X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
-                //移动z轴下降
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
-                if (CheckState(true) == 1)
+                Logger.WriteLog("开始执行撕膜Y");
+                actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.tearingPoints[i].Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+                if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
+                Logger.WriteLog("BBBBBBBBBBBBBB");
                 //夹爪气缸打开
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
+                //移动z轴下降
+                Logger.WriteLog("AAAAAAAAAAAAA");
+                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.tearingPoints[i].Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                if (CheckState(actionret == 0) == 1)
+                {
+                    return false;
+                }
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
-                if (CheckState(ret) == 1)
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                ret1 = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, false);
+                Logger.WriteLog("CCCCCCCCCCCC");
+                if (CheckState(ret&&ret1) == 1)
                 {
                     return false;
                 }
@@ -281,44 +212,93 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
-                if (CheckState(ret) == 1)
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, false);
+                ret1 = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+                Logger.WriteLog("DDDDDDDDDDDDDD");
+                if (CheckState(ret && ret1) == 1)
                 {
                     return false;
                 }
+                Thread.Sleep(100);
                 //移动撕膜
-                AkrAction.Current.MoveRel(AxisName.PRY, 2000, 100000);
-                AkrAction.Current.MoveRel(AxisName.PRZ, 2000, 100000);
+                errorCode = ErrorCode.TimeOut;
+                if (Math.Abs(GlobalManager.Current.TearX) > 0.001)
+                {
+                    AkrAction.Current.MoveRelNoWait(AxisName.PRX, GlobalManager.Current.TearX, GlobalManager.Current.TearXvel);
+                }
+                if (Math.Abs(GlobalManager.Current.TearY) > 0.001) {
+                    AkrAction.Current.MoveRelNoWait(AxisName.PRY, GlobalManager.Current.TearY, GlobalManager.Current.TearYvel);
+                }
+                AkrAction.Current.MoveRelNoWait(AxisName.PRZ, GlobalManager.Current.TearZ, GlobalManager.Current.TearZvel);
+                Logger.WriteLog("EEEEEEEEEEEEEE");
                 //Z轴上升
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[26].z);
-                if (CheckState(true) == 1)
+                //TODO 
+                int agmIndex = (int)AxisName.PRZ / 8;
+                int axisRefNum = (int)AxisName.PRZ % 8;
+                cnt = 0;
+                while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).InTargetStat != 4 && cnt < 100)
+                {
+                    Thread.Sleep(50);
+                    cnt++;
+                }
+                if (CheckState(cnt>=100) == 1)
                 {
                     return false;
                 }
+                Logger.WriteLog("ASDDDDDDDDDDDDDE");
+                errorCode = ErrorCode.TimeOut;
+                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                if (CheckState(actionret == 0) == 1)
+                {
+                    return false;
+                }
+                Logger.WriteLog("QQQQQQQQQQQQQQQQQQ");
                 //移动到蓝膜收集处
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[12].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[12].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[12].z);
-                if (CheckState(true) == 1)
+                actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.RecheckRecylePos.X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
+                actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.RecheckRecylePos.Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+                if (CheckState(actionret == 0) == 1)
+                {
+                    return false;
+                }
+                //必须XY到位后再移动Z轴
+                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.RecheckRecylePos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                if (CheckState(actionret == 0) == 1)
+                {
+                    return false;
+                }
+                Logger.WriteLog("EEEEEEEEEEEEEEEEEEEESADSAD");
                 //夹爪气缸打开
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 1);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //检测到位信号
-                ret = WaitIO(9999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
-                if (CheckState(ret) == 1)
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
+                ret1 = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, false);
+                if (CheckState(ret && ret1) == 1)
                 {
                     return false;
                 }
                 //蓝膜收集吸气
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1);
                 SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
-                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 1);
-                if (CheckState(true) == 1)
+                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+                //夹爪气缸缩回
+                SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
+                SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
+                ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, false);
+                ret1 = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, true);
+                if (CheckState(ret && ret1) == 1)
+                {
+                    return false;
+                }
+                errorCode = ErrorCode.TimeOut;
+                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
@@ -326,135 +306,126 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        public int[] modulestate = new int[modulenum];
-        public int boardstate;
+        
         public bool Recheck()
         {
             //复检
-            int cnt = 0;
-            for (int i = modulenum + 1; i < modulenum*2+1; ++i)
+            int modulestatecnt = 0;
+            int actionret;
+            errorCode = ErrorCode.TimeOut;
+            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            if (CheckState(actionret == 0) == 1)
             {
-                //移动到穴位
-                AkrAction.Current.SetSingleEvent(AxisName.PRZ, (int)Pointlist[i].z, 1);
-                AkrAction.Current.Move(AxisName.PRX, (int)Pointlist[i].x);//mm * 10000
-                AkrAction.Current.Move(AxisName.PRY, (int)Pointlist[i].y);
-                AkrAction.Current.Move(AxisName.PRZ, (int)Pointlist[i].z);
-                if (CheckState(true) == 1)
-                {
-                    return false;
-                }
-                //康耐视复检
-                string command = "SN" + "sqcode" + $"+{i - modulenum}," + $"{i - modulenum}," + "Foam+Moudel," + "0.000,0.000,0.000";
-                TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
-
-                //获取康耐视数据
-                string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
-                int cogres;
-                bool ret = int.TryParse(Errcode, out cogres);
-                if (CheckState(ret) == 1)
-                {
-                    return false;
-                }
-                if (cogres != 1)
-                {
-                    //康耐视报错
-                    CheckState(false);
-                }
-                string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
-                
-                cnt = cnt + modulestate[i - (modulenum + 1)];
+                return false;
             }
-            if (cnt < modulenum)
+            for (int i = 0; i < GlobalManager.Current.TotalRow; ++i)
+            {
+                for (int j = 0; j < GlobalManager.Current.TotalColumn; ++j)
+                {
+                    int k = 0;
+                    if (i % 2 == 0)
+                    {
+                        k = j + i * GlobalManager.Current.TotalColumn;
+                    }
+                    else {
+                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn; 
+                    }
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+                    //移动到穴位
+                    actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.recheckPoints[k].X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+                    if (CheckState(actionret == 0) == 1)
+                    {
+                        return false;
+                    }
+                    actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.recheckPoints[k].Y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                    if (CheckState(actionret == 0) == 1)
+                    {
+                        return false;
+                    }
+                    //康耐视复检
+                    string command = "SN" + "sqcode" + $"+{k}," + $"{k}," + "Foam+Moudel," + "0.000,0.000,0.000";
+                    TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+
+                    Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
+                    int cnt = 0;
+                    while (Task_RecheckCamreaFunction.TriggRecheckCamreaready() != "OK" && cnt < 10)
+                    {
+                        string res = "接收到的信息是:" + Task_RecheckCamreaFunction.TriggRecheckCamreaready();
+                        Logger.WriteLog(res);
+                        Thread.Sleep(300);
+                        cnt++;
+                    }
+                    Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
+                    if (CheckState(cnt < 10) == 1)
+                    {
+                        return false;
+                    }
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+                    //获取康耐视数据
+                    string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
+                    int cogres;
+                    bool ret = int.TryParse(Errcode, out cogres);
+                    Logger.WriteLog("CCD3 获取康耐视数据" + Errcode);
+                    errorCode = ErrorCode.TimeOut;
+                    if (CheckState(ret) == 1)
+                    {
+                        return false;
+                    }
+                    if (cogres != 1)
+                    {
+                        //康耐视报错
+                        CheckState(false);
+                    }
+                    string Datan = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Datan;
+
+                    modulestatecnt = modulestatecnt + 1;
+                    Logger.WriteLog($"单点结束{i}");
+                }
+            }
+
+            if (modulestatecnt < GlobalManager.Current.recheckPoints.Count)
             {
                 GlobalManager.Current.isNGPallete = true;
             }
             return true;
         }
 
-        public void BoardOut()
+        public bool BoardOut()
         {
+            int actionret;
             GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
-            #region 使用新的传送带控制逻辑
-            //bool ret;
-            
-            //Set("station3_IsBoardOut", true);
-
-            //while (Reject.Current.board_count != 0)
-            //{
-            //    Thread.Sleep(300);
-            //}
-
-            ////模拟给下一个工位发进板信号
-            //if (GlobalManager.Current.SendByPassToStation3)
-            //{
-            //    GlobalManager.Current.SendByPassToStation4 = true;
-            //}
-            //GlobalManager.Current.IO_test4 = true;
-
-            ////顶起气缸下降
-            //StopConveyor();
-            //SetIO(IO_OutFunction_Table.OUT2_4Stopping_Cylinder3_extend, 0);
-            //SetIO(IO_OutFunction_Table.OUT2_5Stopping_Cylinder3_retract, 1);
-
-            //Thread.Sleep(100);
-            //SetIO(IO_OutFunction_Table.OUT1_8Left_3_lift_cylinder_extend, 0);
-            //SetIO(IO_OutFunction_Table.OUT1_9Left_3_lift_cylinder_retract, 1);
-            //SetIO(IO_OutFunction_Table.OUT1_10Right_3_lift_cylinder_extend, 0);
-            //SetIO(IO_OutFunction_Table.OUT1_11Right_3_lift_cylinder_retract, 1);
-            //if (CheckState(true) == 1)
-            //{
-            //    return false;
-            //}
-            ////等待顶起气缸下降信号
-            //ret = WaitIO(9999, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos, true);
-            //ret = WaitIO(9999, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos, true);
-            //if (CheckState(ret) == 1)
-            //{
-            //    return false;
-            //}
-
-            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, true);
-            //ret = WaitIO(9999, IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3, false);
-            //if (CheckState(ret) == 1)
-            //{
-            //    return false;
-            //}
-            //Set("station3_IsBoardOut", true);
-            //board_count--;
-            //return true;
-            #endregion
+            errorCode = ErrorCode.TimeOut;
+            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            if (CheckState(actionret == 0) == 1)
+            {
+                return false;
+            }
+            actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.StartPoint.X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
+            if (CheckState(actionret == 0) == 1)
+            {
+                return false;
+            }
+            actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.StartPoint.Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+            if (CheckState(actionret == 0) == 1)
+            {
+                return false;
+            }
+            return true;
         }
 
         public override void AutoRun(CancellationToken token)
         {
+            GlobalManager.Current.flag_RecheckTrayArrived = 0;
             try
             {
                 while (true)
                 {
 
                 step1:
-                    //if (!GlobalManager.Current.IO_test3 || board_count != 0)
-                    //{
-                    //    Thread.Sleep(100);
-                    //    continue;
-                    //}
-                    GlobalManager.Current.current_FuJian_step = 1;
-
-
-                    //BoardIn();
-                    while (GlobalManager.Current.flag_RecheckTrayArrived != 1)
-                    {
-                        Thread.Sleep(300);
-                    }
                     GlobalManager.Current.flag_RecheckTrayArrived = 0;
-                    Thread.Sleep(5000);
+                    GlobalManager.Current.current_FuJian_step = 1;
                     if (GlobalManager.Current.FuJian_exit) break;
-
-                    //20250521 测试 史彦洋
-                    goto step4;
-                    //20250521 测试 史彦洋
-
 
                 step2:
                     GlobalManager.Current.current_FuJian_step = 2;
@@ -465,11 +436,10 @@ namespace AkribisFAM.WorkStation
                     GlobalManager.Current.current_FuJian_step = 3;
                     Recheck();
                     if (GlobalManager.Current.FuJian_exit) break;
-
-                //20250521 测试 史彦洋
                 step4:
-                //20250521 测试 史彦洋
+                    GlobalManager.Current.current_FuJian_step = 4;
                     BoardOut();
+                    if (GlobalManager.Current.FuJian_exit) break;
                 }
             }
             catch (Exception ex)

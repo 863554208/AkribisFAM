@@ -12,13 +12,14 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- 第一行：水平三个 RadioButton -->
         <StackPanel Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Center" >
             <RadioButton Name="raBtnSingle" Content="Single" IsChecked="True" VerticalContentAlignment="Center" GroupName="PointType" Checked="raBtnSingle_Checked" />
-            <RadioButton Name="raBtnMatrix" Content="Matrix" VerticalContentAlignment="Center" GroupName="PointType" Margin="25 0 0 0" Checked="raBtnMatrix_Checked"/>
-            <RadioButton Name="raBtnGeneral" Content="General" VerticalContentAlignment="Center" GroupName="PointType" Margin="25 0 0 0" Checked="raBtnGeneral_Checked"/>
+            <RadioButton Name="raBtnMatrix" Content="Matrix" VerticalContentAlignment="Center" GroupName="PointType" Margin="60 0 0 0" Checked="raBtnMatrix_Checked"/>
+            <RadioButton Name="raBtnGeneral" Content="General" VerticalContentAlignment="Center" GroupName="PointType" Margin="60 0 0 0" Checked="raBtnGeneral_Checked"/>
         </StackPanel>
 
         <!-- 第二行：Row + 输入框，Col + 输入框 -->
@@ -29,7 +30,18 @@
             <TextBox Name="ColInput" Text="2" Width="65" Margin="5,0"/>
         </StackPanel>
 
-        <!-- 第三行：一个按钮，居中 -->
-        <Button Grid.Row="2" Name="btnConfirm" Content="Confirm" Width="100" Height="30"  Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Center" Margin="0,10" Click="btnConfirm_Click"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Name="AxesIndexStackPanel"  HorizontalAlignment="Center" Margin="0,10">
+            <TextBlock Text="X:" VerticalAlignment="Center"/>
+            <ComboBox Width="100" Name="cBoxX"></ComboBox>
+            <TextBlock Margin="7,0,0,0" Text="Y:" VerticalAlignment="Center"/>
+            <ComboBox Width="100" Name="cBoxY"></ComboBox>
+            <TextBlock Margin="7,0,0,0" Text="Z:" VerticalAlignment="Center"/>
+            <ComboBox Width="100" Name="cBoxZ"></ComboBox>
+            <TextBlock Margin="7,0,0,0" Text="R:" VerticalAlignment="Center"/>
+            <ComboBox Width="100" Name="cBoxR"></ComboBox>
+        </StackPanel>
+
+        <!-- 第4行：一个按钮，居中 -->
+        <Button Grid.Row="3" Name="btnConfirm" Content="Confirm" Width="100" Height="30"  Style="{StaticResource MaterialDesignRaisedButton}" HorizontalAlignment="Center" Margin="0,10" Click="btnConfirm_Click"/>
     </Grid>
 </Window>

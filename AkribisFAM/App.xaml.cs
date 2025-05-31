@@ -13,6 +13,8 @@ using AkribisFAM.Interfaces;
 using System.IO;
 using System.Data.Entity.Migrations;
 
+using AkribisFAM.DeviceClass;
+
 namespace AkribisFAM
 {
     /// <summary>
@@ -22,6 +24,15 @@ namespace AkribisFAM
     {
         public static IDatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
+        public static RecipeManager recipeManager;
+        public static KeyenceLaserControl laser;
+        public static CognexVisionControl vision1;
+        public static AssemblyGantryControl assemblyGantryControl;
+        public static FilmRemoveGantryControl filmRemoveGantryControl;
+        public static FeederControl feeder1;
+        public static FeederControl feeder2;
+        public static CognexBarcodeScanner scanner;
+        public static LoadCellCalibration calib;
         
         public static UserManager userManager { get; private set; } = new UserManager();
         public static UserLogin userPage = new UserLogin(userManager);
@@ -50,6 +61,21 @@ namespace AkribisFAM
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
 			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
+
+            recipeManager = new RecipeManager();
+            laser = new KeyenceLaserControl();
+            vision1 = new CognexVisionControl();
+            feeder1 = new FeederControl(1);
+            feeder2 = new FeederControl(2);
+            scanner = new CognexBarcodeScanner();
+            assemblyGantryControl = new AssemblyGantryControl();
+            filmRemoveGantryControl = new FilmRemoveGantryControl();
+            filmRemoveGantryControl.XOffset = 25.4;
+            filmRemoveGantryControl.YOffset = 56.3;
+            calib = new LoadCellCalibration();
+
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
             //TODO
             //try
             //{
@@ -73,7 +99,7 @@ namespace AkribisFAM
             //ZuZhuang.Current.test();
 
             //加载激光测距点位信息
-            LoadLaserPoints();
+            //LoadLaserPoints();
             SetLanguage("en-US");
 
             userManager.Initialize();
@@ -104,7 +130,7 @@ namespace AkribisFAM
             {
                 string[] agm800_IP = new string[]
                 {
-                    "172.1.1.101",
+                    "172.1.1.105",
                     "172.1.1.102",
                     "172.1.1.103",
                     "172.1.1.104"
@@ -115,7 +141,7 @@ namespace AkribisFAM
                 {
                     AAmotionFAM.AGM800.Current.controller[i] = AAMotionAPI.Initialize(ControllerType.AGM800);
                     AAMotionAPI.Connect(AAmotionFAM.AGM800.Current.controller[i], agm800_IP[i]);
-                    
+
                 }
             }
             catch (Exception ex) { }
@@ -167,7 +193,7 @@ namespace AkribisFAM
                         }
                     }
                 }
-                GlobalManager.Current.laserPoints = flatList;
+                //GlobalManager.Current.laserPoints = flatList;
             }
             catch { }
 
@@ -175,6 +201,7 @@ namespace AkribisFAM
         
 		protected override void OnExit(ExitEventArgs e)
         {
+            TCPNetworkManage.StopAllClients();
             // Dispose of resources
             DbManager?.Dispose();
 

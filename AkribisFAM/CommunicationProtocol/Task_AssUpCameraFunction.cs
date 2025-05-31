@@ -77,8 +77,24 @@ namespace AkribisFAM.CommunicationProtocol
     }
     #endregion
 
-    class Task_AssUpCameraFunction
+    public class Task_AssUpCameraFunction
     {
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
+
+        public static event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public static void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public static event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public static void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public enum AssUpCameraProcessCommand
         {
             TLT,//定位载具
@@ -91,7 +107,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
-                InstructionHeader = $"TLT,CmdTLT_100,10,";
+                InstructionHeader = $"TLT,CmdTLT_100,12,";
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket
@@ -239,7 +255,7 @@ namespace AkribisFAM.CommunicationProtocol
 
         public static void TriggAssUpCamreaStrClear()//清除客户端最后一条字符串
         {
-            TCPNetworkManage.ClearLastMessage(ClientNames.camera1_Runner);
+            TCPNetworkManage.ClearLastMessage(ClientNames.camera1_Feed);
         }
 
         private static void RecordLog(string message)//记录日志
@@ -256,7 +272,7 @@ namespace AkribisFAM.CommunicationProtocol
 
             while (sw.ElapsedMilliseconds < timeoutMs)
             {
-                VisionAcceptCommand = TCPNetworkManage.GetLastMessage(ClientNames.camera1_Runner);
+                VisionAcceptCommand = TCPNetworkManage.GetLastMessage(ClientNames.camera1_Feed);
                 if (!string.IsNullOrEmpty(VisionAcceptCommand))
                 {
                     break;//1秒之内读到数据跳出循环
@@ -269,14 +285,16 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return false;
             }
-
+            VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
+            ReceiveMessage(VisionAcceptCommand);
             //VisionAcceptCommand = "TLM,Cmd_100,2,1,1,2,1,132_133_130_126_999.999,1,133_135_132_128_999.999,1,2,2,1,139_141_136_128_999.999,1,131_133_129_127_999.999";
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
 
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
-            TCPNetworkManage.InputLoop(ClientNames.camera1_Runner, VisionSendCommand + "\r\n");
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
+            SendMessage(VisionSendCommand);
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

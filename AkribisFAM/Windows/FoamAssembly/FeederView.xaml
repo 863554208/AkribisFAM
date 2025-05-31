@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.FeederView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
+            <!--<Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>-->
+            <Button x:Name="btnMoveLoadCellPicker1" Content="Picker1Load" Grid.Column="3" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker1_Click"/>
+            <Button x:Name="btnMoveLoadCellPicker2" Content="Picker2Load" Grid.Column="4" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker2_Click"/>
+            <Button x:Name="btnMoveLoadCellPicker3" Content="Picker3Load" Grid.Column="5" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker3_Click"/>
+            <Button x:Name="btnMoveLoadCellPicker4" Content="Picker4Load" Grid.Column="6" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker4_Click"/>
+            <Button x:Name="btnRunPickAndPlaceProcess1" Content="Pick and place f1" Grid.Column="7" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace1_Click"/>
+            <Button x:Name="btnRunPickAndPlaceProcess2" Content="Pick and place f2" Grid.Column="8" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace2_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="9" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
+        </Grid>
+        <Grid x:Name="grpControl" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer  Grid.Column="0" Grid.Row="1">
+                <ItemsControl x:Name="itemControlStation">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:ManualFeederControlView  Opacity=".8" Margin="2" 
+                                                       VisionStandbyPosPressed="ManualFeederControlView_VisionStandbyPosPressed"
+                                                        VisionEndingPosPressed="ManualFeederControlView_VisionEndingPosPressed"
+                                                        VisionOTFPressed="ManualFeederControlView_VisionOTFPressed"
+                                                        PickerZUpPressed="ManualFeederControlView_PickerZUpPressed"
+                                                        PickerZDownPressed="ManualFeederControlView_PickerZDownPressed"
+                                                        PickerVacOnPressed="ManualFeederControlView_PickerVacOnPressed"
+                                                        PickerPurgePressed="ManualFeederControlView_PickerPurgePressed"
+                                                        PickerOffAirPressed="ManualFeederControlView_PickerOffAirPressed"
+                                                        PickerMoveFoam1Pressed="ManualFeederControlView_PickerMoveFoam1Pressed"
+                                                        PickerMoveFoam2Pressed="ManualFeederControlView_PickerMoveFoam2Pressed"
+                                                        PickerMoveFoam3Pressed="ManualFeederControlView_PickerMoveFoam3Pressed"
+                                                        PickerMoveFoam4Pressed="ManualFeederControlView_PickerMoveFoam4Pressed"
+                                                        PickerPickFoam1Pressed="ManualFeederControlView_PickerPickFoam1Pressed"
+                                                        PickerPickFoam2Pressed="ManualFeederControlView_PickerPickFoam2Pressed"
+                                                        PickerPickFoam3Pressed="ManualFeederControlView_PickerPickFoam3Pressed"
+                                                        PickerPickFoam4Pressed="ManualFeederControlView_PickerPickFoam4Pressed"
+                                                        PickerPickAllPressed="ManualFeederControlView_PickerPickAllPressed"
+                                                        FeederIndexPressed="ManualFeederControlView_FeederIndexPressed"
+                                                        FeederExtendPressed="ManualFeederControlView_FeederExtendPressed"
+                                                        FeederRetractPressed="ManualFeederControlView_FeederRetractPressed"
+                                                        FeederOffAirPressed="ManualFeederControlView_FeederOffAirPressed"   
+                                                        FeederPurgePressed="ManualFeederControlView_FeederPurgePressed"
+                                                        FeederVacOnPressed="ManualFeederControlView_FeederVacOnPressed"
+                                                        
+                                                        />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <Grid Grid.Column="1" Grid.Row="1" Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Border BorderBrush="Gray" BorderThickness="0 0 0 2" Margin="3" Grid.Row="0" VerticalAlignment="Top">
+                    <Label Content="Vision 1 Feeder" FontWeight="Bold" FontSize="14"/>
+                </Border>
+                <TextBlock x:Name="txtResult" ScrollViewer.CanContentScroll="True" Grid.Row="2" Background="LightGray" TextWrapping="Wrap"/>
+                <Button x:Name="btnClear" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClear_Click"/>
+            </Grid>
+
+        </Grid>
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
+
+    </Grid>
+</UserControl>

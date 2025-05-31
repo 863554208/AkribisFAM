@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.HardwareControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851">
+
+
+    <Grid Margin="5">
+
+        <!--<TabControl  materialDesign:ColorZoneAssist.Mode="SecondaryLight" 
+    Style="{StaticResource MaterialDesignFilledTabControl}">-->
+            <TabControl  
+  materialDesign:ColorZoneAssist.Background="#181777"
+  materialDesign:ColorZoneAssist.Foreground="White"
+  materialDesign:ColorZoneAssist.Mode="Custom"
+  Style="{StaticResource MaterialDesignFilledTabControl}">
+            <TabItem Header="轴调试" Foreground="Black" >
+                <local:AxisControl/>
+            </TabItem>
+            <TabItem Header="气动调试" >
+                <local:AirControl/>
+            </TabItem>
+            <TabItem Header="相机调试">
+                <local:CameraControl/>
+            </TabItem>
+            <TabItem Header="IO调试" >
+                <local:IOConfigure/>
+            </TabItem>
+            <TabItem Header="Load Cell Calibration">
+            </TabItem>
+            <TabItem Header="流程调试" >
+                <local:ManualControl/>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</UserControl>

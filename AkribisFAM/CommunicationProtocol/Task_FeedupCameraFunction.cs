@@ -45,8 +45,8 @@ namespace AkribisFAM.CommunicationProtocol
                 public string Subareas_count;//子区域个数
                 public string Subareas_Errcode11;//1号穴位错误代码，1为成功
                 public string Data11;//11穴位数据收集,NA无数据收集
-                public string Subareas_Errcode22;//2号穴位错误代码，1为成功
-                public string Data22;//22穴位数据收集,NA无数据收集
+                //public string Subareas_Errcode22;//2号穴位错误代码，1为成功
+                //public string Data22;//22穴位数据收集,NA无数据收集
             }
             //定义Cognex接收追加指令(获取取料坐标)
             public class AcceptGMCommandAppend
@@ -56,6 +56,14 @@ namespace AkribisFAM.CommunicationProtocol
                 public string Pick_X; //取料坐标X
                 public string Pick_Y; //取料坐标Y
                 public string Pick_R; //取料坐标R
+            }
+            public class AcceptGTCommandAppend
+            {
+                public string Subareas_Errcode;//子穴错误代码，1为成功
+
+                public string Unload_X; //放料坐标X
+                public string Unload_Y; //放料坐标Y
+                public string Unload_R; //放料坐标R
             }
             //相机准备状态
             public class TLMCamreaready
@@ -67,8 +75,24 @@ namespace AkribisFAM.CommunicationProtocol
     }
     #endregion
 
-    class Task_FeedupCameraFunction
+    public class Task_FeedupCameraFunction
     {
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
+
+        public static event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public static void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public static event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public static void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public enum FeedupCameraProcessCommand
         {
             TLM,//定位飞达
@@ -81,13 +105,14 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
-                InstructionHeader = $"TLM,Cmd_100,2,";// 模块头+指令编号+拍照次数  
+                InstructionHeader = $"TLM,Cmd_100,4,";// 模块头+指令编号+拍照次数  
                 //组合字符串
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
 
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
                 RecordLog("触发飞达定位: " + sendcommandData);
+                SendMessage(sendcommandData);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -114,6 +139,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
                 RecordLog("触发飞达取料: " + sendcommandData);
+                SendMessage(sendcommandData);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -128,6 +154,12 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
+        public static bool PushcommandFunction(string SendCommand)//(发送字符串到网络Socket)
+        {
+            TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, SendCommand + "\r\n");
+            return true;//需要添加代码修改(发送字符串到网络Socket)
+        }
+
         public static List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand feedupCameraProcessCommand)//飞达拍照与相机交互TLM接收流程
         {
             try
@@ -135,6 +167,7 @@ namespace AkribisFAM.CommunicationProtocol
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到取料坐标: " + VisionAcceptData);
+                ReceiveMessage(VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;
@@ -172,9 +205,11 @@ namespace AkribisFAM.CommunicationProtocol
         {
             try
             {
+                InstructionHeader = $"GM,1,";// 模块头+计算取料坐标个数 
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到取料坐标: " + VisionAcceptData);
+                ReceiveMessage(VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;
@@ -208,7 +243,47 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
+        public static List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend> TriggFeedUpCamreaGTAcceptData()//飞达拍照与相机交互GM接收流程
+        {
+            try
+            {
+                InstructionHeader = $"GT,1,";// 模块头+计算取料坐标个数 
+                string VisionAcceptData = "";
+                bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
+                RecordLog("收到取料坐标: " + VisionAcceptData);
+                ReceiveMessage(VisionAcceptData);
+                if (!VisionAcceptData_status)
+                {
+                    return null;
+                }
 
+                Type camdowntype = typeof(FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend);
+                List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend> list_positions = new List<FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend>();
+
+                List<object> list = new List<object>();
+                //解析字符串
+                bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list, camdowntype);
+                if (!Analysis_status)
+                {
+                    return null;
+                }
+                if (list == null || list.Count == 0)
+                {
+                    return null;
+                }
+                for (int i = 0; i < list.Count; i++)
+                {
+                    list_positions.Add((FeedUpCamrea.Acceptcommand.AcceptGTCommandAppend)list[i]);
+                }
+                return list_positions;
+            }
+            catch (Exception ex)
+            {
+
+                ex.ToString();
+                return null;
+            }
+        }
         public static string TriggFeedUpCamreaready()
         {
             string VisionAcceptData = null;
@@ -216,11 +291,11 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 return null;
             }
-           
+
             Type camdowntype = typeof(FeedUpCamrea.Acceptcommand.TLMCamreaready);
             List<object> list_position = new List<object>();
             //解析字符串
-            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData,list_position, camdowntype);
+            bool Analysis_status = StrClass1.TryParsePacket(InstructionHeader, VisionAcceptData, list_position, camdowntype);
             if (!Analysis_status)
             {
                 return null;
@@ -264,6 +339,9 @@ namespace AkribisFAM.CommunicationProtocol
                 return false;
             }
 
+            VisionAcceptCommand = VisionAcceptCommand.Replace("\r\n", "");
+
+            ReceiveMessage(VisionAcceptCommand);
             //VisionAcceptCommand = "TLM,Cmd_100,2,1,1,2,1,132_133_130_126_999.999,1,133_135_132_128_999.999,1,2,2,1,139_141_136_128_999.999,1,131_133_129_127_999.999";
             return true;//需要添加代码修改(网络Socket读取字符串)
         }
@@ -273,5 +351,6 @@ namespace AkribisFAM.CommunicationProtocol
             TCPNetworkManage.InputLoop(ClientNames.camera1_Feed, VisionSendCommand + "\r\n");
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
+
     }
 }

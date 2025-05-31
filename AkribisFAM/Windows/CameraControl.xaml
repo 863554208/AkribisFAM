@@ -17,13 +17,23 @@
             <Grid Name="CameraGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="8*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="2" CornerRadius="4" Margin="5">
+                <Border Grid.Column="0" BorderBrush="Gray" BorderThickness="2" CornerRadius="4" Margin="5 5 0 5">
                     <Image x:Name="Imageview" />
                 </Border>
 
-                <Grid Grid.Column="1" Name="TeachingPage" Cursor="Hand" >
+                <!-- 拖动条 -->
+                <GridSplitter Grid.Column="1"
+                  Width="3"
+                  Background="#a7c0ec"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  ResizeBehavior="PreviousAndNext"
+                  ShowsPreview="True" Margin="3"/>
+
+                <Grid Grid.Column="2" Name="TeachingPage" Cursor="Hand" >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
 
@@ -33,6 +43,9 @@
                     </Grid.RowDefinitions>
 
                     <TabControl Name="PosTabControl" Grid.Row="1"  FontSize="15"/>
+                    
+                    
+                    
                     <Grid Grid.Row="0" Grid.Column="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -44,7 +57,7 @@
                         <ComboBox Name="CboxNowType"
                           Style="{StaticResource MaterialDesignFilledComboBox}"
                           HorizontalAlignment="Left"
-                          Width="160"
+                          Width="180"
                           VerticalAlignment="Center"
                           Grid.Column="0" >
                         </ComboBox>
@@ -97,8 +110,8 @@
                     <ComboBoxItem Content="Cam 3"/>
                 </ComboBox>
                 <Button x:Name="Capturebtn" Content="Capture" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" VerticalAlignment="Center" Grid.Row="2" Width="98" Click="Capturebtn_Click"/>
-                <Button x:Name="Loadbtn" Content="Load" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" Grid.Row="3" VerticalAlignment="Center" Width="98" Click="Loadbtn_Click"/>
-                <Button x:Name="Savebtn" Content="Save" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" Grid.Row="4" VerticalAlignment="Center" Width="98" Click="Savebtn_Click"/>
+                <Button x:Name="Cam3Calibbtn" Content="Cam3 Calib" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" Grid.Row="3" VerticalAlignment="Center" Width="143" Click="Cam3Calibbtn_Click"/>
+                <Button x:Name="UniversalCalibbtn" Content="Universal Calib" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" Grid.Row="4" VerticalAlignment="Center" Width="143" Click="UniversalCalibbtn_Click"/>
                 <Button x:Name="JointCalib" Content="Joint Calib" HorizontalAlignment="Center" Style="{StaticResource MaterialDesignRaisedButton}" Grid.Row="8" VerticalAlignment="Center" Click="JointCalib_Click"/>
                 <CheckBox
                     Style="{StaticResource MaterialDesignCheckBox}"
@@ -159,6 +172,16 @@
 
                         </Grid>
                     </Grid>
+                </Grid>
+                <Grid Grid.Row="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
                 </Grid>
             </Grid>
         </GroupBox>

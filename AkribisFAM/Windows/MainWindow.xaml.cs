@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +19,9 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
 using static AkribisFAM.Manager.StateManager;
+using static AkribisFAM.GlobalManager;
+using System.Reflection;
+using System.Windows.Media.Media3D;
 using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
@@ -39,7 +43,7 @@ namespace AkribisFAM
         private bool isResetButtonTriggered = false;
 
         MainContent mainContent;
-        ManualControl manualControl;
+        HardwareControl hardwareControl;
         ParameterConfig parameterConfig;
         Performance performance;
         InternetConfig internetConfig;
@@ -53,7 +57,7 @@ namespace AkribisFAM
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
             _timer.Tick += Timer_Tick;
-            
+
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
@@ -73,16 +77,22 @@ namespace AkribisFAM
             StateManager.Current.currentNG = 0;
             //Add By YXW
             mainContent = new MainContent();
-            manualControl = new ManualControl();
+            hardwareControl = new HardwareControl();
             performance = new Performance();
             parameterConfig = new ParameterConfig();
             internetConfig = new InternetConfig();
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
-
+            Logger.WriteLog("MainWindow init");
+            IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 1;
             _timer.Start();
+            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
-           
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            
         }
 
         private void UserManager_UserLoggedIn(object sender, EventArgs e)
@@ -155,6 +165,8 @@ namespace AkribisFAM
 
             if (StateManager.Current.State == StateCode.RUNNING)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -162,8 +174,12 @@ namespace AkribisFAM
                     performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
                 }));
             }
+            else {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 1;
+            }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
                 StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -180,6 +196,7 @@ namespace AkribisFAM
             }
             if (StateManager.Current.State == StateCode.IDLE)
             {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
                 StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -239,10 +256,59 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                BlinkLightFeeder1();
+                BlinkLightFeeder2();
             }));
         }
 
+        private void BlinkLightFeeder1()
+        {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 1)
+            {
+                if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] == 1)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                }
+                else
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                }
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 1)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 0)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+            }
+        }
+
+        private void BlinkLightFeeder2()
+        {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 1)
+            {
+                if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] == 1)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                }
+                else
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                }
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 1)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+            }
+            else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 0)
+            {
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+            }
+        }
+
         private void ConnectState() {
+            TCPNetworkManage.CheckClients();
             if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Feed))  // 检查字典中是否存在这个客户端连接
             {
                 internetConfig.connectState["camera1_Feed"] = TCPNetworkManage.namedClients[ClientNames.camera1_Feed].isConnected;
@@ -360,7 +426,7 @@ namespace AkribisFAM
         private void ManualControlButton_Click(object sender, RoutedEventArgs e)
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
-            ContentDisplay.Content = manualControl; // ManualDebugScreen 是你定义的用户控件或界面
+            ContentDisplay.Content = hardwareControl; // ManualDebugScreen 是你定义的用户控件或界面
         }
 
         private void ParameterConfigButton_Click(object sender, RoutedEventArgs e)
@@ -382,6 +448,146 @@ namespace AkribisFAM
         {
             // 将 ContentControl 显示的内容更改为 "手动调试" 内容
             ContentDisplay.Content = debugLog; // ManualDebugScreen 是你定义的用户控件或界面
+        }
+
+        private int TriggerLaser(int count)
+        {
+            try
+            {
+                List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptKDistanceAppend = new List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend>();
+
+                Thread.Sleep(GlobalManager.Current.LaserHeightDelay);
+
+                if (!Task_KEYENCEDistance.SendMSData()) return (int)ErrorCode.Laser_Failed;
+                //得到测量结果
+                AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData();
+
+                var res = AcceptKDistanceAppend[0].MeasurData;
+
+                Logger.WriteLog("激光测距结果:" + res);
+
+                double height = AkribisFAM.Util.Parser.TryParseTwoValues("="+res);
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog("激光测距报错 : " + ex.ToString());
+                return (int)ErrorCode.Laser_Failed;
+            }
+        }
+        private void TestFeiPai_Click(object sender, RoutedEventArgs e)
+        {
+            var arr1 = new object[] { AxisName.LSX, 150, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+            var arr2 = new object[] { AxisName.LSY, 150, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+
+            int moveToPointX = MoveView.MovePTP(arr1,arr2);
+            Thread.Sleep(300);
+            var arr3 = new object[] { AxisName.LSX };
+            var arr4 = new object[] { AxisName.LSY };
+            int b = MoveView.WaitAxisArrived(arr3,arr4);
+
+
+
+
+
+
+
+
+            // 力控
+
+            //AkrAction.Current.Move(AxisName.PICK2_Z, 20, (int)AxisSpeed.PICK1_Z);
+            ////TODO 改到程序打开的时候执行一次
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
+            //Thread.Sleep(100);
+
+            //pick1的Z轴
+            //// AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[101]=1000", out string response44);
+            //// Thread.Sleep(100);
+            //// AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[102]=5000", out string response123);
+            ////Thread.Sleep(50);
+            //// AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=2", out string response4);
+
+            //pick2的Z轴
+            // AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[201]=2000", out string response4455);
+            //Thread.Sleep(100);
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[202]=5000", out string response22);
+            //Thread.Sleep(50);
+            //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[800]=3", out string response54);
+
+            //while (true)
+            //{
+            //    AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AGenData[203]", out string response);
+            //    if (response.Equals("1"))
+            //    {
+            //        break;
+            //    }
+            //    Thread.Sleep(500);
+            //}
+
+            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK1_Z);
+
+
+            //-------
+
+            //Task_KEYENCEDistance.SendResetData();
+            ////var a = Task_KEYENCEDistance.AcceptMSData()[0];
+
+            //int count = 0;
+            //foreach (var point in GlobalManager.Current.laserPoints)
+            //{
+            //    if (count % 4 == 0)
+            //    {
+            //        var arr1 = new object[] { AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+            //        var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+
+            //        int moveToPoint = MoveView.MovePTP(arr1,arr2);
+            //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX , AxisName.LSY });
+
+            //        //AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+            //        //Thread.Sleep(20);
+            //        //Logger.WriteLog("111111aaaa");
+            //        //AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
+            //        int laserProc = TriggerLaser(count);
+
+            //        count++;
+            //    }
+            //    if (count % 4 == 1)
+            //    {
+            //        var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+            //        var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+
+            //        int moveToPoint = MoveView.MovePTP(arr1);
+            //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX});
+            //        TriggerLaser(count);
+
+            //        count++;
+            //    }
+            //    if (count % 4 == 2)
+            //    {
+            //        var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+            //        var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+
+            //        MoveView.MovePTP(arr1);
+            //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX });
+            //        TriggerLaser(count);
+
+            //        count++;
+            //    }
+            //    if (count % 4 == 3)
+            //    {
+            //        var arr1 = new object[] { AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+            //        var arr2 = new object[] { AxisName.LSY, (int)point.Y, GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
+
+            //        MoveView.MovePTP(arr1);
+            //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX });
+            //        TriggerLaser(count);
+
+            //        count++;
+            //    }
+            //    Thread.Sleep(1000000);
+
+            //}
         }
 
 
@@ -586,6 +792,8 @@ namespace AkribisFAM
             bool resetResult = await Task.Run(() => AutorunManager.Current.Reset());
             if (!resetResult)
             {
+                AkrAction.Current.StopAllAxis();
+                AkrAction.Current.axisAllEnable(false);
                 Dispatcher.Invoke(() =>
                 {
                     MessageBox.Show("复位失败");
@@ -599,43 +807,16 @@ namespace AkribisFAM
                     MessageBox.Show("复位成功");
                 });
                 AutorunManager.Current.hasReseted = true;
+                GlobalManager.Current.Lailiao_exit = false;
+                GlobalManager.Current.Zuzhuang_exit = false;
+                GlobalManager.Current.FuJian_exit = false;
+                GlobalManager.Current.Reject_exit = false;
+                GlobalManager.Current.current_Lailiao_step = 0;
+                GlobalManager.Current.current_Zuzhuang_step = 0;
+                GlobalManager.Current.current_FuJian_step = 0;
+                GlobalManager.Current.current_Reject_step = 0;
+                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 0;
             }
-        }
-
-
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
-        {
-            GlobalManager.Current.current_Lailiao_step = 0;
-            GlobalManager.Current.current_Zuzhuang_step = 0;
-            GlobalManager.Current.current_FuJian_step = 0;
-            LaiLiao.Current.board_count = 0;
-            //ZuZhuang.Current.has_board = false;
-            //FuJian.Current.has_board = false;
-            GlobalManager.Current.Lailiao_exit = false;
-            GlobalManager.Current.Zuzhuang_exit = false;
-            GlobalManager.Current.FuJian_exit = false;
-            AutorunManager.Current.hasReseted = true;
-            //button.PromptCount += 1;
-
-            //20250512
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.A);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.A, -1000000);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.A).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            //AAMotionAPI.MotorOn(GlobalManager.Current._Agm800.controller, AxisRef.B);
-            //AAMotionAPI.MoveAbs(GlobalManager.Current._Agm800.controller, AxisRef.B, 0);
-            //while (GlobalManager.Current._Agm800.controller.GetAxis(AxisRef.B).InTargetStat != 4)
-            //{
-            //    Thread.Sleep(50);
-            //}
-
-            //20250512
-
-
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

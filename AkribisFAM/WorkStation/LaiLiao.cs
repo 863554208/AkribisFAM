@@ -18,6 +18,7 @@ using System.CodeDom;
 using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
 using Microsoft.SqlServer.Server;
 using AkribisFAM.Util;
+using System.Windows;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -65,6 +66,16 @@ namespace AkribisFAM.WorkStation
             throw new NotImplementedException();
         }
 
+        public static void Get(string propertyName)
+        {
+            var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
+
+            if (propertyInfo != null && propertyInfo.CanWrite)
+            {
+                propertyInfo.GetValue(GlobalManager.Current);
+            }
+        }
+
         public static void Set(string propertyName, object value)
         {
             var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
@@ -78,6 +89,23 @@ namespace AkribisFAM.WorkStation
         public override bool Ready()
         {
             return true;
+        }
+
+        public int CheckState(int state)
+        {
+            if (GlobalManager.Current.Lailiao_exit) return 0;
+            if (state == 0)
+            {
+                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 0;
+            }
+            else
+            { 
+                GlobalManager.Current.Lailiao_state[GlobalManager.Current.current_Lailiao_step] = 1;
+                ShowWarningMessage(state);
+            }
+            GlobalManager.Current.Lailiao_CheckState();
+            WarningManager.Current.WaitLaiLiao();
+            return 0;
         }
 
         public bool ReadIO(IO_INFunction_Table index)
@@ -102,57 +130,228 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus( index , value);
         }
 
+        private int AddToLaserList(double height , int count)
+        {
+            try
+            {
+                int row = count / GlobalManager.Current.laser_point_length;
+                int col = count % GlobalManager.Current.laser_point_length;
+                GlobalManager.Current.laser_data[row][col] = height;
+                return (int)ErrorCode.NoError;
+            }
+            catch (Exception ex)
+            {
+                return (int)ErrorCode.Laser_Failed;
+            }
+        }
+
+        private int TriggerLaser(int count)
+        {
+            try
+            {
+                Thread.Sleep(GlobalManager.Current.LaserHeightDelay);
+
+                if (!Task_KEYENCEDistance.SendMSData()) return (int)ErrorCode.Laser_Failed;
+                //得到测量结果
+                AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData();
+
+                var res = AcceptKDistanceAppend[0].MeasurData;    
+                
+                Logger.WriteLog("激光测距结果:" + res);
+
+                double height = AkribisFAM.Util.Parser.TryParseTwoValues("="+res);
+
+                return AddToLaserList(height, count);
+            }
+            catch (Exception ex) 
+            {
+                Logger.WriteLog("激光测距报错 : " + ex.ToString());
+                return (int)ErrorCode.Laser_Failed;
+            }
+        }
+
+        private int WaitFor_X_AxesArrival()
+        {
+            return MoveView.WaitAxisArrived(new object[] { AxisName.LSX});
+        }
+
+        private int WaitFor_Y_AxesArrival()
+        {
+            return MoveView.WaitAxisArrived(new object[] { AxisName.LSY });
+        }
+
         public int ScanBarcode()
         {
-            GlobalManager.Current.IsByPass = false;
-            //触发扫码枪扫码
+            var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
-            //GlobalManager.Current.IsByPass = true;
-            return 0;
+            if (error == ErrorCode.BarocdeScan_Failed)
+            {
+                return (int)ErrorCode.BarocdeScan_Failed;
+            }
+
+            Logger.WriteLog($"Readout scanner : {barcode} ");
+            GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
+
+            //global switch for using mes system
+            if (GlobalManager.Current.IsUseMES)
+            {
+                // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
+            }
+            else
+            {
+                GlobalManager.Current.IsByPass = false;
+            }
+
+            return (int)ErrorCode.NoError;
         }
 
         public int LaserHeight()
         {
-            GlobalManager.Current.laserPoints.Clear();
-            //激光测距
-            if (GlobalManager.Current.stationPoints.LaiLiaoPointList == null)
-            {
-                Console.WriteLine("没有激光测距点位文件");
-                return 1;
-            }
-            foreach (var point in GlobalManager.Current.stationPoints.LaiLiaoPointList)
-            {
-                if(point.type == 0)
-                {
-                    GlobalManager.Current.laserPoints.Add((point.X,point.Y));
-                }
-            }
-            if(GlobalManager.Current.laserPoints.Count == 0)
-            {
-                Console.WriteLine("激光测距点位为空");
-                return 1;
-            }
+
+            int count=0;
             foreach (var point in GlobalManager.Current.laserPoints)
             {
-                AkrAction.Current.MoveNoWait(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX ,(int)AxisAcc.LSX);
-                AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
-                //触发测距
-                //sendKDistanceAppend.Clear();
-                //KEYENCEDistance.Pushcommand.SendKDistanceAppend temp = new KEYENCEDistance.Pushcommand.SendKDistanceAppend()
-                //{
-                //    TestNumber = "1",
-                //    address = "0",
-                //};
-                //sendKDistanceAppend.Add(temp);
-                //string temp = "1,0";
-                //Task_KEYENCEDistance.SendMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS, "1,0");
+                if (count % 4 == 0) 
+                {
+                    //var arr1 = new object[] { AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
+                    //var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-                ////得到测量结果
-                //AcceptKDistanceAppend = Task_KEYENCEDistance.AcceptMSData(Task_KEYENCEDistance.KEYENCEDistanceProcessCommand.MS);
-                //var res = AcceptKDistanceAppend[0].MeasurData;
-                //GlobalManager.Current.currentLasered++;
 
-                Thread.Sleep(300);
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
+
+                    if(y_move != 0) return y_move;
+                    CheckState(y_move);
+
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
+
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
+
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
+
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
+                    count++;
+                }
+                if (count % 4 == 1) 
+                {
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
+
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
+
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
+
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
+
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
+
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
+
+                    count++;
+                }
+                if (count %4 == 2)
+                {
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
+
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
+
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
+
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
+
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
+
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
+
+                    count++;
+                }
+                if (count % 4 == 3)
+                {
+                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
+                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+
+                    if (x_move != 0) return x_move;
+                    CheckState(x_move);
+
+                    if (y_move != 0) return y_move;
+                    CheckState(y_move);
+
+                    //int moveToPointX = MoveView.MovePTP(arr1);
+                    //int moveToPointY = MoveView.MovePTP(arr2);
+
+                    //if ((int)moveToPointX > 0x1000) return moveToPointX;
+                    //CheckState(moveToPointX);
+
+                    //if ((int)moveToPointY > 0x1000) return moveToPointY;
+                    //CheckState(moveToPointY);
+
+                    //int waitPointX = WaitFor_X_AxesArrival();
+                    //if((int)waitPointX > 0x1000) return waitPointX;
+                    //CheckState(waitPointX);
+
+                    //int waitPointY = WaitFor_Y_AxesArrival();
+                    //if ((int)waitPointY > 0x1000) return waitPointY;
+                    //CheckState(waitPointY);
+
+                    int laserProc = TriggerLaser(count);
+                    if ((int)laserProc >= 0x1000) return laserProc;
+                    CheckState(laserProc);
+
+                    count++;
+                }
+
+                Thread.Sleep(100);
             }
 
             return 0;
@@ -168,36 +367,57 @@ namespace AkribisFAM.WorkStation
             AkrAction.Current.StopConveyor();
         }
 
+        private int[] signalval = new int[10];
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
             DateTime time = DateTime.Now;
             bool ret = false;
+            int cnt = 0;
+            for (int i = 0; i < signalval.Length; i++)
+            {
+                signalval[i] = 0;
+            }
             while ((DateTime.Now - time).TotalMilliseconds < delta)
             {
+                int validx = 0;
+                if (cnt < 10)
+                {
+                    validx = cnt;
+                }
+                else {
+                    validx = cnt%10;
+                }
                 if (ReadIO(index) == value)
                 {
+                    signalval[validx] = 1;
+                }
+                else
+                {
+                    signalval[validx] = 0;
+                }
+                cnt++;
+                if (signalval.Sum() >= 8) { 
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(1);
             }
 
             return ret;
         }
 
-        public void WaitConveyor(int type)
+        public int WaitConveyor(int type)
         {
-            DateTime time = DateTime.Now;
-            bool ret = false;
             switch (type)
             {
                 case 2: 
-                    while (ScanBarcode() == 1);
-                    break;
+                    return ScanBarcode();
 
                 case 3:
-                    while(LaserHeight() ==1); 
-                    break;
+                    return LaserHeight();
+
+                default:
+                    return (int)ErrorCode.ProcessErr;
             }
         }
 
@@ -355,54 +575,91 @@ namespace AkribisFAM.WorkStation
         }
 
         public bool Step1()
-        {            
+        {
             //Debug.WriteLine("LaiLiao.Current.Step1()");
 
             //进板
             //if (!BoradIn())
             //    return false;
+            Logger.WriteLog("测距工站等待进板");
+
             while (GlobalManager.Current.flag_RangeFindingTrayArrived != 1)
             {
                 Thread.Sleep(300);
             }
+
+            Logger.WriteLog("测距工站进板完成");
             GlobalManager.Current.flag_RangeFindingTrayArrived = 0;
             GlobalManager.Current.currentLasered = 0;
 
-            Thread.Sleep(500);
-
-            CheckState();
+            Thread.Sleep(300);
 
             GlobalManager.Current.current_Lailiao_step = 1;
+            Logger.WriteLog("测距工站进板Checkstate开始");
+            CheckState();
+            Logger.WriteLog("测距工站进板Checkstate完成");
 
             return true;
         }
 
-        public bool Step2()
+        public int Step2()
         {
             Console.WriteLine("LaiLiao.Current.Step2()");
 
             GlobalManager.Current.current_Lailiao_step = 2;
 
             //扫码
-            WaitConveyor(GlobalManager.Current.current_Lailiao_step);
-
+            Logger.WriteLog("测距工站扫码开始");
+            int ret = WaitConveyor(GlobalManager.Current.current_Lailiao_step);
+            Logger.WriteLog("测距工站扫码结束");
+            Logger.WriteLog("测距工站扫码Checkstate开始");
             CheckState();
-
-            return true;
+            Logger.WriteLog("测距工站扫码Checkstate结束");
+            return ret;
         }
 
-        public bool Step3()
+        public int Step3()
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
 
             GlobalManager.Current.current_Lailiao_step = 3;
 
             //激光测距
-            WaitConveyor(GlobalManager.Current.current_Lailiao_step);
-
+            Logger.WriteLog("测距工站测距开始");
+            int ret = WaitConveyor(GlobalManager.Current.current_Lailiao_step);
+            Logger.WriteLog("测距工站测距结束");
+            Logger.WriteLog("测距工站测距Checkstate开始");
             CheckState();
+            Logger.WriteLog("测距工站测距Checkstate结束");
+            return ret;
+        }
 
-            return true;
+        private void ShowErrorMessage(int error)
+        {
+            string errorName = Enum.IsDefined(typeof(ErrorCode), error)
+                                ? Enum.GetName(typeof(ErrorCode), error)
+                                : "未知错误";
+
+            // 弹出错误提示框
+            System.Windows.MessageBox.Show(
+                $"测距工位发生致命错误：{errorName}\n 错误代码: {error}\n 即将退出该工站的运行流程",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        private void ShowWarningMessage(int error)
+        {
+            string errorName = Enum.IsDefined(typeof(ErrorCode), error)
+                                ? Enum.GetName(typeof(ErrorCode), error)
+                                : "未知错误";
+
+            // 弹出错误提示框
+            System.Windows.MessageBox.Show(
+                $"测距工位发生报警：{errorName}\n 报警代码: {error}\n 请检查后按Resume后恢复运行",
+                "Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
         }
 
         public override void AutoRun(CancellationToken token)
@@ -421,13 +678,25 @@ namespace AkribisFAM.WorkStation
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (!ret) continue;
 
-                    step2: Step2();
+                    step2: 
+                        int ret2 = Step2();
+                        if (ret2 != 0)
+                        {
+                            ShowErrorMessage(ret2);
+                            break;
+                        }
                         if (GlobalManager.Current.Lailiao_exit) break;
                         if (GlobalManager.Current.IsByPass) goto step4;
 
-                    step3: Step3();
+                    step3: 
+                        int ret3 = Step3();
+                        if(ret3 != 0)
+                        {
+                            ShowErrorMessage(ret3);
+                            break;
+                        }
                         if (GlobalManager.Current.Lailiao_exit) break;
-                        //if (GlobalManager.Current.currentLasered < GlobalManager.Current.TotalLaserCount)
+
                     //出板
                     step4:
                         Boardout();

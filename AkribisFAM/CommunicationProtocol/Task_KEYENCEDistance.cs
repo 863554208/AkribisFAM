@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using static AkribisFAM.CommunicationProtocol.AssUpCamrea.Pushcommand;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Pushcommand;
 
 namespace AkribisFAM.CommunicationProtocol
 {
     #region//基恩士测距
-    class KEYENCEDistance
+    public class KEYENCEDistance
     {
         #region//发送的指令
         public class Pushcommand
@@ -42,8 +36,24 @@ namespace AkribisFAM.CommunicationProtocol
     #endregion
 
 
-    class Task_KEYENCEDistance
+   public class Task_KEYENCEDistance
     {
+        public delegate void OnCameraMessageSentEventHandler(object sender, string message);
+
+        public static event OnCameraMessageSentEventHandler OnMessageSent;
+
+        public static void SendMessage(string msg)
+        {
+            OnMessageSent.Invoke(null, msg);
+        }
+        public delegate void OnCameraMessageReceiveEventHandler(object sender, string message);
+
+        public static event OnCameraMessageReceiveEventHandler OnMessageReceive;
+
+        public static void ReceiveMessage(string msg)
+        {
+            OnMessageReceive.Invoke(null, msg);
+        }
         public enum KEYENCEDistanceProcessCommand
         {
             MS,//定位载具
@@ -52,17 +62,20 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool SendMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand,string sendmsdata) //来料与基恩士测距交互MS自动触发流程
+        public static bool SendMSData() //来料与基恩士测距交互MS自动触发流程
         {
             try
             {
                 InstructionHeader = $"MS,";
                  //MS,0,1\n
                 //组合字符串
-                string sendcommandData = $"{InstructionHeader}{sendmsdata}";
+                //string sendcommandData = $"{InstructionHeader}{sendmsdata}";
+                string sendcommand = "MS,0,1";
+                string endSymbol = "\r";
+                string all = sendcommand + endSymbol;
                 //发送字符串到Socket
-                bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                RecordLog("激光测距: " + sendcommandData);
+                bool sendcommand_status = VisionpositionPushcommand2(all);
+                RecordLog("激光测距: " + sendcommand);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -78,13 +91,43 @@ namespace AkribisFAM.CommunicationProtocol
             }
         }
 
-        public static List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptMSData(KEYENCEDistanceProcessCommand kEYENCEDistanceProcessCommand)//来料与基恩士测距交互MS自动接收流程
+        public static bool SendResetData() //来料与基恩士测距交互MS自动触发流程
+        {
+            try
+            {
+                //MS,0,1\n
+                //组合字符串
+                //string sendcommandData = $"{InstructionHeader}{sendmsdata}";
+                string sendcommand = "RA";
+                string endSymbol = "\r";
+                string all = sendcommand + endSymbol;
+                //发送字符串到Socket
+                bool sendcommand_status = VisionpositionPushcommand2(all);
+                RecordLog("复位结果: " + sendcommand);
+                if (!sendcommand_status)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ex.ToString();
+                //bool sendcommand_status = this.VisionpositionfeedPushcommand("信息报错:"+ex.ToString());
+                return false;
+            }
+        }
+
+
+        public static List<KEYENCEDistance.Acceptcommand.AcceptKDistanceAppend> AcceptMSData()//来料与基恩士测距交互MS自动接收流程
         {
             try
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
                 RecordLog("收到测高数据: " + VisionAcceptData);
+                ReceiveMessage(VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;
@@ -154,6 +197,14 @@ namespace AkribisFAM.CommunicationProtocol
         private static bool VisionpositionPushcommand(string VisionSendCommand)//(发送字符串到网络Socket)
         {
             TCPNetworkManage.InputLoop(ClientNames.lazer, VisionSendCommand + "\n");
+            return true;//需要添加代码修改(发送字符串到网络Socket)
+        }
+
+        private static bool VisionpositionPushcommand2(string VisionSendCommand)//(发送字符串到网络Socket)
+        {
+            TCPNetworkManage.InputLoop(ClientNames.lazer, VisionSendCommand);
+
+            SendMessage(VisionSendCommand);
             return true;//需要添加代码修改(发送字符串到网络Socket)
         }
     }

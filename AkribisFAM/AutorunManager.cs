@@ -16,6 +16,8 @@ using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using AkribisFAM.NewStation;
 using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 using static AkribisFAM.GlobalManager;
+using AkribisFAM.Util;
+using AkribisFAM.Windows;
 
 namespace AkribisFAM
 {
@@ -45,7 +47,6 @@ namespace AkribisFAM
             hasReseted = false;
         }
 
-        Worker _loopWorker;
 
 
         public static bool CheckTaskReady()
@@ -59,6 +60,57 @@ namespace AkribisFAM
             return true;
         }
 
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            if (IOManager.Instance.INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (IOManager.Instance.INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                return false;
+            }
+        }
+
+        public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
+        {
+            DateTime time = DateTime.Now;
+            bool ret = false;
+            while ((DateTime.Now - time).TotalMilliseconds < delta)
+            {
+                if (ReadIO(index) == value)
+                {
+                    ret = true;
+                    break;
+                }
+                Thread.Sleep(1);
+            }
+
+            return ret;
+        }
+
+        public void Clear()
+        {
+
+            GlobalManager.Current.laserPoints.Clear();
+            GlobalManager.Current.feedar1Points.Clear();
+            GlobalManager.Current.feedar2Points.Clear();
+            GlobalManager.Current.pickFoam1Points.Clear();
+            GlobalManager.Current.pickFoam2Points.Clear();
+            GlobalManager.Current.lowerCCDPoints.Clear();
+            GlobalManager.Current.dropBadFoamPoints.Clear();
+            GlobalManager.Current.snapPalletePoints.Clear();
+            GlobalManager.Current.placeFoamPoints.Clear();
+            GlobalManager.Current.recheckPoints.Clear();
+            GlobalManager.Current.tearingPoints.Clear();
+
+            //GlobalManager.Current.BarcodeQueue.Clear();
+        }
         public async void AutoRunMain(CancellationToken token)
         {
             if (!CheckTaskReady())
@@ -77,15 +129,20 @@ namespace AkribisFAM
             {
                 Trace.WriteLine("Autorun Process");
 
+                Clear();
+                ParameterConfig.LoadPoints();
+                //打开力控
+                //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
+                Thread.Sleep(100);
                 try
                 {
                         
                     List<Task> tasks = new List<Task>();
 
-                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current ,token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
 
                     await Task.WhenAll(tasks);
@@ -146,6 +203,7 @@ namespace AkribisFAM
             GlobalManager.Current.Lailiao_exit = true;
             GlobalManager.Current.Zuzhuang_exit = true;
             GlobalManager.Current.FuJian_exit = true;
+            GlobalManager.Current.Reject_exit = true;
             isRunning = false;
             hasReseted = false;
             GlobalManager.Current.IO_test1 = false;
@@ -240,36 +298,66 @@ namespace AkribisFAM
             //GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
         }
 
+
         public bool Reset()
         {
+
             //20250519 测试 【史彦洋】 追加 Start
-            //Thread.Sleep(5000);
+            //CylinderDown();
+            //Conveyor.Current.AllWorkStopCylinderAct(1, 0);
             //return true;
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
-            Thread.Sleep(500);
-            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
+
+            //飞达复位
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
+
+            //需要这两个信号都是0，代表电机可以复位，安全门也可以复位
+            if (!WaitIO(3000, IO_INFunction_Table.IN5_14SSR1_OK_emergency_stop, false) && !WaitIO(3000, IO_INFunction_Table.IN5_15SSR2_OK_LOCK, false))
+            {
+                return false;
+            }
+
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(300);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+
+            //AkrAction.Current.axisAllZAxisEnable(true);
+            Thread.Sleep(200);
+
+
+            //先对Z轴hardstop回零
+            //AkrAction.Current.axisAllZHome_HardStop();
+            //if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+            Thread.Sleep(300);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
             //复位气缸和吸嘴IO
             CylinderDown();
 
             //轴使能
             AkrAction.Current.axisAllEnable(true);
 
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
+            Thread.Sleep(300);
             //轴回原点
-            AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
-            AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            AkrAction.Current.WaitAxisAll();
+            AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            //AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
+
+            if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
 
             //把旋转轴的当前位置作为0位置
             AkrAction.Current.SetZeroAll();
 
-            //看每个工位里有没有板has_board信号 ，有板的话就转皮带 ，没有板的话不转皮带
-            LaiLiao.Current.board_count = 1;
 
-
-            if (LaiLiao.Current.board_count!=0 || ZuZhuang.Current.board_count!=0 || FuJian.Current.board_count!=0 || Reject.Current.board_count != 0)
+            if (LaiLiao.Current.board_count != 0 || ZuZhuang.Current.board_count != 0 || FuJian.Current.board_count != 0 || Reject.Current.board_count != 0)
             {
                 AkrAction.Current.MoveConveyor(100);
                 Thread.Sleep(3000);
@@ -278,21 +366,20 @@ namespace AkribisFAM
             //传送带停止
             AkrAction.Current.StopConveyor();
 
-            //飞达复位
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_10initialize_feeder1, 1);
-
 
             //激光测距复位(tcp)
+            //Task_KEYENCEDistance.SendResetData();
+            //var a = Task_KEYENCEDistance.AcceptMSData()[0];
 
             //相机复位(tcp)
-            sendSetStatCamreapositionList.Clear();
-            SendSetStatCamreaposition command = new SendSetStatCamreaposition
-            {
-                AE_Station = "123",
-                ProjectName ="project",
-            };
-            sendSetStatCamreapositionList.Add(command);
-            Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
+            //sendSetStatCamreapositionList.Clear();
+            //SendSetStatCamreaposition command = new SendSetStatCamreaposition
+            //{
+            //    AE_Station = "123",
+            //    ProjectName ="project",
+            //};
+            //sendSetStatCamreapositionList.Add(command);
+            //Task_ResetCamreaFunction.TriggResetCamreaSendData(Task_ResetCamreaFunction.ResetCamreaProcessCommand.SetStation , sendSetStatCamreapositionList);
 
             //程序状态为置0
             GlobalManager.Current.current_Lailiao_step = 0;
@@ -307,6 +394,7 @@ namespace AkribisFAM
             GlobalManager.Current.Lailiao_exit = false;
             GlobalManager.Current.Zuzhuang_exit = false;
             GlobalManager.Current.FuJian_exit = false;
+            GlobalManager.Current.Reject_exit = false;
 
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
@@ -319,9 +407,14 @@ namespace AkribisFAM
             Thread.Sleep(500);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
+            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
-
-
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+            //让飞达送料
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_9Run_feeder1, 1);
 
 
             return true;

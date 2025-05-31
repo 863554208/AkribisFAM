@@ -50,6 +50,18 @@ namespace AkribisFAM
         public double R { get; set; }
 
         [DataMember]
+        public double spacingX { get; set; }
+
+        [DataMember]
+        public double spacingY { get; set; }
+
+        [DataMember]
+        public double offer10{ get; set; }
+
+        [DataMember]
+        public double offer11 { get; set; }
+
+        [DataMember]
         public List<int> axisMap { get; set; }
 
         [DataMember]
@@ -58,6 +70,8 @@ namespace AkribisFAM
     }
 
     [DataContract]
+
+
     public class ChildPoint
     {
         [DataMember]
@@ -111,6 +125,13 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
+        public Queue<string> BarcodeQueue = new Queue<string>();
+        public bool IsUseMES = false;
+
+        //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
+        public int LaserHeightDelay = 50;
+
+        public double[][] laser_data;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -135,6 +156,29 @@ namespace AkribisFAM
         public int flag_RecheckStationRequestOutflowTray;
         public int flag_Bypass;
 
+        public int laserpoint1_shift_X = 20;
+        public int laserpoint1_shift_Y = 0;
+        public int laserpoint2_shift_X = 20;
+        public int laserpoint2_shift_Y = 20;
+        public int laserpoint3_shift_X = 0;
+        public int laserpoint3_shift_Y = 20;
+
+        //参数界面
+        public int NozzleGap_X = 20;
+        public int PalleteGap_X = 50;
+        public int PalleteGap_Y = 40;
+        public int TotalRow = 3;
+        public int TotalColumn = 4;
+
+        public SinglePoint RecheckRecylePos = new SinglePoint();
+        public SinglePoint SafeZPos = new SinglePoint();
+        public SinglePoint StartPoint = new SinglePoint();
+        public double TearX = 0;
+        public double TearY = 0;
+        public double TearZ = 0;
+        public double TearXvel = 0;
+        public double TearYvel = 0;
+        public double TearZvel = 0;
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -185,18 +229,45 @@ namespace AkribisFAM
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+        public bool UseFeedar1 = true;
+        public bool UseFeedar2 = false;
+
+        public int NGTrayDelaytime = 1000;
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints = new List<(double X, double Y)>();
+        public List<SinglePoint> laserPoints = new List<SinglePoint>();
 
-        public List<(double X, double Y)> feedarPoints = new List<(double X, double Y)>();
+        public List<SinglePoint> pickerZPickPoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerZCam2Points = new List<SinglePoint>();
+        public List<SinglePoint> pickerZSafePoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerLoadCellPoints = new List<SinglePoint>();
 
-        public List<(double X, double Y)> palletePoints = new List<(double X, double Y)>();
+        public List<SinglePoint> feedar1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> feedar2Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
+
+        public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> dropBadFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> snapPalletePoints = new List<SinglePoint>();
+
+        public List<SinglePoint> placeFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> recheckPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> tearingPoints = new List<SinglePoint>();
+
 
         public int TotalLaserCount = 48;
 
         public StationPoints stationPoints;
+
 
         public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
@@ -227,7 +298,9 @@ namespace AkribisFAM
         public int BadFoamCount { get; set; }
 
         //总共需要安装的穴位总数
-        public int total_Assemble_Count { get; set; }
+        public int total_Assemble_Count = 12;
+
+        public int laser_point_length = 4;
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
         public bool lailiao_SaoMa { get; set; }
@@ -256,10 +329,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 5;
-        const int Zuzhuang_stepnum = 5;
-        const int FuJian_stepnum = 4;
-        const int Reject_stepnum = 3;
+        const int Lailiao_stepnum = 10;
+        const int Zuzhuang_stepnum = 10;
+        const int FuJian_stepnum = 10;
+        const int Reject_stepnum = 10;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
@@ -322,6 +395,15 @@ namespace AkribisFAM
                     _current = new GlobalManager();
                 }
                 return _current;
+            }
+        }
+
+        private void InitializeLaserData()
+        {
+            laser_data = new double[total_Assemble_Count][];
+            for (int i = 0; i < TotalRow; i++)
+            {
+                laser_data[i] = new double[laser_point_length];
             }
         }
 
@@ -393,9 +475,8 @@ namespace AkribisFAM
 
             //StartErrorMonitor();
 
+            InitializeLaserData();
 
-            IsAInTarget = false;
-            IsBInTarget = false;
             IsPause = false;
 
         }
@@ -455,11 +536,15 @@ namespace AkribisFAM
         public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == value)
+            int val = 0;
+            if (value == 0) {
+                val = 1;
+            }
+            while (IOManager.Instance.INIO_status[(int)pos] == val)
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
-                if (FeederRetry_Count > 10)
+                if (FeederRetry_Count > 100)
                 {
                     return false;
                 }
@@ -820,13 +905,46 @@ namespace AkribisFAM
         }
         public enum AxisSpeed
         {
+            ////AGM800[0]
+            //LSX = 100,
+            //LSY = 100,
+            //FSX = 50,
+            //FSY = 50,
+            //BL5 = 100,
+            //BR5 = 100,
+
+            ////AGM800[1]
+            //BL1 = 100,
+            //BL2 = 100,
+            //BL3 = 100,
+            //BL4 = 100,
+            //BR1 = 100,
+            //BR2 = 100,
+            //BR3 = 100,
+            //BR4 = 100,
+
+            ////AGM800[2]
+            //PICK1_Z = 20,
+            //PICK1_T = 90,
+            //PICK2_Z = 20,
+            //PICK2_T = 90,
+            //PICK3_Z = 20,
+            //PICK3_T = 90,
+            //PICK4_Z = 20,
+            //PICK4_T = 90,
+
+            ////AGM800[3]
+            //PRX = 200,
+            //PRY = 200,
+            //PRZ = 30,
+
             //AGM800[0]
             LSX = 50,
             LSY = 50,
             FSX = 50,
             FSY = 50,
-            BL5 = 100,
-            BR5 = 100,
+            BL5 = 50,
+            BR5 = 50,
 
             //AGM800[1]
             BL1 = 100,
@@ -839,39 +957,40 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 10,
-            PICK1_T = 10,
-            PICK2_Z = 10,
-            PICK2_T = 10,
-            PICK3_Z = 10,
-            PICK3_T = 10,
-            PICK4_Z = 10,
-            PICK4_T = 10,
+            PICK1_Z = 20,
+            PICK1_T = 90,
+            PICK2_Z = 20,
+            PICK2_T = 90,
+            PICK3_Z = 20,
+            PICK3_T = 90,
+            PICK4_Z = 20,
+            PICK4_T = 90,
 
             //AGM800[3]
             PRX = 50,
             PRY = 50,
-            PRZ = 2,
+            PRZ = 10,
+
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 500,
-            LSY = 500,
+            LSX = 1000,
+            LSY = 1000,
             FSX = 500,
             FSY = 500,
             BL5 = 500,
             BR5 = 500,
 
             //AGM800[1]
-            BL1 = 500,
-            BL2 = 500,
-            BL3 = 500,
-            BL4 = 500,
-            BR1 = 500,
-            BR2 = 500,
-            BR3 = 500,
-            BR4 = 500,
+            BL1 = 800,
+            BL2 = 800,
+            BL3 = 800,
+            BL4 = 800,
+            BR1 = 800,
+            BR2 = 800,
+            BR3 = 800,
+            BR4 = 800,
 
             //AGM800[2]
             PICK1_Z = 50,
@@ -884,13 +1003,25 @@ namespace AkribisFAM
             PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 500,
-            PRY = 500,
-            PRZ = 10,
+            PRX = 2000,
+            PRY = 2000,
+            PRZ = 300,
         }
 
         //轴参数
         public AxisParams axisparams = new AxisParams();
 
     }
+}
+[DataContract]
+public class SinglePoint
+{
+    [DataMember]
+    public double X { get; set; }
+    [DataMember]
+    public double Y { get; set; }
+    [DataMember]
+    public double Z { get; set; }
+    [DataMember]
+    public double R { get; set; }
 }
