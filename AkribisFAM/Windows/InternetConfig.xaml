@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1200">
-    <Grid x:Name="Networkgrid" Background="#FF75CCB1">
+    <Grid x:Name="Networkgrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="13*"/>
             <RowDefinition Height="13*"/>
