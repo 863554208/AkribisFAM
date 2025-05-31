@@ -9,15 +9,24 @@
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid>
-            <TextBox Name="UsernameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" TextAlignment="Left" VerticalContentAlignment="Center" TextChanged="UsernameTextBox_TextChanged"/>
-            <PasswordBox Name="PasswordBox" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="30" Margin="0,248,0,0"  VerticalContentAlignment="Center"/>
-            <Button Content="Login" HorizontalAlignment="Center" VerticalAlignment="Top" Width="100" Height="30" Margin="0,341,0,0" Click="LoginButton_Click"/>
-            <Label Content="User" HorizontalAlignment="Left" Margin="241,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.831,-0.013"/>
-            <Label Content="Password" HorizontalAlignment="Left" Margin="230,253,0,0" VerticalAlignment="Top"/>
-            <Label Content="用户登录" HorizontalAlignment="Center" Margin="0,105,0,0" VerticalAlignment="Top"/>
-            <Label Content="2025-4-21 16：26：51" HorizontalAlignment="Left" Margin="620,25,0,0" VerticalAlignment="Top" Height="27" Width="141"/>
-            <Label Content="用户身份" HorizontalAlignment="Left" Margin="230,149,0,0" VerticalAlignment="Top"/>
-            <TextBox HorizontalAlignment="Center" Margin="0,149,0,0" Text="Engineer" VerticalAlignment="Top" Height="25" Width="200" Background="LightGray" VerticalContentAlignment="Center"/>
+            <Border BorderBrush="Black" BorderThickness="0" Width="400" Height="200">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+                    <Label Content="Login" HorizontalAlignment="Center" VerticalAlignment="Center" Height="50"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                        <Label Content="User Identity" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                        <TextBox HorizontalAlignment="Center" Text="Engineer" VerticalAlignment="Center" Height="25" Width="200" Background="LightGray" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                        <Label Content="User" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                        <TextBox Name="UsernameTextBox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="30" TextAlignment="Left" VerticalContentAlignment="Center" TextChanged="UsernameTextBox_TextChanged"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch">
+                        <Label Content="Password" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"/>
+                        <PasswordBox Name="PasswordBox" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="30" VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                    <Button Content="Login" Width="100" Height="30" Click="LoginButton_Click" Margin="0,20,0,0"/>
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>

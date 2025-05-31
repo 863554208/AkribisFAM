@@ -80,12 +80,13 @@
                 <Button Name="BtnCamera1" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera1Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera1_Click" />
                 <Button Name="BtnCamera2" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera2Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera2_Click" />
                 <Button Name="BtnCamera3" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource Camera3Btn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnCamera3_Click" />
+                <!-- 报警按钮 -->
+                <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
+                            Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            Height="55" Width="72" Grid.Column="4" />
             </StackPanel>
 
-            <!-- 报警按钮 -->
-            <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
-                            Click="Alarmbutton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="4" />
+
 
             <!-- 当前时间 -->
             <Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5">

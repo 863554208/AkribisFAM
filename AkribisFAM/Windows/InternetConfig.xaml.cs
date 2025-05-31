@@ -313,6 +313,10 @@ namespace AkribisFAM.Windows
                 {
                     sendMess(ClientNames.scanner, Command.Text);
                 }
+                else if (device.SelectedIndex == 6)
+                {
+                    sendMess(ClientNames.mes, Command.Text);
+                }
             }));
         }
 
