@@ -241,6 +241,10 @@ namespace AkribisFAM
                 {
                     IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
                 }
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0) {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend] = 0;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract] = 1;
+                }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 1)
             {
@@ -249,6 +253,11 @@ namespace AkribisFAM
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 0)
             {
                 IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend] = 1;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract] = 0;
+                }
             }
         }
 
@@ -264,6 +273,11 @@ namespace AkribisFAM
                 {
                     IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
                 }
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend] = 0;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract] = 1;
+                }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 1)
             {
@@ -272,6 +286,11 @@ namespace AkribisFAM
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 0)
             {
                 IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend] = 1;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract] = 0;
+                }
             }
         }
 
