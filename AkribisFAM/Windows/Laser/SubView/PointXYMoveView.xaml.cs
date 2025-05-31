@@ -20,8 +20,7 @@ namespace AkribisFAM.Windows
             try
             {
                 var dc = (SinglePoint)DataContext;
-                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                if (AkrAction.Current.MoveLaserXY(dc.X, dc.Y) != (int)AkrAction.ACTTION_ERR.NONE)
                 {
                     MessageBox.Show("failed");
                 }
@@ -32,7 +31,7 @@ namespace AkribisFAM.Windows
 
                 throw;
             }
-            
+
         }
 
         private void btnMoveToPosLaserCheck_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -40,8 +39,7 @@ namespace AkribisFAM.Windows
             try
             {
                 var dc = (SinglePoint)DataContext;
-                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                if (AkrAction.Current.MoveLaserXY(dc.X, dc.Y) != (int)AkrAction.ACTTION_ERR.NONE)
                 {
                     MessageBox.Show("Failed to move position");
                     return;

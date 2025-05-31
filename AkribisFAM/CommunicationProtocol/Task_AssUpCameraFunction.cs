@@ -112,7 +112,7 @@ namespace AkribisFAM.CommunicationProtocol
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                RecordLog("触发流道定位: " + sendcommandData);
+                RecordLog("Start Tray Location: " + sendcommandData);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -138,7 +138,7 @@ namespace AkribisFAM.CommunicationProtocol
                 string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);
-                RecordLog("触发吸嘴贴装: " + sendcommandData);
+                RecordLog("Start nozzle place: " + sendcommandData);
                 if (!sendcommand_status)
                 {
                     return false;
@@ -179,7 +179,6 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
-                RecordLog("收到贴装坐标: " + VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;
@@ -219,7 +218,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 string VisionAcceptData = "";
                 bool VisionAcceptData_status = VisionpositionAcceptcommand(out VisionAcceptData);
-                RecordLog("收到贴装坐标: " + VisionAcceptData);
+                RecordLog("Get place coordinate: " + VisionAcceptData);
                 if (!VisionAcceptData_status)
                 {
                     return null;

@@ -59,6 +59,9 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>AkribisFAM.App</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AAComm, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -161,6 +164,7 @@
     <Compile Include="AutorunManager.cs" />
     <Compile Include="CommunicationProtocol\CalibCommunicationProcess.cs" />
     <Compile Include="CommunicationProtocol\CamerCalibProcess.cs" />
+    <Compile Include="CommunicationProtocol\Task_CreateMesSocket.cs" />
     <Compile Include="CommunicationProtocol\Task_Scanner.cs" />
     <Compile Include="CommunicationProtocol\Task_TTNCamreaFunction.cs" />
     <Compile Include="CommunicationProtocol\IOManager.cs" />
@@ -216,6 +220,7 @@
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="Util\Parser.cs" />
+    <Compile Include="Util\ProductData.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="Windows\Action.cs" />

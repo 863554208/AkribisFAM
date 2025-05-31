@@ -140,6 +140,7 @@
             <ComboBoxItem Content="camera3"/>
             <ComboBoxItem Content="lazer"/>
             <ComboBoxItem Content="scanner"/>
+            <ComboBoxItem Content="mes"/>
         </ComboBox>
         <TextBox x:Name="Command" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="10" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="580" Grid.ColumnSpan="2" Height="40"/>
         <Button Grid.Column="3" Content="send" HorizontalAlignment="Center" Grid.Row="10" VerticalAlignment="Center" Click="Button_Click"/>

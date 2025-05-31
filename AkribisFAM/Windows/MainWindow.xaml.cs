@@ -1,46 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
 using AkribisFAM.Util;
 using System.Globalization;
 using System.Windows.Markup;
-using WpfExtensions.Xaml;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using AkribisFAM.WorkStation;
-using System.ComponentModel;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
-using AAMotion;
 using static AkribisFAM.Manager.StateManager;
-using static System.Windows.Forms.AxHost;
-using System.Net.Http;
 using AkribisFAM.CommunicationProtocol;
-using System.Reflection;
-using YamlDotNet.Core.Tokens;
-using System.Windows.Media.Media3D;
-using AkribisFAM.Helper;
-using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
-using Newtonsoft.Json.Linq;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
+using System.Reflection;
 
 namespace AkribisFAM
 {
@@ -100,9 +79,8 @@ namespace AkribisFAM
             debugLog = new DebugLog();
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
-            IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_12Reset_light] = 1;
             _timer.Start();
-
+            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
         }
 
@@ -133,8 +111,8 @@ namespace AkribisFAM
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (StateManager.Current.State == StateCode.RUNNING)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
                 StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -143,11 +121,11 @@ namespace AkribisFAM
                 }));
             }
             else {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
             }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
                 StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -164,7 +142,7 @@ namespace AkribisFAM
             }
             if (StateManager.Current.State == StateCode.IDLE)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
                 StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -224,9 +202,29 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                //button panel
                 BlinkLightFeeder1();
                 BlinkLightFeeder2();
+                ControlButton();
             }));
+        }
+
+        private void ControlButton() {
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_8Run] == 0)
+            {
+                StartAutoRun_Click(StartAutoRunButton, new RoutedEventArgs());
+            }
+            if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_9Stop] == 0)
+            {
+                PauseAutoRun_Click(PauseAutoRunButton, new RoutedEventArgs());
+            }
+            if (AutorunManager.Current.hasReseted == true)
+            {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 1);
+            }
+            else {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 0);
+            }
         }
 
         private void BlinkLightFeeder1()
@@ -235,20 +233,29 @@ namespace AkribisFAM
             {
                 if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] == 1)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
                 }
                 else
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 0);
+                }
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0) {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 0);
                 }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 1)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 0);
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 0)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_10Feeder1_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 1);
+                }
             }
         }
 
@@ -258,20 +265,30 @@ namespace AkribisFAM
             {
                 if (IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] == 1)
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 1);
                 }
                 else
                 {
-                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 0);
+                }
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract, 0);
                 }
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 1)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 1;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 0);
             }
             else if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_13Feeder2_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos] == 0)
             {
-                IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_11Feeder2_light] = 0;
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_11Feeder2_light, 1);
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_11Feeder2] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_2Feeder2_limit_cylinder_extend, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_3Feeder2_limit_cylinder_retract, 1);
+                }
             }
         }
 
@@ -464,7 +481,7 @@ namespace AkribisFAM
 
             // 力控
 
-            //AkrAction.Current.Move(AxisName.PICK2_Z, 20, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.MoveFoamZ2(20);
             ////TODO 改到程序打开的时候执行一次
             //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
             //Thread.Sleep(100);
@@ -493,7 +510,7 @@ namespace AkribisFAM
             //    Thread.Sleep(500);
             //}
 
-            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.Move(AxisName.PICK2_Z);
 
 
             //-------
@@ -512,7 +529,7 @@ namespace AkribisFAM
             //        int moveToPoint = MoveView.MovePTP(arr1,arr2);
             //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX , AxisName.LSY });
 
-            //        //AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+            //        //AkrAction.Current.MoveLaserXY (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
             //        //Thread.Sleep(20);
             //        //Logger.WriteLog("111111aaaa");
             //        //AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
@@ -584,19 +601,21 @@ namespace AkribisFAM
             // 如果松开太早，提示用户
             if (!isResetButtonTriggered)
             {
-                MessageBox.Show("请按住按钮至少3秒以执行复位");
+                MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
             }
         }
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Start Button is clicked.");
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
+                Logger.WriteLog("Change from idle to running.");
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.Guarding = 1;
                 //对轴初始化使能 改到登录之后            
-                //AkrAction.Current.axisAllEnable(true);
+                //AkrAction.Current.EnableAllMotors(true);
                 //GlobalManager.Current.InitializeAxisMode();
 
                 GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
@@ -628,8 +647,10 @@ namespace AkribisFAM
 
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Pause Button is clicked.");
             if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
             {
+                Logger.WriteLog("Change from running to idle.");
                 GlobalManager.Current.IsPause = true;
                 StateManager.Current.IdleStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
@@ -639,6 +660,7 @@ namespace AkribisFAM
             }
             else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
             {
+                Logger.WriteLog("Change from idle to running.");
                 GlobalManager.Current.IsPause = false;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.RunningStart = DateTime.Now;
@@ -681,33 +703,41 @@ namespace AkribisFAM
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Stop Button is clicked.");
             if (StateManager.Current.State == StateCode.RUNNING)
             {
+                Logger.WriteLog("Change from running to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
             else if (StateManager.Current.State == StateCode.MAINTENANCE)
             {
+                Logger.WriteLog("Change from maintence to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.MaintenanceEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
             else {
+                Logger.WriteLog("Change from idle to stopped.");
+                StateManager.Current.StoppedStart = DateTime.Now;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.STOPPED;
+                StateManager.Current.Guarding = 0;
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 return;
             }
         }
@@ -756,15 +786,15 @@ namespace AkribisFAM
             {
                 return;
             }
-            MessageBox.Show("开始复位");
+            MessageBox.Show("Start Reseting");
             bool resetResult = await Task.Run(() => AutorunManager.Current.Reset());
             if (!resetResult)
             {
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show("复位失败");
+                    MessageBox.Show("Reseting Failed!");
                 });
                 AutorunManager.Current.hasReseted = false;
             }
@@ -772,7 +802,7 @@ namespace AkribisFAM
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show("复位成功");
+                    MessageBox.Show("Reseting Successfully!");
                 });
                 AutorunManager.Current.hasReseted = true;
                 GlobalManager.Current.Lailiao_exit = false;

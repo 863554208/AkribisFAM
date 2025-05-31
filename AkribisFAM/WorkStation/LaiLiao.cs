@@ -19,6 +19,7 @@ using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
 using Microsoft.SqlServer.Server;
 using AkribisFAM.Util;
 using System.Windows;
+using System.Net.Sockets;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -186,29 +187,72 @@ namespace AkribisFAM.WorkStation
             return MoveView.WaitAxisArrived(new object[] { AxisName.LSY });
         }
 
-        public int ScanBarcode(out string result)
+        public int ScanBarcode()
         {
-            result = string.Empty;
+
+            Task_Scanner.TriggScannerSendData();
             var (barcode, error) = Task_Scanner.TriggScannerAcceptData();
 
             if (error == ErrorCode.BarocdeScan_Failed)
             {
                 return (int)ErrorCode.BarocdeScan_Failed;
             }
-            result = barcode;
 
-            Logger.WriteLog($"Barcode Scanner Result: {barcode}");
-            //GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
+            Logger.WriteLog($"Readout scanner : {barcode} ");
+            GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
 
-            ////global switch for using mes system
-            //if (GlobalManager.Current.IsUseMES)
-            //{
-            //    // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
-            //}
-            //else
-            //{
-            //    GlobalManager.Current.IsByPass = false;
-            //}
+            int byPassMsg_maxTryCount = 3;
+            int byPassMsg_Count = 0;
+            //global switch for using mes system
+            if (GlobalManager.Current.IsUseMES)
+            {
+                if (Task_CreateMesSocket.CreateNewSocket()==0)
+                {
+                    Logger.WriteLog("Start Sending Barcode to Bali ......");
+                    TcpClient firstClient = GlobalManager.Current.tcpQueue.Peek();
+                    if (barcode != "NULL")
+                    {
+                        while (true) 
+                        {
+                            if(byPassMsg_Count > byPassMsg_maxTryCount)
+                            {
+                                Logger.WriteLog("Failed To Receive byPassMsg");
+                                //Stop the machine
+                            }
+                            string req = Task_CreateMesSocket.Compose(barcode, "station_id");
+                            int res = Task_CreateMesSocket.Write(firstClient, req);
+                            Thread.Sleep(500);
+                            string byPassMsg = Task_CreateMesSocket.Read(firstClient);
+                            if (byPassMsg != null) 
+                            {
+                                if (byPassMsg.Contains("OK"))
+                                {
+                                    GlobalManager.Current.IsByPass = false;
+                                    break;
+                                }
+                                else
+                                {
+                                    GlobalManager.Current.IsByPass = true;
+                                    break;
+                                }
+
+                            }
+
+                            byPassMsg_Count++;
+                        }
+
+                    }
+                }
+                else
+                {
+                    //TODO : Stop the machine or bypass
+                }
+                
+            }
+            else
+            {
+                GlobalManager.Current.IsByPass = false;
+            }
 
             return (int)ErrorCode.NoError;
         }
@@ -225,14 +269,7 @@ namespace AkribisFAM.WorkStation
                     //var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
 
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if(y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X , point.Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -258,14 +295,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 1) 
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X+ GlobalManager.Current.laserpoint1_shift_X, 
+                        (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -292,14 +323,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count %4 == 2)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY ((int)point.X + GlobalManager.Current.laserpoint2_shift_X, 
+                        (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -326,14 +351,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 3)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X + GlobalManager.Current.laserpoint3_shift_X, point.Y + GlobalManager.Current.laserpoint3_shift_Y);
 
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -367,7 +386,7 @@ namespace AkribisFAM.WorkStation
 
         public void MoveConveyor(int vel)
         {
-            AkrAction.Current.MoveConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
 
         public void StopConveyor()

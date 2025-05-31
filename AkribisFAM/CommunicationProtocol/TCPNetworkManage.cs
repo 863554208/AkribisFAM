@@ -149,6 +149,9 @@ namespace AkribisFAM.CommunicationProtocol
                                                  //  Console.WriteLine("All clients connected!");
                 }
                 else {
+                    var (ip, port) = clientNameToEndpoint[clientName];
+                    namedClients[clientName].host = ip;
+                    namedClients[clientName].port = port;
                     namedClients[clientName].ConnectAsync().Wait();
                 }
             }

@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="ErrorWindow" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
         <DataGrid x:Name="ErrorData" AutoGenerateColumns="False"  ItemsSource="{Binding ErrorInfos}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="DateTime" Binding="{Binding DateTime}"/>
@@ -16,5 +20,14 @@
                 <DataGridTextColumn Header="Info" Binding="{Binding Info}" />
             </DataGrid.Columns>
         </DataGrid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="ClearBtn" Grid.Column="1" Content="Clear" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,4" Click="ClearBtn_Click"/>
+            <Button x:Name="ExportBtn" Grid.Column="2" Content="Export" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ExportBtn_Click"/>
+        </Grid>
     </Grid>
 </Window>

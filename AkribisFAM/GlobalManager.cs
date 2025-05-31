@@ -22,6 +22,7 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 using System.Windows.Forms.Design;
 using System.Windows.Documents;
+using System.Net.Sockets;
 
 namespace AkribisFAM
 {
@@ -126,12 +127,15 @@ namespace AkribisFAM
         private System.Timers.Timer PosTimer;
 
         public Queue<string> BarcodeQueue = new Queue<string>();
+        public Queue<TcpClient> tcpQueue = new Queue<TcpClient> ();
         public bool IsUseMES = false;
 
         //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
         public int LaserHeightDelay = 50;
 
         public double[][] laser_data;
+
+        public bool isLowerCCD = false;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 

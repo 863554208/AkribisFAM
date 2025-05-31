@@ -78,7 +78,6 @@ namespace AkribisFAM.WorkStation
 
         public bool WaitIO(int delta, IO_INFunction_Table index, bool value)
         {
-            delta = 3000;
             DateTime time = DateTime.Now;
             bool ret = false;
             while ((DateTime.Now - time).TotalMilliseconds < delta)
@@ -88,7 +87,7 @@ namespace AkribisFAM.WorkStation
                     ret = true;
                     break;
                 }
-                Thread.Sleep(50);
+                Thread.Sleep(10);
             }
 
             return ret;
@@ -96,12 +95,12 @@ namespace AkribisFAM.WorkStation
 
         public void MoveConveyor(int vel)
         {
-            AkrAction.Current.MoveConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
 
         public void MoveConveyorAll(int vel)
         {
-            AkrAction.Current.MoveConveyorAll(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
         public void StopConveyor()
         {
@@ -317,33 +316,29 @@ namespace AkribisFAM.WorkStation
                 case 4:
                     IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
                     IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
-                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
-                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
 
                     IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
-                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
-                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
-                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
 
                     SetIO(IOName1, 1);
                     SetIO(IOName2, 0);
 
-                    return WaitIO(3000, IOName5, true) &&
-            WaitIO(3000, IOName6, false);
+                    var ret = WaitIO(4000, IOName5, true);
+                    var ret2 =  WaitIO(4000, IOName6, false);
+                    return ret && ret2;
                 default:
                     return false;
             }
 
             SetIO(IOName1, 1);
-            SetIO(IOName2, 0);
-
             SetIO(IOName3, 1);
+            SetIO(IOName2, 0);
             SetIO(IOName4, 0);
-
-            return (WaitIO(99999, IOName5, false) &&
-            WaitIO(99999, IOName6, false) &&
-            WaitIO(99999, IOName7, true) &&
-            WaitIO(99999, IOName8, true));
+            var res1 = WaitIO(4000, IOName5, false);
+            var res2 = WaitIO(4000, IOName6, false);
+            var res3 = WaitIO(4000, IOName7, true);
+            var res4 = WaitIO(4000, IOName8, true);
+            return res1 && res2 && res3 && res4;
 
         }
 
@@ -396,13 +391,9 @@ namespace AkribisFAM.WorkStation
                 case 4:
                     IOName1 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
                     IOName2 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
-                    IOName3 = IO_OutFunction_Table.OUT1_124_lift_cylinder_extend;
-                    IOName4 = IO_OutFunction_Table.OUT1_134_lift_cylinder_retract;
 
                     IOName5 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
-                    IOName6 = IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos;
-                    IOName7 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
-                    IOName8 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
+                    IOName6 = IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos;
 
                     SetIO(IOName1, 0);
                     SetIO(IOName2, 1);
@@ -413,17 +404,17 @@ namespace AkribisFAM.WorkStation
                 default:
                     return false;
             }
-
-            SetIO(IOName1, 0);
+            
             SetIO(IOName2, 1);
-
-            SetIO(IOName3, 0);
             SetIO(IOName4, 1);
+            SetIO(IOName1, 0);
+            SetIO(IOName3, 0);
 
-            return (WaitIO(3000, IOName5, true) &&
-            WaitIO(3000, IOName6, true) &&
-            WaitIO(3000, IOName7, false) &&
-            WaitIO(3000, IOName8, false));
+            var res1 = WaitIO(4000, IOName5, true);
+            var res2 = WaitIO(4000, IOName6, true);
+            var res3 = WaitIO(4000, IOName7, false);
+            var res4 = WaitIO(4000, IOName8, false);
+            return res1 && res2 && res3 && res4;
 
         }
 
@@ -445,6 +436,7 @@ namespace AkribisFAM.WorkStation
                 GlobalManager.Current.flag_RecheckStationRequestOutflowTray = 0;
 
                 GlobalManager.Current.flag_Bypass = 0;
+
 
 
             STEP_JudgeAllStationTrayNumberIsZero:

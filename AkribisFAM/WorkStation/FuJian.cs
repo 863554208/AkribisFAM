@@ -97,9 +97,9 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public void SetIO(IO_OutFunction_Table index , int value)
+        public void SetIO(IO_OutFunction_Table index, int value)
         {
-            IOManager.Instance.IO_ControlStatus( index , value);
+            IOManager.Instance.IO_ControlStatus(index, value);
         }
 
 
@@ -154,7 +154,8 @@ namespace AkribisFAM.WorkStation
             {
                 GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 0;
             }
-            else {
+            else
+            {
                 //报错
                 GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 1;
                 GlobalManager.Current.IsPause = true;
@@ -171,7 +172,7 @@ namespace AkribisFAM.WorkStation
             int actionret;
             int cnt;
             //撕膜
-            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.SafeZPos.Z);
             errorCode = ErrorCode.TimeOut;
             if (CheckState(actionret == 0) == 1)
             {
@@ -181,13 +182,7 @@ namespace AkribisFAM.WorkStation
             {
                 //移动到穴位
                 Logger.WriteLog("开始执行撕膜X");
-                actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.tearingPoints[i].X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-                if (CheckState(actionret == 0) == 1)
-                {
-                    return false;
-                }
-                Logger.WriteLog("开始执行撕膜Y");
-                actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.tearingPoints[i].Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+                actionret = AkrAction.Current.MoveRecheckXY(GlobalManager.Current.tearingPoints[i].X, GlobalManager.Current.tearingPoints[i].Y);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
@@ -198,7 +193,7 @@ namespace AkribisFAM.WorkStation
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0);
                 //移动z轴下降
                 Logger.WriteLog("AAAAAAAAAAAAA");
-                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.tearingPoints[i].Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.tearingPoints[i].Z);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
@@ -207,7 +202,7 @@ namespace AkribisFAM.WorkStation
                 ret = WaitIO(999, IO_INFunction_Table.IN3_9Claw_extend_in_position, true);
                 ret1 = WaitIO(999, IO_INFunction_Table.IN3_10Claw_retract_in_position, false);
                 Logger.WriteLog("CCCCCCCCCCCC");
-                if (CheckState(ret&&ret1) == 1)
+                if (CheckState(ret && ret1) == 1)
                 {
                     return false;
                 }
@@ -225,14 +220,15 @@ namespace AkribisFAM.WorkStation
                 Thread.Sleep(100);
                 //移动撕膜
                 errorCode = ErrorCode.TimeOut;
-                if (Math.Abs(GlobalManager.Current.TearX) > 0.001)
-                {
-                    AkrAction.Current.MoveRelNoWait(AxisName.PRX, GlobalManager.Current.TearX, GlobalManager.Current.TearXvel);
-                }
-                if (Math.Abs(GlobalManager.Current.TearY) > 0.001) {
-                    AkrAction.Current.MoveRelNoWait(AxisName.PRY, GlobalManager.Current.TearY, GlobalManager.Current.TearYvel);
-                }
-                AkrAction.Current.MoveRelNoWait(AxisName.PRZ, GlobalManager.Current.TearZ, GlobalManager.Current.TearZvel);
+                //if (Math.Abs(GlobalManager.Current.TearX) > 0.001)
+                //{
+                //    AkrAction.Current.MoveRelNoWait(AxisName.PRX, GlobalManager.Current.TearX, GlobalManager.Current.TearXvel);
+                //}
+                //if (Math.Abs(GlobalManager.Current.TearY) > 0.001)
+                //{
+                //    AkrAction.Current.MoveRelNoWait(AxisName.PRY, GlobalManager.Current.TearY, GlobalManager.Current.TearYvel);
+                //}
+                //AkrAction.Current.MoveRelNoWait(AxisName.PRZ, GlobalManager.Current.TearZ, GlobalManager.Current.TearZvel);
                 Logger.WriteLog("EEEEEEEEEEEEEE");
                 //Z轴上升
                 //TODO 
@@ -244,31 +240,26 @@ namespace AkribisFAM.WorkStation
                     Thread.Sleep(50);
                     cnt++;
                 }
-                if (CheckState(cnt>=100) == 1)
+                if (CheckState(cnt >= 100) == 1)
                 {
                     return false;
                 }
                 Logger.WriteLog("ASDDDDDDDDDDDDDE");
                 errorCode = ErrorCode.TimeOut;
-                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.SafeZPos.Z);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
                 Logger.WriteLog("QQQQQQQQQQQQQQQQQQ");
                 //移动到蓝膜收集处
-                actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.RecheckRecylePos.X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-                if (CheckState(actionret == 0) == 1)
-                {
-                    return false;
-                }
-                actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.RecheckRecylePos.Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+                actionret = AkrAction.Current.MoveRecheckXY(GlobalManager.Current.RecheckRecylePos.X, GlobalManager.Current.RecheckRecylePos.Y);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
                 }
                 //必须XY到位后再移动Z轴
-                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.RecheckRecylePos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.RecheckRecylePos.Z);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
@@ -300,7 +291,7 @@ namespace AkribisFAM.WorkStation
                     return false;
                 }
                 errorCode = ErrorCode.TimeOut;
-                actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+                actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.SafeZPos.Z);
                 if (CheckState(actionret == 0) == 1)
                 {
                     return false;
@@ -309,14 +300,14 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
-        
+
         public bool Recheck()
         {
             //复检
             int modulestatecnt = 0;
             int actionret;
             errorCode = ErrorCode.TimeOut;
-            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.SafeZPos.Z);
             if (CheckState(actionret == 0) == 1)
             {
                 return false;
@@ -330,17 +321,15 @@ namespace AkribisFAM.WorkStation
                     {
                         k = j + i * GlobalManager.Current.TotalColumn;
                     }
-                    else {
-                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn; 
+                    else
+                    {
+                        k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn;
                     }
+                    k = GlobalManager.Current.TotalRow * GlobalManager.Current.TotalColumn - 1 - k;
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
                     //移动到穴位
-                    actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.recheckPoints[k].X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-                    if (CheckState(actionret == 0) == 1)
-                    {
-                        return false;
-                    }
-                    actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.recheckPoints[k].Y, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);
+                    actionret = AkrAction.Current.MoveFoamXY(GlobalManager.Current.recheckPoints[k].X,
+                        GlobalManager.Current.recheckPoints[k].Y);
                     if (CheckState(actionret == 0) == 1)
                     {
                         return false;
@@ -393,23 +382,26 @@ namespace AkribisFAM.WorkStation
             return true;
         }
 
+        public int UploadMES()
+        {
+
+            Task_CreateMesSocket.UploadMessage();
+            return 0;
+        }
+
+
         public bool BoardOut()
         {
             int actionret;
-            GlobalManager.Current.flag_RecheckStationHaveTray = 1 ;
+            GlobalManager.Current.flag_RecheckStationHaveTray = 1;
             GlobalManager.Current.flag_TrayProcessCompletedNumber++;
             errorCode = ErrorCode.TimeOut;
-            actionret = AkrAction.Current.Move(AxisName.PRZ, GlobalManager.Current.SafeZPos.Z, (int)AxisSpeed.PRZ, (int)AxisAcc.PRZ);
+            actionret = AkrAction.Current.MoveRecheckZ(GlobalManager.Current.SafeZPos.Z);
             if (CheckState(actionret == 0) == 1)
             {
                 return false;
             }
-            actionret = AkrAction.Current.Move(AxisName.PRX, GlobalManager.Current.StartPoint.X, (int)AxisSpeed.PRX, (int)AxisAcc.PRX);//mm * 10000
-            if (CheckState(actionret == 0) == 1)
-            {
-                return false;
-            }
-            actionret = AkrAction.Current.Move(AxisName.PRY, GlobalManager.Current.StartPoint.Y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY);
+            actionret = AkrAction.Current.MoveLaserXY(GlobalManager.Current.StartPoint.X, GlobalManager.Current.StartPoint.Y);
             if (CheckState(actionret == 0) == 1)
             {
                 return false;
@@ -493,16 +485,17 @@ namespace AkribisFAM.WorkStation
                     GlobalManager.Current.current_FuJian_step = 1;
                     if (GlobalManager.Current.FuJian_exit) break;
 
-                step2:
+                    step2:
                     GlobalManager.Current.current_FuJian_step = 2;
                     Tearing();
-                    if (GlobalManager.Current.FuJian_exit)break;
+                    if (GlobalManager.Current.FuJian_exit) break;
 
-                step3:
+                    step3:
                     GlobalManager.Current.current_FuJian_step = 3;
                     Recheck();
+                    UploadMES();
                     if (GlobalManager.Current.FuJian_exit) break;
-                step4:
+                    step4:
                     GlobalManager.Current.current_FuJian_step = 4;
                     BoardOut();
                     if (GlobalManager.Current.FuJian_exit) break;

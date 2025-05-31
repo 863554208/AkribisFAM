@@ -24,14 +24,14 @@ namespace AkribisFAM.CommunicationProtocol
 
         public static ModbusTCPWorker GetInstance()
         {
-            lock (locker)
-            {
+            //lock (locker)
+            //{
 
                 if (_instance == null)
                 {
                     _instance = new ModbusTCPWorker();
                 }
-            }
+            //}
             //Console.WriteLine(_instance);
             return _instance;
 
@@ -52,7 +52,7 @@ namespace AkribisFAM.CommunicationProtocol
             };
 
             connect_state = modbus.ConnectServer().IsSuccess;
-            Console.WriteLine(connect_state ? "连接成功！" : $"连接失败：{modbus.ConnectServer().Message}");
+            Console.WriteLine(connect_state ? "Connect Successfully！" : $"Connect Failed:{modbus.ConnectServer().Message}");
             return connect_state;
         }
 
@@ -80,7 +80,7 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 modbus?.ConnectClose();
                 connect_state = false;
-                Console.WriteLine("已断开连接。");
+                Console.WriteLine("Disconnected.");
 
             }
             return connect_state;
@@ -100,7 +100,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                Console.WriteLine("未连接到服务器，无法读取保持寄存器。");
+                Console.WriteLine("Not connected to the server, unable to read the hold register.");
                 return -1;
             }
 
@@ -110,18 +110,18 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<short> readResult = modbus.ReadInt16("3;" + index);
                 if (readResult.IsSuccess)
                 {
-                    Console.WriteLine($"保持寄存器 {index} 的值为：{readResult.Content}");
+                    Console.WriteLine($"hold register {index} value is:{readResult.Content}");
                     return readResult.Content;
                 }
                 else
                 {
-                    Console.WriteLine($"读取保持寄存器 {index} 失败：{readResult.Message}");
+                    Console.WriteLine($"read the hold register {index} failed: {readResult.Message}");
                     return -1;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"读取保持寄存器 {index} 时发生异常：{ex.Message}");
+                Console.WriteLine($"read the hold register {index} with Exception: {ex.Message}");
                 return -1;
             }
         }
@@ -131,7 +131,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                Console.WriteLine("未连接到服务器，无法读取输入寄存器。");
+                Console.WriteLine("Not connected to the server, unable to read input register.");
                 return -1;
             }
 
@@ -141,18 +141,18 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<short> readResult = modbus.ReadInt16("4;" + index);
                 if (readResult.IsSuccess)
                 {
-                    Console.WriteLine($"输入寄存器 {index} 的值为：{readResult.Content}");
+                    Console.WriteLine($"input register {index} value is：{readResult.Content}");
                     return readResult.Content;
                 }
                 else
                 {
-                    Console.WriteLine($"读取输入寄存器 {index} 失败：{readResult.Message}");
+                    Console.WriteLine($"read input register {index} failed：{readResult.Message}");
                     return -1;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"读取输入寄存器 {index} 时发生异常：{ex.Message}");
+                Console.WriteLine($"read input register {index} with Exception: {ex.Message}");
                 return -1;
             }
         }
@@ -162,7 +162,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                Console.WriteLine("未连接到服务器，无法读取离散输入。");
+                Console.WriteLine("Not connected to the server, unable to read discrete input.");
                 return false;
             }
 
@@ -172,18 +172,18 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<bool> readResult = modbus.ReadDiscrete("2;" + index);
                 if (readResult.IsSuccess)
                 {
-                    Console.WriteLine($"离散输入 {index} 的状态为：{readResult.Content}");
+                    Console.WriteLine($"discrete input {index} state is: {readResult.Content}");
                     return readResult.Content;
                 }
                 else
                 {
-                    Console.WriteLine($"读取离散输入 {index} 失败：{readResult.Message}");
+                    Console.WriteLine($"read discrete input {index} failed：{readResult.Message}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"读取离散输入 {index} 时发生异常：{ex.Message}");
+                Console.WriteLine($"read discrete input {index} with Exception: {ex.Message}");
                 return false;
             }
         }
@@ -193,7 +193,7 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                Console.WriteLine("未连接到服务器，无法写入保持寄存器。");
+                Console.WriteLine("Not connected to the server, unable to read the hold register.");
                 return false;
             }
 
@@ -203,18 +203,18 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult writeResult = modbus.Write("3;" + index, value);
                 if (writeResult.IsSuccess)
                 {
-                    Console.WriteLine($"保持寄存器 {index} 写入成功，值为：{value}");
+                    Console.WriteLine($"hold register {index} write successfully，value is: {value}");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine($"写入保持寄存器 {index} 失败：{writeResult.Message}");
+                    Console.WriteLine($"write to the hold register {index} failed：{writeResult.Message}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"写入保持寄存器 {index} 时发生异常：{ex.Message}");
+                Console.WriteLine($"write to the hold register {index} with Exception: {ex.Message}");
                 return false;
             }
         }
@@ -224,7 +224,6 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (!connect_state)
             {
-                //Console.WriteLine("未连接到服务器，无法读取线圈状态。");
                 return false;
             }
 
@@ -234,7 +233,7 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult<bool> readResult = modbus.ReadBool("1;" + index);
                 if (readResult.IsSuccess)
                 {
-                    Console.WriteLine($"线圈 {index} 的状态为：{readResult.Content}");
+                    Console.WriteLine($"Coil {index} state is: {readResult.Content}");
                     Console.WriteLine($"1;{index.ToString()}");
                     result = readResult.Content;
                     return true;
@@ -254,11 +253,10 @@ namespace AkribisFAM.CommunicationProtocol
         // 写单个线圈
         public bool Write_Coil(int index, bool value)
         {
-            //if (!connect_state)
-            //{
-            //    Console.WriteLine("未连接到服务器，无法写入线圈。");
-            //    return false;
-            //}
+            if (!connect_state)
+            {
+                return false;
+            }
 
             try
             {
@@ -266,18 +264,18 @@ namespace AkribisFAM.CommunicationProtocol
                 OperateResult writeResult = modbus.Write("1;" + index, value);
                 if (writeResult.IsSuccess)
                 {
-                    Console.WriteLine($"线圈 {index} 写入成功，状态为：{value}");
+                    Console.WriteLine($"Coil {index} write successfully, state is : {value}");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine($"写入线圈 {index} 失败：{writeResult.Message}");
+                    Console.WriteLine($"write to coil {index} failed: {writeResult.Message}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"写入线圈 {index} 时发生异常：{ex.Message}");
+                Console.WriteLine($"write to coil {index} with Exception: {ex.Message}");
                 return false;
             }
         }
