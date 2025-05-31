@@ -66,17 +66,6 @@ namespace AkribisFAM
             filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
 
-            App.assemblyGantryControl.BypassPicker4 = true;
-            App.assemblyGantryControl.BypassPicker3 = true;
-            //TODO
-            //try
-            //{
-            //    // 初始化数据库连接
-            //    DatabaseManager.Initialize();
-
-            //20250530 测试mes的tcp连接 【史彦洋】 Start
-
-            //20250530 测试mes的tcp连接 【史彦洋】 End
 
             SetLanguage("en-US");
 
