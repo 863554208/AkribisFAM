@@ -1,4 +1,7 @@
 ﻿=========================== CHANGE LOG ===========================
+v0.0.0.5 [2025-05-31, Raymond]
+ - Feat: A1-516 Added manual page and semi auto function
+
 v0.0.0.4 [2025-05-21, Raymond]
  - Feat: A1-503 Add material control class to monitor and handle logic of switching supply
 
