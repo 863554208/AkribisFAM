@@ -24,7 +24,8 @@ namespace AkribisFAM.WorkStation
     internal class LaiLiao : WorkStationBase
     {
         private static int _movestep = 0;
-        private bool _isProcessingDone = false;
+        private static int _laserMoveStep = 0;
+        private bool _isProcessOngoing = false;
         private int _BarcodeScanRetryCount = 0;
         private int _BarcodeScanRetryMax = 5;
 
@@ -675,16 +676,16 @@ namespace AkribisFAM.WorkStation
         }
         public bool IsProcessOngoing()
         {
-            return !_isProcessingDone;
+            return _isProcessOngoing;
         }
         private void ProcessingDone()
         {
-            _isProcessingDone = true;
+            _isProcessOngoing = false;
             _isTrayReadyToProcess = false;
         }
         private void StartProcessing()
         {
-            _isProcessingDone = false;
+            _isProcessOngoing = true;
         }
 
         public override void AutoRun(CancellationToken token)
@@ -703,7 +704,7 @@ namespace AkribisFAM.WorkStation
             // SCAN BARCODE
             if (_movestep == 1)
             {
-                if (ScanBarcode(out string barcode) == 0)
+                if (App.scanner.ScanBarcode(out string result) == 0)
                 {
                     _movestep = 2;
                 }
@@ -721,16 +722,31 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-            // LASER MEASUREMENT
+            // SEND REQUEST BARCODE DATA
             if (_movestep == 3)
             {
-                if (LaserHeight() == 0)
+                if (true) // TODO: ADD SERVER REQUEST HERE
                 {
                     _movestep = 4;
                 }
                 else
                 {
 
+                }
+            }
+
+            // LASER MEASUREMENT
+            if (_movestep == 4)
+            {
+                var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
+                if (laserSeqResult == 1)
+                {
+                    _movestep = 4;
+                }
+                else if (laserSeqResult == -1)
+                {
+                    // Error occurred during laser measurement
+                    return;
                 }
             }
 
@@ -856,6 +872,60 @@ namespace AkribisFAM.WorkStation
             //        AutorunManager.Current.isRunning = false;
             //        ErrorReportManager.Report(ex);
             //    }
+        }
+
+        /// <summary>
+        /// Laser measurement sequence logic.
+        /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
+        /// </summary>
+        /// <returns></returns>
+        private int LaserMeasureSequence()
+        {
+            // MOVE TO POSITION
+            if (_laserMoveStep == 0)
+            {
+                if (true) // GET NEXT POSITION
+                {
+                    // MOVE AXIS
+                    _laserMoveStep = 1;
+                } else
+                {
+                    // DONE LASER SEQUENCE, RETURN TO GO TO NEXT STEP
+                    return 1;
+                }
+            }
+
+            // WAIT FOR POSITION ARRIVAL
+            if (_laserMoveStep == 1)
+            {
+                if (true) // if motion stopped/reached position
+                {
+                    if (true) // verify if axis is in correct position
+                    {
+                        _laserMoveStep = 2;
+                    }
+                    else
+                    {
+                        _laserMoveStep = 0; // Reset to move again
+                        //return (int)ErrorCode.Move_Failed; // Position verification failed
+                    }
+                }
+            }
+
+            // DO LASER MEASURE
+            if (_laserMoveStep == 2)
+            {
+                if (true) // Do laser measure
+                {
+                    // Log laser measurement result
+                    _laserMoveStep = 0; // Move back from the start
+                }
+                else
+                {
+                    return (int)ErrorCode.Laser_Failed; // Laser measure failed
+                }
+            }
+            return 0;
         }
     }
 }

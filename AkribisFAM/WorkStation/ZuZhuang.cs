@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using AkribisFAM.Util;
 using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
 using System.Windows;
+using System.Net.Http.Headers;
 
 namespace AkribisFAM.WorkStation
 {
@@ -26,7 +27,11 @@ namespace AkribisFAM.WorkStation
         public SinglePoint[] PlacePositions = new SinglePoint[4];
         private static ZuZhuang _instance;
         private static int _movestep = 0;
-        private bool _isProcessingDone = false;
+        private static int _pickCaptureMovestep = 0;
+        private static int _pickPartMovestep = 0;
+        private static int _placeInspectMovestep = 0;
+        private static int _placePartMovestep = 0;
+        private bool _isProcessOngoing = false;
         public override string Name => nameof(ZuZhuang);
 
         int delta = 0;
@@ -1406,45 +1411,119 @@ namespace AkribisFAM.WorkStation
         }
         public bool IsProcessOngoing()
         {
-            return !_isProcessingDone;
+            return _isProcessOngoing;
         }
         private void ProcessingDone()
         {
-            _isProcessingDone = true;
+            _isProcessOngoing = false;
             _isTrayReadyToProcess = false;
         }
         private void StartProcessing()
         {
-            _isProcessingDone = false;
+            _isProcessOngoing = true;
         }
 
         public async override void AutoRun(CancellationToken token)
         {
-            // FEEDER ON THE FLY INSPECT
+            // MOVE TO PICK INSPECT POSITION
             if (_movestep == 0)
             {
-                if (SnapFeedar() == 0)
+                _movestep = 1;
+            }
+
+            // WAIT MOTOR TO REACH POSITION
+            if (_movestep == 1)
+            {
+                if (true) // CHECK IF MOTOR STOPPED MOTION
                 {
-                    _movestep = 1;
-                } else
+                    if (true) // CHECK IF MOTOR IS IN CORRECT POSITION
+                    {
+                        _movestep = 2;
+                    }
+                    else
+                    {
+                        _movestep = 0;
+                        return; // MOTOR FAILED TO REACH POSITION
+                    }
+                }
+            }
+
+            // ON THE FLY CAPTURE PICK POSITION
+            if (_movestep == 2)
+            {
+                var PickSeqResult = PickCaptureSequence();
+                if (PickSeqResult == 1)
+                {
+                    _movestep = 3;
+                } else if (PickSeqResult == -1)
                 {
 
+                    return; // PICK CAPTURE FAILED
                 }
             }
             
-            // PICK FOAM
-            if (_movestep == 1)
+            // PICK PART SEQUENCE
+            if (_movestep == 3)
             {
-                if (PickFoam() == 0)
+                var PickResult = PickPartSequence();
+                if (PickResult == 1)
                 {
-                    _movestep = 2;
+                    _movestep = 4;
+                }
+                else if (PickResult == -1)
+                {
+                    _movestep = 2; // RETRY PICK CAPTURE SEQUENCE
+                    return; // PICK FAILED
+                }
+            }
+
+            // MOVE TO ON THE FLY CAPTURE POSITION
+            if (_movestep == 4)
+            {
+                if (true) // MOVE TO OTF CAPTURE POSITION
+                {
+                    _movestep = 5;
                 }
                 else
                 {
-
+                    return; // MOVE FAILED
                 }
             }
-            
+
+            // WAIT MOTOR TO REACH POSITION
+            if (_movestep == 5)
+            {
+                if (true) // CHECK IF MOTOR STOPPED MOTION
+                {
+                    if (true) // CHECK IF MOTOR IS IN CORRECT POSITION
+                    {
+                        _movestep = 6;
+                    }
+                    else
+                    {
+                        _movestep = 4; // RETRY MOVE TO OTF CAPTURE POSITION
+                        return; // MOTOR FAILED TO REACH POSITION
+                    }
+                }
+            }
+
+            // START ON THE FLY CAPTURE SEQUENCE
+            if (_movestep == 6)
+            {
+                if (true) // CALL OTF CAPTURE SEQUENCE
+                {
+                    _movestep = 7;
+                }
+                else
+                {
+                    return; // CAPTURE FAILED
+                }
+            }
+
+
+
+
+
 
             LowerCCD();
             DropBadFoam();
@@ -1671,6 +1750,22 @@ namespace AkribisFAM.WorkStation
                 AutorunManager.Current.isRunning = false;
                 ErrorReportManager.Report(ex);
             }
+        }
+
+        private int PickCaptureSequence()
+        {
+            if (_pickCaptureMovestep == 0)
+            {
+                _pickCaptureMovestep = 1;
+            }
+
+            return 0;
+        }
+
+        private int PickPartSequence()
+        {
+
+            return 0;
         }
 
     }

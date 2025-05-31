@@ -28,7 +28,10 @@ namespace AkribisFAM.WorkStation
 {
     internal class FuJian : WorkStationBase
     {
-
+        private static int _movestep = 0;
+        private static int _filmRemoveMovestep = 0;
+        private static int _inspectMovestep = 0;
+        private bool _isProcessOngoing = false;
         private static FuJian _instance;
         public override string Name => nameof(FuJian);
 
@@ -413,9 +416,72 @@ namespace AkribisFAM.WorkStation
             }
             return true;
         }
-
+        private bool _isTrayReadyToProcess = false;
+        public void SetTrayReadyToProcess()
+        {
+            _isTrayReadyToProcess = true;
+        }
+        public bool IsProcessOngoing()
+        {
+            return _isProcessOngoing;
+        }
+        private void ProcessingDone()
+        {
+            _isProcessOngoing = false;
+            _isTrayReadyToProcess = false;
+        }
+        private void StartProcessing()
+        {
+            _isProcessOngoing = true;
+        }
         public override void AutoRun(CancellationToken token)
         {
+            // WAIT FOR TRAY IN POSITION
+            if (_movestep == 0)
+            {
+                if (_isTrayReadyToProcess)
+                {
+                    StartProcessing();
+                    _movestep = 1;
+                }
+            }
+
+            // FILM REMOVAL SEQUENCE
+            if (_movestep == 1)
+            {
+                var filmRemovalSeqRes = FilmRemovalSequence();
+                if (filmRemovalSeqRes == 1)
+                {
+                    _movestep = 2;
+                }
+                else if (filmRemovalSeqRes == -1)
+                {
+                    // TODO: ERROR HANDLING
+                }
+            }
+
+            // INSPECT SEQUENCE
+            if (_movestep == 2)
+            {
+                var inspectRes = InspectSequence();
+                if (inspectRes == 1)
+                {
+                    _movestep = 3;
+                }
+                else if (inspectRes == -1)
+                {
+                    // TODO: ERROR HANDLING
+                }
+            }
+
+            // SEQUENCE COMPLETE
+            if (_movestep == 3)
+            {
+                ProcessingDone();
+                _movestep = 0;
+            }
+
+
             GlobalManager.Current.flag_RecheckTrayArrived = 0;
             try
             {
@@ -447,6 +513,43 @@ namespace AkribisFAM.WorkStation
                 AutorunManager.Current.isRunning = false;
                 ErrorReportManager.Report(ex);
             }
+        }
+        private int FilmRemovalSequence()
+        {
+            // MOVE TO POSITION
+
+            // WAIT TO REACH POSITION
+
+            // Z DOWN
+
+            // WAIT TO REACH POSITION
+
+            // PICK
+
+            // WAIT TO REACH POSITION
+
+            // Z UP
+
+            // WAIT TO REACH POSITION
+
+            // MOVE TO BIN POSITION
+
+            // RELEASE FILM
+
+            return 0;
+        }
+
+        private int InspectSequence()
+        {
+            // MOVE TO POSITION
+
+            // WAIT TO REACH POSITION
+
+            // INSPECT
+
+            // CHECK RESULT
+
+            return 0;
         }
     }
 }
