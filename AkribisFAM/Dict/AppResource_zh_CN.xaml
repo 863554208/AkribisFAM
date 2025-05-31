@@ -60,4 +60,10 @@
     <sys:String x:Key="BtnDeletPos">删除点位</sys:String>
     <sys:String x:Key="BtnSavePos">保存参数</sys:String>
 
+    <sys:String x:Key="AxisDebug">轴调试</sys:String>
+    <sys:String x:Key="AirDebug">气动调试</sys:String>
+    <sys:String x:Key="CameraDebug">相机调试</sys:String>
+    <sys:String x:Key="IODebug">IO调试</sys:String>
+    <sys:String x:Key="ProcessDebug">流程调试</sys:String>
+
 </ResourceDictionary>

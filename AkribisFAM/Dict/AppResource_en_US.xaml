@@ -5,5 +5,61 @@
     <sys:String x:Key="Manual Control">Manual Control</sys:String>
     <sys:String x:Key="Parameter Setting">Parameter Setting</sys:String>
     <sys:String x:Key="Internet Config">Internet Config</sys:String>
+    <sys:String x:Key="Performance">Performance</sys:String>
     <sys:String x:Key="Log">Log</sys:String>
+
+    <sys:String x:Key="UserLab">Current User:</sys:String>
+    <sys:String x:Key="SysStatelab">State:</sys:String>
+    <sys:String x:Key="CTlab">CT:</sys:String>
+    <sys:String x:Key="UPHlab">UPH:</sys:String>
+
+    <sys:String x:Key="ScanningGun">Scanner:</sys:String>
+    <sys:String x:Key="NozzleForce1">Nozzle1Force:</sys:String>
+    <sys:String x:Key="NozzleForce2">Nozzle2Force:</sys:String>
+    <sys:String x:Key="NozzleForce3">Nozzle3Force:</sys:String>
+    <sys:String x:Key="NozzleForce4">Nozzle4Force:</sys:String>
+
+    <sys:String x:Key="DeviceBtn">DeviceIO</sys:String>
+    <sys:String x:Key="ScanningGunBtn">Scanner</sys:String>
+    <sys:String x:Key="RangefinderBtn">Lazer</sys:String>
+    <sys:String x:Key="Camera1Btn">Camera1</sys:String>
+    <sys:String x:Key="Camera2Btn">Camera2</sys:String>
+    <sys:String x:Key="Camera3Btn">Camera3</sys:String>
+    <sys:String x:Key="MESBtn">MES</sys:String>
+
+    <sys:String x:Key="TextAxisList">Axis List</sys:String>
+    <sys:String x:Key="TextAxisStat">State</sys:String>
+    <sys:String x:Key="TextAllAxisStat">All State</sys:String>
+    <sys:String x:Key="TextAxisControl">Axis Control</sys:String>
+    <sys:String x:Key="TextAxisName">Axis Name</sys:String>
+    <sys:String x:Key="TextTargetAxisPos">Target Pos</sys:String>
+    <sys:String x:Key="TextNowAxisVel">Velocity</sys:String>
+    <sys:String x:Key="TextNowAxisAcc">Acc/Dec</sys:String>
+    <sys:String x:Key="TextNowAxisEnable">Enable</sys:String>
+    <sys:String x:Key="TextAllAxisEnable">All Enable</sys:String>
+    <sys:String x:Key="TextAxisStart">Run</sys:String>
+    <sys:String x:Key="TextAxisStop">Stop</sys:String>
+    <sys:String x:Key="TextAxisHome">Home</sys:String>
+    <sys:String x:Key="TextAxisJog">Jog</sys:String>
+
+    <sys:String x:Key="TextNowAxisPos">Current Pos</sys:String>
+    <sys:String x:Key="TextNowAxisEN">Enable</sys:String>
+    <sys:String x:Key="TextNowAxisInPos">In Pos</sys:String>
+    <sys:String x:Key="TextNowAxisHome">Home</sys:String>
+    <sys:String x:Key="TextNowLimit+">Limit+</sys:String>
+    <sys:String x:Key="TextNowLimit-">Limit-</sys:String>
+    <sys:String x:Key="TextNowSwLimit-">SWLimit-</sys:String>
+    <sys:String x:Key="TextNowSwLimit+">SWLimit+</sys:String>
+    <sys:String x:Key="TextNowAxisErr">Alarm</sys:String>
+
+    <sys:String x:Key="BtnAddPos">Add</sys:String>
+    <sys:String x:Key="BtnDeletPos">Delete</sys:String>
+    <sys:String x:Key="BtnSavePos">Save</sys:String>
+
+    <sys:String x:Key="AxisDebug">Axis Debug</sys:String>
+    <sys:String x:Key="AirDebug">Air Debug</sys:String>
+    <sys:String x:Key="CameraDebug">Camera Debug</sys:String>
+    <sys:String x:Key="IODebug">IO Debug</sys:String>
+    <sys:String x:Key="ProcessDebug">Process Debug</sys:String>
+    
 </ResourceDictionary>

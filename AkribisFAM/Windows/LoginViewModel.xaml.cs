@@ -28,7 +28,6 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
 
-            Trace.WriteLine("应用程序启动");
 
         }
 
