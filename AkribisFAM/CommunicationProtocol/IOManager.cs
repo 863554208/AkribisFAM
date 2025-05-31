@@ -15,7 +15,7 @@ using AkribisFAM.Util;
 
 namespace AkribisFAM.CommunicationProtocol
 {
-   public enum IO_OutFunction_Table
+    public enum IO_OutFunction_Table
     {
         OUT1_0Left_1_lift_cylinder_extend = 0,
         OUT1_1Left_1_lift_cylinder_retract,
@@ -327,7 +327,6 @@ namespace AkribisFAM.CommunicationProtocol
                 }
             }
         }
-
         public void ReadIO_status()
         {
             //循环读取输出IO
@@ -358,8 +357,9 @@ namespace AkribisFAM.CommunicationProtocol
                                 OutIO_status[(int)IOnamekey] = 1;
                             }
                         }
+                       Thread.Sleep(1000);
                     });
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1);
                 }
             }));
             //循环读取输入IO
@@ -388,10 +388,12 @@ namespace AkribisFAM.CommunicationProtocol
                                 INIO_status[(int)IOnamekey] = 1;
                             }
                         }
+                        Thread.Sleep(5);
                     });
-                    Thread.Sleep(1);
+                    //Thread.Sleep(1000);
                 }
             }));
+
         }
 
         public bool IO_ControlStatus(IO_OutFunction_Table iO_OutFunction_Table, int writestatus)
@@ -402,7 +404,7 @@ namespace AkribisFAM.CommunicationProtocol
                 {
                     //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
                     //Logger.WriteLog(err);
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, true);
                     if (!Sucessstatus)
                     {
                         return false;
@@ -421,7 +423,7 @@ namespace AkribisFAM.CommunicationProtocol
                     //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
                     //Logger.WriteLog(err);
 
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, false);
                     if (!Sucessstatus)
                     {
                         return false;

@@ -160,26 +160,24 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (!ZDown())
-            {
-                return false;
-            }
-
-
-            if (!ClawOpen())
-            {
-                return false;
-            }
+            //if (!ZDown())
+            //{
+            //    return false;
+            //}
 
             if (!VacOn())
             {
                 return false;
             }
-            Thread.Sleep(100);
+            if (!ClawOpen())
+            {
+                return false;
+            }
             if (!VacOff())
             {
                 return false;
             }
+
             if (!ZUp())
             {
                 return false;

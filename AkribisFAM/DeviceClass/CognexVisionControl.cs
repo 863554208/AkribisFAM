@@ -202,12 +202,13 @@ namespace AkribisFAM.DeviceClass
 
             Logger.WriteLog("开始CCD2运动1");
             //移动到拍照结束点
-            if (AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, 0) == (int)AkrAction.ACTTION_ERR.NONE)
+            var point = GlobalManager.Current.lowerCCDPoints[0];
+            if (AkrAction.Current.MoveFoamXY(point.X - 16 * 4, point.Y, true) != (int)AkrAction.ACTTION_ERR.NONE)
             {
                 return false;
             }
 
-            if (!MoveVision2EndingPos())
+            if (!MoveVision2EndingPos(true))
             {
                 return false;
             }
@@ -219,7 +220,7 @@ namespace AkribisFAM.DeviceClass
             //List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
             //AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
 
-            return App.assemblyGantryControl.ZUpAll() ;
+            return App.assemblyGantryControl.ZUpAll();
         }
         public bool MoveVision2StandbyPos()
         {
@@ -230,22 +231,24 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照起始点
-            return (AkrAction.Current.MoveFoamXY(points[0].X + 16,  points[0].Y) != (int)AkrAction.ACTTION_ERR.NONE);
+            return (AkrAction.Current.MoveFoamXY(points[0].X + 16, points[0].Y) == (int)AkrAction.ACTTION_ERR.NONE);
 
 
             //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
             //AkrAction.Current.Move(AxisName.FSY, GlobalManager.Current.lowerCCDPoints[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY);
         }
-        public bool MoveVision2EndingPos()
+        public bool MoveVision2EndingPos(bool bypassCheckZ = false)
         {
-            List<SinglePoint> points = new List<SinglePoint>();
-            points = GlobalManager.Current.lowerCCDPoints;
+            SinglePoint points = GlobalManager.Current.lowerCCDPoints[0];
 
-            if (!App.assemblyGantryControl.ZUpAll())
-                return false;
+            if (!bypassCheckZ)
+            {
+                if (!App.assemblyGantryControl.ZUpAll())
+                    return false;
+            }
 
 
-            return AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, points[0].Y) != (int)AkrAction.ACTTION_ERR.NONE;
+            return AkrAction.Current.MoveFoamXY(points.X - 16 * 4, points.Y, bypassCheckZ) == (int)AkrAction.ACTTION_ERR.NONE;
         }
 
         public bool MoveVision3EndingPos()
@@ -256,7 +259,7 @@ namespace AkribisFAM.DeviceClass
             if (!App.assemblyGantryControl.ZUpAll())
                 return false;
 
-            return AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, points[1].Y) != (int)AkrAction.ACTTION_ERR.NONE;
+            return AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, points[1].Y) == (int)AkrAction.ACTTION_ERR.NONE;
 
         }
 

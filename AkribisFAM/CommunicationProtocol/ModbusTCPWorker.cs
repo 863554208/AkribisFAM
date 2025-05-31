@@ -24,14 +24,14 @@ namespace AkribisFAM.CommunicationProtocol
 
         public static ModbusTCPWorker GetInstance()
         {
-            lock (locker)
-            {
+            //lock (locker)
+            //{
 
                 if (_instance == null)
                 {
                     _instance = new ModbusTCPWorker();
                 }
-            }
+            //}
             //Console.WriteLine(_instance);
             return _instance;
 

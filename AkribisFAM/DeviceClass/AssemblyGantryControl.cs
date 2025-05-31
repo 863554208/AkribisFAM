@@ -254,7 +254,9 @@ namespace AkribisFAM.DeviceClass
 
         public bool ZCamPosAll()
         {
-            return ZCamPos(Picker.Picker1) && ZCamPos(Picker.Picker2) && ZCamPos(Picker.Picker3) && ZCamPos(Picker.Picker4);
+            SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)Picker.Picker1);
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+
         }
         public bool ZCamPos(Picker picker)
         {
@@ -263,7 +265,7 @@ namespace AkribisFAM.DeviceClass
                 return true;
             }
             SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)picker);
-
+            //AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z);
             switch (picker)
             {
                 case Picker.Picker1:
@@ -315,7 +317,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool ZUpAll()
         {
-            return ZUp(Picker.Picker1) && ZUp(Picker.Picker2) && ZUp(Picker.Picker3) && ZUp(Picker.Picker4);
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(0, 0, 0, 0) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool MovePickPos(Picker pickerNum, int fovNum)
         {
@@ -330,7 +332,7 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (AkrAction.Current.MoveFoamXY(point.X,point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
@@ -799,7 +801,7 @@ namespace AkribisFAM.DeviceClass
             }
 
             SinglePoint point = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
-            if (AkrAction.Current.MoveFoamXY(point.X,point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
                 return false;
             }
@@ -1047,13 +1049,13 @@ namespace AkribisFAM.DeviceClass
             switch (picker)
             {
                 case Picker.Picker1:
-                    return AkrAction.Current.MoveFoamZ1(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ1(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-                    return AkrAction.Current.MoveFoamZ2(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ2(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-                    return AkrAction.Current.MoveFoamZ3(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ3(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-                    return AkrAction.Current.MoveFoamZ4(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ4(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }

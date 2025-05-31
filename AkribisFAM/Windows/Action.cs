@@ -1,25 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Serialization;
 using AAMotion;
-using AkribisFAM.AAmotionFAM;
 using AkribisFAM.Util;
-using AkribisFAM.WorkStation;
-using HslCommunication.Profinet.Delta;
-using HslCommunication.Profinet.Inovance;
-using LiveCharts.Wpf;
-using YamlDotNet.Core.Tokens;
 using static AAMotion.AAMotionAPI;
 using static AkribisFAM.GlobalManager;
 
@@ -36,7 +22,13 @@ namespace AkribisFAM.WorkStation
             GTOUPERR = 4,
             ERR = -1
         }
+        public AkrAction()
+        {
+            ParameterPath = "C:\\Users\\user\\Documents\\Repository\\AkribisFAM\\bin\\x64\\Debug";
 
+            load_all_parameters();
+
+        }
         #region Declaration
         private static AkrAction _instance;
 
@@ -57,8 +49,8 @@ namespace AkribisFAM.WorkStation
 
         public string ParameterPath = string.Empty;
         public OneAxisParams axisPrm;
-        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Length];
-        private int speedmultiplier = 100;
+        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max()+1];
+        private int speedmultiplier = 1;
 
         #endregion
 
@@ -190,18 +182,18 @@ namespace AkribisFAM.WorkStation
         //    return (int)ACTTION_ERR.NONE;
         //}
 
-        public void SetSingleEvent(AxisName axisName , double? pos ,int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        public void SetSingleEvent(AxisName axisName, double? pos, int eventSelect, int? eventPulseRes = null, int? eventPulseWid = null)
         {
             var agmIndex = (int)axisName / 8;
             var axisRefNum = (int)axisName % 8;
-            SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName,pos), eventSelect,eventPulseRes, eventPulseWid);
+            SetSingleEventPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, pos), eventSelect, eventPulseRes, eventPulseWid);
         }
 
-        public void SetEventFixedGapPEG(AxisName axisName, double? beginPos, double? eventGap, double? eventEndPos, int eventSelect , int? eventPulseRes = null, int? eventPulseWid = null)
+        public void SetEventFixedGapPEG(AxisName axisName, double? beginPos, double? eventGap, double? eventEndPos, int eventSelect, int? eventPulseRes = null, int? eventPulseWid = null)
         {
             var agmIndex = (int)axisName / 8;
             var axisRefNum = (int)axisName % 8;
-            AAMotionAPI.SetEventFixedGapPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, beginPos), ToPulse(axisName, eventGap), ToPulse(axisName, eventEndPos), eventSelect, eventPulseRes,220000);
+            AAMotionAPI.SetEventFixedGapPEG(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), ToPulse(axisName, beginPos), ToPulse(axisName, eventGap), ToPulse(axisName, eventEndPos), eventSelect, eventPulseRes, 220000);
         }
 
         public void EventEnable(AxisName axisName)
@@ -259,7 +251,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="speed"></param>
 
         /// <returns></returns>
-        public int MoveAbs(AxisName axisName, double position, double speed )
+        public int MoveAbs(AxisName axisName, double position, double speed)
         {
             try
             {
@@ -320,7 +312,7 @@ namespace AkribisFAM.WorkStation
                 axis.MoveAbs(pos, vel);
                 Thread.Sleep(10); //delay to confirm motor movement
 
-                if(waitmotiondone)
+                if (waitmotiondone)
                     if (WaitMotionDone(axisName, position) != 0) return (int)ACTTION_ERR.ERR; ;
             }
             catch (Exception ex)
@@ -397,14 +389,14 @@ namespace AkribisFAM.WorkStation
                 var dist = ToPulse(axisName, distance);
                 var vel = ToPulse(axisName, speed);
                 var currentpos = axis.Pos;
-                
+
                 axis.MoveAbs(dist, vel);
                 Thread.Sleep(10); //delay to confirm motor movement
 
                 if (waitmotiondone)
                 {
-                    if (WaitMotionDone(axisName, currentpos+dist) != 0) return (int)ACTTION_ERR.ERR;
-                    
+                    if (WaitMotionDone(axisName, currentpos + dist) != 0) return (int)ACTTION_ERR.ERR;
+
                 }
             }
             catch (Exception ex)
@@ -449,10 +441,10 @@ namespace AkribisFAM.WorkStation
             var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
             var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
             var axis = controller.GetAxis(axisnum);
-            
+
             DateTime startTime = DateTime.Now;
             TimeSpan timeoutDuration = TimeSpan.FromSeconds(10);
-            while (axis.InTargetStat != 4 && axis.MotionStat !=0)
+            while (axis.InTargetStat != 4 && axis.MotionStat != 0)
             {
                 if (DateTime.Now - startTime > timeoutDuration)
                 {
@@ -670,7 +662,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="dir"> 1 = Positive, -1 = Negative </param>
         /// <param name="vel">velocity (positive always)</param>
         /// <returns></returns>
-        public int JogMove(AxisName axisName , int dir , double vel)
+        public int JogMove(AxisName axisName, int dir, double vel)
         {
             try
             {
@@ -679,7 +671,7 @@ namespace AkribisFAM.WorkStation
                 var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
                 var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
                 var axis = controller.GetAxis(axisnum);
-                
+
                 //temp motor on 
                 MotorOn(controller, axisnum);
                 Jog(controller, axisnum, dir * ToPulse(axisName, vel));
@@ -737,7 +729,7 @@ namespace AkribisFAM.WorkStation
                 var homeoffset = ToPulse(axisName, axisparam.HomeOffset);
                 var direction = (isPositive) ? 1 : -1;
 
-                axis.Home(toLimit, toIndex, homevel*direction, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
+                axis.Home(toLimit, toIndex, homevel * direction, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
 
                 while (!IsHomeCompleted(axisName))
                 {
@@ -766,7 +758,7 @@ namespace AkribisFAM.WorkStation
             return axis.HomingStat == 100;
         }
 
-        public int HomeAxisToHardstop(AxisName axisName,bool isPositive)
+        public int HomeAxisToHardstop(AxisName axisName, bool isPositive)
         {
             try
             {
@@ -783,7 +775,7 @@ namespace AkribisFAM.WorkStation
                 var direction = (isPositive) ? 1 : -1;
                 var threshold = ToPulse(axisName, 0.1);
 
-                axis.HomeToHardStop(threshold,homevel, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
+                axis.HomeToHardStop(threshold, homevel, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
 
                 while (!IsHomeCompleted(axisName))
                 {
@@ -823,11 +815,11 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move XY
-                if(MoveAbs(xaxis, xpos, xspeed)!=0 || MoveAbs(yaxis, ypos, yspeed) !=0)
+                if (MoveAbs(xaxis, xpos, xspeed) != 0 || MoveAbs(yaxis, ypos, yspeed) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if(WaitMotionDone(xaxis, xpos)!=0 || WaitMotionDone(yaxis, ypos)!=0)
+                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -844,7 +836,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveFoamXY(double xpos, double ypos)
+        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false)
         {
             try
             {
@@ -860,14 +852,17 @@ namespace AkribisFAM.WorkStation
                 var z4 = AxisName.PICK4_Z;
                 var zspeed = axisParamsArray[(int)AxisName.PICK1_Z].Velocity; //use z1 as ref for protection speed
 
-                if (GetCurrentPosition(z1,out var z1pos)!=0|| GetCurrentPosition(z2, out var z2pos) != 0|| 
+                if (GetCurrentPosition(z1, out var z1pos) != 0 || GetCurrentPosition(z2, out var z2pos) != 0 ||
                    GetCurrentPosition(z3, out var z3pos) != 0 || GetCurrentPosition(z4, out var z4pos) != 0)
                     return (int)ACTTION_ERR.ERR;
 
-                if (z1pos > 0.5) if (MoveAbs(z1, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
-                if (z2pos > 0.5) if (MoveAbs(z2, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
-                if (z3pos > 0.5) if (MoveAbs(z3, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
-                if (z4pos > 0.5) if (MoveAbs(z4, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
+                if (!bypassZcheck)
+                {
+                    if (z1pos > 0.5) if (MoveAbs(z1, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
+                    if (z2pos > 0.5) if (MoveAbs(z2, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
+                    if (z3pos > 0.5) if (MoveAbs(z3, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
+                    if (z4pos > 0.5) if (MoveAbs(z4, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
+                }
                 /////////////////////////////////////////////////////////////////////////////////////////////////
 
                 //start move XY - to consider vector move
@@ -902,19 +897,19 @@ namespace AkribisFAM.WorkStation
                 var z2 = AxisName.PICK2_Z;
                 var z3 = AxisName.PICK3_Z;
                 var z4 = AxisName.PICK4_Z;
-                var z1speed = axisParamsArray[(int)AxisName.PICK1_Z].Velocity * speedmultiplier; 
-                var z2speed = axisParamsArray[(int)AxisName.PICK2_Z].Velocity * speedmultiplier; 
-                var z3speed = axisParamsArray[(int)AxisName.PICK3_Z].Velocity * speedmultiplier; 
+                var z1speed = axisParamsArray[(int)AxisName.PICK1_Z].Velocity * speedmultiplier;
+                var z2speed = axisParamsArray[(int)AxisName.PICK2_Z].Velocity * speedmultiplier;
+                var z3speed = axisParamsArray[(int)AxisName.PICK3_Z].Velocity * speedmultiplier;
                 var z4speed = axisParamsArray[(int)AxisName.PICK4_Z].Velocity * speedmultiplier;
 
                 //start move 4Z 
-                if (MoveAbs(z1, z1pos, z1speed) != 0 || MoveAbs(z2, z2pos, z2speed) != 0||
-                    MoveAbs(z3, z3pos, z3speed) != 0 || MoveAbs(z4, z4pos, z4speed) != 0)
+                if (MoveAbs(z1, z1pos, z1speed) != 0 || MoveAbs(z2, z2pos, z2speed) != 0 ||
+                    MoveAbs(z3, z3pos, z3speed) != 0 /*|| MoveAbs(z4, z4pos, z4speed) != 0*/)
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4Z motion done
-                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0|| 
-                    WaitMotionDone(z3, z3pos) != 0 || WaitMotionDone(z4, z4pos) != 0)
+                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 ||
+                    WaitMotionDone(z3, z3pos) != 0 /*|| WaitMotionDone(z4, z4pos) != 0*/)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -933,7 +928,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z1 - to consider vector move
-                if (MoveAbs(z1, z1pos, z1speed,true) != 0)
+                if (MoveAbs(z1, z1pos, z1speed, true) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1068,7 +1063,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-         public int MoveFoamT3(double t3pos)
+        public int MoveFoamT3(double t3pos)
         {
             try
             {
@@ -1119,7 +1114,7 @@ namespace AkribisFAM.WorkStation
                 var z1 = AxisName.PRZ;
                 var zspeed = axisParamsArray[(int)AxisName.PRZ].Velocity; //use z1 as ref for protection speed
 
-                if (GetCurrentPosition(z1, out var z1pos) != 0 )
+                if (GetCurrentPosition(z1, out var z1pos) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 if (z1pos > 0.5) if (MoveAbs(z1, 0, zspeed, true) != 0) return (int)ACTTION_ERR.ERR;
@@ -1197,7 +1192,7 @@ namespace AkribisFAM.WorkStation
             }
 
             allEnable = (ret == total);
-           
+
             return (int)ACTTION_ERR.NONE;
         }
         //todo: SystemHoming - paul
@@ -1227,9 +1222,9 @@ namespace AkribisFAM.WorkStation
         public void SetSpeedMultiplier(int percentage)
         {
             if (percentage < 10) percentage = 10;
-            if (percentage >100) percentage = 100;
+            if (percentage > 100) percentage = 100;
 
-            speedmultiplier = percentage/100;
+            speedmultiplier = percentage / 100;
         }
         /// <summary>
         /// Return current speed multiplier in percentage (10 to 100%)
@@ -1262,7 +1257,7 @@ namespace AkribisFAM.WorkStation
         public int StartNGConveyor()
         {
             var vel = axisParamsArray[(int)AxisName.BL5].Velocity;
-            if (JogMove(AxisName.BL5, 1, vel) != 0 || JogMove(AxisName.BR5, 1, vel)!=0)
+            if (JogMove(AxisName.BL5, 1, vel) != 0 || JogMove(AxisName.BR5, 1, vel) != 0)
             {
                 return (int)ACTTION_ERR.ERR;
 
@@ -1539,7 +1534,7 @@ namespace AkribisFAM.WorkStation
         {
             try
             {
-                int i = 0;
+                //int i = 0;
                 foreach (AxisName axisname in (AxisName[])Enum.GetValues(typeof(AxisName)))
                 {
                     string fPath = Path.Combine(ParameterPath, axisname + ".xml");
@@ -1555,8 +1550,8 @@ namespace AkribisFAM.WorkStation
                         SetMotionParameters(axisname, axisPrm.Velocity, axisPrm.Acceleration, axisPrm.Deceleration);
                     }
 
-                    axisParamsArray[i] = axisPrm; //store param data into array.
-                    i++;
+                    axisParamsArray[(int)axisname] = axisPrm; //store param data into array.
+                    //i++;
 
                     //else
                     //{
@@ -1947,7 +1942,7 @@ namespace AkribisFAM.WorkStation
         //}
 
 
-        
+
 
         //public int IOSend(int addr, bool enable)
         //{
@@ -2045,25 +2040,29 @@ namespace AkribisFAM.WorkStation
         //}
 
         [CategoryAttribute("Axis Parameters"), DescriptionAttribute("Set the velocity for this motor during move (in mm/sec)")]
-        public double Velocity {
+        public double Velocity
+        {
             get { return prmVal.Velocity; }
             set { prmVal.Velocity = value; }
         }
 
         [CategoryAttribute("Axis Parameters"), DescriptionAttribute("Set the acceleration for this motor during home and move (in mm/sec2)")]
-        public double Acceleration {
+        public double Acceleration
+        {
             get { return prmVal.Acceleration; }
             set { prmVal.Acceleration = value; }
         }
 
         [CategoryAttribute("Axis Parameters"), DescriptionAttribute("Set the deceleration for this motor during home and move (in mm/sec2)")]
-        public double Deceleration {
+        public double Deceleration
+        {
             get { return prmVal.Deceleration; }
             set { prmVal.Deceleration = value; }
         }
 
         [CategoryAttribute("Axis Parameters"), DescriptionAttribute("Set the velocity for this motor during home (in mm/sec)")]
-        public double HomeVelocity {
+        public double HomeVelocity
+        {
             get { return prmVal.HomeVelocity; }
             set { prmVal.HomeVelocity = value; }
         }
@@ -2098,7 +2097,8 @@ namespace AkribisFAM.WorkStation
         //}
 
         [CategoryAttribute("Axis Parameters"), DescriptionAttribute("Set the length of time before motor timeout occur during move (in milliseconds)")]
-        public double HomeOffset {
+        public double HomeOffset
+        {
             get { return prmVal.HomeOffset; }
             set { prmVal.HomeOffset = value; }
         }
