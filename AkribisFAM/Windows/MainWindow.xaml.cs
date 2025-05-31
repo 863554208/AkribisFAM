@@ -601,7 +601,7 @@ namespace AkribisFAM
             // 如果松开太早，提示用户
             if (!isResetButtonTriggered)
             {
-                MessageBox.Show("请按住按钮至少3秒以执行复位");
+                MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
             }
         }
 
@@ -786,7 +786,7 @@ namespace AkribisFAM
             {
                 return;
             }
-            MessageBox.Show("开始复位");
+            MessageBox.Show("Start Reseting");
             bool resetResult = await Task.Run(() => AutorunManager.Current.Reset());
             if (!resetResult)
             {
@@ -794,7 +794,7 @@ namespace AkribisFAM
                 AkrAction.Current.axisAllEnable(false);
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show("复位失败");
+                    MessageBox.Show("Reseting Failed!");
                 });
                 AutorunManager.Current.hasReseted = false;
             }
@@ -802,7 +802,7 @@ namespace AkribisFAM
             {
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show("复位成功");
+                    MessageBox.Show("Reseting Successfully!");
                 });
                 AutorunManager.Current.hasReseted = true;
                 GlobalManager.Current.Lailiao_exit = false;
