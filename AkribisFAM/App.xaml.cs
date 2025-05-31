@@ -26,9 +26,11 @@ namespace AkribisFAM
         public static KeyenceLaserControl laser;
         public static CognexVisionControl vision1;
         public static AssemblyGantryControl assemblyGantryControl;
+        public static FilmRemoveGantryControl filmRemoveGantryControl;
         public static FeederControl feeder1;
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
+        public static LoadCellCalibration calib;
         
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -59,7 +61,18 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            filmRemoveGantryControl = new FilmRemoveGantryControl();
+            filmRemoveGantryControl.XOffset = 25.4;
+            filmRemoveGantryControl.YOffset = 56.3;
+            calib = new LoadCellCalibration();
 
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            //TODO
+            //try
+            //{
+            //    // 初始化数据库连接
+            //    DatabaseManager.Initialize();
 
             //20250530 测试mes的tcp连接 【史彦洋】 Start
 

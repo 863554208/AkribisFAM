@@ -3,6 +3,7 @@ using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -239,6 +240,7 @@ namespace AkribisFAM.Windows
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Conveyor.Current.MoveConveyorAll((int)AxisSpeed.BL1);
+            //Conveyor.Current.MoveConveyorAll(200);
         }
 
         private void btnSlowMove_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -318,6 +320,7 @@ namespace AkribisFAM.Windows
         {
             _timer.Stop();
         }
+    
     }
 
 

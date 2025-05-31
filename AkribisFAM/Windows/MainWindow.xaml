@@ -33,7 +33,8 @@
         <!-- 第一行，水平 StackPanel -->
         <Grid Grid.Row="0" Background="WhiteSmoke">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="173.162"/>
                 <ColumnDefinition Width="5*"/>
                 <!-- 左侧用户状态信息 -->
                 <ColumnDefinition Width="auto"/>
@@ -44,29 +45,35 @@
                 <!-- 时间显示 -->
             </Grid.ColumnDefinitions>
 
-            <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png"  Grid.Column="0"/>
+            <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png"  Grid.Column="0" Grid.ColumnSpan="2"/>
 
             <!-- 用户状态标签 -->
-            <StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
+            <StackPanel Orientation="Vertical" Grid.Column="2" VerticalAlignment="Center" >
 
-                <Label Content="{DynamicResource UserLab}" />
-                <Label Name="NowUserLab" />
+                <StackPanel Margin="30,0,30,0" Orientation="Horizontal" >
 
-                <Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
-                <Label Name="NowStateLab" />
+                    <Label Content="{DynamicResource UserLab}" />
+                    <Label Name="NowUserLab" />
 
-                <Label Content="" />
-                <Label Name="NowState" />
+                    <Label Margin="20,0,0,0" Content="{DynamicResource SysStatelab}" />
+                    <Label Name="NowStateLab" />
 
-                <Label Content="{DynamicResource CTlab}" />
-                <Label Name="CtValueLab" />
+                    <Label Content="" />
+                    <Label Name="NowState" />
 
-                <Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
-                <Label Name="UphValueLab" />
+                    <Label Content="{DynamicResource CTlab}" />
+                    <Label Name="CtValueLab" />
+
+                    <Label Margin="20,0,0,0" Content="{DynamicResource UPHlab}" />
+                    <Label Name="UphValueLab" />
+                </StackPanel >
+                <StackPanel Orientation="Horizontal">
+                    <Label x:Name="lblVersion" />
+                </StackPanel>
             </StackPanel>
 
             <!-- 按钮区域 -->
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="3" Grid.ColumnSpan="2" Margin="0,0,112,0">
                 <Button Name="BtnDevice" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource DeviceBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnDevice_Click" />
                 <Button Name="BtnScanningGun" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource ScanningGunBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnScanningGun_Click" />
                 <Button Name="BtnRangefinder" Background="#bcbfc9" Margin="5,0" Content="{DynamicResource RangefinderBtn}" Style="{StaticResource MaterialDesignFloatingActionButton}" Click="BtnRangefinder_Click" />
@@ -76,12 +83,12 @@
             </StackPanel>
 
             <!-- 报警按钮 -->
-            <local:PromptableButton Margin="20,0,20,0" x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
-                            Click="Alarmbutton_Click" HorizontalAlignment="Left" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="3" />
+            <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
+                            Click="Alarmbutton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Height="55" Width="72" Grid.Column="4" />
 
             <!-- 当前时间 -->
-            <Border Margin="10 0 20 0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="4">
+            <Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5">
                 <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />

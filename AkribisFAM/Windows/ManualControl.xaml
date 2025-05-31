@@ -7,34 +7,35 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851" FontSize="16">
     <TabControl TabStripPlacement="Left" >
-        <TabItem Header="Conveyor">
-            <local:ConveyorControlView/>
-        </TabItem>
-        <TabItem Header="Laser Height">
-            <local:LaserHeighCheckView/>
-        </TabItem>
+            <TabItem Header="Conveyor">
+                <local:ConveyorControlView />
+            </TabItem>
+            <TabItem Header="Laser Height">
+                <local:LaserHeighCheckView/>
+            </TabItem>
 
-        <TabItem Header="Feeder Foam Picking">
-            <local:FeederView/>
-        </TabItem>
+            <TabItem Header="Feeder Foam Picking">
+                <local:FeederView/>
+            </TabItem>
 
-        <TabItem Header="CCD 2 Coordinate Check">
-            <local:Vision2View />
-        </TabItem>
+            <TabItem Header="CCD 2 Coordinate Check">
+                <local:Vision2View />
+            </TabItem>
 
-        <!--<TabItem Header="Pallet on the fly">
+            <!--<TabItem Header="Pallet on the fly">
          <local:Vision3PalletOnTheFly/>
      </TabItem>-->
-        <TabItem Header="Foam Assembly">
-            <local:FoamAssemblyView/>
-        </TabItem>
+            <TabItem Header="Foam Assembly">
+                <local:FoamAssemblyView/>
+            </TabItem>
 
 
-        <TabItem Header="Film Remove">
-            <local:FilmRemoveView/>
-        </TabItem>
+            <TabItem Header="Film Remove">
+                <local:FilmRemoveView/>
+            </TabItem>
 
 
 
-    </TabControl>
+        </TabControl>
+
 </UserControl>

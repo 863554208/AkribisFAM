@@ -1,4 +1,5 @@
 ﻿using AkribisFAM.WorkStation;
+using System;
 using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
 
@@ -9,6 +10,9 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class PointXYMoveRemoveInspectView : UserControl
     {
+        public event EventHandler VisionInspectPressed;
+        public event EventHandler MovePressed;
+        public event EventHandler RemoveFilmPressed;
         public PointXYMoveRemoveInspectView()
         {
             InitializeComponent();
@@ -16,31 +20,19 @@ namespace AkribisFAM.Windows
 
         private void btnMoveToPos_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            try
-            {
-                var dc = (SinglePointExt)DataContext;
-                if (AkrAction.Current.Move(AxisName.LSX, (int)dc.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                AkrAction.Current.Move(AxisName.LSY, (int)dc.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
-                {
-                    System.Windows.Forms.MessageBox.Show("failed");
-                }
 
-            }
-            catch (System.Exception)
-            {
-
-                throw;
-            }
+            MovePressed?.Invoke(this, EventArgs.Empty);
         }
 
         private void btnRemoveFilm_Click(object sender, System.Windows.RoutedEventArgs e)
         {
 
+            RemoveFilmPressed?.Invoke(this, EventArgs.Empty);
         }
 
         private void btnInspect_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-
+            VisionInspectPressed?.Invoke(this, EventArgs.Empty);
         }
     }
 }
