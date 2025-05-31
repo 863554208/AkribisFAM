@@ -25,31 +25,28 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class DebugLog : UserControl
     {
-        private ObservableCollection<string> _messages = new ObservableCollection<string>();
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        public ObservableCollection<string> _messages = new ObservableCollection<string>();
+        public CancellationTokenSource _cts = new CancellationTokenSource();
         public DebugLog()
         {
             InitializeComponent();
             MessageListView.ItemsSource = _messages;
-
-            // 启动后台线程读取 BlockingCollection
-            Task.Run(() => ProcessQueue(_cts.Token));
+            Logger.OnLog = ShowMessage;
+            this.DataContext = this;
         }
 
-        private void ProcessQueue(CancellationToken token)
+        private void ShowMessage(string msg)
         {
-            foreach (var item in Logger._logQueue.GetConsumingEnumerable(token))
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
-                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                _messages.Add(msg);
+                if (_messages.Count > 200)
+                    _messages.RemoveAt(0);
+                if (_messages.Count > 0)
                 {
-                    _messages.Add(item);
-                    if (_messages.Count > 200)
-                        _messages.RemoveAt(0);
-                    if (_messages.Count > 0) {
-                        MessageListView.ScrollIntoView(_messages[_messages.Count - 1]);
-                    }
-                }));
-            }
+                    MessageListView.ScrollIntoView(_messages[_messages.Count - 1]);
+                }
+            }));
         }
     }
 }

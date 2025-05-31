@@ -607,7 +607,9 @@ namespace AkribisFAM
 
         private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Start Button is clicked.");
             if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
+                Logger.WriteLog("Change from idle to running.");
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
@@ -645,8 +647,10 @@ namespace AkribisFAM
 
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Pause Button is clicked.");
             if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
             {
+                Logger.WriteLog("Change from running to idle.");
                 GlobalManager.Current.IsPause = true;
                 StateManager.Current.IdleStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
@@ -656,6 +660,7 @@ namespace AkribisFAM
             }
             else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
             {
+                Logger.WriteLog("Change from idle to running.");
                 GlobalManager.Current.IsPause = false;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.RunningStart = DateTime.Now;
@@ -698,8 +703,10 @@ namespace AkribisFAM
 
         private void StopAutoRun_Click(object sender, RoutedEventArgs e)
         {
+            Logger.WriteLog("Stop Button is clicked.");
             if (StateManager.Current.State == StateCode.RUNNING)
             {
+                Logger.WriteLog("Change from running to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
@@ -712,6 +719,7 @@ namespace AkribisFAM
             }
             else if (StateManager.Current.State == StateCode.MAINTENANCE)
             {
+                Logger.WriteLog("Change from maintence to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.MaintenanceEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.STOPPED;
@@ -723,6 +731,11 @@ namespace AkribisFAM
                 StartAutoRunButton.IsEnabled = true;
             }
             else {
+                Logger.WriteLog("Change from idle to stopped.");
+                StateManager.Current.StoppedStart = DateTime.Now;
+                StateManager.Current.IdleEnd = DateTime.Now;
+                StateManager.Current.State = StateCode.STOPPED;
+                StateManager.Current.Guarding = 0;
                 AkrAction.Current.StopAllAxis();
                 AkrAction.Current.axisAllEnable(false);
                 return;

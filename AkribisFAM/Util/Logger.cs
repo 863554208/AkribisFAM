@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace AkribisFAM.Util
 {
@@ -74,8 +75,16 @@ namespace AkribisFAM.Util
         {
             string timeStamp = DateTime.Now.ToString("yyyyMMdd_HH:mm:ss.fff");
             string threadId = Thread.CurrentThread.ManagedThreadId.ToString();
-            string logEntry = $"Thread:{threadId}  {timeStamp}  {Path.GetFileName(filePath)}: {lineNumber} - {message}";
+            //string logEntry = $"Thread:{threadId}  {timeStamp}  {Path.GetFileName(filePath)}: {lineNumber} - {message}";
+            string logEntry = $"[{timeStamp}]: User: {GlobalManager.Current.username} Behavior: {message}";
             _logQueue.Add(logEntry);
+        }
+
+        public static Action<string> OnLog;
+
+        public static void Log(string message)
+        {
+            OnLog?.Invoke(message);
         }
 
         private static void ProcessLogQueue()
@@ -98,6 +107,7 @@ namespace AkribisFAM.Util
                                     using (FileStream fs = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 4096, FileOptions.WriteThrough))
                                     using (StreamWriter writer = new StreamWriter(fs, Encoding.UTF8))
                                     {
+                                        Log(logEntry);
                                         writer.WriteLine(logEntry);
                                     }
                                 }
