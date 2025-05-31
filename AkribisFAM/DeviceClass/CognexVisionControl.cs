@@ -202,7 +202,7 @@ namespace AkribisFAM.DeviceClass
 
             Logger.WriteLog("开始CCD2运动1");
             //移动到拍照结束点
-            if (AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0)
+            if (AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, 0) == (int)AkrAction.ACTTION_ERR.NONE)
             {
                 return false;
             }
@@ -219,8 +219,7 @@ namespace AkribisFAM.DeviceClass
             //List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
             //AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
 
-            return (AkrAction.Current.MoveNoWait(AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z) == 0 &&
-            AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z) == 0);
+            return App.assemblyGantryControl.ZUpAll() ;
         }
         public bool MoveVision2StandbyPos()
         {
@@ -231,8 +230,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照起始点
-            return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-            AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
+            return (AkrAction.Current.MoveFoamXY(points[0].X + 16,  points[0].Y) != (int)AkrAction.ACTTION_ERR.NONE);
 
 
             //AkrAction.Current.Move(AxisName.FSX, GlobalManager.Current.lowerCCDPoints[0].X + 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
@@ -246,10 +244,8 @@ namespace AkribisFAM.DeviceClass
             if (!App.assemblyGantryControl.ZUpAll())
                 return false;
 
-            //AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            return (AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-            AkrAction.Current.Move(AxisName.FSY, points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
 
+            return AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, points[0].Y) != (int)AkrAction.ACTTION_ERR.NONE;
         }
 
         public bool MoveVision3EndingPos()
@@ -260,9 +256,7 @@ namespace AkribisFAM.DeviceClass
             if (!App.assemblyGantryControl.ZUpAll())
                 return false;
 
-            //AkrAction.Current.Move(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX);
-            return (AkrAction.Current.MoveNoWait(AxisName.FSX, (GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4), (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-            AkrAction.Current.Move(AxisName.FSY, points[1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
+            return AkrAction.Current.MoveFoamXY(GlobalManager.Current.lowerCCDPoints[0].X - 16 * 4, points[1].Y) != (int)AkrAction.ACTTION_ERR.NONE;
 
         }
 
@@ -401,8 +395,8 @@ namespace AkribisFAM.DeviceClass
                     AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
                     Thread.Sleep(300);
                     //0,1 => 3,3 +,5
-                    if (AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count + 1].X - GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-                    (AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count + 1].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX)) != 0)
+                    if (AkrAction.Current.MoveFoamXY(snapPalleteList[count + 1].X - GlobalManager.Current.PalleteGap_X,
+                        snapPalleteList[count + 1].Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         return false;
                     }
@@ -420,7 +414,8 @@ namespace AkribisFAM.DeviceClass
                     AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
                     Thread.Sleep(300);
 
-                    if (AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count].X + GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0)
+                    if (AkrAction.Current.MoveFoamXY(snapPalleteList[count].X + GlobalManager.Current.PalleteGap_X,
+                        snapPalleteList[count].Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         return false;
                     }
@@ -439,8 +434,7 @@ namespace AkribisFAM.DeviceClass
                     AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
                     Thread.Sleep(300);
 
-                    if (AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count].X + GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-                    AkrAction.Current.Move(AxisName.FSY, snapPalleteList[count].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSX) != 0)
+                    if (AkrAction.Current.MoveFoamXY(snapPalleteList[count].X + GlobalManager.Current.PalleteGap_X, snapPalleteList[count].Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         return false;
                     }
@@ -459,7 +453,7 @@ namespace AkribisFAM.DeviceClass
                     AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
                     Thread.Sleep(300);
 
-                    if (AkrAction.Current.Move(AxisName.FSX, snapPalleteList[count + 1].X - GlobalManager.Current.PalleteGap_X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0)
+                    if (AkrAction.Current.MoveFoamXY(snapPalleteList[count + 1].X - GlobalManager.Current.PalleteGap_X, snapPalleteList[count + 1].Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         return false;
                     }
@@ -493,8 +487,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照起始点
-            return AkrAction.Current.Move(AxisName.FSX, points[0].X - 16, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-              AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0;
+            return AkrAction.Current.MoveFoamXY(points[0].X - 16, points[0].Y) == (int)AkrAction.ACTTION_ERR.NONE;
 
         }
 
@@ -517,8 +510,8 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             //移动到拍照结束点
-            return (AkrAction.Current.Move(AxisName.FSX, points[0].X + 16 * 4, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) == 0 &&
-            AkrAction.Current.Move(AxisName.FSY, points[0].Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) == 0);
+
+            return AkrAction.Current.MoveFoamXY(points[0].X + 16 * 4, points[0].Y) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool Trigger()
         {

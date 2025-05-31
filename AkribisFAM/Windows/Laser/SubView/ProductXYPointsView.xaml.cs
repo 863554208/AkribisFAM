@@ -26,8 +26,7 @@ namespace AkribisFAM.Windows
                 foreach (var pts in dc)
                 {
 
-                    if (AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pts.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                    AkrAction.Current.Move(AxisName.LSY, (int)pts.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                    if (AkrAction.Current.MoveLaserXY(pts.X, pts.Z) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         System.Windows.Forms.MessageBox.Show("Failed to move position");
                         return;

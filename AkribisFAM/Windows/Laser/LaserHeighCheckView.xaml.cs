@@ -223,8 +223,7 @@ namespace AkribisFAM.Windows
                         {
                             if (stopAllMotion) return;
 
-                            if (AkrAction.Current.Move(AxisName.LSX, (int)pt.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                                    AkrAction.Current.Move(AxisName.LSY, (int)pt.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                            if (AkrAction.Current.MoveLaserXY(pt.X, pt.Y) != (int)AkrAction.ACTTION_ERR.NONE)
                             {
                                 //MessageBox.Show("Failed to move position");
                                 return;
