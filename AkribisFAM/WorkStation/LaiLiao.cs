@@ -263,14 +263,7 @@ namespace AkribisFAM.WorkStation
                     //var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
 
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if(y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X , point.Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -296,14 +289,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 1) 
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X+ GlobalManager.Current.laserpoint1_shift_X, 
+                        (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -330,14 +317,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count %4 == 2)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY ((int)point.X + GlobalManager.Current.laserpoint2_shift_X, 
+                        (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -364,14 +345,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 3)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X + GlobalManager.Current.laserpoint3_shift_X, point.Y + GlobalManager.Current.laserpoint3_shift_Y);
 
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -405,7 +380,7 @@ namespace AkribisFAM.WorkStation
 
         public void MoveConveyor(int vel)
         {
-            AkrAction.Current.MoveConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
 
         public void StopConveyor()

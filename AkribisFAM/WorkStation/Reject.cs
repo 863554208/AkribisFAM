@@ -99,14 +99,10 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus( index , value);
         }
 		
-        public void MoveConveyor(int vel)
-        {
-            AkrAction.Current.MoveConveyor(vel);
-        }
-
+  
         public void MoveNGConveyor(int vel)
         {
-            AkrAction.Current.MoveNGConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
 
         public void StopNGConveyor()

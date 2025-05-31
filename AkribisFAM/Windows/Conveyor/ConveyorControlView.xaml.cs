@@ -222,20 +222,20 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
-            Dispatcher.Invoke(() =>
-            {
-                try
-                {
-                    itemControlStation.ItemsSource = null;
-                    itemControlStation.ItemsSource = stations2;
-                }
-                catch (Exception ex)
-                {
+            //var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
+            //Dispatcher.Invoke(() =>
+            //{
+            //    try
+            //    {
+            //        itemControlStation.ItemsSource = null;
+            //        itemControlStation.ItemsSource = stations2;
+            //    }
+            //    catch (Exception ex)
+            //    {
 
-                    throw;
-                }
-            });
+            //        throw;
+            //    }
+            //});
         }
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -262,6 +262,7 @@ namespace AkribisFAM.Windows
 
                 if (!Conveyor.Current.GateDown(station.StationNumber))
                 {
+                    Thread.Sleep(1);
                     //MessageBox.Show("Failed");
                 }
             }
@@ -277,6 +278,7 @@ namespace AkribisFAM.Windows
 
                 if (!Conveyor.Current.GateUp(station.StationNumber))
                 {
+                    Thread.Sleep(1);
                     //MessageBox.Show("Failed");
                 }
             }
@@ -294,8 +296,11 @@ namespace AkribisFAM.Windows
             Task.Run(() =>
             {
 
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, false);
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, true);
                 if (!Conveyor.Current.LiftDownRelatedTray(station.StationNumber))
                 {
+                    Thread.Sleep(1);
                     //MessageBox.Show("Failed");
                 }
             });
@@ -308,9 +313,15 @@ namespace AkribisFAM.Windows
             //Conveyor.Current.LiftUpRelatedTray(station.StationNumber);
             Task.Run(() =>
             {
-
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, true);
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, true);
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, false);
+                //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, false);
                 if (!Conveyor.Current.LiftUpRelatedTray(station.StationNumber))
                 {
+                    //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, true);
+                    //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, false);
+                    Thread.Sleep(1);
                     //MessageBox.Show("Failed");
                 }
             });

@@ -481,7 +481,7 @@ namespace AkribisFAM
 
             // 力控
 
-            //AkrAction.Current.Move(AxisName.PICK2_Z, 20, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.MoveFoamZ2(20);
             ////TODO 改到程序打开的时候执行一次
             //AAmotionFAM.AGM800.Current.controller[2].SendCommandString("AProgRun[1]=1", out string response45);
             //Thread.Sleep(100);
@@ -510,7 +510,7 @@ namespace AkribisFAM
             //    Thread.Sleep(500);
             //}
 
-            //AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK1_Z);
+            //AkrAction.Current.Move(AxisName.PICK2_Z);
 
 
             //-------
@@ -529,7 +529,7 @@ namespace AkribisFAM
             //        int moveToPoint = MoveView.MovePTP(arr1,arr2);
             //        MoveView.WaitAxisArrived(new object[] { AxisName.LSX , AxisName.LSY });
 
-            //        //AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
+            //        //AkrAction.Current.MoveLaserXY (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX);
             //        //Thread.Sleep(20);
             //        //Logger.WriteLog("111111aaaa");
             //        //AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY);
@@ -615,7 +615,7 @@ namespace AkribisFAM
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.Guarding = 1;
                 //对轴初始化使能 改到登录之后            
-                //AkrAction.Current.axisAllEnable(true);
+                //AkrAction.Current.EnableAllMotors(true);
                 //GlobalManager.Current.InitializeAxisMode();
 
                 GlobalManager.Current.flag_NGStationAllowTrayEnter = 1;
@@ -713,7 +713,7 @@ namespace AkribisFAM
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
@@ -726,7 +726,7 @@ namespace AkribisFAM
                 StateManager.Current.Guarding = 0;
                 _cancellationTokenSource?.Cancel();
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
@@ -737,7 +737,7 @@ namespace AkribisFAM
                 StateManager.Current.State = StateCode.STOPPED;
                 StateManager.Current.Guarding = 0;
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 return;
             }
         }
@@ -791,7 +791,7 @@ namespace AkribisFAM
             if (!resetResult)
             {
                 AkrAction.Current.StopAllAxis();
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
                 Dispatcher.Invoke(() =>
                 {
                     MessageBox.Show("Reseting Failed!");

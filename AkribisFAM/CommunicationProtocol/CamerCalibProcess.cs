@@ -49,7 +49,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             }
         }
 
-        public int AllCalibrationFinished() {
+        public int AllCalibrationFinished()
+        {
             CalibCommunicationProcess.CalibPushcommand($"UN,1" + "\r\n");
             return 0;
         }
@@ -70,8 +71,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
-                AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
-                AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, -1, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                AkrAction.Current.MoveFoamZ1(0); //z轴运动z
+                AkrAction.Current.MoveFoamZ2(-1); //z轴运动z
                 //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, -1, (int)AxisSpeed.PICK3_Z); //z轴运动z
                 //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, -1, (int)AxisSpeed.PICK4_Z); //z轴运动z
 
@@ -103,7 +104,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[13].X, CalibrationPoints.ZuZhuangPointList[13].Y, CalibrationPoints.ZuZhuangPointList[13].Z, CalibrationPoints.ZuZhuangPointList[13].R, NozzleNumber.Nozzle1);
 
                 Thread.Sleep(1000);//延时
-                                  //吸嘴吸气
+                                   //吸嘴吸气
                 NozzleInhale(NozzleNumber.Nozzle1);
                 Thread.Sleep(1000);//延时
 
@@ -142,7 +143,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
                 //移动到飞达标定拍照位
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[17].X, CalibrationPoints.ZuZhuangPointList[17].Y, CalibrationPoints.ZuZhuangPointList[17].Z, CalibrationPoints.ZuZhuangPointList[17].R, NozzleNumber.Nozzle1);
-                
+
                 Thread.Sleep(1000);
                 //放标定片指令发送
                 if (!CamerCombinePhotoCalib(CombineCalibProcess.Combineput, $"{CalibrationPoints.ZuZhuangPointList[16].X.ToString()},{CalibrationPoints.ZuZhuangPointList[16].Y.ToString()},{CalibrationPoints.ZuZhuangPointList[16].R.ToString()}"))
@@ -157,7 +158,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //标定结束等待结果
-                if (!CamerCombinePhotoCalib(CombineCalibProcess.Combinecalibend,"calibend"))
+                if (!CamerCombinePhotoCalib(CombineCalibProcess.Combinecalibend, "calibend"))
                 {
                     return;
                 }
@@ -170,8 +171,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
-                //AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, 0, (int)AxisSpeed.PICK2_Z); //z轴运动z
+                //AkrAction.Current.MoveFoamZ1( 0); //z轴运动z
+                //AkrAction.Current.MoveFoamZ2( 0); //z轴运动z
                 //AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, 0, (int)AxisSpeed.PICK3_Z); //z轴运动z
                 //AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, 0, (int)AxisSpeed.PICK4_Z); //z轴运动z
 
@@ -180,7 +181,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //吸嘴吸气
                 //NozzleInhale(nozzleNumber);
                 //标定开始
-                if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, nozzleNumber,"Alonestart"))
+                if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, nozzleNumber, "Alonestart"))
                 {
                     return;
                 }
@@ -190,14 +191,14 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //标定结束等待结果
-                if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.calibend, nozzleNumber,"Aloneend"))
+                if (!CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.calibend, nozzleNumber, "Aloneend"))
                 {
                     return;
                 }
                 //吸嘴停止吸气
-               // NozzleStopInhale(nozzleNumber);
+                // NozzleStopInhale(nozzleNumber);
                 //此次标定结束
-                CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.processend, nozzleNumber,"processend");
+                CamerAlonePhotoCalib(DownCamreaAloneCalibProcess.processend, nozzleNumber, "processend");
             }));
         }
 
@@ -205,10 +206,10 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         {
             await Task.Run(new Action(() =>
             {
-                AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, 0, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                AkrAction.Current.MoveFoamZ1(0); //z轴运动z
 
                 //标定开始
-                if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, movingCameraCalibposition,"Movestart"))
+                if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.start, movingCameraCalibposition, "Movestart"))
                 {
                     return;
                 }
@@ -226,8 +227,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
                         Thread.Sleep(800);
 
-                    //单独九点标定
-                    if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, movingCameraCalibposition,$"{CalibrationPoints.ZuZhuangPointList[startidx].X.ToString()},{CalibrationPoints.ZuZhuangPointList[startidx].Y.ToString()},0"))
+                        //单独九点标定
+                        if (!MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.Ongoing, movingCameraCalibposition, $"{CalibrationPoints.ZuZhuangPointList[startidx].X.ToString()},{CalibrationPoints.ZuZhuangPointList[startidx].Y.ToString()},0"))
                         {
                             return false;
                         }
@@ -247,7 +248,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                     return;
                 }
                 //此次标定结束
-                MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.processend, movingCameraCalibposition,"MoveprocessEnd");
+                MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess.processend, movingCameraCalibposition, "MoveprocessEnd");
             }));
         }
 
@@ -261,7 +262,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 Thread.Sleep(1000);
 
                 int startidx = ((int)nozzleNumber - 1) * 11 + i;//for 11 calibration, becuase it does not have nozzle 1
-                if (startidx < 0) {
+                if (startidx < 0)
+                {
                     startidx = ((int)nozzleNumber) * 11 + i;//for common calibration
                 }
                 string Data = $"{CalibrationPoints.ZuZhuangPointList[startidx].X},{CalibrationPoints.ZuZhuangPointList[startidx].Y},{CalibrationPoints.ZuZhuangPointList[startidx].R}";//x,y,r     
@@ -315,8 +317,9 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         private void MoveAxis(int Index, NozzleNumber nozzleNumber)//移动轴到目标点位 move to target position
         {
 
-            int startidx = ((int)nozzleNumber-1) * 11 + Index;//for 11 calibration, becuase it does not have nozzle 1
-            if (startidx < 0) {
+            int startidx = ((int)nozzleNumber - 1) * 11 + Index;//for 11 calibration, becuase it does not have nozzle 1
+            if (startidx < 0)
+            {
                 startidx = ((int)nozzleNumber) * 11 + Index;//for common calibration
             }
             MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[startidx].X, CalibrationPoints.ZuZhuangPointList[startidx].Y, CalibrationPoints.ZuZhuangPointList[startidx].Z, CalibrationPoints.ZuZhuangPointList[startidx].R, nozzleNumber);
@@ -332,12 +335,12 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             return false;
         }
 
-        private bool CamerAlonePhotoCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, NozzleNumber nozzleNumber,string Data)//11点标定拍照判断
+        private bool CamerAlonePhotoCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, NozzleNumber nozzleNumber, string Data)//11点标定拍照判断
         {
             switch (nozzleNumber)
             {
                 case NozzleNumber.Nozzle1:
-                    CalibCommunicationProcess.SendAloneCalib(downCamreaAloneCalibProcess, DownCamreaNozzleCalibNumber.C2,Data);
+                    CalibCommunicationProcess.SendAloneCalib(downCamreaAloneCalibProcess, DownCamreaNozzleCalibNumber.C2, Data);
                     break;
                 case NozzleNumber.Nozzle2:
                     CalibCommunicationProcess.SendAloneCalib(downCamreaAloneCalibProcess, DownCamreaNozzleCalibNumber.C7, Data);
@@ -358,15 +361,15 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             return false;
         }
 
-        private bool MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, MovingCameraCalibposition movingCameraCalibposition,string Data)//9点标定拍照判断
+        private bool MoveCamerAlonePhotoCalib(DownCamreaAloneCalibProcess downCamreaAloneCalibProcess, MovingCameraCalibposition movingCameraCalibposition, string Data)//9点标定拍照判断
         {
             switch (movingCameraCalibposition)
             {
                 case MovingCameraCalibposition.FeedDischarging:
-                    CalibCommunicationProcess.SendMoveCameraCalib(downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber.C5,Data);
+                    CalibCommunicationProcess.SendMoveCameraCalib(downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber.C5, Data);
                     break;
                 case MovingCameraCalibposition.Vehicles:
-                    CalibCommunicationProcess.SendMoveCameraCalib(downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber.C4,Data);
+                    CalibCommunicationProcess.SendMoveCameraCalib(downCamreaAloneCalibProcess, MoveCameraCalibPositionNumber.C4, Data);
                     break;
                 default:
                     break;
@@ -490,35 +493,34 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
         }
         private void MoveAxisDirectControl(double x, double y, double z, double r, NozzleNumber nozzleNumber)//直接控制轴运动，及到位判断
         {
-            AkrAction.Current.Move(GlobalManager.AxisName.FSX,x, (int)AxisSpeed.FSX);//x轴运动x
-            AkrAction.Current.Move(GlobalManager.AxisName.FSY,y , (int)AxisSpeed.FSY);//y轴运动y
+            AkrAction.Current.MoveFoamXY(x, y);//x轴运动x
 
             switch (nozzleNumber)
             {
                 case NozzleNumber.Nozzle1:
                     {
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_T, r, (int)AxisSpeed.PICK1_T); //r轴运动r
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK1_Z, z, (int)AxisSpeed.PICK1_Z); //z轴运动z
+                        AkrAction.Current.MoveFoamT1(r); //r轴运动r
+                        AkrAction.Current.MoveFoamZ1(z); //z轴运动z
                     }
                     break;
                 case NozzleNumber.Nozzle2:
                     {
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK2_Z, z, (int)AxisSpeed.PICK2_Z); //z轴运动z
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK2_T, r, (int)AxisSpeed.PICK2_T); //r轴运动r
+                        AkrAction.Current.MoveFoamT2(r); //r轴运动r
+                        AkrAction.Current.MoveFoamZ2(z); //z轴运动z
 
                     }
                     break;
                 case NozzleNumber.Nozzle3:
                     {
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK3_Z, z, (int)AxisSpeed.PICK3_Z); //z轴运动z
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK3_T, r, (int)AxisSpeed.PICK3_T); //r轴运动r
+                        AkrAction.Current.MoveFoamT3(r); //r轴运动r
+                        AkrAction.Current.MoveFoamZ3(z); //z轴运动z
 
                     }
                     break;
                 case NozzleNumber.Nozzle4:
                     {
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK4_Z, z, (int)AxisSpeed.PICK4_Z); //z轴运动z
-                        AkrAction.Current.Move(GlobalManager.AxisName.PICK4_T, r, (int)AxisSpeed.PICK4_T); //r轴运动r
+                        AkrAction.Current.MoveFoamT4(r); //r轴运动r
+                        AkrAction.Current.MoveFoamZ4(z); //z轴运动z
 
                     }
                     break;
@@ -537,46 +539,46 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             //lift up pickerZ
             if (pickernum == 0)
             {
-                AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)10);
-            }
-            else if (pickernum == 1) {
-                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)10);
-            }
-            else if (pickernum == 2)
-            {
-                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)10);
-            }
-            else if (pickernum == 3)
-            {
-                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)10);
-            }
-            //移动到飞拍起始位置
-            //move to start position of fly photograph
-            AkrAction.Current.Move(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[4].X, (int)10);
-            AkrAction.Current.Move(AxisName.FSY, CalibrationPoints.ZuZhuangPointList[4].Y, (int)10);
-            if (pickernum == 0)
-            {
-                AkrAction.Current.Move(AxisName.PICK1_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
-                AkrAction.Current.Move(AxisName.PICK1_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+                AkrAction.Current.MoveFoamZ1(0);
             }
             else if (pickernum == 1)
             {
-                AkrAction.Current.Move(AxisName.PICK2_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
-                AkrAction.Current.Move(AxisName.PICK2_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+                AkrAction.Current.MoveFoamZ2(0);
             }
             else if (pickernum == 2)
             {
-                AkrAction.Current.Move(AxisName.PICK3_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
-                AkrAction.Current.Move(AxisName.PICK3_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+                AkrAction.Current.MoveFoamZ3(0);
             }
             else if (pickernum == 3)
             {
-                AkrAction.Current.Move(AxisName.PICK4_Z, CalibrationPoints.ZuZhuangPointList[4].Z, (int)10);
-                AkrAction.Current.Move(AxisName.PICK4_T, CalibrationPoints.ZuZhuangPointList[4].R, (int)20);
+                AkrAction.Current.MoveFoamZ4(0);
+            }
+            //移动到飞拍起始位置
+            //move to start position of fly photograph
+            AkrAction.Current.MoveLaserXY(CalibrationPoints.ZuZhuangPointList[4].X, CalibrationPoints.ZuZhuangPointList[4].Y);
+            if (pickernum == 0)
+            {
+                AkrAction.Current.MoveFoamZ1(CalibrationPoints.ZuZhuangPointList[4].Z);
+                AkrAction.Current.MoveFoamT1(CalibrationPoints.ZuZhuangPointList[4].R);
+            }
+            else if (pickernum == 1)
+            {
+                AkrAction.Current.MoveFoamZ2(CalibrationPoints.ZuZhuangPointList[4].Z);
+                AkrAction.Current.MoveFoamT2(CalibrationPoints.ZuZhuangPointList[4].R);
+            }
+            else if (pickernum == 2)
+            {
+                AkrAction.Current.MoveFoamZ3(CalibrationPoints.ZuZhuangPointList[4].Z);
+                AkrAction.Current.MoveFoamT3(CalibrationPoints.ZuZhuangPointList[4].R);
+            }
+            else if (pickernum == 3)
+            {
+                AkrAction.Current.MoveFoamZ4(CalibrationPoints.ZuZhuangPointList[4].Z);
+                AkrAction.Current.MoveFoamT4(CalibrationPoints.ZuZhuangPointList[4].R);
             }
             //给Cognex发拍照信息
             //send Cognex message
-            string command = "SN" + "123456," + $"{pickernum+1}," + "Foam," + $"{CalibrationPoints.ZuZhuangPointList[pickernum].X},{CalibrationPoints.ZuZhuangPointList[pickernum].Y},{CalibrationPoints.ZuZhuangPointList[pickernum].R}";
+            string command = "SN" + "123456," + $"{pickernum + 1}," + "Foam," + $"{CalibrationPoints.ZuZhuangPointList[pickernum].X},{CalibrationPoints.ZuZhuangPointList[pickernum].Y},{CalibrationPoints.ZuZhuangPointList[pickernum].R}";
             TriggTTNCamreaSendData(TTNProcessCommand.TTN, command);
             Thread.Sleep(100);
             int cnt = 0;
@@ -596,7 +598,7 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             //We prefer to use IO trigger, so that we can avoid using agito to trigger. Just move to the position of photograph and trigger IO.
             AkrAction.Current.SetSingleEvent(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, 2);
             //start move
-            AkrAction.Current.MoveNoWait(AxisName.FSX, CalibrationPoints.ZuZhuangPointList[pickernum].X, (int)10);
+            AkrAction.Current.MoveLaserXY(CalibrationPoints.ZuZhuangPointList[pickernum].X, CalibrationPoints.ZuZhuangPointList[pickernum].Y);
 
             //接受Cognex结果
             //get Cognex result
@@ -609,19 +611,19 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
             //lift up pickerZ
             if (pickernum == 0)
             {
-                AkrAction.Current.Move(AxisName.PICK1_Z, 0, (int)10);
+                AkrAction.Current.MoveFoamZ1(0);
             }
             else if (pickernum == 1)
             {
-                AkrAction.Current.Move(AxisName.PICK2_Z, 0, (int)10);
+                AkrAction.Current.MoveFoamZ2(0);
             }
             else if (pickernum == 2)
             {
-                AkrAction.Current.Move(AxisName.PICK3_Z, 0, (int)10);
+                AkrAction.Current.MoveFoamZ3(0);
             }
             else if (pickernum == 3)
             {
-                AkrAction.Current.Move(AxisName.PICK4_Z, 0, (int)10);
+                AkrAction.Current.MoveFoamZ4(0);
             }
             return true;
         }
