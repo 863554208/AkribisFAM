@@ -438,7 +438,7 @@ namespace AkribisFAM.WorkStation
             switch (type)
             {
                 case 2: 
-                    return ScanBarcode(out string result);
+                    return ScanBarcode();
 
                 case 3:
                     return LaserHeight();
