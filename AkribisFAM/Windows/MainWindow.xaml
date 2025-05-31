@@ -42,6 +42,7 @@
                 <ColumnDefinition Width="auto"/>
                 <!-- 报警按钮 -->
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
                 <!-- 时间显示 -->
             </Grid.ColumnDefinitions>
 
@@ -85,10 +86,10 @@
             <!-- 报警按钮 -->
             <local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
                             Click="Alarmbutton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="4" />
+                            Height="55" Width="72" Grid.Column="5" />
 
             <!-- 当前时间 -->
-            <Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5">
+            <Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="6">
                 <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />

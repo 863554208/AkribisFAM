@@ -678,7 +678,7 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.UsePicker4)
             {
 
-                AkrAction.Current.MoveFoamZ4(10)
+                AkrAction.Current.MoveFoamZ4(10);
                 //SetIO(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
                 //Thread.Sleep(20);
                 //SetIO(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 0);

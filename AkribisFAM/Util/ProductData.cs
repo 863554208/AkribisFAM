@@ -92,7 +92,7 @@ namespace AkribisFAM.Util
         }
         public bool SetTrayId(string trayId)
         {
-            if (trackerType != TrackerType.Tray )
+            if (trackerType != TrackerType.Tray)
             {
                 foreach (var part in _partArray)
                 {
@@ -472,31 +472,31 @@ namespace AkribisFAM.Util
         //    visionresults = pdata.visionresults;
 
         //}
-        public static PartData NewPart(string PartID, string PartNo, string Vendor, string LotNo, string DateCode, string Machine, bool PartOnly,
-           string Grippers = "", string Nests = "", bool Failed = false, FailReason FailR = FailReason.None, TurretName FailT = TurretName.None, int[] vsn = null)
-        {
-            PartData np = new PartData()
-            {
-                failed = Failed,
-                inserted = !PartOnly,
-                partid = PartID,
-                partno = PartNo,
-                vendor = Vendor,
-                lotno = LotNo,
-                datecode = DateCode,
-                machine = Machine,
-                grippers = Grippers,
-                nests = Nests,
-                failreason = FailR,
-                //failturret = FailT,
-                //vision = vsn
-            };
-            if (vsn == null)
-            {
-                //np.vision = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            }
-            return np;
-        }
+        //public static PartData NewPart(string PartID, string PartNo, string Vendor, string LotNo, string DateCode, string Machine, bool PartOnly,
+        //   string Grippers = "", string Nests = "", bool Failed = false, FailReason FailR = FailReason.None, TurretName FailT = TurretName.None, int[] vsn = null)
+        //{
+        //    PartData np = new PartData()
+        //    {
+        //        failed = Failed,
+        //        inserted = !PartOnly,
+        //        partid = PartID,
+        //        partno = PartNo,
+        //        vendor = Vendor,
+        //        lotno = LotNo,
+        //        datecode = DateCode,
+        //        machine = Machine,
+        //        grippers = Grippers,
+        //        nests = Nests,
+        //        failreason = FailR,
+        //        //failturret = FailT,
+        //        //vision = vsn
+        //    };
+        //    if (vsn == null)
+        //    {
+        //        //np.vision = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        //    }
+        //    return np;
+        //}
         public void AddLaserHeight(double x, double y, double height)
         {
             heightMeasurements.Add(new LaserMeasurement()
