@@ -14,8 +14,8 @@ namespace AkribisFAM.Util
         public static readonly BlockingCollection<string> _logQueue = new BlockingCollection<string>(new ConcurrentQueue<string>());
         //private static readonly string _baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         //private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; // 5MB
-        private static readonly string _baseDirectory = @" D:\Users\qiuxg\Desktop\新建文件夹(3)";//日志储存位置
-        private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; // 5MB大于5MB将备份日志文件
+        private static readonly string _baseDirectory = @" D:\Users\qiuxg\Desktop\Log";//log path
+        private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; 
         private static readonly Thread _logThread;
         private static volatile bool _isRunning = true;
         private static readonly object _fileLock = new object();
@@ -29,21 +29,18 @@ namespace AkribisFAM.Util
             };
             _logThread.Start();
 
-            // 注册程序退出事件，确保日志在退出前被完整写入
             AppDomain.CurrentDomain.ProcessExit += (s, e) => Shutdown();
 
-            // 注册未处理异常事件，记录异常并确保日志写入
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
-                WriteLog("未处理异常: " + e.ExceptionObject.ToString());
+                WriteLog("Unhandled Exception: " + e.ExceptionObject.ToString());
                 Shutdown();
             };
 
-            // 捕获 Task 未处理的异常
             TaskScheduler.UnobservedTaskException += (sender, e) =>
             {
-                WriteLog("任务未处理异常: " + e.Exception.Flatten().ToString());
-                e.SetObserved(); // 标记异常已处理
+                WriteLog("Unobserved Task Exception: " + e.Exception.Flatten().ToString());
+                e.SetObserved(); 
             };
         }
 
@@ -111,15 +108,13 @@ namespace AkribisFAM.Util
                                         writer.WriteLine(logEntry);
                                     }
                                 }
-                                success = true; // 如果成功写入，退出重试循环
+                                success = true;
                             }
                             catch (Exception ex)
                             {
-                                retries--; // 重试次数减1
+                                retries--; 
                                 if (retries == 0)
                                 {
-                                    // 如果三次都失败，记录错误日志
-                                    //Console.Error.WriteLine($"写入日志失败，已重试三次: {ex.Message}");
                                 }
 
                             }
@@ -129,7 +124,6 @@ namespace AkribisFAM.Util
             }
             catch (Exception ex)
             {
-                //Console.Error.WriteLine("日志线程异常: " + ex.Message);
             }
         }
 
