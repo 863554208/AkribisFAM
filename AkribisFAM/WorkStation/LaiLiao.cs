@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
-using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
-using static AAComm.Extensions.AACommFwInfo;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
-using System.CodeDom;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-using Microsoft.SqlServer.Server;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Sockets;
+using System.Collections.ObjectModel;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -388,7 +378,74 @@ namespace AkribisFAM.WorkStation
         {
             AkrAction.Current.MoveAllConveyor();
         }
+        /// <summary>
+        /// Use this to get the list of teach points for fujian tearing process and refernce for vision capture
+        /// </summary>
+        /// <param name="type">Recipe Tray Type enum</param>
+        /// <param name="listOfPoints">List of SinglePoint Ext including the index, x, y, z, r</param>
+        /// <returns>True: Get teach points successfully , False : Failed to get teach points</returns>
 
+        public bool GetTeachPointList(TrayType type, out List<List<SinglePointExt>> listOfPoints)
+        {
+            listOfPoints = new List<List<SinglePointExt>>();
+            List<SinglePointExt> lsp = new List<SinglePointExt>();
+            
+            //Get teach points from recipe file
+            var stationsPoints = App.recipeManager.Get_RecipeStationPoints(type);
+            if (stationsPoints == null) 
+                return false;
+
+            //Read teach points named "Laser Points"
+            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
+            if (laser == null)
+            {
+                return false;
+            }
+
+            //Extract X,Y,Z,R data
+            lsp = laser.childList.Select((x, index) => new SinglePointExt
+            {
+                X = x.childPos[0],
+                Y = x.childPos[1],
+                Z = x.childPos[2],
+                R = x.childPos[3],
+                TeachPointIndex = index + 1
+            }).ToList();
+
+
+             var points = new List<SinglePointExt>(lsp);
+            var individualTeachPoint = new List<SinglePointExt>();
+            listOfPoints.Clear();
+            
+            //Compile list of points for measuring teach points.
+            foreach (var pt in points)
+            {
+                individualTeachPoint = new List<SinglePointExt>();
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + 0,
+                    Y = pt.Y + 0,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint1_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint1_shift_Y,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint2_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint2_shift_Y,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint3_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint3_shift_Y,
+                });
+                listOfPoints.Add(individualTeachPoint);
+            }
+            return true;
+
+        }
         public void StopConveyor()
         {
             AkrAction.Current.StopConveyor();

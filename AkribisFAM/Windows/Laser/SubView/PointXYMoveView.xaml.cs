@@ -45,7 +45,7 @@ namespace AkribisFAM.Windows
                     return;
                 }
 
-                if (!App.laser.Measure(out int readout))
+                if (!App.laser.Measure(out double readout))
                 {
                     MessageBox.Show("Failed to measure");
                     return;

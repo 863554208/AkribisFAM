@@ -557,7 +557,10 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.UsePicker1)
             {
 
-                SinglePoint res1 = GetPickPosition(1, 1);
+                if (!GetPickPosition(1, 1, out SinglePoint point))
+                {
+                    return -1;
+                }
 
                 //int moveToStart = (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX, (int)AxisAcc.FSX) == 0 &&
                 //                   AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY, (int)AxisAcc.FSX) == 0) ? 0 : (int)ErrorCode.AGM800Err;
@@ -627,7 +630,10 @@ namespace AkribisFAM.WorkStation
 
             if (GlobalManager.Current.UsePicker2)
             {
-                SinglePoint res2 = GetPickPosition(2, 2);
+                if (!ZuZhuang.Current.GetPickPosition(2, 2, out SinglePoint point))
+                {
+                    return -1;
+                }
 
                 int moveToStart = (AkrAction.Current.MoveFoamXY(res2.X, res2.Y));
 
@@ -1084,7 +1090,10 @@ namespace AkribisFAM.WorkStation
             if (GlobalManager.Current.picker1State == true)
             {
 
-                var temp = GetPlacePosition(1, caveId);
+                if (!GetPlacePosition(1, caveId, out SinglePoint point))
+                {
+                    return -1;
+                }
 
                 var temp_x = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].X;
                 var temp_y = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].Y;
@@ -1131,7 +1140,10 @@ namespace AkribisFAM.WorkStation
             }
             if (GlobalManager.Current.picker2State == true)
             {
-                var temp = GetPlacePosition(2, caveId);
+                if (!GetPlacePosition(2, caveId, out SinglePoint point))
+                {
+                    return -1;
+                }
 
                 //var temp_x = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].X-16;
                 //var temp_y = (int)GlobalManager.Current.placeFoamPoints[caveId - 1].Y;
@@ -1342,45 +1354,72 @@ namespace AkribisFAM.WorkStation
                 Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
             };
         }
-        public SinglePoint GetPickPosition(int Nozzlenum, int Fovnum)
+        /// <summary>
+        /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
+        /// </summary>
+        /// <param name="Nozzlenum">Pick selected to pick foam</param>
+        /// <param name="Fovnum">Target foam number, number of image selected</param>
+        /// <param name="point">Absolute X,Y,R point to move</param>
+        /// <returns>True: Get teach points successfully , False : Failed to get teach points</returns>
+        public bool GetPickPosition(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
-            SinglePoint singlePoint = new SinglePoint();
+            point = new SinglePoint();
 
-            if (Nozzlenum < 1 || Nozzlenum > 4) return singlePoint;
-            if (Fovnum < 1 || Fovnum > 4) return singlePoint;
+            if (Nozzlenum < 1 || Nozzlenum > 4 || Fovnum < 1 || Fovnum > 4)
+            {
+                return false;
+            }
 
             string command = "GM,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "1";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             FeedUpCamrea.Acceptcommand.AcceptGMCommandAppend GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGMAcceptData(FeedupCameraProcessCommand.GM)[0];
             if (GMout.Subareas_Errcode == "1")
             {
-                singlePoint.X = double.Parse(GMout.Pick_X);
-                singlePoint.Y = double.Parse(GMout.Pick_Y);
-                singlePoint.R = double.Parse(GMout.Pick_R);
+                point.X = double.Parse(GMout.Pick_X);
+                point.Y = double.Parse(GMout.Pick_Y);
+                point.R = double.Parse(GMout.Pick_R);
             }
-            PickPositions[Nozzlenum] = singlePoint;
-            return singlePoint;
+            else
+            {
+                return false;
+            }
+            PickPositions[Nozzlenum] = point;
+            return true;
         }
+        /// <summary>
+        /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
+        /// </summary>
+        /// <param name="Nozzlenum">Pick selected to pick foam</param>
+        /// <param name="Fovnum">Target foam number, number of image selected</param>
+        /// <param name="singlePoint">Absolute X,Y,R point to move</param>
+        /// <returns>True: Get teach points successfully , False : Failed to get teach points</returns>
 
-        public SinglePoint GetPlacePosition(int Nozzlenum, int Fovnum)
+        public bool GetPlacePosition(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
-            SinglePoint singlePoint = new SinglePoint();
+            point = new SinglePoint();
 
-            if (Nozzlenum < 1 || Nozzlenum > 4) return singlePoint;
-            if (Fovnum < 1 || Fovnum > 20) return singlePoint;
+            if (Nozzlenum < 1 || Nozzlenum > 4 || (Fovnum < 1 || Fovnum > 20))
+            {
+                return false;
+            }
+
 
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             var GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGTAcceptData()[0];
             if (GMout.Subareas_Errcode == "1")
             {
-                singlePoint.X = double.Parse(GMout.Unload_X);
-                singlePoint.Y = double.Parse(GMout.Unload_Y);
-                singlePoint.R = double.Parse(GMout.Unload_R);
-                singlePoint.Z = 0.0;
+                point.X = double.Parse(GMout.Unload_X);
+                point.Y = double.Parse(GMout.Unload_Y);
+                point.R = double.Parse(GMout.Unload_R);
+                point.Z = 0.0;
             }
-            PlacePositions[Nozzlenum] = singlePoint;
-            return singlePoint;
+            else
+            {
+                return false;
+            }
+            PlacePositions[Nozzlenum] = point;
+            return true;
         }
 
         private bool _isTrayReadyToProcess = false;

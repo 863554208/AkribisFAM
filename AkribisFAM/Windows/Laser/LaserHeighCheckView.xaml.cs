@@ -38,9 +38,9 @@ namespace AkribisFAM.Windows
                 set { progress = value; OnPropertyChanged(); }
             }
 
-            private List<ObservableCollection<SinglePointExt>> points = new List<ObservableCollection<SinglePointExt>>();
+            private List<List<SinglePointExt>> points = new List<List<SinglePointExt>>();
 
-            public List<ObservableCollection<SinglePointExt>> Points
+            public List<List<SinglePointExt>> Points
             {
                 get { return points; }
                 set { points = value; }
@@ -131,61 +131,17 @@ namespace AkribisFAM.Windows
         private void cbxTrayType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             DataContext = null;
-            List<SinglePointExt> lsp = new List<SinglePointExt>();
+            List<List<SinglePointExt>> lsp = new List<List<SinglePointExt>>();
             if (cbxTrayType.SelectedIndex < 0) return;
             if (cbxTrayType.SelectedIndex > 4) return;
 
-            var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
-            if (stationsPoints == null) return;
-
-            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
-            if (laser == null) return;
-
-            lsp = laser.childList.Select((x, index) => new SinglePointExt
+           if (!LaiLiao.Current.GetTeachPointList((TrayType)cbxTrayType.SelectedIndex, out lsp))
             {
-                X = x.childPos[0],
-                Y = x.childPos[1],
-                Z = x.childPos[2],
-                R = x.childPos[3],
-                TeachPointIndex = index + 1
-            }).ToList();
-
-
-            var points = new ObservableCollection<SinglePointExt>(lsp);
-            List<ObservableCollection<SinglePointExt>> pts = new List<ObservableCollection<SinglePointExt>>();
-            var newpt = new ObservableCollection<SinglePointExt>();
-            pts.Clear();
-            foreach (var pt in points)
-            {
-                newpt = new ObservableCollection<SinglePointExt>();
-                newpt.Add(new SinglePointExt()
-                {
-                    X = pt.X + 0,
-                    Y = pt.Y + 0,
-                });
-                newpt.Add(new SinglePointExt()
-                {
-                    X = pt.X + GlobalManager.Current.laserpoint1_shift_X,
-                    Y = pt.Y + GlobalManager.Current.laserpoint1_shift_Y,
-                });
-                newpt.Add(new SinglePointExt()
-                {
-                    X = pt.X + GlobalManager.Current.laserpoint2_shift_X,
-                    Y = pt.Y + GlobalManager.Current.laserpoint2_shift_Y,
-                });
-                newpt.Add(new SinglePointExt()
-                {
-                    X = pt.X + GlobalManager.Current.laserpoint3_shift_X,
-                    Y = pt.Y + GlobalManager.Current.laserpoint3_shift_Y,
-                });
-                pts.Add(newpt);
+                System.Windows.Forms.MessageBox.Show("Failed to get laser's teach point");
             }
-
-
-
             vm = new LaserHeighCheckVM()
             {
-                Points = pts,
+                Points = lsp,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,
                 Column = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartColumn,
             };
@@ -233,7 +189,7 @@ namespace AkribisFAM.Windows
                                 return;
                             }
 
-                            if (!App.laser.Measure(out int readout))
+                            if (!App.laser.Measure(out double readout))
                             {
                                 //MessageBox.Show("Failed to measure");
                                 return;
@@ -266,7 +222,7 @@ namespace AkribisFAM.Windows
 
         private void btnTriggerLaser_Click(object sender, RoutedEventArgs e)
         {
-            if (!App.laser.Measure(out int readout))
+            if (!App.laser.Measure(out double readout))
             {
                 MessageBox.Show("Failed to measure");
             }
