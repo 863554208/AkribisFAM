@@ -82,6 +82,7 @@ namespace AkribisFAM.Windows
                 if (this.IsVisible)
                 {
                     txtTrayBarcode.Text += $"Message sent: {message} \n\r";
+                    scrollviewerTray.ScrollToEnd();
                 }
             });
         }
@@ -93,6 +94,7 @@ namespace AkribisFAM.Windows
                 if (this.IsVisible)
                 {
                     txtTrayBarcode.Text += $"Message receive: {message} \n\r";
+                    scrollviewerTray.ScrollToEnd();
                 }
             });
         }
@@ -104,6 +106,7 @@ namespace AkribisFAM.Windows
                 if (this.IsVisible)
                 {
                     txtHeightResult.Text += $"Message sent: {message} \n\r";
+                    scrollviewerTray.ScrollToEnd();
                 }
             });
         }
@@ -115,6 +118,7 @@ namespace AkribisFAM.Windows
                 if (this.IsVisible)
                 {
                     txtHeightResult.Text += $"Message receive: {message} \n\r";
+                    scrollviewerTray.ScrollToEnd();
                 }
             });
         }

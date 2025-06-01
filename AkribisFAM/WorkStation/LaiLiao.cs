@@ -24,6 +24,12 @@ namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
+        private static int _movestep = 0;
+        private static int _laserMoveStep = 0;
+        private bool _isProcessOngoing = false;
+        private int _BarcodeScanRetryCount = 0;
+        private int _BarcodeScanRetryMax = 5;
+
 
         public enum LailiaoStep
         {
@@ -113,11 +119,11 @@ namespace AkribisFAM.WorkStation
         {
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
-                return true;
+                return false;
             }
             else if (IOManager.Instance.INIO_status[(int)index] == 1)
             {
-                return false;
+                return true;
             }
             else
             {
@@ -682,123 +688,263 @@ namespace AkribisFAM.WorkStation
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+        private bool _isTrayReadyToProcess = false;
+        public void SetTrayReadyToProcess()
+        {
+            _isTrayReadyToProcess = true;
+        }
+        public bool IsProcessOngoing()
+        {
+            return _isProcessOngoing;
+        }
+        private void ProcessingDone()
+        {
+            _isProcessOngoing = false;
+            _isTrayReadyToProcess = false;
+        }
+        private void StartProcessing()
+        {
+            _isProcessOngoing = true;
+        }
 
         public override void AutoRun(CancellationToken token)
         {
-            try
+
+            // WAIT FOR TRAY IN POSITION
+            if (_movestep == 0) 
             {
-                while (true)
+                if (_isTrayReadyToProcess)
                 {
-                    //20250519 测试 【史彦洋】 追加 Start
-                    //Console.WriteLine("lailiao ceshi 1");
-                    //Thread.Sleep(1000);
-                    //continue;
+                    StartProcessing();
+                    _movestep = 1;
+                }
+            }
+            
+            // SCAN BARCODE
+            if (_movestep == 1)
+            {
+                if (App.scanner.ScanBarcode(out string result) == 0)
+                {
+                    _movestep = 2;
+                }
+                else
+                {
+                    _BarcodeScanRetryCount++;
+                    Logger.WriteLog($"Barcode scan failed. Retry count {_BarcodeScanRetryCount}");
 
-
-                    step1: bool ret = Step1();
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (!ret) continue;
-
-                    step2: 
-                        int ret2 = Step2();
-                        if (ret2 != 0)
-                        {
-                            ShowErrorMessage(ret2);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.IsByPass) goto step4;
-
-                    step3: 
-                        int ret3 = Step3();
-                        if(ret3 != 0)
-                        {
-                            ShowErrorMessage(ret3);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-
-                    //出板
-                    step4:
-                        Boardout();
-
-                    #region 老代码
-                    //if (GlobalManager.Current.lailiao_ChuFaJinBan)
-                    //{
-                    //    //TODO 执行进板
-                    //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
-
-
-                    //    WorkState = 1;
-                    //    has_board = true;
-                    //    Console.WriteLine("检测到进板信号，已进板");
-                    //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
-                    //}
-
-                    //// 处理板
-                    //if (has_board && WorkState == 1)
-                    //{
-                    //    try
-                    //    {
-                    //        //执行完才能改变workstatiion
-                    //        WorkState = 2;
-
-                    //        //TODO 扫码枪扫码
-                    //        System.Threading.Thread.Sleep(1000);
-                    //        OnJinBanExecuted?.Invoke();
-                    //        GlobalManager.Current.lailiao_SaoMa = true;
-                    //        Console.WriteLine("扫码枪扫码已完成");
-
-                    //        bool asd = false;
-                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                    //        if (asd)
-                    //        {
-                    //            GlobalManager.Current.hive_Result = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            //TODO 基恩士激光测距
-                    //            System.Threading.Thread.Sleep(1000);
-                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                    //            OnLaserExecuted.Invoke();
-                    //            Console.WriteLine("激光测距已完成");
-                    //        }
-
-                    //        WorkState = 3; // 更新状态为出板
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        has_error = true; // 标记为出错
-                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                    //    }
-                    //}
-
-                    //// 出板
-                    //if (WorkState == 3 || has_error)
-                    //{
-                    //    if (has_error)
-                    //    {
-                    //        AutorunManager.Current.isRunning = false;
-                    //    }
-                    //    System.Threading.Thread.Sleep(1000);
-                    //    OnMovePalleteExecuted.Invoke();
-                    //    WorkState = 0;
-                    //    has_board = false;
-                    //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
-                    //    GlobalManager.Current.IO_test2 = true;
-                    //}
-
-                    #endregion
-
-                    System.Threading.Thread.Sleep(100);
+                    if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
+                    {
+                        // TODO: Handle maximum retries exceeded
+                        return; // Exit the process
+                    }
+                    return; // Retry scanning
                 }
             }
 
-            catch (Exception ex)
+            // SEND REQUEST BARCODE DATA
+            if (_movestep == 2)
             {
-                AutorunManager.Current.isRunning = false;
-                ErrorReportManager.Report(ex);
+                if (true) // TODO: ADD SERVER REQUEST HERE
+                {
+                    _movestep = 3;
+                }
+                else
+                {
+
+                }
             }
+
+            // LASER MEASUREMENT
+            if (_movestep == 3)
+            {
+                var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
+                if (laserSeqResult == 1)
+                {
+                    _movestep = 4;
+                }
+                else if (laserSeqResult == -1)
+                {
+                    // Error occurred during laser measurement
+                    return;
+                }
+            }
+
+            // PROCESSING DONE
+            if (_movestep == 4)
+            {
+                ProcessingDone();
+                _movestep = 0; // Reset for next tray
+            }
+
+
+            //try
+            //{
+            //        while (true)
+            //        {
+            //        //20250519 测试 【史彦洋】 追加 Start
+            //        //Console.WriteLine("lailiao ceshi 1");
+            //        //Thread.Sleep(1000);
+            //        //continue;
+
+
+            //        step1: bool ret = Step1();
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+            //            if (!ret) continue;
+
+            //            step2:
+            //            int ret2 = Step2();
+            //            if (ret2 != 0)
+            //            {
+            //                ShowErrorMessage(ret2);
+            //                break;
+            //            }
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+            //            if (GlobalManager.Current.IsByPass) goto step4;
+
+            //            step3:
+            //            int ret3 = Step3();
+            //            if (ret3 != 0)
+            //            {
+            //                ShowErrorMessage(ret3);
+            //                break;
+            //            }
+            //            if (GlobalManager.Current.Lailiao_exit) break;
+
+            //            //出板
+            //            step4:
+            //            Boardout();
+
+            //            #region 老代码
+            //            //if (GlobalManager.Current.lailiao_ChuFaJinBan)
+            //            //{
+            //            //    //TODO 执行进板
+            //            //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
+
+
+            //            //    WorkState = 1;
+            //            //    has_board = true;
+            //            //    Console.WriteLine("检测到进板信号，已进板");
+            //            //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
+            //            //}
+
+            //            //// 处理板
+            //            //if (has_board && WorkState == 1)
+            //            //{
+            //            //    try
+            //            //    {
+            //            //        //执行完才能改变workstatiion
+            //            //        WorkState = 2;
+
+            //            //        //TODO 扫码枪扫码
+            //            //        System.Threading.Thread.Sleep(1000);
+            //            //        OnJinBanExecuted?.Invoke();
+            //            //        GlobalManager.Current.lailiao_SaoMa = true;
+            //            //        Console.WriteLine("扫码枪扫码已完成");
+
+            //            //        bool asd = false;
+            //            //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
+            //            //        if (asd)
+            //            //        {
+            //            //            GlobalManager.Current.hive_Result = false;
+            //            //        }
+            //            //        else
+            //            //        {
+            //            //            //TODO 基恩士激光测距
+            //            //            System.Threading.Thread.Sleep(1000);
+            //            //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
+            //            //            OnLaserExecuted.Invoke();
+            //            //            Console.WriteLine("激光测距已完成");
+            //            //        }
+
+            //            //        WorkState = 3; // 更新状态为出板
+            //            //    }
+            //            //    catch (Exception ex)
+            //            //    {
+            //            //        has_error = true; // 标记为出错
+            //            //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
+            //            //    }
+            //            //}
+
+            //            //// 出板
+            //            //if (WorkState == 3 || has_error)
+            //            //{
+            //            //    if (has_error)
+            //            //    {
+            //            //        AutorunManager.Current.isRunning = false;
+            //            //    }
+            //            //    System.Threading.Thread.Sleep(1000);
+            //            //    OnMovePalleteExecuted.Invoke();
+            //            //    WorkState = 0;
+            //            //    has_board = false;
+            //            //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
+            //            //    GlobalManager.Current.IO_test2 = true;
+            //            //}
+
+            //            #endregion
+
+            //            System.Threading.Thread.Sleep(100);
+            //        }
+            //    }
+
+            //    catch (Exception ex)
+            //    {
+            //        AutorunManager.Current.isRunning = false;
+            //        ErrorReportManager.Report(ex);
+            //    }
+        }
+
+        /// <summary>
+        /// Laser measurement sequence logic.
+        /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
+        /// </summary>
+        /// <returns></returns>
+        private int LaserMeasureSequence()
+        {
+            // MOVE TO POSITION
+            if (_laserMoveStep == 0)
+            {
+                if (true) // GET NEXT POSITION
+                {
+                    // MOVE AXIS
+                    _laserMoveStep = 1;
+                } else
+                {
+                    // DONE LASER SEQUENCE, RETURN TO GO TO NEXT STEP
+                    return 1;
+                }
+            }
+
+            // WAIT FOR POSITION ARRIVAL
+            if (_laserMoveStep == 1)
+            {
+                if (true) // if motion stopped/reached position
+                {
+                    if (true) // verify if axis is in correct position
+                    {
+                        _laserMoveStep = 2;
+                    }
+                    else
+                    {
+                        _laserMoveStep = 0; // Reset to move again
+                        //return (int)ErrorCode.Move_Failed; // Position verification failed
+                    }
+                }
+            }
+
+            // DO LASER MEASURE
+            if (_laserMoveStep == 2)
+            {
+                if (true) // Do laser measure
+                {
+                    // Log laser measurement result
+                    _laserMoveStep = 0; // Move back from the start
+                }
+                else
+                {
+                    return (int)ErrorCode.Laser_Failed; // Laser measure failed
+                }
+            }
+            return 0;
         }
     }
 }

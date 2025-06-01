@@ -226,7 +226,7 @@ namespace AkribisFAM.WorkStation
                 {
                     MotorOn(controller, axisnum);
                     Thread.Sleep(10);
-                    if (axis.InTargetStat != 1) return -1;
+                    if (axis.InTargetStat < 1) return -1;
 
                 }
                 else
@@ -673,8 +673,12 @@ namespace AkribisFAM.WorkStation
                 var axis = controller.GetAxis(axisnum);
 
                 //temp motor on 
-                MotorOn(controller, axisnum);
+                if (EnableMotor(axisName, true)!=0)
+                    return (int)ACTTION_ERR.ERR;
+
                 Jog(controller, axisnum, dir * ToPulse(axisName, vel));
+
+                //Check jog status //To DO
             }
             catch (Exception ex)
             {

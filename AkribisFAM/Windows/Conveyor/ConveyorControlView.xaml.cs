@@ -29,7 +29,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl laserStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 1,
+                StationNumber = (int)Conveyor.ConveyorStation.Laser,
                 StationName = "Laser Check",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -73,7 +73,7 @@ namespace AkribisFAM.Windows
             stations.Add(laserStation);
             ConveyorWorkStationControl assemblyStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 2,
+                StationNumber = (int)Conveyor.ConveyorStation.Foam,
                 StationName = "Foam assembly",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -120,7 +120,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl filmRemoveStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 3,
+                StationNumber =  (int)Conveyor.ConveyorStation.Recheck,
                 StationName = "Film Remove",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -166,7 +166,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl NGStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 4,
+                StationNumber =  (int)Conveyor.ConveyorStation.Reject,
                 StationName = "NG Reject",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -239,13 +239,13 @@ namespace AkribisFAM.Windows
         }
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Conveyor.Current.MoveConveyorAll((int)AxisSpeed.BL1);
+            Conveyor.Current.MoveConveyorAll();
             //Conveyor.Current.MoveConveyorAll(200);
         }
 
         private void btnSlowMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Conveyor.Current.MoveConveyorAll((int)20);
+            Conveyor.Current.MoveConveyorAll();
         }
 
         private void btnStop_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -260,7 +260,7 @@ namespace AkribisFAM.Windows
             Task.Run(() =>
             {
 
-                if (!Conveyor.Current.GateDown(station.StationNumber))
+                if (!Conveyor.Current.GateDown((Conveyor.ConveyorStation) station.StationNumber))
                 {
                     Thread.Sleep(1);
                     //MessageBox.Show("Failed");
@@ -276,7 +276,7 @@ namespace AkribisFAM.Windows
             Task.Run(() =>
             {
 
-                if (!Conveyor.Current.GateUp(station.StationNumber))
+                if (!Conveyor.Current.GateUp((Conveyor.ConveyorStation)station.StationNumber))
                 {
                     Thread.Sleep(1);
                     //MessageBox.Show("Failed");
@@ -298,7 +298,7 @@ namespace AkribisFAM.Windows
 
                 //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, false);
                 //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, true);
-                if (!Conveyor.Current.LiftDownRelatedTray(station.StationNumber))
+                if (!Conveyor.Current.LiftDownRelatedTray((Conveyor.ConveyorStation)station.StationNumber))
                 {
                     Thread.Sleep(1);
                     //MessageBox.Show("Failed");
@@ -317,7 +317,7 @@ namespace AkribisFAM.Windows
                 //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_2Right_1_lift_cylinder_extend, true);
                 //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, false);
                 //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_3Right_1_lift_cylinder_retract, false);
-                if (!Conveyor.Current.LiftUpRelatedTray(station.StationNumber))
+                if (!Conveyor.Current.LiftUpRelatedTray((Conveyor.ConveyorStation)station.StationNumber))
                 {
                     //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_0Left_1_lift_cylinder_extend, true);
                     //ModbusTCPWorker.GetInstance().Write_Coil((int)IO_OutFunction_Table.OUT1_1Left_1_lift_cylinder_retract, false);

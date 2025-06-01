@@ -327,6 +327,7 @@
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\Conveyor.cs" />
+    <Compile Include="WorkStation\Feeder.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
     <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
