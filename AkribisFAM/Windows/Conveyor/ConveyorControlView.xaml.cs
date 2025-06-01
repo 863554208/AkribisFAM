@@ -29,7 +29,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl laserStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 1,
+                StationNumber = (int)Conveyor.ConveyorStation.Laser,
                 StationName = "Laser Check",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -73,7 +73,7 @@ namespace AkribisFAM.Windows
             stations.Add(laserStation);
             ConveyorWorkStationControl assemblyStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 2,
+                StationNumber = (int)Conveyor.ConveyorStation.Foam,
                 StationName = "Foam assembly",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -120,7 +120,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl filmRemoveStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 3,
+                StationNumber =  (int)Conveyor.ConveyorStation.Recheck,
                 StationName = "Film Remove",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -166,7 +166,7 @@ namespace AkribisFAM.Windows
 
             ConveyorWorkStationControl NGStation = new ConveyorWorkStationControl()
             {
-                StationNumber = 4,
+                StationNumber =  (int)Conveyor.ConveyorStation.Reject,
                 StationName = "NG Reject",
                 ConveyorInList = new ObservableCollection<IO_INFunction_Table>()
                 {

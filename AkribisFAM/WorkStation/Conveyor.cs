@@ -569,33 +569,32 @@ namespace AkribisFAM.WorkStation
             switch (workstationNum)
             {
                 case ConveyorStation.Laser:
-                    //IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
+                    IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
                     IOName2 = IO_INFunction_Table.IN1_4Stop_Sign1;
                     break;
                 case ConveyorStation.Foam:
-                    //IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
+                    IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
                     IOName2 = IO_INFunction_Table.IN1_5Stop_Sign2;
                     break;
                 case ConveyorStation.Recheck:
-                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN1_6Stop_Sign3;
                     break;
                 case ConveyorStation.Reject:
-                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    IOName1 = IO_INFunction_Table.IN1_3Slowdown_Sign4;
                     IOName2 = IO_INFunction_Table.IN1_7Stop_Sign4;
-                    break;
+                    return ReadIO(IOName2);
                 default:
                     return false;
             }
-
-            return /*!ReadIO(IOName1) &&*/ ReadIO(IOName2);
+            return !ReadIO(IOName1) && ReadIO(IOName2);
         }
 
         public bool TrayAtRejectStation()
         {
             IO_INFunction_Table IOName1 = IO_INFunction_Table.IN6_0NG_plate_1_in_position;
 
-            return ReadIO(IOName1);
+            return !ReadIO(IOName1);
         }
         public bool RejectCoverClose()
         {
@@ -613,26 +612,26 @@ namespace AkribisFAM.WorkStation
             switch (workstationNum)
             {
                 case ConveyorStation.Laser:
-                    //IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
+                    IOName1 = IO_INFunction_Table.IN1_0Slowdown_Sign1;
                     IOName2 = IO_INFunction_Table.IN1_10plate_has_left_Behind_the_stopping_cylinder1;
                     break;
                 case ConveyorStation.Foam:
-                    //IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
+                    IOName1 = IO_INFunction_Table.IN1_1Slowdown_Sign2;
                     IOName2 = IO_INFunction_Table.IN1_11plate_has_left_Behind_the_stopping_cylinder2;
                     break;
                 case ConveyorStation.Recheck:
-                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN6_6plate_has_left_Behind_the_stopping_cylinder3;
                     break;
                 case ConveyorStation.Reject:
-                    //IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
+                    IOName1 = IO_INFunction_Table.IN1_2Slowdown_Sign3;
                     IOName2 = IO_INFunction_Table.IN6_7plate_has_left_Behind_the_stopping_cylinder4;
                     break;
                 default:
                     return false;
             }
 
-            return /*ReadIO(IOName1) &&*/ ReadIO(IOName2);
+            return ReadIO(IOName1) && !ReadIO(IOName2);
         }
         public bool TraySeatProperly(ConveyorStation workstationNum)
         {
@@ -1383,7 +1382,7 @@ namespace AkribisFAM.WorkStation
             if (MoveConveyorAll() != 0) return;
             try
             {
-                //while (true)
+                //while (!token.IsCancellationRequested)
                 {
 
                     //todo: check machine stop to exit thread.
@@ -1423,19 +1422,32 @@ namespace AkribisFAM.WorkStation
                                             }
                                         }
                                         ///////////////////////////////
-                                        steps[(int)currentstation] = 2;
+                                        steps[(int)currentstation] = 1;
                                     }
 
                                     break;
                                 case 1: //move end stopper up when clear
                                     if (TrayLeaveAndClearCheck(currentstation) /*&& GateDownSensorCheck(currentstation)*/) //tbc if need gatedowncheck
                                     {
-                                        status[(int)currentstation] = GateUp(currentstation, false);
-                                        if (!status[(int)currentstation])
+                                        if (counters[(int)currentstation] > 10)  //use counter to delay
                                         {
-                                            throw new Exception("Output trigger failed");
+
+                                            status[(int)currentstation] = GateUp(currentstation, false);
+                                            if (!status[(int)currentstation])
+                                            {
+                                                throw new Exception("Output trigger failed");
+                                            }
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 2;
                                         }
-                                        steps[(int)currentstation] = 2;
+                                        counters[(int)currentstation]++;
+
+                                        if (counters[(int)currentstation] > 1000000)
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            //error handle if sensor not detected.
+                                            throw new Exception("sensor fail");
+                                        }
                                     }
                                     break;
                                 case 2: //wait stopper up
@@ -1449,7 +1461,7 @@ namespace AkribisFAM.WorkStation
                                     }
                                     counters[(int)currentstation]++;
 
-                                    if (counters[(int)currentstation] > 1000)
+                                    if (counters[(int)currentstation] > 1000000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1477,7 +1489,6 @@ namespace AkribisFAM.WorkStation
                                     //if detect tray
                                     if (TrayPresenceCheck(currentstation))
                                     {
-                                        counters[(int)currentstation]++;
                                         if (counters[(int)currentstation] > 10)
                                         {
                                             counters[(int)currentstation] = 0;
@@ -1490,7 +1501,7 @@ namespace AkribisFAM.WorkStation
                                     }
                                     counters[(int)currentstation]++;
 
-                                    if (counters[(int)currentstation] > 5000)
+                                    if (counters[(int)currentstation] > 500000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1515,7 +1526,7 @@ namespace AkribisFAM.WorkStation
                                         }
                                     }
                                     counters[(int)currentstation]++;
-                                    if (counters[(int)currentstation] > 1000)
+                                    if (counters[(int)currentstation] > 10000000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1558,7 +1569,7 @@ namespace AkribisFAM.WorkStation
                                     }
                                     counters[(int)currentstation]++;
 
-                                    if (counters[(int)currentstation] > 100)
+                                    if (counters[(int)currentstation] > 1000000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1642,7 +1653,7 @@ namespace AkribisFAM.WorkStation
                                         }
                                     }
                                     counters[(int)currentstation]++;
-                                    if (counters[(int)currentstation] > 1000)
+                                    if (counters[(int)currentstation] > 10000000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1653,8 +1664,8 @@ namespace AkribisFAM.WorkStation
                                     if (currentstation != ConveyorStation.Reject)
                                     {
                                         //// REMOVE
-                                        //StationReadyStatus[(int)currentstation] = false;
-                                        //StationTrayStatus[(int)currentstation] = true;
+                                        StationReadyStatus[(int)currentstation] = false;
+                                        StationTrayStatus[(int)currentstation] = false;
                                         ////
                                         if (!StationReadyStatus[(int)currentstation])
                                         {
@@ -1662,7 +1673,7 @@ namespace AkribisFAM.WorkStation
                                                 !StationTrayStatus[(int)currentstation];
                                             steps[(int)currentstation] = 4;
                                         }
-                                        
+
                                     }
                                     else //reject handle
                                     {
@@ -1746,7 +1757,8 @@ namespace AkribisFAM.WorkStation
                                     //}
                                     //else //check bypass tray moving. if moving then block
                                     //{
-                                    if (!bypasstraymoving && !rejectraymoving)
+                                    var currenttrayfailed = ConveyorTrays[(int)currentstation].isFail; //if current tray is fail, reject
+                                    if (/*!bypasstraymoving && */!rejectraymoving|| currenttrayfailed)
                                         steps[(int)currentstation] = 1;
                                     //}
 
@@ -1773,7 +1785,7 @@ namespace AkribisFAM.WorkStation
                                         }
                                     }
                                     counters[(int)currentstation]++;
-                                    if (counters[(int)currentstation] > 1000)
+                                    if (counters[(int)currentstation] > 100000)
                                     {
                                         counters[(int)currentstation] = 0;
                                         //error handle if sensor not detected.
@@ -1798,9 +1810,9 @@ namespace AkribisFAM.WorkStation
                             break;
                     }
 
-                    currentstation++;
-                    if (currentstation == ConveyorStation.Reject)
+                    if (currentstation >= ConveyorStation.Reject)
                         currentstation = ConveyorStation.Laser;
+                    else currentstation++;
 
                     Thread.Sleep(10);
                 }
@@ -1870,10 +1882,10 @@ namespace AkribisFAM.WorkStation
         }
         public enum ConveyorStation
         {
-            Laser = 1,
-            Foam = 2,
-            Recheck = 3,
-            Reject = 4
+            Laser ,
+            Foam ,
+            Recheck ,
+            Reject 
         }
         public enum StationState
         {

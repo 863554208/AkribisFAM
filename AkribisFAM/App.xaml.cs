@@ -45,7 +45,7 @@ namespace AkribisFAM
             StartConnectAGM800();
 
             ModbusTCPWorker.GetInstance().Connect();
-            IOManager.Instance.ReadIO_status();
+            IOManager.Instance.ReadIO_statusV2();
 
 
             //调试用

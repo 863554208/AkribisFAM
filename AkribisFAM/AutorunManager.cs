@@ -143,8 +143,8 @@ namespace AkribisFAM
                     //tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
-                    tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
                     
                     await Task.WhenAll(tasks);
                 }
@@ -180,7 +180,7 @@ namespace AkribisFAM
             try
             {
 
-                while (isRunning)
+                while (isRunning && !token.IsCancellationRequested)
                 {
                     if (!IsSafe())
                     {
@@ -189,7 +189,7 @@ namespace AkribisFAM
 
                     station.AutoRun(token); 
 
-                    Thread.Sleep(50);
+                    Thread.Sleep(1);
                 }
             }
             catch (Exception ex)
