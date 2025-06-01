@@ -869,11 +869,13 @@ namespace AkribisFAM.WorkStation
                     return;
                 }
             }
+            
 
             // PROCESSING DONE
-            if (_movestep == 4)
+            if (_movestep == 5)
             {
                 ProcessingDone();
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, true);
                 _movestep = 0; // Reset for next tray
             }
 
@@ -1004,9 +1006,13 @@ namespace AkribisFAM.WorkStation
             // MOVE TO POSITION
             if (_laserMoveStep == 0)
             {
+                if (_currentLaserPointIndex >= _laserPointData.Count)
+                {
+                    return 1;
+                }
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
                 // Move to the laser point position
-                if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y) != 0)
+                if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y, false) != 0)
                 {
                     // Error moving to position
                     return -1;
@@ -1020,6 +1026,7 @@ namespace AkribisFAM.WorkStation
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
                 if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
+                    _currentLaserPointIndex++;
                     _laserMoveStep = 0;
                 }
                 // TODO: Add a timeout mechanism here

@@ -498,6 +498,30 @@ namespace AkribisFAM.WorkStation
             return false;
         }
 
+        public bool IsMoveRecheckXYDone(double xPos, double yPos)
+        {
+            var xaxis = AxisName.PRX;
+            var yaxis = AxisName.PRY;
+            if (IsMotorInPos(xaxis, xPos))
+            {
+                if (IsMotorInPos(yaxis, yPos))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsMoveRecheckZDone(double zPos)
+        {
+            var zaxis = AxisName.PRZ;
+            if (IsMotorInPos(zaxis, zPos))
+            {
+                return true;
+            }
+            return false;
+        }
+
         //public void WaitAxisAll()
         //{
         //    Current.WaitAxis(AxisName.FSX);
@@ -1138,7 +1162,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveRecheckXY(double xpos, double ypos)
+        public int MoveRecheckXY(double xpos, double ypos, bool waitMotionDone = true)
         {
             try
             {
@@ -1162,8 +1186,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -1172,7 +1199,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveRecheckZ(double zpos)
+        public int MoveRecheckZ(double zpos, bool waitMotionDone = true)
         {
             try
             {
@@ -1181,7 +1208,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z - to consider vector move
-                if (MoveAbs(z, zpos, zspeed, true) != 0)
+                if (MoveAbs(z, zpos, zspeed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
