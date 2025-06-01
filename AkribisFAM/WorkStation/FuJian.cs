@@ -23,6 +23,9 @@ using static AkribisFAM.WorkStation.Reject;
 using System.IO;
 using AkribisFAM.Helper;
 using AkribisFAM.Util;
+using AkribisFAM.Windows;
+using System.Collections.ObjectModel;
+using System.Data.Entity.Core.Mapping;
 
 namespace AkribisFAM.WorkStation
 {
@@ -388,8 +391,43 @@ namespace AkribisFAM.WorkStation
             Task_CreateMesSocket.UploadMessage();
             return 0;
         }
+        /// <summary>
+        /// Use this to get the list of teach points for laser measurement
+        /// </summary>
+        /// <param name="type">Recipe Tray Type enum</param>
+        /// <param name="listOfPoints">List of SinglePoint Ext including the index, x, y, z, r</param>
+        /// <returns>True: Get teach points successfully , False : Failed to get teach points</returns>
+        public bool GetTeachPointList(TrayType type, out List<SinglePointExt> listOfPoints)
+        {
+            listOfPoints = new List<SinglePointExt>();
+
+            //Get teach points from recipe file
+            var stationsPoints = App.recipeManager.Get_RecipeStationPoints(type);
+            if (stationsPoints == null)
+            {
+                return false;
+            }
+
+            //Read teach points named "Laser Points"
+            var teachpoints = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
+            if (teachpoints == null)
+            {
+                return false;
+            }
 
 
+            //Extract X,Y,Z,R data
+            listOfPoints = teachpoints.childList.Select((x, index) => new SinglePointExt
+            {
+                X = x.childPos[0],
+                Y = x.childPos[1],
+                Z = x.childPos[2],
+                R = x.childPos[3],
+                TeachPointIndex = index + 1
+            }).ToList();
+
+            return true;
+        }
         public bool BoardOut()
         {
             int actionret;

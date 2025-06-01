@@ -25,7 +25,7 @@ namespace AkribisFAM.DeviceClass
         {
             OnMessageReceive.Invoke(null, msg);
         }
-        public bool Measure(out int result)
+        public bool Measure(out double result)
         {
             result = -999;
             sendKDistanceAppend.Clear();
@@ -52,8 +52,8 @@ namespace AkribisFAM.DeviceClass
 
             var res = AcceptKDistanceAppend[0].MeasurData;
             Logger.WriteLog("激光测距结果:" + res);
-
-            return true;
+            
+            return double.TryParse(res, out result);
         }
     }
 }

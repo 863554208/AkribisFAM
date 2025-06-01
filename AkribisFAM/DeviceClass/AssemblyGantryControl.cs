@@ -326,7 +326,10 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint point = ZuZhuang.Current.GetPickPosition((int)pickerNum, (int)fovNum);
+            if (!ZuZhuang.Current.GetPickPosition((int)pickerNum, fovNum, out SinglePoint point))
+            {
+                return false;
+            }
 
             if (point.X == 0 && point.Y == 0 && point.Z == 0)
             {
@@ -800,7 +803,10 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint point = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
+           if (!ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum, out SinglePoint point))
+            { 
+                return false; 
+            }
             if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
                 return false;
