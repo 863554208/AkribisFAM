@@ -19,7 +19,9 @@ namespace AkribisFAM.WorkStation
         private bool _isProcessOngoing = false;
         private int _BarcodeScanRetryCount = 0;
         private int _BarcodeScanRetryMax = 5;
-
+        private List<List<SinglePointExt>> _laserPoints = null; // List of laser points to measure
+        //private List<Point> _laserMoveList = new List<Point>(); // List of points to move the laser to
+        private List<LaserPointData> _laserPointData = new List<LaserPointData>();
 
         public enum LailiaoStep
         {
@@ -746,6 +748,8 @@ namespace AkribisFAM.WorkStation
                 MessageBoxImage.Warning);
         }
         private bool _isTrayReadyToProcess = false;
+        private int _currentLaserPointIndex = 0;
+
         public void SetTrayReadyToProcess()
         {
             _isTrayReadyToProcess = true;
@@ -811,13 +815,53 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-            // LASER MEASUREMENT
+          
+
+            //// GET THE TEACH POINTS
+            //if (_movestep == 0)
+            //{
+            //    if (!GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+            //    {
+            //        ShowErrorMessage((int)ErrorCode.Laser_Failed);
+            //        return -1; // Failed to get teach points
+            //    }
+            //    _laserMoveStep = 1;
+            //}
+
+            // GET LASER TEACH POINTS
             if (_movestep == 3)
+            {
+                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+                {
+                    _laserPointData.Clear(); // Clear previous laser point data
+                    foreach (var pointList in _laserPoints)
+                    {
+                        foreach (var point in pointList)
+                        {
+                            _laserPointData.Add(new LaserPointData
+                            {
+                                Point = point
+                            });
+                        }
+                    }
+                    _currentLaserPointIndex = 0; // Reset index for laser points
+                    Logger.WriteLog("Laser teach points loaded successfully.");
+                    _movestep = 4;
+                }
+                else
+                {
+                    Logger.WriteLog("Failed to load laser teach points.");
+                    return; // Exit the process
+                }
+            }
+
+            // RUN LASER MEASUREMENT SEQUENCE
+            if (_movestep == 4)
             {
                 var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
                 if (laserSeqResult == 1)
                 {
-                    _movestep = 4;
+                    _movestep = 5;
                 }
                 else if (laserSeqResult == -1)
                 {
@@ -960,32 +1004,25 @@ namespace AkribisFAM.WorkStation
             // MOVE TO POSITION
             if (_laserMoveStep == 0)
             {
-                if (true) // GET NEXT POSITION
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                // Move to the laser point position
+                if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y) != 0)
                 {
-                    // MOVE AXIS
-                    _laserMoveStep = 1;
-                } else
-                {
-                    // DONE LASER SEQUENCE, RETURN TO GO TO NEXT STEP
-                    return 1;
+                    // Error moving to position
+                    return -1;
                 }
+                _laserMoveStep = 1; // Move to next step
             }
 
             // WAIT FOR POSITION ARRIVAL
             if (_laserMoveStep == 1)
             {
-                if (true) // if motion stopped/reached position
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
-                    if (true) // verify if axis is in correct position
-                    {
-                        _laserMoveStep = 2;
-                    }
-                    else
-                    {
-                        _laserMoveStep = 0; // Reset to move again
-                        //return (int)ErrorCode.Move_Failed; // Position verification failed
-                    }
+                    _laserMoveStep = 0;
                 }
+                // TODO: Add a timeout mechanism here
             }
 
             // DO LASER MEASURE
@@ -1002,6 +1039,14 @@ namespace AkribisFAM.WorkStation
                 }
             }
             return 0;
+        }
+
+        private class LaserPointData
+        {
+            public SinglePointExt Point { get; set; } // The point data
+            public int TeachPointIndex { get; set; }
+            public double? Measurement { get; set; } = null; // Measurement result from laser
+
         }
     }
 }

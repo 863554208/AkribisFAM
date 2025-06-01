@@ -139,7 +139,7 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    //tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));

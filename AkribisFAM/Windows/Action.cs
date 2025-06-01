@@ -468,6 +468,36 @@ namespace AkribisFAM.WorkStation
             return (int)ACTTION_ERR.NONE;
         }
 
+        public bool IsMotorInPos(AxisName axisName, double pos, double threshold = 0.1)
+        {
+            var agmIndex = (int)axisName / 8;
+            var axisRefNum = (int)axisName % 8;
+            var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
+            var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
+            var axis = controller.GetAxis(axisnum);
+            var currentpos = ToMilimeter(axisName, axis.Pos);
+
+            var cond1 = axis.InTargetStat == 4; // InTargetStat 4 means motion is done
+            var cond2 = Math.Abs(currentpos - pos) <= threshold; // Check if current position is within the threshold of target position
+            var cond3 = axis.MotionStat == 0; // MotionStat 0 means no motion is in progress
+
+            return cond1 && cond2 && cond3;
+        }
+
+        public bool IsMoveLaserXYDone(double xPos, double yPos)
+        {
+            var xaxis = AxisName.LSX;
+            var yaxis = AxisName.LSY;
+            if (IsMotorInPos(xaxis, xPos))
+            {
+                if (IsMotorInPos(yaxis, yPos))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         //public void WaitAxisAll()
         //{
         //    Current.WaitAxis(AxisName.FSX);
@@ -808,7 +838,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveLaserXY(double xpos, double ypos)
+        public int MoveLaserXY(double xpos, double ypos, bool waitMotionDone = true)
         {
             try
             {
@@ -823,8 +853,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
