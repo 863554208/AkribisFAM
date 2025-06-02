@@ -46,8 +46,8 @@ namespace AkribisFAM.WorkStation
         {
             new Picker() { PickerIndex = 1, IsDisabled = false },
             new Picker() { PickerIndex = 2, IsDisabled = false },
-            new Picker() { PickerIndex = 3, IsDisabled = true },
-            new Picker() { PickerIndex = 4, IsDisabled = true },
+            new Picker() { PickerIndex = 3, IsDisabled = false },
+            new Picker() { PickerIndex = 4, IsDisabled = false },
         };
         public override string Name => nameof(ZuZhuang);
 
@@ -1440,14 +1440,14 @@ namespace AkribisFAM.WorkStation
         }
 
         private bool _isTrayReadyToProcess = false;
-        private bool _isProcessingDone = true;
+        private bool _isProcessingDone = false;
         public void SetTrayReadyToProcess()
         {
             _isTrayReadyToProcess = true;
         }
         public bool IsProcessOngoing()
         {
-            return _isProcessingDone;
+            return _isProcessOngoing;
         }
         public void SetRecipe(Recipe recipe)
         {
@@ -1487,10 +1487,10 @@ namespace AkribisFAM.WorkStation
                     DeviceClass.CognexVisionControl.FeederNum.Feeder1 : 
                     DeviceClass.CognexVisionControl.FeederNum.Feeder2;
 
-                if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
-                {
+                //if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
+                //{
                     App.vision1.MoveFoamStandbyPos(_activeFeederNum);
-                }
+                //}
                 // timeout if no feeder is ready at certain duration
 
                 _movestep = 1;
@@ -1546,6 +1546,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     // Handle error or retry logic here
+                    _movestep = 4;
                     return; // PICK FAILED
                 }
                 //var PickResult = PickPartSequence();
@@ -1621,8 +1622,12 @@ namespace AkribisFAM.WorkStation
                 if (_isTrayReadyToProcess)
                 {
                     StartProcessing();
-                    _traySlots = new List<TraySlot>(_currentRecipe.PartRow * _currentRecipe.PartColumn);
-                    
+                    _traySlots = new List<TraySlot>();
+                    for (int i = 0; i < _currentRecipe.PartRow * _currentRecipe.PartColumn; i++)
+                    {
+                        _traySlots.Add(new TraySlot());
+                    }
+                    _currentTrayPlaceIndex = 0;
                     _movestep = 9;
                 }
             }
@@ -1660,7 +1665,7 @@ namespace AkribisFAM.WorkStation
                 else if (placeResult < 0)
                 {
                     // Placement error
-                    return;
+                    //return;
                 }
             }
         }
@@ -1709,15 +1714,29 @@ namespace AkribisFAM.WorkStation
             // SELECT PICKER AND MOVE TO PLACE
             if (_trayPlaceMovestep == 1)
             {
-                if (App.assemblyGantryControl.PlaceFoam((DeviceClass.AssemblyGantryControl.Picker)_selectedPicker, _currentTrayPlaceIndex))
+                if (App.assemblyGantryControl.PlaceFoam((DeviceClass.AssemblyGantryControl.Picker)_selectedPicker, _currentTrayPlaceIndex + 1))
                 {
                     _traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
                     _currentTrayPlaceIndex++;
                     _currentPickerIndex++;
                     _trayPlaceMovestep = 0;
+                    if (_currentTrayPlaceIndex >= _traySlots.Count)
+                    {
+                        return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
+                    }
                 } else
                 {
-                    return -1; // PLACE FAILED
+                    // TODO REMOVE AFTER DRY RUN
+                    _traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
+                    _currentTrayPlaceIndex++;
+                    _currentPickerIndex++;
+                    _trayPlaceMovestep = 0;
+                    if (_currentTrayPlaceIndex >= _traySlots.Count)
+                    {
+                        return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
+                    }
+
+                    //return -1; // PLACE FAILED
                 }
             }
             return 0;

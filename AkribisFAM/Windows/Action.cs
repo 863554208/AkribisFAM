@@ -994,8 +994,8 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4Z motion done
-                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 ||
-                    WaitMotionDone(z3, z3pos) != 0 /*|| WaitMotionDone(z4, z4pos) != 0*/)
+                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 /*||*/
+                    /* WaitMotionDone(z3, z3pos) != 0|| WaitMotionDone(z4, z4pos) != 0*/)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;

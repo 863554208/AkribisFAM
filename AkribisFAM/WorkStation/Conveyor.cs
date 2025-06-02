@@ -481,7 +481,10 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return !ReadIO(IOName1) && ReadIO(IOName2);
+            var cond1 = ReadIO(IOName1);
+            var cond2 = ReadIO(IOName2);
+
+            return !cond1 && cond2;
         }
 
         public bool LiftUpRelatedTraySensorCheck(ConveyorStation workstationNum)
@@ -1386,12 +1389,12 @@ namespace AkribisFAM.WorkStation
         public override void AutoRun(CancellationToken token) //rayner version 2
         {
             var byPassLaserProcess = false;
-            var byPassFoamProcess = true;
+            var byPassFoamProcess = false;
             var byPassRecheckProcess = false;
             if (MoveConveyorAll() != 0) return;
             try
             {
-                //while (!token.IsCancellationRequested)
+                while (!token.IsCancellationRequested)
                 {
 
                     //todo: check machine stop to exit thread.
@@ -1530,7 +1533,7 @@ namespace AkribisFAM.WorkStation
                                 case 2: //wait tray lifted
                                     if (LiftUpRelatedTraySensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 2)  //use counter to delay
+                                        //if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 3;
@@ -1889,7 +1892,7 @@ namespace AkribisFAM.WorkStation
                         currentstation = ConveyorStation.Laser;
                     else currentstation++;
 
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
                 }
             }
             catch (Exception ex)

@@ -205,6 +205,7 @@ namespace AkribisFAM.WorkStation
                     }
                     else
                     {
+                        // Both feeders are not ready
                         Logger.WriteLog($"Feeder {_feeder.FeederNumber} switch failed: {switchErrMsg}");
                         currentStep = FeederSequenceStep.ErrorDetected;
                     }

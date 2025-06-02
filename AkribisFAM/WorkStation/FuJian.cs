@@ -676,7 +676,7 @@ namespace AkribisFAM.WorkStation
                 var movePt = GlobalManager.Current.RecheckRecylePos;
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
-                    //App.filmRemoveGantryControl.VacOn();
+                    App.filmRemoveGantryControl.VacOn();
                     _filmRemoveMovestep = 17;
                 }
                 // TODO: Add a timeout mechanism here
