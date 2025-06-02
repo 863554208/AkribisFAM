@@ -79,7 +79,10 @@ namespace AkribisFAM.WorkStation
         {
             _feeder = _feeder.FeederNumber == 1 ? App.feeder2 : App.feeder1;
         }
-
+        public int GetActiveFeederNumber()
+        {
+            return _feeder.FeederNumber;
+        }
         public bool CanPick()
         {
             return _canPick;

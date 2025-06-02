@@ -1438,7 +1438,7 @@ namespace AkribisFAM.WorkStation
 
                                     break;
                                 case 1: //move end stopper up when clear
-                                    if (TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].hasTray) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
+                                    if (TrayLeaveAndClearCheck(currentstation)) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
                                     {
                                         if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {

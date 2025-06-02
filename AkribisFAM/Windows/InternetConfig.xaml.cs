@@ -63,7 +63,7 @@ namespace AkribisFAM.Windows
                 {
                     string press = TCPNetworkManage.GetLastMessage(ClientNames.Pressure_sensor);
                     double result = Parser.TryParseTwoValues(press);
-                    PressureInfo.Text = result.ToString() + "N";
+                    PressureInfo.Text = result.ToString() + "G";
                 }
                 else
                 {
@@ -317,8 +317,22 @@ namespace AkribisFAM.Windows
                 {
                     sendMess(ClientNames.mes, Command.Text);
                 }
+                else if (device.SelectedIndex == 7)
+                {
+                    //sendMess(ClientNames.Pressure_sensor, Command.Text);
+                    string cmd = HexToString(Command.Text);
+                    sendMess(ClientNames.Pressure_sensor, cmd);
+                }
             }));
         }
 
+        public string HexToString(string hex)
+        {
+            hex = hex.Replace(" ", ""); // 去除空格
+            var bytes = Enumerable.Range(0, hex.Length / 2)
+                                  .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
+                                  .ToArray();
+            return Encoding.ASCII.GetString(bytes); // 或 Encoding.UTF8
+        }
     }
 }

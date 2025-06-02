@@ -1443,9 +1443,29 @@ namespace AkribisFAM.WorkStation
 
         public async override void AutoRun(CancellationToken token)
         {
+            //App.vision1.MoveFoamStandbyPos();
+            //App.vision1.Vision1OnTheFlyFoamTrigger();
+            //App.assemblyGantryControl.PickFoam() // which picker to which foam
+            //App.assemblyGantryControl.PickAllFoam() // which picker to which foam
+            //App.vision1.MoveVision2StandbyPos();
+            //App.vision1.Vision2OnTheFlyTrigger();
+            //App.vision1.Vision1OnTheFlyPalletTrigger();
+            //App.assemblyGantryControl.PlaceFoam() // which picker to which foam
+
             // MOVE TO PICK INSPECT POSITION
             if (_movestep == 0)
-            {
+            { 
+                
+                var feederNum = Feeder.Current.GetActiveFeederNumber() == 1 ? 
+                    DeviceClass.CognexVisionControl.FeederNum.Feeder1 : 
+                    DeviceClass.CognexVisionControl.FeederNum.Feeder2;
+
+                App.vision1.MoveFoamStandbyPos(feederNum);
+
+
+
+
+
                 _movestep = 1;
             }
 

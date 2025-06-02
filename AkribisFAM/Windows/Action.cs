@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -467,7 +468,13 @@ namespace AkribisFAM.WorkStation
             }
             return (int)ACTTION_ERR.NONE;
         }
-
+        /// <summary>
+        /// Check if motor is move done and in position within a threshold (Non blocking)
+        /// </summary>
+        /// <param name="axisName"></param>
+        /// <param name="pos"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
         public bool IsMotorInPos(AxisName axisName, double pos, double threshold = 0.1)
         {
             var agmIndex = (int)axisName / 8;
@@ -897,7 +904,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false)
+        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false, bool waitMotionDone = true)
         {
             try
             {
@@ -931,8 +938,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -941,7 +951,22 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        //todo: MoveFoamZ1Z2Z3Z4
+        /// <summary>
+        /// Check if Foam Gantry XY move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="xpos"></param>
+        /// <param name="ypos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamXYDone(double xpos, double ypos)
+        {
+            var xaxis = AxisName.FSX;
+            var yaxis = AxisName.FSY;
+            if (IsMotorInPos(xaxis, xpos) && IsMotorInPos(yaxis, ypos))
+            {
+                return true;
+            }
+            return false;
+        }
         /// <summary>
         /// Gang move 4 Z pickers
         /// </summary>
@@ -980,6 +1005,17 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
+        /// <summary>
+        /// Check if Foam Gantry Z move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="axisName"></param>
+        /// <param name="zpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamZDone(AxisName axisName, double zpos)
+        {
+            return IsMotorInPos(axisName, zpos);
+        }
+
         public int MoveFoamZ1(double z1pos)
         {
             try
