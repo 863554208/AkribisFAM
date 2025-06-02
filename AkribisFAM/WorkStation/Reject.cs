@@ -82,11 +82,11 @@ namespace AkribisFAM.WorkStation
         {
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
-                return true;
+                return false;
             }
             else if (IOManager.Instance.INIO_status[(int)index] == 1)
             {
-                return false;
+                return true;
             }
             else {
                 ErrorManager.Current.Insert(ErrorCode.IOErr);
@@ -99,14 +99,10 @@ namespace AkribisFAM.WorkStation
             IOManager.Instance.IO_ControlStatus( index , value);
         }
 		
-        public void MoveConveyor(int vel)
-        {
-            AkrAction.Current.MoveConveyor(vel);
-        }
-
+  
         public void MoveNGConveyor(int vel)
         {
-            AkrAction.Current.MoveNGConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
 
         public void StopNGConveyor()

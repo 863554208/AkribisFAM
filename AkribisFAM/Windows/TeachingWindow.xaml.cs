@@ -233,7 +233,7 @@ namespace AkribisFAM.Windows
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(AxisIndexes[aixsIsChecked] + 1);
             await Task.Run(() =>
             {
-                AkrAction.Current.Move(axis, posValue, teachvel);
+                AkrAction.Current.MoveAbs(axis, posValue, teachvel);
             });
         }
 

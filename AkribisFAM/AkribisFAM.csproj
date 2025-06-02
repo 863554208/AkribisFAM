@@ -220,6 +220,7 @@
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
     <Compile Include="Util\Parser.cs" />
+    <Compile Include="Util\ProductData.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="Windows\Action.cs" />
@@ -326,6 +327,7 @@
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\Conveyor.cs" />
+    <Compile Include="WorkStation\Feeder.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
     <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />

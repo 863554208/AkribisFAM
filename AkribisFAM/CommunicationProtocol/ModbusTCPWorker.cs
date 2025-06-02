@@ -24,16 +24,17 @@ namespace AkribisFAM.CommunicationProtocol
 
         public static ModbusTCPWorker GetInstance()
         {
-            lock (locker)
-            {
+            //lock (locker)
+            //{
 
                 if (_instance == null)
                 {
                     _instance = new ModbusTCPWorker();
                 }
-            }
+                return _instance;
+            //}
             //Console.WriteLine(_instance);
-            return _instance;
+            
 
         }
         public bool Initializate()
@@ -250,6 +251,41 @@ namespace AkribisFAM.CommunicationProtocol
                 return false;
             }
         }
+
+
+        // 读取线圈状态
+        public bool Read_Coil_Array(int index, ushort length ,ref bool[] results)
+        {
+            if (!connect_state)
+            {
+                return false;
+            }
+
+            try
+            {
+
+                // 使用功能码 0x01 读取线圈状态
+                OperateResult<bool[]> readResults = modbus.ReadBool("1;" + index, length);
+                if (readResults.IsSuccess)
+                {
+                    Console.WriteLine($"Coil {index} state is: {readResults.Content}");
+                    Console.WriteLine($"1;{index.ToString()}");
+                    results = readResults.Content;
+                    return true;
+                }
+                else
+                {
+                    //Console.WriteLine($"读取线圈 {index} 失败：{readResult.Message}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine($"读取线圈 {index} 时发生异常：{ex.Message}");
+                return false;
+            }
+        }
+
         // 写单个线圈
         public bool Write_Coil(int index, bool value)
         {

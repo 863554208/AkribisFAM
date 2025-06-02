@@ -44,11 +44,11 @@ namespace AkribisFAM.Windows
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    IO_INFunction_Table.IN4_3Initialized_feeder1 ,
-                    IO_INFunction_Table.IN4_2Alarm_feeder1 ,
+                    IO_INFunction_Table.IN4_0Initialized_feeder1 ,
+                    IO_INFunction_Table.IN4_1Alarm_feeder1 ,
 
-                    IO_INFunction_Table.IN4_1Platform_has_label_feeder1,
-                    IO_INFunction_Table.IN4_1Platform_has_label_feeder1,
+                    IO_INFunction_Table.IN4_2Platform_has_label_feeder1,
+                    IO_INFunction_Table.IN4_6Platform_has_label_feeder2,
 
 
                     IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos ,
@@ -94,11 +94,11 @@ namespace AkribisFAM.Windows
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    IO_INFunction_Table.IN4_7Initialized_feeder2 ,
-                    IO_INFunction_Table.IN4_6Alarm_feeder2 ,
+                    IO_INFunction_Table.IN4_4BInitialized_feeder2 ,
+                    IO_INFunction_Table.IN4_51Alarm_feeder2 ,
 
-                    IO_INFunction_Table.IN4_5Platform_has_label_feeder2,
-                    IO_INFunction_Table.IN4_4Backup_Platform_2_has_label_feeder2,
+                    IO_INFunction_Table.IN4_6Platform_has_label_feeder2,
+                    IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2,
 
 
                     IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos ,

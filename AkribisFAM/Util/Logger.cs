@@ -15,7 +15,7 @@ namespace AkribisFAM.Util
         //private static readonly string _baseDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         //private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; // 5MB
         private static readonly string _baseDirectory = @" D:\Users\qiuxg\Desktop\Log";//log path
-        private const long MaxLogFileSizeBytes = 5 * 1024 * 1024; 
+        private const long MaxLogFileSizeBytes = 20 * 1024 * 1024; 
         private static readonly Thread _logThread;
         private static volatile bool _isRunning = true;
         private static readonly object _fileLock = new object();
