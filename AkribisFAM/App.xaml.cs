@@ -61,6 +61,7 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            assemblyGantryControl.XOffset = 16;
             filmRemoveGantryControl = new FilmRemoveGantryControl();
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;

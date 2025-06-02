@@ -1371,6 +1371,20 @@ namespace AkribisFAM.WorkStation
                 Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
             };
         }
+        private bool GetPickPositionDryRun(int Nozzlenum,  int fovNum ,int feedernum, out SinglePoint point)
+        {
+            var points = feedernum == 1 ? GlobalManager.Current.pickFoam1Points : GlobalManager.Current.pickFoam2Points;
+            Thread.Sleep(1);
+            point = new SinglePoint()
+            {
+                X = points[0].X + (fovNum - Nozzlenum) * App.assemblyGantryControl.XOffset,
+                Y = points[0].Y,
+                R = points[0].R,
+                Z = points[0].Z,
+            };
+            return true;
+
+        }
         /// <summary>
         /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
         /// </summary>
@@ -1381,12 +1395,24 @@ namespace AkribisFAM.WorkStation
         public bool GetPickPosition(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
             point = new SinglePoint();
+            int feeder = 1;
 
             if (Nozzlenum < 1 || Nozzlenum > 4 || Fovnum < 1 || Fovnum > 4)
             {
                 return false;
             }
+            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            {
+                if (!GetPickPositionDryRun(Nozzlenum, Fovnum, feeder, out point))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
 
+            }
             string command = "GM,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "1";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             FeedUpCamrea.Acceptcommand.AcceptGMCommandAppend GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGMAcceptData(FeedupCameraProcessCommand.GM)[0];
@@ -1402,6 +1428,20 @@ namespace AkribisFAM.WorkStation
             }
             PickPositions[Nozzlenum] = point;
             return true;
+        }
+        private bool GetPlacePositionDryRun(int Nozzlenum, int Fovnum, out SinglePoint point)
+        {
+
+            Thread.Sleep(1);
+            point = new SinglePoint()
+            {
+                X = GlobalManager.Current.placeFoamPoints[Fovnum-1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
+                Y = GlobalManager.Current.placeFoamPoints[Fovnum-1].Y,
+                R = GlobalManager.Current.placeFoamPoints[Fovnum-1].R,
+                Z = GlobalManager.Current.placeFoamPoints[Fovnum - 1].Z,
+            };
+            return true;
+
         }
         /// <summary>
         /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
@@ -1419,7 +1459,18 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
+            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            {
+                if (!GetPlacePositionDryRun(Nozzlenum, Fovnum, out point))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
 
+            }
 
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);
