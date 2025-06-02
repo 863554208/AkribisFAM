@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -467,6 +468,66 @@ namespace AkribisFAM.WorkStation
             }
             return (int)ACTTION_ERR.NONE;
         }
+        /// <summary>
+        /// Check if motor is move done and in position within a threshold (Non blocking)
+        /// </summary>
+        /// <param name="axisName"></param>
+        /// <param name="pos"></param>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        public bool IsMotorInPos(AxisName axisName, double pos, double threshold = 0.1)
+        {
+            var agmIndex = (int)axisName / 8;
+            var axisRefNum = (int)axisName % 8;
+            var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
+            var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
+            var axis = controller.GetAxis(axisnum);
+            var currentpos = ToMilimeter(axisName, axis.Pos);
+
+            var cond1 = axis.InTargetStat == 4; // InTargetStat 4 means motion is done
+            var cond2 = Math.Abs(currentpos - pos) <= threshold; // Check if current position is within the threshold of target position
+            var cond3 = axis.MotionStat == 0; // MotionStat 0 means no motion is in progress
+
+            return cond1 && cond2 && cond3;
+        }
+
+        public bool IsMoveLaserXYDone(double xPos, double yPos)
+        {
+            var xaxis = AxisName.LSX;
+            var yaxis = AxisName.LSY;
+            if (IsMotorInPos(xaxis, xPos))
+            {
+                if (IsMotorInPos(yaxis, yPos))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsMoveRecheckXYDone(double xPos, double yPos)
+        {
+            var xaxis = AxisName.PRX;
+            var yaxis = AxisName.PRY;
+            if (IsMotorInPos(xaxis, xPos))
+            {
+                if (IsMotorInPos(yaxis, yPos))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsMoveRecheckZDone(double zPos)
+        {
+            var zaxis = AxisName.PRZ;
+            if (IsMotorInPos(zaxis, zPos))
+            {
+                return true;
+            }
+            return false;
+        }
 
         //public void WaitAxisAll()
         //{
@@ -808,7 +869,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveLaserXY(double xpos, double ypos)
+        public int MoveLaserXY(double xpos, double ypos, bool waitMotionDone = true)
         {
             try
             {
@@ -823,8 +884,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -840,7 +904,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false)
+        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false, bool waitMotionDone = true)
         {
             try
             {
@@ -874,8 +938,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -884,7 +951,22 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        //todo: MoveFoamZ1Z2Z3Z4
+        /// <summary>
+        /// Check if Foam Gantry XY move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="xpos"></param>
+        /// <param name="ypos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamXYDone(double xpos, double ypos)
+        {
+            var xaxis = AxisName.FSX;
+            var yaxis = AxisName.FSY;
+            if (IsMotorInPos(xaxis, xpos) && IsMotorInPos(yaxis, ypos))
+            {
+                return true;
+            }
+            return false;
+        }
         /// <summary>
         /// Gang move 4 Z pickers
         /// </summary>
@@ -912,8 +994,8 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4Z motion done
-                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 ||
-                    WaitMotionDone(z3, z3pos) != 0 /*|| WaitMotionDone(z4, z4pos) != 0*/)
+                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 /*||*/
+                    /* WaitMotionDone(z3, z3pos) != 0|| WaitMotionDone(z4, z4pos) != 0*/)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -923,6 +1005,17 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
+        /// <summary>
+        /// Check if Foam Gantry Z move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="axisName"></param>
+        /// <param name="zpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamZDone(AxisName axisName, double zpos)
+        {
+            return IsMotorInPos(axisName, zpos);
+        }
+
         public int MoveFoamZ1(double z1pos)
         {
             try
@@ -1105,7 +1198,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveRecheckXY(double xpos, double ypos)
+        public int MoveRecheckXY(double xpos, double ypos, bool waitMotionDone = true)
         {
             try
             {
@@ -1129,8 +1222,11 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait xy motion done
-                if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(xaxis, xpos) != 0 || WaitMotionDone(yaxis, ypos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -1139,7 +1235,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveRecheckZ(double zpos)
+        public int MoveRecheckZ(double zpos, bool waitMotionDone = true)
         {
             try
             {
@@ -1148,7 +1244,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z - to consider vector move
-                if (MoveAbs(z, zpos, zspeed, true) != 0)
+                if (MoveAbs(z, zpos, zspeed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;

@@ -19,7 +19,9 @@ namespace AkribisFAM.WorkStation
         private bool _isProcessOngoing = false;
         private int _BarcodeScanRetryCount = 0;
         private int _BarcodeScanRetryMax = 5;
-
+        private List<List<SinglePointExt>> _laserPoints = null; // List of laser points to measure
+        //private List<Point> _laserMoveList = new List<Point>(); // List of points to move the laser to
+        private List<LaserPointData> _laserPointData = new List<LaserPointData>();
 
         public enum LailiaoStep
         {
@@ -746,6 +748,8 @@ namespace AkribisFAM.WorkStation
                 MessageBoxImage.Warning);
         }
         private bool _isTrayReadyToProcess = false;
+        private int _currentLaserPointIndex = 0;
+
         public void SetTrayReadyToProcess()
         {
             _isTrayReadyToProcess = true;
@@ -811,13 +815,53 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-            // LASER MEASUREMENT
+          
+
+            //// GET THE TEACH POINTS
+            //if (_movestep == 0)
+            //{
+            //    if (!GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+            //    {
+            //        ShowErrorMessage((int)ErrorCode.Laser_Failed);
+            //        return -1; // Failed to get teach points
+            //    }
+            //    _laserMoveStep = 1;
+            //}
+
+            // GET LASER TEACH POINTS
             if (_movestep == 3)
+            {
+                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+                {
+                    _laserPointData.Clear(); // Clear previous laser point data
+                    foreach (var pointList in _laserPoints)
+                    {
+                        foreach (var point in pointList)
+                        {
+                            _laserPointData.Add(new LaserPointData
+                            {
+                                Point = point
+                            });
+                        }
+                    }
+                    _currentLaserPointIndex = 0; // Reset index for laser points
+                    Logger.WriteLog("Laser teach points loaded successfully.");
+                    _movestep = 4;
+                }
+                else
+                {
+                    Logger.WriteLog("Failed to load laser teach points.");
+                    return; // Exit the process
+                }
+            }
+
+            // RUN LASER MEASUREMENT SEQUENCE
+            if (_movestep == 4)
             {
                 var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
                 if (laserSeqResult == 1)
                 {
-                    _movestep = 4;
+                    _movestep = 5;
                 }
                 else if (laserSeqResult == -1)
                 {
@@ -825,129 +869,19 @@ namespace AkribisFAM.WorkStation
                     return;
                 }
             }
+            
 
             // PROCESSING DONE
-            if (_movestep == 4)
+            if (_movestep == 5)
             {
                 ProcessingDone();
+
+                // Temporary, should be conveyor checking the stations status
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, true);
+
                 _movestep = 0; // Reset for next tray
             }
 
-
-            //try
-            //{
-            //        while (true)
-            //        {
-            //        //20250519 测试 【史彦洋】 追加 Start
-            //        //Console.WriteLine("lailiao ceshi 1");
-            //        //Thread.Sleep(1000);
-            //        //continue;
-
-
-            //        step1: bool ret = Step1();
-            //            if (GlobalManager.Current.Lailiao_exit) break;
-            //            if (!ret) continue;
-
-            //            step2:
-            //            int ret2 = Step2();
-            //            if (ret2 != 0)
-            //            {
-            //                ShowErrorMessage(ret2);
-            //                break;
-            //            }
-            //            if (GlobalManager.Current.Lailiao_exit) break;
-            //            if (GlobalManager.Current.IsByPass) goto step4;
-
-            //            step3:
-            //            int ret3 = Step3();
-            //            if (ret3 != 0)
-            //            {
-            //                ShowErrorMessage(ret3);
-            //                break;
-            //            }
-            //            if (GlobalManager.Current.Lailiao_exit) break;
-
-            //            //出板
-            //            step4:
-            //            Boardout();
-
-            //            #region 老代码
-            //            //if (GlobalManager.Current.lailiao_ChuFaJinBan)
-            //            //{
-            //            //    //TODO 执行进板
-            //            //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
-
-
-            //            //    WorkState = 1;
-            //            //    has_board = true;
-            //            //    Console.WriteLine("检测到进板信号，已进板");
-            //            //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
-            //            //}
-
-            //            //// 处理板
-            //            //if (has_board && WorkState == 1)
-            //            //{
-            //            //    try
-            //            //    {
-            //            //        //执行完才能改变workstatiion
-            //            //        WorkState = 2;
-
-            //            //        //TODO 扫码枪扫码
-            //            //        System.Threading.Thread.Sleep(1000);
-            //            //        OnJinBanExecuted?.Invoke();
-            //            //        GlobalManager.Current.lailiao_SaoMa = true;
-            //            //        Console.WriteLine("扫码枪扫码已完成");
-
-            //            //        bool asd = false;
-            //            //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-            //            //        if (asd)
-            //            //        {
-            //            //            GlobalManager.Current.hive_Result = false;
-            //            //        }
-            //            //        else
-            //            //        {
-            //            //            //TODO 基恩士激光测距
-            //            //            System.Threading.Thread.Sleep(1000);
-            //            //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-            //            //            OnLaserExecuted.Invoke();
-            //            //            Console.WriteLine("激光测距已完成");
-            //            //        }
-
-            //            //        WorkState = 3; // 更新状态为出板
-            //            //    }
-            //            //    catch (Exception ex)
-            //            //    {
-            //            //        has_error = true; // 标记为出错
-            //            //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-            //            //    }
-            //            //}
-
-            //            //// 出板
-            //            //if (WorkState == 3 || has_error)
-            //            //{
-            //            //    if (has_error)
-            //            //    {
-            //            //        AutorunManager.Current.isRunning = false;
-            //            //    }
-            //            //    System.Threading.Thread.Sleep(1000);
-            //            //    OnMovePalleteExecuted.Invoke();
-            //            //    WorkState = 0;
-            //            //    has_board = false;
-            //            //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
-            //            //    GlobalManager.Current.IO_test2 = true;
-            //            //}
-
-            //            #endregion
-
-            //            System.Threading.Thread.Sleep(100);
-            //        }
-            //    }
-
-            //    catch (Exception ex)
-            //    {
-            //        AutorunManager.Current.isRunning = false;
-            //        ErrorReportManager.Report(ex);
-            //    }
         }
 
         /// <summary>
@@ -960,32 +894,30 @@ namespace AkribisFAM.WorkStation
             // MOVE TO POSITION
             if (_laserMoveStep == 0)
             {
-                if (true) // GET NEXT POSITION
+                if (_currentLaserPointIndex >= _laserPointData.Count)
                 {
-                    // MOVE AXIS
-                    _laserMoveStep = 1;
-                } else
-                {
-                    // DONE LASER SEQUENCE, RETURN TO GO TO NEXT STEP
                     return 1;
                 }
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                // Move to the laser point position
+                if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _laserMoveStep = 1; // Move to next step
             }
 
             // WAIT FOR POSITION ARRIVAL
             if (_laserMoveStep == 1)
             {
-                if (true) // if motion stopped/reached position
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
-                    if (true) // verify if axis is in correct position
-                    {
-                        _laserMoveStep = 2;
-                    }
-                    else
-                    {
-                        _laserMoveStep = 0; // Reset to move again
-                        //return (int)ErrorCode.Move_Failed; // Position verification failed
-                    }
+                    _currentLaserPointIndex++;
+                    _laserMoveStep = 0;
                 }
+                // TODO: Add a timeout mechanism here
             }
 
             // DO LASER MEASURE
@@ -1002,6 +934,14 @@ namespace AkribisFAM.WorkStation
                 }
             }
             return 0;
+        }
+
+        private class LaserPointData
+        {
+            public SinglePointExt Point { get; set; } // The point data
+            public int TeachPointIndex { get; set; }
+            public double? Measurement { get; set; } = null; // Measurement result from laser
+
         }
     }
 }

@@ -79,12 +79,24 @@ namespace AkribisFAM.WorkStation
         {
             _feeder = _feeder.FeederNumber == 1 ? App.feeder2 : App.feeder1;
         }
-
+        public int GetActiveFeederNumber()
+        {
+            return _feeder.FeederNumber;
+        }
+        /// <summary>
+        /// Returns true if active feeder have parts available to pick
+        /// </summary>
+        /// <returns></returns>
         public bool CanPick()
         {
             return _canPick;
         }
-        
+
+        public bool IsFeederReady()
+        {
+            return IsFeederReady(_feeder, out _);
+        }
+
         public override void AutoRun(CancellationToken token)
         {
         
@@ -193,6 +205,7 @@ namespace AkribisFAM.WorkStation
                     }
                     else
                     {
+                        // Both feeders are not ready
                         Logger.WriteLog($"Feeder {_feeder.FeederNumber} switch failed: {switchErrMsg}");
                         currentStep = FeederSequenceStep.ErrorDetected;
                     }

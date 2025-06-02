@@ -52,8 +52,12 @@ namespace AkribisFAM.DeviceClass
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1)))
                 return false;
 
+            return true;
+        }
+        public bool IsClawClose()
+        {
             return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 1) &&
-                GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 0);
+               GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 0);
         }
         public bool ClawOpen()
         {
@@ -61,11 +65,14 @@ namespace AkribisFAM.DeviceClass
               IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0)))
                 return false;
 
-
-
-            return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 0) &&
-                GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
+            return true;
         }
+        public bool IsClawOpen()
+        {
+            return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 0) &&
+               GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
+        }
+
         public bool MovePos(double x, double y)
         {
             if (!ZUp())

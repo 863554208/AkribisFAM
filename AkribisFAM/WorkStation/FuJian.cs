@@ -36,6 +36,7 @@ namespace AkribisFAM.WorkStation
         private static int _inspectMovestep = 0;
         private bool _isProcessOngoing = false;
         private static FuJian _instance;
+        private static List<SinglePointExt> _movePoints = new List<SinglePointExt>();
         public override string Name => nameof(FuJian);
 
         private ErrorCode errorCode;
@@ -447,6 +448,7 @@ namespace AkribisFAM.WorkStation
             return true;
         }
         private bool _isTrayReadyToProcess = false;
+        private int _currentPointIndex = 0;
         public void SetTrayReadyToProcess()
         {
             _isTrayReadyToProcess = true;
@@ -476,27 +478,44 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-            // FILM REMOVAL SEQUENCE
+            // GET TEACH POINTS
             if (_movestep == 1)
+            {
+                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints))
+                {
+                    _currentPointIndex = 0; // Reset index for move points
+                    Logger.WriteLog("retest teach points loaded successfully.");
+                    _movestep = 2;
+                }
+                else
+                {
+                    Logger.WriteLog("Failed to load retest teach points.");
+                    return; // Exit the process
+                }
+            }
+
+            // FILM REMOVAL SEQUENCE
+            if (_movestep == 2)
             {
                 var filmRemovalSeqRes = FilmRemovalSequence();
                 if (filmRemovalSeqRes == 1)
                 {
-                    _movestep = 2;
+                    _movestep = 5;
                 }
                 else if (filmRemovalSeqRes == -1)
                 {
                     // TODO: ERROR HANDLING
+                    return;
                 }
             }
 
             // INSPECT SEQUENCE
-            if (_movestep == 2)
+            if (_movestep == 3)
             {
                 var inspectRes = InspectSequence();
                 if (inspectRes == 1)
                 {
-                    _movestep = 3;
+                    _movestep = 4;
                 }
                 else if (inspectRes == -1)
                 {
@@ -505,68 +524,263 @@ namespace AkribisFAM.WorkStation
             }
 
             // SEQUENCE COMPLETE
-            if (_movestep == 3)
+            if (_movestep == 5)
             {
                 ProcessingDone();
+
+                // Temporary, should be conveyor checking the stations status
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Recheck, true);
+
                 _movestep = 0;
             }
 
 
-            GlobalManager.Current.flag_RecheckTrayArrived = 0;
-            try
-            {
-                while (true)
-                {
-
-                step1:
-                    GlobalManager.Current.flag_RecheckTrayArrived = 0;
-                    GlobalManager.Current.current_FuJian_step = 1;
-                    if (GlobalManager.Current.FuJian_exit) break;
-
-                    step2:
-                    GlobalManager.Current.current_FuJian_step = 2;
-                    Tearing();
-                    if (GlobalManager.Current.FuJian_exit) break;
-
-                    step3:
-                    GlobalManager.Current.current_FuJian_step = 3;
-                    Recheck();
-                    UploadMES();
-                    if (GlobalManager.Current.FuJian_exit) break;
-                    step4:
-                    GlobalManager.Current.current_FuJian_step = 4;
-                    BoardOut();
-                    if (GlobalManager.Current.FuJian_exit) break;
-                }
-            }
-            catch (Exception ex)
-            {
-                AutorunManager.Current.isRunning = false;
-                ErrorReportManager.Report(ex);
-            }
         }
         private int FilmRemovalSequence()
         {
-            // MOVE TO POSITION
+            var zPos = 12.0; // TODO: remove temporary hardcode z position
+            DateTime startTime = DateTime.Now;
+            int vacuumDelay = 1000;
 
-            // WAIT TO REACH POSITION
+            // MOVE TO POSITION
+            if (_filmRemoveMovestep == 0) {
+
+                if (_currentPointIndex >= _movePoints.Count)
+                {
+                    return 1;
+                }
+
+                var movePt = _movePoints[_currentPointIndex];
+                if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _filmRemoveMovestep = 1; // Move to next step
+            }
+
+            // WAIT XY REACH POSITION  AND OPEN GRIP IF NOT OPEN YET
+            if (_filmRemoveMovestep == 1)
+            {
+                var movePt = _movePoints[_currentPointIndex];
+                if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                {
+                    App.filmRemoveGantryControl.ClawOpen();
+                    _filmRemoveMovestep = 2;
+                }
+                // TODO: Add a timeout mechanism here
+            }
 
             // Z DOWN
+            if (_filmRemoveMovestep == 2)
+            {
+                if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                
+                _filmRemoveMovestep = 3; // Move to next step
+            }
 
-            // WAIT TO REACH POSITION
+            // WAIT Z TO REACH POSITION
+            if (_filmRemoveMovestep == 3)
+            {
+                if (AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
+                {
+                    _filmRemoveMovestep = 7;
+                }
+                // TODO: Add a timeout mechanism here
+            }
 
-            // PICK
+            // MOVE X DIRECTION
+            // 5
 
-            // WAIT TO REACH POSITION
+            // WAIT
+            // 6
 
-            // Z UP
+            // GRIP CLOSE
+            if (_filmRemoveMovestep == 7)
+            {
+                App.filmRemoveGantryControl.ClawClose();
+                _filmRemoveMovestep = 8; // Move to next step
+            }
 
-            // WAIT TO REACH POSITION
+            // WAIT
+            if (_filmRemoveMovestep == 8)
+            {
+                if (App.filmRemoveGantryControl.IsClawClose())
+                {
+                    _filmRemoveMovestep = 13; // Move to next step
+                }
+                else
+                {
+                    // Error: Claw did not close properly
+                    return -1;
+                }
+                // TODO: Add a timeout mechanism here
+            }
 
-            // MOVE TO BIN POSITION
+            // ZUP A BIT
+            // 9
 
-            // RELEASE FILM
+            // WAIT
+            // 10
 
+            // MOVE Y DIRECTION A BIT
+            // 11
+
+            // WAIT
+            // 12
+
+            // ZUP FULLY
+            if (_filmRemoveMovestep == 13)
+            {
+                if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _filmRemoveMovestep = 14; // Move to next step
+            }
+
+            // WAIT
+            if (_filmRemoveMovestep == 14)
+            {
+                if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
+                {
+                    _filmRemoveMovestep = 15;
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // MOVE TO BIN
+            if (_filmRemoveMovestep == 15)
+            {
+                var movePt = GlobalManager.Current.RecheckRecylePos;
+                if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) == 0) // if motion stopped/reached position
+                {
+                    _filmRemoveMovestep = 16;
+                }
+                else
+                {
+                    // Error handling
+                    return -1;
+                }
+
+            }
+
+            // WAIT THEN ON VAC
+            if (_filmRemoveMovestep == 16)
+            {
+                var movePt = GlobalManager.Current.RecheckRecylePos;
+                if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                {
+                    App.filmRemoveGantryControl.VacOn();
+                    _filmRemoveMovestep = 17;
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // Z DOWN
+            if (_filmRemoveMovestep == 17)
+            {
+                if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _filmRemoveMovestep = 18; // Move to next step
+            }
+
+           
+
+            // WAIT
+            if (_filmRemoveMovestep == 18)
+            {
+                if (AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
+                {
+                    _filmRemoveMovestep = 19;
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // GRIP OPEN
+            if (_filmRemoveMovestep == 19)
+            {
+                if (!App.filmRemoveGantryControl.ClawOpen())
+                {
+                    // Error handling
+                    return -1;
+                }
+                _filmRemoveMovestep = 20; // Move to next step
+            }
+
+            // WAIT GRIPPER OPEN
+            if (_filmRemoveMovestep == 20)
+            {
+                if (App.filmRemoveGantryControl.IsClawOpen())
+                {
+                    startTime = DateTime.Now; // Reset start time for delay
+                    _filmRemoveMovestep = 21; // Move to next step
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // WAIT DELAY TO LET FILM RELEASE
+            if (_filmRemoveMovestep == 21)
+            {
+                //if ((DateTime.Now - startTime).TotalMilliseconds >= vacuumDelay)
+                //{
+                    App.filmRemoveGantryControl.VacOff();
+                    _filmRemoveMovestep = 22; // Move to next step
+                //}
+            }
+
+            // ZUP FULLY
+            if (_filmRemoveMovestep == 22)
+            {
+                if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _filmRemoveMovestep = 23; // Move to next step
+            }
+
+            // WAIT
+            if (_filmRemoveMovestep == 23)
+            {
+                if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
+                {
+                    
+                    _filmRemoveMovestep = 24;
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // GRIP CLOSE
+            if (_filmRemoveMovestep == 24)
+            {
+                App.filmRemoveGantryControl.ClawClose();
+                _filmRemoveMovestep = 25; // Move to next step
+            }
+
+            // WAIT
+            if (_filmRemoveMovestep == 25)
+            {
+                if (App.filmRemoveGantryControl.IsClawClose())
+                {
+                    _currentPointIndex++;
+                    _filmRemoveMovestep = 0; // Move to next step
+                }
+                else
+                {
+                    // Error: Claw did not close properly
+                    return -1;
+                }
+                // TODO: Add a timeout mechanism here
+            }
             return 0;
         }
 

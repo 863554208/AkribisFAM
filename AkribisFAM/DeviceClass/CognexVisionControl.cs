@@ -471,7 +471,20 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-        public bool MoveFoamStandbyPos(FeederNum feeder)
+        public bool MoveFoamStandbyPos(FeederNum feeder, bool bypassZcheck = false, bool waitMotionDone = true)
+        {
+            List<SinglePoint> points = GetFoamStandbyPos(feeder);
+
+            if (!App.assemblyGantryControl.ZUpAll())
+                return false;
+
+            //移动到拍照起始点
+            return AkrAction.Current.MoveFoamXY(points[0].X - 16, points[0].Y, bypassZcheck, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
+
+        }
+
+        // Get foam standby position for feeder 1 or 2
+        public List<SinglePoint> GetFoamStandbyPos(FeederNum feeder)
         {
             List<SinglePoint> points = new List<SinglePoint>();
             switch (feeder)
@@ -483,15 +496,9 @@ namespace AkribisFAM.DeviceClass
                     points = GlobalManager.Current.feedar2Points;
                     break;
                 default:
-                    return false;
+                    return null;
             }
-
-            if (!App.assemblyGantryControl.ZUpAll())
-                return false;
-
-            //移动到拍照起始点
-            return AkrAction.Current.MoveFoamXY(points[0].X - 16, points[0].Y) == (int)AkrAction.ACTTION_ERR.NONE;
-
+            return points;
         }
 
 

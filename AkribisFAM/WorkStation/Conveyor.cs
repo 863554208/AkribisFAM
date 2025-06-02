@@ -10,6 +10,9 @@ namespace AkribisFAM.WorkStation
 {
     internal class Conveyor : WorkStationBase
     {
+
+
+
         private static Conveyor _instance;
         public override string Name => nameof(Conveyor);
 
@@ -478,7 +481,10 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return !ReadIO(IOName1) && ReadIO(IOName2);
+            var cond1 = ReadIO(IOName1);
+            var cond2 = ReadIO(IOName2);
+
+            return !cond1 && cond2;
         }
 
         public bool LiftUpRelatedTraySensorCheck(ConveyorStation workstationNum)
@@ -631,7 +637,10 @@ namespace AkribisFAM.WorkStation
                     return false;
             }
 
-            return ReadIO(IOName1) && !ReadIO(IOName2);
+            var cond1 = ReadIO(IOName1);
+            var cond2 = ReadIO(IOName2);
+
+            return cond1 && !cond2;
         }
         public bool TraySeatProperly(ConveyorStation workstationNum)
         {
@@ -1379,10 +1388,13 @@ namespace AkribisFAM.WorkStation
         //}
         public override void AutoRun(CancellationToken token) //rayner version 2
         {
+            var byPassLaserProcess = false;
+            var byPassFoamProcess = false;
+            var byPassRecheckProcess = false;
             if (MoveConveyorAll() != 0) return;
             try
             {
-                //while (!token.IsCancellationRequested)
+                while (!token.IsCancellationRequested)
                 {
 
                     //todo: check machine stop to exit thread.
@@ -1393,7 +1405,9 @@ namespace AkribisFAM.WorkStation
                     if (isBypassTrayAvailable)
                     {
                         //todo: bypass tray handling
-
+                        //ConveyorTrays[(int)ConveyorStation.Laser].isBypass = true;
+                        //ConveyorTrays[(int)ConveyorStation.Foam].isBypass = true;
+                        //ConveyorTrays[(int)ConveyorStation.Recheck].isBypass = true;
                     }
 
 
@@ -1427,9 +1441,9 @@ namespace AkribisFAM.WorkStation
 
                                     break;
                                 case 1: //move end stopper up when clear
-                                    if (TrayLeaveAndClearCheck(currentstation) /*&& GateDownSensorCheck(currentstation)*/) //tbc if need gatedowncheck
+                                    if (TrayLeaveAndClearCheck(currentstation)) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
 
                                             status[(int)currentstation] = GateUp(currentstation, false);
@@ -1453,7 +1467,7 @@ namespace AkribisFAM.WorkStation
                                 case 2: //wait stopper up
                                     if (GateUpSensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 9;
@@ -1489,7 +1503,7 @@ namespace AkribisFAM.WorkStation
                                     //if detect tray
                                     if (TrayPresenceCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)
+                                        if (counters[(int)currentstation] > 2)
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 1;
@@ -1519,7 +1533,7 @@ namespace AkribisFAM.WorkStation
                                 case 2: //wait tray lifted
                                     if (LiftUpRelatedTraySensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        //if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 3;
@@ -1588,7 +1602,7 @@ namespace AkribisFAM.WorkStation
                                 case 5: //reject only - check lifter down sensor
                                     if (LiftDownRelatedTraySensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 6;
@@ -1631,25 +1645,60 @@ namespace AkribisFAM.WorkStation
                             {
                                 case 0: //set station ready to process
                                     StationReadyStatus[(int)currentstation] = true;
+                                    //if (!ConveyorTrays[(int)currentstation].isBypass)
+                                    //{
+                                    switch (currentstation)
+                                    {
+                                        case ConveyorStation.Laser:
+                                            if (!byPassLaserProcess)
+                                            {
+                                                LaiLiao.Current.SetTrayReadyToProcess();
+                                            }
+                                            break;
+
+                                        case ConveyorStation.Foam:
+                                            if (!byPassFoamProcess)
+                                            {
+                                                ZuZhuang.Current.SetTrayReadyToProcess();
+                                            }
+                                            break;
+
+                                        case ConveyorStation.Recheck:
+                                            if (!byPassRecheckProcess)
+                                            {
+                                                FuJian.Current.SetTrayReadyToProcess();
+                                            }
+                                            break;
+                                    }
+                                    //}
                                     steps[(int)currentstation] = 1;
-                                    // PAUL TEMP
-                                    LaiLiao.Current.SetTrayReadyToProcess();
                                     break;
-                                case 1: //lower stopper
+                                case 1: // Processing ongoing, wait till station says done
+                                    //switch (currentstation)
+                                    //{
+                                    //    case ConveyorStation.Laser:
+                                    //        if (!LaiLiao.Current.IsProcessOngoing())
+                                    //        {
+                                                steps[(int)currentstation] = 2;
+                                    //        }
+                                    //        break;
+                                    //}
+                                    break;
+                                case 2: //lower stopper
                                     status[(int)currentstation] = GateDown(currentstation, false);
                                     if (!status[(int)currentstation])
                                     {
                                         throw new Exception("Output trigger failed");
                                     }
-                                    steps[(int)currentstation] = 2;
+                                    steps[(int)currentstation] = 3;
                                     break;
-                                case 2: // check gate down sensor
+                                case 3: // check gate down sensor
                                     if (GateDownSensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
-                                            steps[(int)currentstation] = 3;
+                                            steps[(int)currentstation] = 4;
                                         }
                                     }
                                     counters[(int)currentstation]++;
@@ -1660,19 +1709,48 @@ namespace AkribisFAM.WorkStation
                                         throw new Exception("sensor fail");
                                     }
                                     break;
-                                case 3: //wait station complete signal from main process - decide pass or fail
+                                case 4: //wait station complete signal from main process - decide pass or fail
                                     if (currentstation != ConveyorStation.Reject)
                                     {
-                                        //// REMOVE
-                                        StationReadyStatus[(int)currentstation] = false;
-                                        StationTrayStatus[(int)currentstation] = false;
-                                        ////
-                                        if (!StationReadyStatus[(int)currentstation])
+                                        ////// BYPASS PROCESSING
+                                        //StationReadyStatus[(int)currentstation] = false;
+                                        //StationTrayStatus[(int)currentstation] = false;
+                                        //////
+                                        //if (!ConveyorTrays[(int)currentstation].isBypass)
+                                        //{
+
+                                        if (currentstation == ConveyorStation.Laser && byPassLaserProcess)
                                         {
-                                            ConveyorTrays[(int)currentstation].isFail =
-                                                !StationTrayStatus[(int)currentstation];
-                                            steps[(int)currentstation] = 4;
+                                            ProcessingDone(currentstation, true); //bypass tray, set as pass
+                                            steps[(int)currentstation] = 5;
                                         }
+
+                                        if (currentstation == ConveyorStation.Foam && byPassFoamProcess)
+                                        {
+                                            ProcessingDone(currentstation, true); //bypass tray, set as pass
+                                            steps[(int)currentstation] = 5;
+                                        }
+
+                                        if (currentstation == ConveyorStation.Recheck && byPassRecheckProcess)
+                                        {
+                                            ProcessingDone(currentstation, true); //bypass tray, set as pass
+                                            steps[(int)currentstation] = 5;
+                                        }
+
+
+                                        if (!StationReadyStatus[(int)currentstation])
+                                            {
+                                                ConveyorTrays[(int)currentstation].isFail =
+                                                    !StationTrayStatus[(int)currentstation];
+                                                steps[(int)currentstation] = 5;
+                                            }
+                                        //}
+                                        //else
+                                        //{
+                                        //    ProcessingDone(currentstation, true); //bypass tray, set as pass
+                                        //    steps[(int)currentstation] = 5;
+                                        //}
+                                       
 
                                     }
                                     else //reject handle
@@ -1692,7 +1770,7 @@ namespace AkribisFAM.WorkStation
                                     }
 
                                     break;
-                                case 4: //wait next station empty, or reject empty
+                                case 5: //wait next station empty, or reject empty
                                     if (ConveyorTrays[(int)currentstation].isFail)
                                     {
                                         if (rejectstation != StationState.Empty)
@@ -1778,7 +1856,7 @@ namespace AkribisFAM.WorkStation
                                 case 2://check lifter down sensor
                                     if (LiftDownRelatedTraySensorCheck(currentstation))
                                     {
-                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
                                             counters[(int)currentstation] = 0;
                                             steps[(int)currentstation] = 3;
@@ -1814,7 +1892,7 @@ namespace AkribisFAM.WorkStation
                         currentstation = ConveyorStation.Laser;
                     else currentstation++;
 
-                    Thread.Sleep(10);
+                    Thread.Sleep(1);
                 }
             }
             catch (Exception ex)
@@ -1824,6 +1902,11 @@ namespace AkribisFAM.WorkStation
             }
         }
 
+        public void ProcessingDone(ConveyorStation station, bool isPass)
+        {
+            StationReadyStatus[(int)station] = false;
+            StationTrayStatus[(int)station] = isPass;
+        }
         // M1 = previous,M2 = Akribis, M3 =next 
 
         //Machine ready to receive (output M2 to M1) = send to previous machine to send board over
