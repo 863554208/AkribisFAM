@@ -12,6 +12,7 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.DeviceClass;
+using AkribisFAM.WorkStation;
 
 namespace AkribisFAM
 {
@@ -66,7 +67,7 @@ namespace AkribisFAM
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
-
+            AkrAction.Current.SetSpeedMultiplier(100);
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
             //TODO

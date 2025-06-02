@@ -50,8 +50,8 @@ namespace AkribisFAM.WorkStation
 
         public string ParameterPath = string.Empty;
         public OneAxisParams axisPrm;
-        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max()+1];
-        private int speedmultiplier = 1;
+        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max() + 1];
+        private double speedmultiplier = 1;
 
         #endregion
 
@@ -460,11 +460,17 @@ namespace AkribisFAM.WorkStation
 
             //to confirm position reach desired 
             var currentpos = ToMilimeter(axisName, axis.Pos);
-            if (Math.Abs(checkpos - currentpos) > 0.05)
+            startTime = DateTime.Now;
+            timeoutDuration = TimeSpan.FromSeconds(3);
+            while (Math.Abs(checkpos - currentpos) > 0.05)
             {
-                var err = $"Motion incomplete at axis {axisName}";
-                Logger.WriteLog(err);
-                return (int)ACTTION_ERR.ERR; ;
+                if (DateTime.Now - startTime > timeoutDuration)
+                {
+                    var err = $"Motion incomplete at axis {axisName}";
+                    Logger.WriteLog(err);
+                    return (int)ACTTION_ERR.ERR;
+                }
+                Thread.Sleep(1);
             }
             return (int)ACTTION_ERR.NONE;
         }
@@ -734,7 +740,7 @@ namespace AkribisFAM.WorkStation
                 var axis = controller.GetAxis(axisnum);
 
                 //temp motor on 
-                if (EnableMotor(axisName, true)!=0)
+                if (EnableMotor(axisName, true) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 Jog(controller, axisnum, dir * ToPulse(axisName, vel));
@@ -1324,12 +1330,12 @@ namespace AkribisFAM.WorkStation
             if (percentage < 10) percentage = 10;
             if (percentage > 100) percentage = 100;
 
-            speedmultiplier = percentage / 100;
+            speedmultiplier = percentage / (double)100;
         }
         /// <summary>
         /// Return current speed multiplier in percentage (10 to 100%)
         /// </summary>
-        public int CurrentSpeedMultiplier => speedmultiplier * 100;
+        public double CurrentSpeedMultiplier => speedmultiplier * 100;
         #endregion
         public int StopAllAxis()
         {

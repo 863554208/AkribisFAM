@@ -816,19 +816,19 @@ namespace AkribisFAM.WorkStation
                 }
 
                 var movePt = _movePoints[_currentVisionIndex];
-                if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
+                if (!App.filmRemoveGantryControl.MoveToVisionPos(movePt.X, movePt.Y, true))
                 {
                     // Error moving to position
                     return -1;
                 }
-                _inspectMovestep = 1; // Move to next step
+                _inspectMovestep = 2; // Move to next step
             }
 
             // WAIT TO REACH POSITION
             if (_inspectMovestep == 1)
             {
                 var movePt = _movePoints[_currentVisionIndex];
-                if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X + App.filmRemoveGantryControl.XOffset, movePt.Y + (-App.filmRemoveGantryControl.YOffset))) // if motion stopped/reached position
                 {
                     _inspectMovestep = 2;
                 }
@@ -838,16 +838,22 @@ namespace AkribisFAM.WorkStation
             // INSPECT
             if (_inspectMovestep == 2)
             {
-                if (App.vision1.Trigger())
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
                 {
-                    _currentVisionIndex++;
-                    _inspectMovestep = 0;
-                }
-                else
-                {
-                    // TODO error handling
                     return -1;
                 }
+                System.Threading.Thread.Sleep(100);
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1))
+                {
+                    return -1;
+                }
+                System.Threading.Thread.Sleep(100);
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                {
+                    return -1;
+                }
+                _currentVisionIndex++;
+                _inspectMovestep = 0;
             }
 
             // CHECK RESULT

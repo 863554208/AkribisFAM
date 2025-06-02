@@ -47,8 +47,8 @@ namespace AkribisFAM.WorkStation
         {
             new Picker() { PickerIndex = 1, IsDisabled = false },
             new Picker() { PickerIndex = 2, IsDisabled = false },
-            new Picker() { PickerIndex = 3, IsDisabled = false },
-            new Picker() { PickerIndex = 4, IsDisabled = false },
+            new Picker() { PickerIndex = 3, IsDisabled = true },
+            new Picker() { PickerIndex = 4, IsDisabled = true },
         };
         public override string Name => nameof(ZuZhuang);
 
@@ -1406,10 +1406,12 @@ namespace AkribisFAM.WorkStation
             {
                 if (!GetPickPositionDryRun(Nozzlenum, Fovnum, feeder, out point))
                 {
+                    PickPositions[Nozzlenum] = point;
                     return false;
                 }
                 else
                 {
+                    PickPositions[Nozzlenum] = point;
                     return true;
                 }
 
@@ -1599,7 +1601,7 @@ namespace AkribisFAM.WorkStation
                 {
                     // Handle error or retry logic here
                     _movestep = 4;
-                    return; // PICK FAILED
+                    //return; // PICK FAILED
                 }
                 //var PickResult = PickPartSequence();
                 //if (PickResult == 1)
@@ -1694,6 +1696,7 @@ namespace AkribisFAM.WorkStation
                     {
                         _currentPickerIndex = 0;
                         _trayPlaceMovestep = 0;
+                        _trayInspectDone = true;
                         _movestep = 10;
                     }
                     else
