@@ -37,6 +37,7 @@ namespace AkribisFAM.WorkStation
         private static int _currentTrayPlaceIndex = 0;
         private static int _currentPickerIndex = 0;
         private bool _isProcessOngoing = false;
+        private bool _trayInspectDone = false;
         private int _rowCount = 3;
         private int _colCount = 4;
         private List<TraySlot> _traySlots = new List<TraySlot>();
@@ -1627,6 +1628,7 @@ namespace AkribisFAM.WorkStation
                     {
                         _traySlots.Add(new TraySlot());
                     }
+                    _trayInspectDone = false;
                     _currentTrayPlaceIndex = 0;
                     _movestep = 9;
                 }
@@ -1635,16 +1637,27 @@ namespace AkribisFAM.WorkStation
             // ON THE FLY PALLET TRIGGER
             if (_movestep == 9)
             {
-                if (App.vision1.Vision1OnTheFlyPalletTrigger(_currentRecipe.PartRow, _currentRecipe.PartColumn))
+                if (!_trayInspectDone) // If not yet inspected, trigger on the fly vision first
+                {
+                    if (App.vision1.Vision1OnTheFlyPalletTrigger(_currentRecipe.PartRow, _currentRecipe.PartColumn))
+                    {
+                        _currentPickerIndex = 0;
+                        _trayPlaceMovestep = 0;
+                        _movestep = 10;
+                    }
+                    else
+                    {
+                        // todo error handling
+                        return;
+                    }
+                }
+                else
                 {
                     _currentPickerIndex = 0;
                     _trayPlaceMovestep = 0;
                     _movestep = 10;
                 }
-                else
-                {
-                    return; // OTF CAPTURE NOT DONE YET
-                }
+           
             }
 
             // TRAY PLACE SEQUENCE
