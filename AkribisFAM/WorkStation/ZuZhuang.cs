@@ -1790,17 +1790,17 @@ namespace AkribisFAM.WorkStation
                     }
                 } else
                 {
-                    // TODO REMOVE AFTER DRY RUN
-                    _traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
-                    _currentTrayPlaceIndex++;
-                    _currentPickerIndex++;
-                    _trayPlaceMovestep = 0;
-                    if (_currentTrayPlaceIndex >= _traySlots.Count)
-                    {
-                        return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
-                    }
+                    //// TODO REMOVE AFTER DRY RUN
+                    //_traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
+                    //_currentTrayPlaceIndex++;
+                    //_currentPickerIndex++;
+                    //_trayPlaceMovestep = 0;
+                    //if (_currentTrayPlaceIndex >= _traySlots.Count)
+                    //{
+                    //    return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
+                    //}
 
-                    //return -1; // PLACE FAILED
+                    return -1; // PLACE FAILED
                 }
             }
             return 0;

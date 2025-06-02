@@ -190,6 +190,7 @@ namespace AkribisFAM.DeviceClass
             }
 
             SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
+            sp.Z = GlobalManager.Current.CurrentMode == RunMode.DryrunMode ? sp.Z / 2 : sp.Z;
             switch (picker)
             {
                 case Picker.Picker1:
