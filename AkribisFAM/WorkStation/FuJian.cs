@@ -527,43 +527,14 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 5)
             {
                 ProcessingDone();
+
+                // Temporary, should be conveyor checking the stations status
                 Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Recheck, true);
+
                 _movestep = 0;
             }
 
 
-            GlobalManager.Current.flag_RecheckTrayArrived = 0;
-            try
-            {
-                while (true)
-                {
-
-                step1:
-                    GlobalManager.Current.flag_RecheckTrayArrived = 0;
-                    GlobalManager.Current.current_FuJian_step = 1;
-                    if (GlobalManager.Current.FuJian_exit) break;
-
-                    step2:
-                    GlobalManager.Current.current_FuJian_step = 2;
-                    Tearing();
-                    if (GlobalManager.Current.FuJian_exit) break;
-
-                    step3:
-                    GlobalManager.Current.current_FuJian_step = 3;
-                    Recheck();
-                    UploadMES();
-                    if (GlobalManager.Current.FuJian_exit) break;
-                    step4:
-                    GlobalManager.Current.current_FuJian_step = 4;
-                    BoardOut();
-                    if (GlobalManager.Current.FuJian_exit) break;
-                }
-            }
-            catch (Exception ex)
-            {
-                AutorunManager.Current.isRunning = false;
-                ErrorReportManager.Report(ex);
-            }
         }
         private int FilmRemovalSequence()
         {

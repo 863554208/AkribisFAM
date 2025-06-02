@@ -83,11 +83,20 @@ namespace AkribisFAM.WorkStation
         {
             return _feeder.FeederNumber;
         }
+        /// <summary>
+        /// Returns true if active feeder have parts available to pick
+        /// </summary>
+        /// <returns></returns>
         public bool CanPick()
         {
             return _canPick;
         }
-        
+
+        public bool IsFeederReady()
+        {
+            return IsFeederReady(_feeder, out _);
+        }
+
         public override void AutoRun(CancellationToken token)
         {
         
