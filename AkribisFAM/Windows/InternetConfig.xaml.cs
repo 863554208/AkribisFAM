@@ -21,6 +21,7 @@ using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using Newtonsoft.Json.Linq;
 using AkribisFAM.Util;
+using System.Net.Sockets;
 
 
 namespace AkribisFAM.Windows
@@ -317,8 +318,11 @@ namespace AkribisFAM.Windows
                 {
                     sendMess(ClientNames.mes, Command.Text);
                 }
+                else if (device.SelectedIndex == 7)
+                {
+                    sendMess(ClientNames.Pressure_sensor, Command.Text);
+                }
             }));
         }
-
     }
 }
