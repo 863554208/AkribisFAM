@@ -119,7 +119,7 @@ namespace AkribisFAM.Windows
             var dc = (PointXYPickerMoveAndPlaceView)sender;
 
             SinglePointExt point = (SinglePointExt)dc.DataContext;
-            App.assemblyGantryControl.MovePickPos((AssemblyGantryControl.Picker)dc.SelectedPicker, point.TeachPointIndex);
+            App.assemblyGantryControl.MovePlacePos((AssemblyGantryControl.Picker)dc.SelectedPicker, point.TeachPointIndex);
         }
 
         private void PointXYPickerMoveAndPlaceView_PickerPlacePressed(object sender, EventArgs e)

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Markup;
 using YamlDotNet.Serialization.NodeTypeResolvers;
 using static AkribisFAM.DeviceClass.AssemblyGantryControl;
@@ -57,6 +58,13 @@ namespace AkribisFAM.DeviceClass
             Picker2 = 2,
             Picker3 = 3,
             Picker4 = 4,
+        }
+        private double xOffset;
+
+        public double XOffset
+        {
+            get { return xOffset; }
+            set { xOffset = value; }
         }
 
 
