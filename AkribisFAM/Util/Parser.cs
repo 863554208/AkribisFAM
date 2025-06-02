@@ -10,7 +10,10 @@ namespace AkribisFAM.Util
 {
     using System;
     using System.Globalization;
+    using System.Net.Sockets;
     using System.Runtime.CompilerServices;
+    using AAMotion;
+    using AkribisFAM.CommunicationProtocol;
 
     public class Parser
     {
@@ -120,6 +123,96 @@ namespace AkribisFAM.Util
             // 将牛顿转换为克
             const double gravity = 9.8; // 重力加速度
             return valueInNewtons / gravity * 1000;
+        }
+
+        public static byte[] HexStringToBytes(string hex)
+        {
+            hex = hex.Replace(" ", ""); // 清除空格
+            return Enumerable.Range(0, hex.Length / 2)
+                             .Select(i => Convert.ToByte(hex.Substring(i * 2, 2), 16))
+                             .ToArray();
+        }
+        public static void SendRawModbusTcp(byte[] request, string ip, int port = 502)
+        {
+            using (var client = new TcpClient())
+            {
+                client.Connect(ip, port);
+                var stream = client.GetStream();
+
+                stream.Write(request, 0, request.Length);
+
+                // 接收响应（通常 5~260 字节）
+                byte[] buffer = new byte[256];
+                int read = stream.Read(buffer, 0, buffer.Length);
+
+                //string responseHex = BitConverter.ToString(buffer, 0, read).Replace("-", " ");
+            }
+        }
+
+        public static string FloatToHexString(float value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            Array.Reverse(bytes);
+            return string.Join(" ", bytes.Select(b => b.ToString("X2")));
+        }
+
+        public static void ChangeToSensitivityCalib(int port = 502)
+        {
+            //step 1 
+            byte[] data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 00 00 00 02 04 44 8A E0 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 2
+            data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 26 00 02 04 3F 80 00 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 3
+            data = Parser.HexStringToBytes("00 00 00 00 00 06 01 03 01 26 00 02");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+        }
+
+        public static void ChangeToWeightCalib(int port = 502)
+        {
+            //step 1 
+            byte[] data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 00 00 00 02 04 44 8A E0 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 2
+            data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 26 00 02 04 00 00 00 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 3
+            data = Parser.HexStringToBytes("00 00 00 00 00 06 01 03 01 26 00 02");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+        }
+
+        public static void ChangeCalibWeight(float weightf, int port = 502)
+        {
+            //step 1 
+            byte[] data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 00 00 00 02 04 44 8A E0 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 2
+            data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 2E 00 02 04 " + Parser.FloatToHexString(weightf));
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 3
+            data = Parser.HexStringToBytes("00 00 00 00 00 06 01 03 01 2E 00 02");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+        }
+
+        public static void ChannelCAL0(int port = 502)
+        {
+            //step 1 
+            byte[] data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 00 00 00 02 04 44 8A E0 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 2
+            data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 2A 00 02 04 00 00 00 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+        }
+
+        public static void ChannelCALF0(int port = 502)
+        {
+            //step 1 
+            byte[] data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 00 00 00 02 04 44 8A E0 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
+            //step 2
+            data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 2C 00 02 04 00 00 00 00");
+            Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
         }
     }
 }
