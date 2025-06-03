@@ -11,10 +11,17 @@ namespace AkribisFAM.WorkStation
     {
         public abstract string Name { get; }
         public abstract void Initialize();
-        public abstract void AutoRun(CancellationToken token);
-        public abstract void ReturnZero();
-        public abstract bool Ready();
-
+        public abstract bool AutoRun();
+        public abstract void Paused();
+        public ThreadStatus threadState = ThreadStatus.Init;
+        public enum ThreadStatus
+        {
+            Init,
+            Pausing,
+            Paused,
+            Running,
+            Stop,
+        }
 
     }
 }

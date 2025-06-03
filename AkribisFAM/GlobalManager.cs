@@ -287,7 +287,7 @@ namespace AkribisFAM
 
         public bool hive_Result { get; set; }
 
-        public bool IsPause { get; set; }
+   
 
         //是否已经拍了pallete拼盘
         public bool palleteSnaped { get; set; }
@@ -481,7 +481,6 @@ namespace AkribisFAM
 
             InitializeLaserData();
 
-            IsPause = false;
 
         }
         //与AGM800的连接状态

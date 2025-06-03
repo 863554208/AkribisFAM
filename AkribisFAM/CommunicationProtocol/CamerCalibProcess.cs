@@ -100,7 +100,8 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
                 //移动到取标定片位XY
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[12].X, CalibrationPoints.ZuZhuangPointList[12].Y, CalibrationPoints.ZuZhuangPointList[12].Z, CalibrationPoints.ZuZhuangPointList[12].R, NozzleNumber.Nozzle1);
 
-                //移动到取标定片位XYZ
+                //移动到取标定片位
+                //
                 MoveAxisDirectControl(CalibrationPoints.ZuZhuangPointList[13].X, CalibrationPoints.ZuZhuangPointList[13].Y, CalibrationPoints.ZuZhuangPointList[13].Z, CalibrationPoints.ZuZhuangPointList[13].R, NozzleNumber.Nozzle1);
 
                 Thread.Sleep(1000);//延时

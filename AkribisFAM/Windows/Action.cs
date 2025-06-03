@@ -50,7 +50,7 @@ namespace AkribisFAM.WorkStation
 
         public string ParameterPath = string.Empty;
         public OneAxisParams axisPrm;
-        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max()+1];
+        public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max() + 1];
         private int speedmultiplier = 1;
 
         #endregion
@@ -500,7 +500,7 @@ namespace AkribisFAM.WorkStation
                 if (IsMotorInPos(yaxis, yPos))
                 {
                     return true;
-                }
+        }
             }
             return false;
         }
@@ -515,7 +515,7 @@ namespace AkribisFAM.WorkStation
                 {
                     return true;
                 }
-            }
+        }
             return false;
         }
 
@@ -734,7 +734,7 @@ namespace AkribisFAM.WorkStation
                 var axis = controller.GetAxis(axisnum);
 
                 //temp motor on 
-                if (EnableMotor(axisName, true)!=0)
+                if (EnableMotor(axisName, true) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 Jog(controller, axisnum, dir * ToPulse(axisName, vel));

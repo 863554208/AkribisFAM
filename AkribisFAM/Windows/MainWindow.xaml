@@ -10,6 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
+        Closing="Window_Closing"
         Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
@@ -179,6 +180,10 @@
             </Grid.ColumnDefinitions>
 
             <!-- 按钮组放在右边 -->
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="btnLock" Background="MediumPurple" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="DoorLock" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="btnLock_Click" />
+
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
                 <Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>

@@ -1,13 +1,5 @@
 ﻿using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
-using LiveCharts.Wpf;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using YamlDotNet.Core.Tokens;
-using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.DeviceClass
 {

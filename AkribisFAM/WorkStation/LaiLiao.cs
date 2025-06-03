@@ -9,13 +9,13 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Sockets;
-using System.Collections.ObjectModel;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
         private static int _movestep = 0;
         private static int _laserMoveStep = 0;
+        private static DateTime startTime = DateTime.Now;
         private bool _isProcessOngoing = false;
         private int _BarcodeScanRetryCount = 0;
         private int _BarcodeScanRetryMax = 5;
@@ -54,15 +54,11 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public override void ReturnZero()
-        {
-            throw new NotImplementedException();
-        }
-
 
         public override void Initialize()
         {
-            throw new NotImplementedException();
+            startTime = DateTime.Now;
+            return;
         }
 
         public static void Get(string propertyName)
@@ -83,11 +79,6 @@ namespace AkribisFAM.WorkStation
             {
                 propertyInfo.SetValue(GlobalManager.Current, value);
             }
-        }
-
-        public override bool Ready()
-        {
-            return true;
         }
 
         public int CheckState(int state)
@@ -119,7 +110,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
-                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
                 return false;
             }
         }
@@ -768,7 +759,7 @@ namespace AkribisFAM.WorkStation
             _isProcessOngoing = true;
         }
 
-        public override void AutoRun(CancellationToken token)
+        public override bool AutoRun()
         {
 
             // WAIT FOR TRAY IN POSITION
@@ -796,9 +787,8 @@ namespace AkribisFAM.WorkStation
                     if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
                     {
                         // TODO: Handle maximum retries exceeded
-                        return; // Exit the process
+                        return ErrorManager.Current.Insert(ErrorCode.BarocdeScan_Failed, "ScanBarcode"); 
                     }
-                    return; // Retry scanning
                 }
             }
 
@@ -851,7 +841,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     Logger.WriteLog("Failed to load laser teach points.");
-                    return; // Exit the process
+                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints)");
                 }
             }
 
@@ -859,14 +849,14 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 4)
             {
                 var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
-                if (laserSeqResult == 1)
+                if (laserSeqResult)
                 {
                     _movestep = 5;
                 }
-                else if (laserSeqResult == -1)
+                else if (laserSeqResult)
                 {
                     // Error occurred during laser measurement
-                    return;
+                    return false;
                 }
             }
             
@@ -881,7 +871,7 @@ namespace AkribisFAM.WorkStation
 
                 _movestep = 0; // Reset for next tray
             }
-
+            return true;
         }
 
         /// <summary>
@@ -889,21 +879,21 @@ namespace AkribisFAM.WorkStation
         /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
         /// </summary>
         /// <returns></returns>
-        private int LaserMeasureSequence()
+        private bool LaserMeasureSequence()
         {
             // MOVE TO POSITION
             if (_laserMoveStep == 0)
             {
                 if (_currentLaserPointIndex >= _laserPointData.Count)
                 {
-                    return 1;
+                    return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"LaserMeasureSequence : ({_currentLaserPointIndex} >= {_laserPointData.Count})");
                 }
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
                 // Move to the laser point position
                 if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y, false) != 0)
                 {
                     // Error moving to position
-                    return -1;
+                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"AkrAction.Current.MoveLaserXY({movePt.X}, {movePt.Y}, false)");
                 }
                 _laserMoveStep = 1; // Move to next step
             }
@@ -917,24 +907,32 @@ namespace AkribisFAM.WorkStation
                     _currentLaserPointIndex++;
                     _laserMoveStep = 0;
                 }
-                // TODO: Add a timeout mechanism here
+                else
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveLaserXYDone({movePt.X},{movePt.Y})");
+                }
             }
 
             // DO LASER MEASURE
             if (_laserMoveStep == 2)
             {
-                if (true) // Do laser measure
+                if (!App.laser.Measure(out double res))
                 {
-                    // Log laser measurement result
-                    _laserMoveStep = 0; // Move back from the start
+                    return ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double res)");
                 }
                 else
                 {
-                    return (int)ErrorCode.Laser_Failed; // Laser measure failed
+                    _laserMoveStep = 0;
                 }
             }
-            return 0;
+            return true;
         }
+
+        public override void Paused()
+        {
+            return;
+        }
+
 
         private class LaserPointData
         {

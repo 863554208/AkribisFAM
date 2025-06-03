@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using System.Diagnostics;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
-using System.Windows.Controls;
 using AkribisFAM.Util;
-using static AkribisFAM.CommunicationProtocol.Task_AssUpCameraFunction;
 using System.Windows;
 using System.Net.Http.Headers;
 using System.Windows.Forms;
@@ -26,7 +18,7 @@ namespace AkribisFAM.WorkStation
         DeviceClass.CognexVisionControl.FeederNum _activeFeederNum = DeviceClass.CognexVisionControl.FeederNum.Feeder1;
         public SinglePoint[] PickPositions = new SinglePoint[4];
         public SinglePoint[] PlacePositions = new SinglePoint[4];
-
+        private static DateTime startTime = DateTime.Now;
         private static ZuZhuang _instance;
         private static int _movestep = 0;
         private static int _pickCaptureMovestep = 0;
@@ -78,20 +70,11 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public override void ReturnZero()
-        {
-            throw new NotImplementedException();
-        }
-
 
         public override void Initialize()
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool Ready()
-        {
-            return true;
+            startTime = DateTime.Now;
+            return;
         }
 
         public int CheckState(int state)
@@ -350,7 +333,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
-                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
                 return false;
             }
         }
@@ -1467,7 +1450,7 @@ namespace AkribisFAM.WorkStation
             _isProcessOngoing = true;
         }
 
-        public async override void AutoRun(CancellationToken token)
+        public override bool AutoRun() // threadbody
         {
 
             //App.vision1.MoveFoamStandbyPos();
@@ -1570,7 +1553,7 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return; // MOVE FAILED
+                    return false; // MOVE FAILED
                 }
             }
 
@@ -1586,7 +1569,7 @@ namespace AkribisFAM.WorkStation
                     else
                     {
                         _movestep = 4; // RETRY MOVE TO OTF CAPTURE POSITION
-                        return; // MOTOR FAILED TO REACH POSITION
+                        return false; // MOTOR FAILED TO REACH POSITION
                     }
                 }
             }
@@ -1600,7 +1583,7 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return; // CAPTURE FAILED
+                    return false; // CAPTURE FAILED
                 }
             }
 
@@ -1753,6 +1736,11 @@ namespace AkribisFAM.WorkStation
         {
             public int PickerIndex { get; set; }
             public bool IsDisabled { get; set; } = false;
+        }
+
+        public override void Paused()
+        {
+            return;
         }
 
     }

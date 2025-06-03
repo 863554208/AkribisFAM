@@ -1,4 +1,5 @@
-﻿using AkribisFAM.Util;
+﻿using AkribisFAM.Manager;
+using AkribisFAM.Util;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -203,7 +204,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN4_12Feeder1_drawer_InPos,
         IN4_13Feeder2_drawer_InPos,
         IN4_14Reserve,
-        IN4_15Reserve,
+        IN4_15Main_Air, // Compressed Air Present
 
         IN5_0Feeder_vacuum1_Pressure_feedback,
         IN5_1Feeder_vacuum2_Pressure_feedback,
@@ -485,39 +486,54 @@ namespace AkribisFAM.CommunicationProtocol
             }
             return false;
         }
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            if (INIO_status[(int)index] == 0)
+            {
+                return false;
+            }
+            else if (INIO_status[(int)index] == 1)
+            {
+                return true;
+            }
+            else
+            {
+                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
+                return false;
+            }
+        }
 
+        //public bool WriteIO_Truestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为True
+        //{
+        //    if (!OutIO_status[(int)iO_OutFunction_Table])
+        //    {
+        //        bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
+        //        if (!Sucessstatus)
+        //        {
+        //            return false;
+        //        }
 
-    //public bool WriteIO_Truestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为True
-    //{
-    //    if (!OutIO_status[(int)iO_OutFunction_Table])
-    //    {
-    //        bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
-    //        if (!Sucessstatus)
-    //        {
-    //            return false;
-    //        }
+        //        OutIO_status[(int)iO_OutFunction_Table] = true;
+        //        return true;
+        //    }
+        //    return true;
+        //    //Console.WriteLine(  
+        //}
 
-    //        OutIO_status[(int)iO_OutFunction_Table] = true;
-    //        return true;
-    //    }
-    //    return true;
-    //    //Console.WriteLine(  
-    //}
-
-    //public bool WriteIO_Falsestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为False
-    //{
-    //    if (OutIO_status[(int)iO_OutFunction_Table])
-    //    {
-    //        bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
-    //        if (!Sucessstatus)
-    //        {
-    //            return false;
-    //        }
-    //        OutIO_status[(int)iO_OutFunction_Table] = false;
-    //        return true;
-    //    }
-    //    return true;
-    //    //Console.WriteLine(  
-    //}
-}
+        //public bool WriteIO_Falsestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为False
+        //{
+        //    if (OutIO_status[(int)iO_OutFunction_Table])
+        //    {
+        //        bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
+        //        if (!Sucessstatus)
+        //        {
+        //            return false;
+        //        }
+        //        OutIO_status[(int)iO_OutFunction_Table] = false;
+        //        return true;
+        //    }
+        //    return true;
+        //    //Console.WriteLine(  
+        //}
+    }
 }

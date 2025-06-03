@@ -383,7 +383,16 @@ namespace AkribisFAM.DeviceClass
                 palletePath.Add(sendTLTCameraposition);
             }
         }
+        public bool TurnOffTheFlyPEG()
+        {
 
+            return AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
+        }
+        public bool TurnOnTheFlyPEG()
+        {
+
+            return AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response3);
+        }
         private bool VisionTriggerMove()
         {
             bool reverse = true;

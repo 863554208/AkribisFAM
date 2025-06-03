@@ -20,6 +20,8 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.GlobalManager;
 using System.Reflection;
+using static AkribisFAM.WorkStation.AkrAction;
+using System.Linq;
 
 namespace AkribisFAM
 {
@@ -86,7 +88,7 @@ namespace AkribisFAM
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            
+
         }
 
         private void UpdateIcon()
@@ -120,7 +122,8 @@ namespace AkribisFAM
                     performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
                 }));
             }
-            else {
+            else
+            {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
             }
             if (StateManager.Current.State == StateCode.STOPPED)
@@ -157,15 +160,18 @@ namespace AkribisFAM
                 //performance.LOADINGLB.Content = 
                 double availability = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
                 performance.AVAILABILITYLB.Content = availability.ToString("0.000");
-                if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
+                if (StateManager.Current.RunningTime.TotalSeconds > 0.5)
+                {
                     double perform = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
                     performance.PERFORMANCELB.Content = perform.ToString("0.000");
                 }
-                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
+                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0)
+                {
                     double quality = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
                     performance.QUALITYLB.Content = quality.ToString("0.000");
                 }
-                if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600) {
+                if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600)
+                {
                     StateManager.Current.RunningHourCnt++;
                     int UPH = StateManager.Current.TotalOutputOK - StateManager.Current.currentUPH;
                     StateManager.Current.currentUPH = StateManager.Current.TotalOutputOK;
@@ -185,7 +191,7 @@ namespace AkribisFAM
                     int Yield = 0;
                     if (UPH + NG > 0)
                     {
-                        Yield = (int)UPH*100 / (UPH + NG);
+                        Yield = (int)UPH * 100 / (UPH + NG);
                     }
                     StateManager.Current.currentNG = StateManager.Current.TotalOutputNG;
                     if (performance.Yieldvalues.Count >= 24)
@@ -202,6 +208,11 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                if (ErrorManager.Current.IsAlarm)
+                {
+                    App.buzzer.BeepOn();
+                }
+
                 //button panel
                 BlinkLightFeeder1();
                 BlinkLightFeeder2();
@@ -209,7 +220,8 @@ namespace AkribisFAM
             }));
         }
 
-        private void ControlButton() {
+        private void ControlButton()
+        {
             if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_8Run] == 0)
             {
                 StartAutoRun_Click(StartAutoRunButton, new RoutedEventArgs());
@@ -222,7 +234,8 @@ namespace AkribisFAM
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 1);
             }
-            else {
+            else
+            {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 0);
             }
         }
@@ -278,7 +291,8 @@ namespace AkribisFAM
             }
         }
 
-        private void ConnectState() {
+        private void ConnectState()
+        {
             TCPNetworkManage.CheckClients();
             if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Feed))  // 检查字典中是否存在这个客户端连接
             {
@@ -437,7 +451,7 @@ namespace AkribisFAM
 
                 Logger.WriteLog("激光测距结果:" + res);
 
-                double height = AkribisFAM.Util.Parser.TryParseTwoValues("="+res);
+                double height = AkribisFAM.Util.Parser.TryParseTwoValues("=" + res);
 
                 return 0;
             }
@@ -452,11 +466,11 @@ namespace AkribisFAM
             var arr1 = new object[] { AxisName.LSX, 150, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
             var arr2 = new object[] { AxisName.LSY, 150, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-            int moveToPointX = MoveView.MovePTP(arr1,arr2);
+            int moveToPointX = MoveView.MovePTP(arr1, arr2);
             Thread.Sleep(300);
             var arr3 = new object[] { AxisName.LSX };
             var arr4 = new object[] { AxisName.LSY };
-            int b = MoveView.WaitAxisArrived(arr3,arr4);
+            int b = MoveView.WaitAxisArrived(arr3, arr4);
 
 
 
@@ -590,12 +604,192 @@ namespace AkribisFAM
                 MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
             }
         }
+        public bool PreRunCheck()
+        {
+            if (!App.CioManager.IsSSR1Ok || App.CioManager.IsEmergencyStopTriggered)
+            {
+                MessageBox.Show("E-Stop triggered!");
+                return false;
+            }
+            if (!App.CioManager.IsSSR2Ok)
+            {
+                MessageBox.Show("Door is not locked");
+                return false;
+            }
+            if (!App.CioManager.IsMainAirOn)
+            {
+                MessageBox.Show("No air supply");
+                return false;
+            }
+            if (!App.door.IsDoor1Locked)
+            {
+                MessageBox.Show("Door 1 is not locked");
+                return false;
+            }
+            if (!App.door.IsDoor2Locked)
+            {
+                MessageBox.Show("Door 2 is not locked");
+                return false;
+            }
+            if (!App.door.IsDoor3Locked)
+            {
+                MessageBox.Show("Door 3 is not locked");
+                return false;
 
-        private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
+            }
+            if (!App.door.IsDoor4Locked)
+            {
+                MessageBox.Show("Door 4 is not locked");
+                return false;
+            }
+            if (!App.reject.IsAllCoversClosed())
+            {
+                MessageBox.Show("Cover is not closed");
+                return false;
+            }
+
+
+            if (!App.filmRemoveGantryControl.VacOff())
+            {
+                MessageBox.Show("Failed to off air");
+                return false;
+            }
+
+            if (ErrorManager.Current.IsAlarm)
+            {
+                MessageBox.Show("Please acknowledge alarm first");
+                return false;
+            }
+
+            #region Devices connectivity
+
+            if (!AAmotionFAM.AGM800.Current.controller.All(x => x.IsConnected))
+            {
+                for (int i = 0; i < AAmotionFAM.AGM800.Current.controller.Count(); i++)
+                {
+                    MessageBox.Show($"Agito controller number {i} is offline");
+                }
+                return false;
+            }
+            if (!TCPNetworkManage.IsAllConnected)
+            {
+                var clients = TCPNetworkManage.GetDisconnectedClients();
+                foreach (var client in clients)
+                {
+                    MessageBox.Show($"Device {client.Key} failed is offline");
+                }
+                return false;
+            }
+            #endregion
+
+
+            #region motor
+            if (!(AkrAction.Current.CheckAllAxisHomeCompleted(out bool res) != (int)ACTTION_ERR.NONE && res == true))
+            {
+                MessageBox.Show("Please home first before start process");
+                return false;
+            }
+
+            for (int i = (int)DeviceClass.AssemblyGantryControl.Picker.Picker1; i <= (int)DeviceClass.AssemblyGantryControl.Picker.Picker4; i++)
+            {
+                DeviceClass.AssemblyGantryControl.Picker picker = (DeviceClass.AssemblyGantryControl.Picker)i;
+                if (!App.assemblyGantryControl.IsPtpMode(picker))
+                {
+                    MessageBox.Show($"Picker {i} is not in PTP mode");
+                    if (App.assemblyGantryControl.SetPositionMode(picker) && App.assemblyGantryControl.IsPtpMode(picker))
+                    {
+                        MessageBox.Show($"Picker {i} failed to setPTP mode");
+                        return false;
+                    }
+                }
+            }
+            if (AkrAction.Current.EnableAllMotors(true) != (int)ACTTION_ERR.NONE)
+            {
+                MessageBox.Show("Failed to enable motor");
+                return false;
+            }
+
+
+            if (AkrAction.Current.MoveFoamZ1Z2Z3Z4(0, 0, 0, 0) != 0)
+            {
+                MessageBox.Show("Pickers failed to return 0");
+                return false;
+            }
+
+            if (AkrAction.Current.MoveRecheckZ(0) != 0)
+            {
+                MessageBox.Show("Reject failed to return 0");
+                return false;
+            }
+
+            if (Conveyor.Current.MoveConveyorAll() != 0)
+            {
+                MessageBox.Show("Failed to move conveyor");
+                return false;
+            }
+            #endregion
+            //if (App.feeder1.IsDrawerInPos && App.feeder1.IsLock)
+            //{
+            //    MessageBox.Show("Feeder 1 is not lock or not in position");
+            //    return false;
+            //}
+            //if (App.feeder2.IsDrawerInPos && App.feeder2.IsLock)
+            //{
+            //    MessageBox.Show("Feeder 2 is not lock or not in position");
+            //    return false;
+            //}
+
+            #region Feeder
+            if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
+            {
+                if (!App.feeder1.ClearError())
+                {
+                    MessageBox.Show("Failed to clear feeder 1 alarm ");
+                }
+            }
+            if (!App.feeder2.IsInitialized || !App.feeder2.IsAlarm)
+            {
+                if (!App.feeder2.ClearError())
+                {
+                    MessageBox.Show("Failed to clear feeder 2 alarm");
+                }
+            }
+            if (!(App.feeder1.IsDrawerInPos && App.feeder1.IsLock) && !(App.feeder2.IsDrawerInPos && App.feeder2.IsLock))
+            {
+                MessageBox.Show("Please at least lock one feeder and feed in material");
+                return false;
+            }
+            #endregion
+            return true;
+        }
+        public bool PreruncheckComplete()
+        {
+            AutorunManager.Current.IsPause = false;
+            AutorunManager.Current.IsError = false;
+            AutorunManager.Current.IsReset = true;
+            App.buzzer.Warn();
+            return true;
+        }
+        private void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Start Button is clicked.");
-            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
+
+
+
+            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true)
+            {
                 Logger.WriteLog("Change from idle to running.");
+
+
+                if (!PreRunCheck())
+                {
+                    return;
+                }
+                if (!PreruncheckComplete())
+                {
+                    return;
+                }
+
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
@@ -608,20 +802,12 @@ namespace AkribisFAM
 
                 //测试用
                 GlobalManager.Current.isRun = true;
+                AutorunManager.Current.IsPause = false;
                 StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
                 {
-                    // 使用 Task.Run 来异步运行 AutoRunMain
-                    
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    CancellationToken token = _cancellationTokenSource.Token;
-
-                    await Task.Run(() => AutorunManager.Current.AutoRunMain(token));
-                    if (AutorunManager.Current.isRunning)
-                    {
-                        //StartAutoRunButton.IsEnabled = false;
-                    }
+                    AutorunManager.Current.StartAutoRunThreads();
                 }
                 catch (Exception ex)
                 {
@@ -634,20 +820,20 @@ namespace AkribisFAM
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Pause Button is clicked.");
-            if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
+            if (StateManager.Current.State == StateCode.RUNNING && AutorunManager.Current.IsPause == false)
             {
                 Logger.WriteLog("Change from running to idle.");
-                GlobalManager.Current.IsPause = true;
+                AutorunManager.Current.IsPause = true;
                 StateManager.Current.IdleStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.IDLE;
                 //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
                 //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
             }
-            else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
+            else if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.IsPause == true)
             {
                 Logger.WriteLog("Change from idle to running.");
-                GlobalManager.Current.IsPause = false;
+                AutorunManager.Current.IsPause = false;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.State = StateCode.RUNNING;
@@ -660,7 +846,8 @@ namespace AkribisFAM
                 //AutorunManager.Current.ResumeAutoRun();
                 //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
             }
-            else { 
+            else
+            {
 
             }
         }
@@ -716,7 +903,8 @@ namespace AkribisFAM
                 AutorunManager.Current.StopAutoRun();
                 StartAutoRunButton.IsEnabled = true;
             }
-            else {
+            else
+            {
                 Logger.WriteLog("Change from idle to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
@@ -922,6 +1110,31 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Read_Coil((int)IO_INFunction_Table.IN1_0Slowdown_Sign1, ref result);
 
             bool result2 = result;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            AutorunManager.CancelToken.Cancel();
+        }
+
+        private void btnLock_Click(object sender, RoutedEventArgs e)
+        {
+            ErrorManager.Current.Insert(ErrorCode.IOErr, "this is weird");
+            //if (App.door.IsAllDoorLocked)
+            if (App.door.IsAllDoorLocked)
+            {
+                if (!App.door.UnlockAll())
+                {
+                    MessageBox.Show("Failed to unlock");
+                }
+            }
+            else
+            {
+                if (!App.door.LockAll())
+                {
+                    MessageBox.Show("Failed to lock");
+                }
+            }
         }
     }
 

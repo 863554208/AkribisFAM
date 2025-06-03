@@ -59,7 +59,10 @@ namespace AkribisFAM.DeviceClass
             Picker4 = 4,
         }
 
-
+        public bool IsPicker1VacOk => IOManager.Instance.ReadIO(IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback);
+        public bool IsPicker2VacOk => IOManager.Instance.ReadIO(IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback);
+        public bool IsPicker3VacOk => IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_2Feeder_vacuum3_Pressure_feedback);
+        public bool IsPicker4VacOk => IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_3Feeder_vacuum4_Pressure_feedback);
         public AssemblyGantryControl() { }
 
 

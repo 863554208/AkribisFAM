@@ -12,6 +12,7 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.DeviceClass;
+using AkribisFAM.WorkStation;
 
 namespace AkribisFAM
 {
@@ -22,6 +23,8 @@ namespace AkribisFAM
     {
         public static IDatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
+        public static CriticalIOManager CioManager;
+
         public static RecipeManager recipeManager;
         public static KeyenceLaserControl laser;
         public static CognexVisionControl vision1;
@@ -31,7 +34,10 @@ namespace AkribisFAM
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
         public static LoadCellCalibration calib;
-        
+        public static RejectControl reject;
+        public static BuzzerControl buzzer;
+        public static DoorControl door;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -52,7 +58,7 @@ namespace AkribisFAM
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
-			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
+            DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite"));
 
             recipeManager = new RecipeManager();
             laser = new KeyenceLaserControl();
@@ -62,10 +68,13 @@ namespace AkribisFAM
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
             filmRemoveGantryControl = new FilmRemoveGantryControl();
+            buzzer = new BuzzerControl();
+            CioManager = new CriticalIOManager();
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
-
+            door = new DoorControl();
+            reject = new RejectControl();
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
             //TODO
@@ -130,8 +139,8 @@ namespace AkribisFAM
                 var processes = System.Diagnostics.Process.GetProcessesByName("AACommServer");
                 foreach (var proc in processes)
                 {
-                    proc.Kill();   
-                    proc.WaitForExit(); 
+                    proc.Kill();
+                    proc.WaitForExit();
                 }
             }
             catch (Exception ex)
@@ -174,8 +183,8 @@ namespace AkribisFAM
             catch { }
 
         }
-        
-		protected override void OnExit(ExitEventArgs e)
+
+        protected override void OnExit(ExitEventArgs e)
         {
             TCPNetworkManage.StopAllClients();
             // Dispose of resources

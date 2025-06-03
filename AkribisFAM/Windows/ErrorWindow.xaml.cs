@@ -38,6 +38,9 @@ namespace AkribisFAM.Windows
         {
             ErrorManager.Current.Clear();
             ErrorManager.Current.ErrorInfos.Clear();
+            App.buzzer.BeepOff();
+            System.Windows.MessageBox.Show("Alarm cleared!", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+            this.Close();
         }
 
         public static void ExportDataGridToCsv<T>(System.Windows.Controls.DataGrid dataGrid, IEnumerable<T> items)
