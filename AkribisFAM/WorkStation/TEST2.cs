@@ -38,5 +38,9 @@ namespace AkribisFAM.WorkStation
             return;
         }
 
+        public override void ResetAfterPause()
+        {
+            return;
+        }
     }
 }

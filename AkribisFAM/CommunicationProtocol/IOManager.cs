@@ -54,14 +54,14 @@ namespace AkribisFAM.CommunicationProtocol
         OUT3_5PNP_Gantry_vacuum3_Release,
         OUT3_6PNP_Gantry_vacuum4_Supply,
         OUT3_7PNP_Gantry_vacuum4_Release,
-        OUT3_8solenoid_valve1_A, //?
-        OUT3_9solenoid_valve1_B,
-        OUT3_10solenoid_valve2_A,
-        OUT3_11solenoid_valve2_B,
-        OUT3_12solenoid_valve3_A,
-        OUT3_13solenoid_valve3_B,
-        OUT3_14solenoid_valve4_A,
-        OUT3_15solenoid_valve4_B,
+        OUT3_8Reserve, //?
+        OUT3_9Reserve,
+        OUT3_10Reserve,
+        OUT3_11Reserve,
+        OUT3_12Reserve,
+        OUT3_13Reserve,
+        OUT3_14Reserve,
+        OUT3_15Reserve,
 
         OUT4_0Pneumatic_Claw_A,
         OUT4_1Pneumatic_Claw_B,
@@ -181,7 +181,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN3_8Reserve,
         IN3_9Claw_extend_in_position,
         IN3_10Claw_retract_in_position,
-        IN3_11Peeling_Recheck_vacuum1_Pressure_feedback,//****
+        IN3_11Reserve,//****
         IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
         IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
         IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
@@ -498,7 +498,7 @@ namespace AkribisFAM.CommunicationProtocol
             }
             else
             {
-                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
+                //ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
                 return false;
             }
         }

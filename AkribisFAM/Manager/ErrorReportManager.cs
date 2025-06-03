@@ -59,9 +59,12 @@ namespace AkribisFAM.Manager
         IncomingTrayTimeOut = 0x0020,
 
 
+
         RejectCoverOpened = 0x0021,
         NGOccupied = 0x0022,
         MissingNGTray = 0x0023,
+
+        ClawReedSwitchTimeOut = 0x0024,
 
     }
 
@@ -145,7 +148,6 @@ namespace AkribisFAM.Manager
             UpdateErrorCnt?.Invoke();
             return false;
         }
-
         public void Pop()
         {
             ErrorCode result;

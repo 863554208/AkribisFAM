@@ -199,67 +199,74 @@ namespace AkribisFAM
                 Logger.WriteLog("Autorun Process Start");
                 ParameterConfig.LoadPoints();
 
-                    //if (ThreadConveyor != null && !ThreadConveyor.IsAlive)
-                    //{
-                    //    ThreadConveyor.Start();
-                    //}
-                    //else
-                    //{
-                    //    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    //}
-                    //if (ThreadLaser != null && !ThreadLaser.IsAlive)
-                    //{
-                    //    ThreadLaser.Start();
-                    //}
-                    //else
-                    //{
-                    //    LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    //}
-                    //if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
-                    //{
-                    //    ThreadFoamAssembly.Start();
-                    //}
-                    //else
-                    //{
-                    //    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    //}
-                    //if (ThreadRecheck != null && !ThreadRecheck.IsAlive)
-                    //{
-                    //    ThreadRecheck.Start();
-                    //}
-                    //else
-                    //{
-                    //    FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    //}
+                if (ThreadConveyor != null && !ThreadConveyor.IsAlive)
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadConveyor.Start();
+                }
+                else
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
+                if (ThreadLaser != null && !ThreadLaser.IsAlive)
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadLaser.Start();
+                }
+                else
+                {
+                    LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
+                if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadFoamAssembly.Start();
+                }
+                else
+                {
+                    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
+                if (ThreadRecheck != null && !ThreadRecheck.IsAlive)
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadRecheck.Start();
+                }
+                else
+                {
+                    FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
 
-                    //if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
-                    //{
-                    //    ThreadFeeder.Start();
-                    //}
-                    //else
-                    //{
-                    //    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    //}
-
-
-                    if (ThreadTest1 != null && !ThreadTest1.IsAlive)
-                    {
-                        ThreadTest1.Start();
-                    }
-                    else
-                    {
-                        TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    }
+                if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
+                {
+                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadFeeder.Start();
+                }
+                else
+                {
+                    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
 
 
-                    if (ThreadTest2 != null && !ThreadTest2.IsAlive)
-                    {
-                        ThreadTest2.Start();
-                    }
-                    else
-                    {
-                        TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    }
+                if (ThreadTest1 != null && !ThreadTest1.IsAlive)
+                {
+                    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadTest1.Start();
+                }
+                else
+                {
+                    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
+
+
+                if (ThreadTest2 != null && !ThreadTest2.IsAlive)
+                {
+                    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ThreadTest2.Start();
+                }
+                else
+                {
+                    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                }
 
 
             }
@@ -321,6 +328,10 @@ namespace AkribisFAM
                         station.ThreadState = WorkStationBase.ThreadStatus.Paused;
                         break;
                     case WorkStationBase.ThreadStatus.Paused:
+                        break;
+                    case WorkStationBase.ThreadStatus.Resuming:
+                        station.ResetAfterPause();
+                        station.ThreadState = WorkStationBase.ThreadStatus.Running;
                         break;
                     case WorkStationBase.ThreadStatus.Stop:
                         break;
@@ -398,14 +409,14 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_8solenoid_valve1_A, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_9solenoid_valve1_B, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_10solenoid_valve2_A, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_11solenoid_valve2_B, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_12solenoid_valve3_A, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_13solenoid_valve3_B, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_14solenoid_valve4_A, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_15solenoid_valve4_B, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_8Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_9Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_10Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_11Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_12Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_13Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_14Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT3_15Reserve, 0);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_8Feeder_vacuum1_Supply, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_9Feeder_vacuum1_Release, 0);

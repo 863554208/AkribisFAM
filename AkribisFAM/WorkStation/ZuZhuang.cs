@@ -1355,7 +1355,7 @@ namespace AkribisFAM.WorkStation
                 Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
             };
         }
-        private bool GetPickPositionDryRun(int Nozzlenum,  int fovNum ,int feedernum, out SinglePoint point)
+        private bool GetPickPositionDryRun(int Nozzlenum, int fovNum, int feedernum, out SinglePoint point)
         {
             var points = feedernum == 1 ? GlobalManager.Current.pickFoam1Points : GlobalManager.Current.pickFoam2Points;
             Thread.Sleep(1);
@@ -1421,9 +1421,9 @@ namespace AkribisFAM.WorkStation
             Thread.Sleep(1);
             point = new SinglePoint()
             {
-                X = GlobalManager.Current.placeFoamPoints[Fovnum-1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
-                Y = GlobalManager.Current.placeFoamPoints[Fovnum-1].Y,
-                R = GlobalManager.Current.placeFoamPoints[Fovnum-1].R,
+                X = GlobalManager.Current.placeFoamPoints[Fovnum - 1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
+                Y = GlobalManager.Current.placeFoamPoints[Fovnum - 1].Y,
+                R = GlobalManager.Current.placeFoamPoints[Fovnum - 1].R,
                 Z = GlobalManager.Current.placeFoamPoints[Fovnum - 1].Z,
             };
             return true;
@@ -1520,13 +1520,13 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 0)
             {
                 // Get active feeder number
-                _activeFeederNum = Feeder.Current.GetActiveFeederNumber() == 1 ? 
-                    DeviceClass.CognexVisionControl.FeederNum.Feeder1 : 
+                _activeFeederNum = Feeder.Current.GetActiveFeederNumber() == 1 ?
+                    DeviceClass.CognexVisionControl.FeederNum.Feeder1 :
                     DeviceClass.CognexVisionControl.FeederNum.Feeder2;
 
                 //if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
                 //{
-                    App.vision1.MoveFoamStandbyPos(_activeFeederNum);
+                App.vision1.MoveFoamStandbyPos(_activeFeederNum);
                 //}
                 // timeout if no feeder is ready at certain duration
 
@@ -1562,17 +1562,17 @@ namespace AkribisFAM.WorkStation
                     return false; // ON THE FLY CAPTURE FAILED   
                 }
 
-                    //var PickSeqResult = PickCaptureSequence();
-                    //if (PickSeqResult == 1)
-                    //{
-                    //    _movestep = 3;
-                    //} else if (PickSeqResult == -1)
-                    //{
+                //var PickSeqResult = PickCaptureSequence();
+                //if (PickSeqResult == 1)
+                //{
+                //    _movestep = 3;
+                //} else if (PickSeqResult == -1)
+                //{
 
-                    //    return; // PICK CAPTURE FAILED
-                    //}
+                //    return; // PICK CAPTURE FAILED
+                //}
             }
-            
+
             // PICK PART SEQUENCE
             if (_movestep == 3)
             {
@@ -1614,9 +1614,9 @@ namespace AkribisFAM.WorkStation
             // (SKIP TEMPORARILY)
             if (_movestep == 5)
             {
-                if (true) 
+                if (true)
                 {
-                    if (true) 
+                    if (true)
                     {
                         _movestep = 6;
                     }
@@ -1647,7 +1647,8 @@ namespace AkribisFAM.WorkStation
                 if (IsProcessOngoing())
                 {
                     _movestep = 9; // SKIP TRAY WAITING
-                } else
+                }
+                else
                 {
                     _movestep = 8; // WAIT FOR TRAY IN POSITION
                 }
@@ -1685,7 +1686,7 @@ namespace AkribisFAM.WorkStation
                     else
                     {
                         // todo error handling
-                        return false ;
+                        return false;
                     }
                 }
                 else
@@ -1694,7 +1695,7 @@ namespace AkribisFAM.WorkStation
                     _trayPlaceMovestep = 0;
                     _movestep = 10;
                 }
-           
+
             }
 
             // TRAY PLACE SEQUENCE
@@ -1709,7 +1710,7 @@ namespace AkribisFAM.WorkStation
                 {
                     // DONE PROCESS
                     ProcessingDone();
-                    Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Foam, true); 
+                    Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Foam, true);
                     _movestep = 0; // RESET MOVESTEP FOR NEXT CYCLE
                 }
                 else if (placeResult < 0)
@@ -1775,7 +1776,8 @@ namespace AkribisFAM.WorkStation
                     {
                         return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
                     }
-                } else
+                }
+                else
                 {
                     //// TODO REMOVE AFTER DRY RUN
                     //_traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
@@ -1811,5 +1813,9 @@ namespace AkribisFAM.WorkStation
             return;
         }
 
+        public override void ResetAfterPause()
+        {
+            startTime = DateTime.Now;
+        }
     }
 }

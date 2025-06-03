@@ -8,6 +8,7 @@ using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using AkribisFAM.Util;
 using AkribisFAM.Windows;
+using static AkribisFAM.Manager.MaterialManager;
 
 namespace AkribisFAM.WorkStation
 {
@@ -377,7 +378,7 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            
+
             //Read teach points named "Laser Points"
             var teachpoints = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
             if (teachpoints == null)
@@ -468,15 +469,14 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 2)
             {
                 var filmRemovalSeqRes = FilmRemovalSequence();
-                if (filmRemovalSeqRes)
+                if (filmRemovalSeqRes == 1)
                 {
                     _currentVisionIndex = 0;
                     _movestep = 3;
                 }
-                else if (filmRemovalSeqRes)
+                else if (filmRemovalSeqRes == -1)
                 {
-                    // TODO: ERROR HANDLING
-                    return false; // error already thrown in FilmRemovalSequence();
+                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"FilmRemovalSequence()"); 
                 }
             }
 
@@ -493,7 +493,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     Logger.WriteLog("Failed to load retest teach points.");
-                    return; // Exit the process
+                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"(GetTeachPointList({TrayType.PAM_230_144_3X4}, out {_movePoints}))"); 
                 }
             }
 
@@ -501,11 +501,11 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 4)
             {
                 var inspectRes = InspectSequence();
-                if (inspectRes)
+                if (inspectRes == 1)
                 {
                     _movestep = 5;
                 }
-                else if (inspectRes)
+                else if (inspectRes == -1)
                 {
                     // TODO: ERROR HANDLING
                     return false;
@@ -527,7 +527,7 @@ namespace AkribisFAM.WorkStation
 
             return true;
         }
-        private bool FilmRemovalSequence()
+        private int FilmRemovalSequence()
         {
             var zPos = 12.0; // TODO: remove temporary hardcode z position
             DateTime startTime = DateTime.Now;
@@ -539,14 +539,15 @@ namespace AkribisFAM.WorkStation
 
                 if (_currentPeelerIndex >= _movePoints.Count)
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"FilmRemovalSequence : ({_currentPointIndex} >= {_movePoints.Count})"); // Exit the process
+                    return 1;
                 }
 
                 var movePt = _movePoints[_currentPeelerIndex];
                 if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
                 {
                     // Error moving to position
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X},{movePt.Y}, false)"); // Exit the process
+                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X},{movePt.Y}, false)"); // Exit the process
+                    return -1;
                 }
                 _filmRemoveMovestep = 1; // Move to next step
             }
@@ -562,7 +563,8 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckXYDone({movePt.X},{movePt.Y})");
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckXYDone({movePt.X},{movePt.Y})");
+                    return -1;
                 }
             }
 
@@ -572,7 +574,8 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
                 {
                     // Error moving to position
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)");
+                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)");
+                    return -1;
                 }
 
                 _filmRemoveMovestep = 3; // Move to next step
@@ -587,7 +590,8 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                    return -1;
                 }
             }
 
@@ -602,7 +606,8 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.filmRemoveGantryControl.ClawClose())
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawClose()");
+                    ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawClose()");
+                    return -1;
                 }
                 _filmRemoveMovestep = 8; // Move to next step
             }
@@ -616,7 +621,8 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"IsClawClose()");
+                    ErrorManager.Current.Insert(ErrorCode.ClawReedSwitchTimeOut, $"IsClawClose()");
+                    return -1;
                 }
             }
 
@@ -638,7 +644,8 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
                 {
                     // Error moving to position
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
+                    return -1;
                 }
                 _filmRemoveMovestep = 14; // Move to next step
             }
@@ -648,7 +655,8 @@ namespace AkribisFAM.WorkStation
             {
                 if (!AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"IsMoveRecheckZDone(0)");
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone(0)");
+                    return -1;
                 }
                 _filmRemoveMovestep = 15;
             }
@@ -659,7 +667,8 @@ namespace AkribisFAM.WorkStation
                 var movePt = GlobalManager.Current.RecheckRecylePos;
                 if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X}, {movePt.Y}, false)");
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X}, {movePt.Y}, false)");
+                    return -1;
                 }
 
                 _filmRemoveMovestep = 16;
@@ -671,7 +680,8 @@ namespace AkribisFAM.WorkStation
                 var movePt = GlobalManager.Current.RecheckRecylePos;
                 if (!AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckXYDone({movePt.X}, {movePt.Y})");
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckXYDone({movePt.X}, {movePt.Y})");
+                    return -1;
                 }
                 App.filmRemoveGantryControl.VacOn();
 
@@ -684,7 +694,8 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
                 {
                     // Error moving to position
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({zPos}, false)");
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({zPos}, false)"); 
+                    return -1;
                 }
                 _filmRemoveMovestep = 18; // Move to next step
             }
@@ -696,7 +707,8 @@ namespace AkribisFAM.WorkStation
             {
                 if (!AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                     ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                    return -1;
                 }
                 _filmRemoveMovestep = 19;
             }
@@ -706,7 +718,8 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.filmRemoveGantryControl.ClawOpen())
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawOpen()");
+                     ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawOpen()");
+                    return -1;
                 }
                 _filmRemoveMovestep = 20; // Move to next step
             }
@@ -738,7 +751,8 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
                 {
                     // Error moving to position
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)");
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)"); 
+                    return -1;
                 }
                 _filmRemoveMovestep = 23; // Move to next step
             }
@@ -748,7 +762,8 @@ namespace AkribisFAM.WorkStation
             {
                 if (!AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone(0)");
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone(0)");
+                    return -1;
                 }
                 _filmRemoveMovestep = 24;
             }
@@ -770,13 +785,13 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"IsClawClose()");
+                     ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"IsClawClose()"); return -1;
                 }
             }
-            return true;
+            return 0;
         }
 
-        private bool InspectSequence()
+        private int InspectSequence()
         {
             // MOVE TO POSITION
             if (_filmRemoveMovestep == 0)
@@ -790,7 +805,7 @@ namespace AkribisFAM.WorkStation
                 var movePt = _movePoints[_currentVisionIndex];
                 if (!App.filmRemoveGantryControl.MoveToVisionPos(movePt.X, movePt.Y, true))
                 {
-                    // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"!App.filmRemoveGantryControl.MoveToVisionPos(movePt.X, movePt.Y, true)");
                     return -1;
                 }
                 _inspectMovestep = 2; // Move to next step
@@ -810,18 +825,21 @@ namespace AkribisFAM.WorkStation
             // INSPECT
             if (_inspectMovestep == 2)
             {
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
                     return -1;
                 }
                 System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1)");
                     return -1;
                 }
                 System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
                     return -1;
                 }
                 _currentVisionIndex++;
@@ -830,7 +848,7 @@ namespace AkribisFAM.WorkStation
 
             // CHECK RESULT
 
-            return true;
+            return 0;
         }
 
         public override void Paused()
@@ -842,6 +860,11 @@ namespace AkribisFAM.WorkStation
         public override void Initialize()
         {
             return;
+        }
+
+        public override void ResetAfterPause()
+        {
+            startTime = DateTime.Now;
         }
     }
 }

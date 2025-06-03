@@ -209,8 +209,11 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.ErrorDetected:
                     // Log error, alert operator, etc.
+                    {
+
                     currentStep = FeederSequenceStep.ErrorHandling;
-                    break;
+                    return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"Feeder {_feeder.FeederNumber} switch failed");
+                    }
 
                 case FeederSequenceStep.ErrorHandling:
                     // Perform recovery or wait for manual reset
@@ -219,7 +222,6 @@ namespace AkribisFAM.WorkStation
                         currentStep = FeederSequenceStep.Initialize;
                     }
                     break;
-
                 case FeederSequenceStep.ReturnToPreviousStep:
                     currentStep = previousStep;
                     break;
@@ -300,5 +302,9 @@ namespace AkribisFAM.WorkStation
             return;
         }
 
+        public override void ResetAfterPause()
+        {
+            startTime = DateTime.Now;
+        }
     }
 }

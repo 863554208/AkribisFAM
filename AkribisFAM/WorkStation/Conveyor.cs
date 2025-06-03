@@ -1251,6 +1251,10 @@ namespace AkribisFAM.WorkStation
             StopConveyor();
         }
 
+        public override void ResetAfterPause()
+        {
+            throw new NotImplementedException();
+        }
 
         public enum ConveyorStation
         {
