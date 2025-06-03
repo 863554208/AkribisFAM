@@ -37,6 +37,7 @@ namespace AkribisFAM.WorkStation
         private static int _currentTrayPlaceIndex = 0;
         private static int _currentPickerIndex = 0;
         private bool _isProcessOngoing = false;
+        private bool _trayInspectDone = false;
         private int _rowCount = 3;
         private int _colCount = 4;
         private List<TraySlot> _traySlots = new List<TraySlot>();
@@ -46,8 +47,8 @@ namespace AkribisFAM.WorkStation
         {
             new Picker() { PickerIndex = 1, IsDisabled = false },
             new Picker() { PickerIndex = 2, IsDisabled = false },
-            new Picker() { PickerIndex = 3, IsDisabled = false },
-            new Picker() { PickerIndex = 4, IsDisabled = false },
+            new Picker() { PickerIndex = 3, IsDisabled = true },
+            new Picker() { PickerIndex = 4, IsDisabled = true },
         };
         public override string Name => nameof(ZuZhuang);
 
@@ -1371,6 +1372,20 @@ namespace AkribisFAM.WorkStation
                 Z = GlobalManager.Current.pickerLoadCellPoints[pickerNum - 1].Z
             };
         }
+        private bool GetPickPositionDryRun(int Nozzlenum,  int fovNum ,int feedernum, out SinglePoint point)
+        {
+            var points = feedernum == 1 ? GlobalManager.Current.pickFoam1Points : GlobalManager.Current.pickFoam2Points;
+            Thread.Sleep(1);
+            point = new SinglePoint()
+            {
+                X = points[0].X + (fovNum - Nozzlenum) * App.assemblyGantryControl.XOffset,
+                Y = points[0].Y,
+                R = points[0].R,
+                Z = points[0].Z,
+            };
+            return true;
+
+        }
         /// <summary>
         /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
         /// </summary>
@@ -1381,12 +1396,26 @@ namespace AkribisFAM.WorkStation
         public bool GetPickPosition(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
             point = new SinglePoint();
+            int feeder = 1;
 
             if (Nozzlenum < 1 || Nozzlenum > 4 || Fovnum < 1 || Fovnum > 4)
             {
                 return false;
             }
+            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            {
+                if (!GetPickPositionDryRun(Nozzlenum, Fovnum, feeder, out point))
+                {
+                    PickPositions[Nozzlenum] = point;
+                    return false;
+                }
+                else
+                {
+                    PickPositions[Nozzlenum] = point;
+                    return true;
+                }
 
+            }
             string command = "GM,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "1";
             Task_FeedupCameraFunction.PushcommandFunction(command);
             FeedUpCamrea.Acceptcommand.AcceptGMCommandAppend GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGMAcceptData(FeedupCameraProcessCommand.GM)[0];
@@ -1402,6 +1431,20 @@ namespace AkribisFAM.WorkStation
             }
             PickPositions[Nozzlenum] = point;
             return true;
+        }
+        private bool GetPlacePositionDryRun(int Nozzlenum, int Fovnum, out SinglePoint point)
+        {
+
+            Thread.Sleep(1);
+            point = new SinglePoint()
+            {
+                X = GlobalManager.Current.placeFoamPoints[Fovnum-1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
+                Y = GlobalManager.Current.placeFoamPoints[Fovnum-1].Y,
+                R = GlobalManager.Current.placeFoamPoints[Fovnum-1].R,
+                Z = GlobalManager.Current.placeFoamPoints[Fovnum - 1].Z,
+            };
+            return true;
+
         }
         /// <summary>
         /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST
@@ -1419,7 +1462,18 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
+            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            {
+                if (!GetPlacePositionDryRun(Nozzlenum, Fovnum, out point))
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
 
+            }
 
             string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
             Task_FeedupCameraFunction.PushcommandFunction(command);
@@ -1547,7 +1601,7 @@ namespace AkribisFAM.WorkStation
                 {
                     // Handle error or retry logic here
                     _movestep = 4;
-                    return; // PICK FAILED
+                    //return; // PICK FAILED
                 }
                 //var PickResult = PickPartSequence();
                 //if (PickResult == 1)
@@ -1627,6 +1681,7 @@ namespace AkribisFAM.WorkStation
                     {
                         _traySlots.Add(new TraySlot());
                     }
+                    _trayInspectDone = false;
                     _currentTrayPlaceIndex = 0;
                     _movestep = 9;
                 }
@@ -1635,16 +1690,28 @@ namespace AkribisFAM.WorkStation
             // ON THE FLY PALLET TRIGGER
             if (_movestep == 9)
             {
-                if (App.vision1.Vision1OnTheFlyPalletTrigger(_currentRecipe.PartRow, _currentRecipe.PartColumn))
+                if (!_trayInspectDone) // If not yet inspected, trigger on the fly vision first
+                {
+                    if (App.vision1.Vision1OnTheFlyPalletTrigger(_currentRecipe.PartRow, _currentRecipe.PartColumn))
+                    {
+                        _currentPickerIndex = 0;
+                        _trayPlaceMovestep = 0;
+                        _trayInspectDone = true;
+                        _movestep = 10;
+                    }
+                    else
+                    {
+                        // todo error handling
+                        return;
+                    }
+                }
+                else
                 {
                     _currentPickerIndex = 0;
                     _trayPlaceMovestep = 0;
                     _movestep = 10;
                 }
-                else
-                {
-                    return; // OTF CAPTURE NOT DONE YET
-                }
+           
             }
 
             // TRAY PLACE SEQUENCE
@@ -1726,17 +1793,17 @@ namespace AkribisFAM.WorkStation
                     }
                 } else
                 {
-                    // TODO REMOVE AFTER DRY RUN
-                    _traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
-                    _currentTrayPlaceIndex++;
-                    _currentPickerIndex++;
-                    _trayPlaceMovestep = 0;
-                    if (_currentTrayPlaceIndex >= _traySlots.Count)
-                    {
-                        return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
-                    }
+                    //// TODO REMOVE AFTER DRY RUN
+                    //_traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
+                    //_currentTrayPlaceIndex++;
+                    //_currentPickerIndex++;
+                    //_trayPlaceMovestep = 0;
+                    //if (_currentTrayPlaceIndex >= _traySlots.Count)
+                    //{
+                    //    return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
+                    //}
 
-                    //return -1; // PLACE FAILED
+                    return -1; // PLACE FAILED
                 }
             }
             return 0;

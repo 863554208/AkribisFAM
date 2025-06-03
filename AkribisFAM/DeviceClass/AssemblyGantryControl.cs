@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Markup;
 using YamlDotNet.Serialization.NodeTypeResolvers;
 using static AkribisFAM.DeviceClass.AssemblyGantryControl;
@@ -57,6 +58,13 @@ namespace AkribisFAM.DeviceClass
             Picker2 = 2,
             Picker3 = 3,
             Picker4 = 4,
+        }
+        private double xOffset;
+
+        public double XOffset
+        {
+            get { return xOffset; }
+            set { xOffset = value; }
         }
 
 
@@ -182,6 +190,7 @@ namespace AkribisFAM.DeviceClass
             }
 
             SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
+            sp.Z = GlobalManager.Current.CurrentMode == RunMode.DryrunMode ? sp.Z / 2 : sp.Z;
             switch (picker)
             {
                 case Picker.Picker1:
@@ -989,7 +998,9 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePickAll()
         {
-            return TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4);
+            return (GlobalManager.Current.CurrentMode == RunMode.DryrunMode || 
+                (TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && 
+                TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4)));
         }
         public bool TCompensatePlaceAll()
         {
@@ -997,7 +1008,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePick(Picker picker)
         {
-            if (ZuZhuang.Current.PlacePositions[((int)picker)] == null)
+            if (ZuZhuang.Current.PickPositions[((int)picker-1)] == null)
                 return true;
 
             if (IsBypass(picker))
@@ -1010,7 +1021,7 @@ namespace AkribisFAM.DeviceClass
 
         public bool TCompensatePlace(Picker picker)
         {
-            if (ZuZhuang.Current.PlacePositions[((int)picker)] == null)
+            if (ZuZhuang.Current.PlacePositions[((int)picker-1)] == null)
                 return true;
 
             if (IsBypass(picker))

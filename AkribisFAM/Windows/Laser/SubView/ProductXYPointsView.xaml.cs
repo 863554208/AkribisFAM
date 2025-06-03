@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Windows.LaserHeighCheckView;
 using System.Windows;
+using System.Collections.Generic;
 
 namespace AkribisFAM.Windows
 {
@@ -22,11 +23,11 @@ namespace AkribisFAM.Windows
         {
             try
             {
-                var dc = (ObservableCollection<SinglePointExt>)DataContext;
+                var dc = (List<SinglePointExt>)DataContext;
                 foreach (var pts in dc)
                 {
 
-                    if (AkrAction.Current.MoveLaserXY(pts.X, pts.Z) != (int)AkrAction.ACTTION_ERR.NONE)
+                    if (AkrAction.Current.MoveLaserXY(pts.X, pts.Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         System.Windows.Forms.MessageBox.Show("Failed to move position");
                         return;
