@@ -299,7 +299,7 @@ namespace AkribisFAM.WorkStation
                         k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn;
                     }
                     k = GlobalManager.Current.TotalRow * GlobalManager.Current.TotalColumn - 1 - k;
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0);
                     //移动到穴位
                     actionret = AkrAction.Current.MoveFoamXY(GlobalManager.Current.recheckPoints[k].X,
                         GlobalManager.Current.recheckPoints[k].Y);
@@ -325,7 +325,7 @@ namespace AkribisFAM.WorkStation
                     {
                         return false;
                     }
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1);
                     //获取康耐视数据
                     string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
                     int cogres;

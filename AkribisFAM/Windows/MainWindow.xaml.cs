@@ -770,6 +770,8 @@ namespace AkribisFAM
             AutorunManager.Current.IsPause = false;
             AutorunManager.Current.IsError = false;
             AutorunManager.Current.IsReset = true;
+
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_15FFU, 1);
             App.buzzer.Warn();
             return true;
         }

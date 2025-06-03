@@ -44,7 +44,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT2_12Reserve,
         OUT2_13Reserve,
         OUT2_14Reserve,
-        OUT2_15FFU,
+        OUT2_15FFU, //Fan
 
         OUT3_0PNP_Gantry_vacuum1_Supply,
         OUT3_1PNP_Gantry_vacuum1_Release,
@@ -54,7 +54,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT3_5PNP_Gantry_vacuum3_Release,
         OUT3_6PNP_Gantry_vacuum4_Supply,
         OUT3_7PNP_Gantry_vacuum4_Release,
-        OUT3_8solenoid_valve1_A,
+        OUT3_8solenoid_valve1_A, //?
         OUT3_9solenoid_valve1_B,
         OUT3_10solenoid_valve2_A,
         OUT3_11solenoid_valve2_B,
@@ -66,7 +66,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT4_0Pneumatic_Claw_A,
         OUT4_1Pneumatic_Claw_B,
         OUT4_2Peeling_Recheck_vacuum1_Supply,
-        OUT4_3Peeling_Recheck_vacuum1_Release,
+        OUT4_3Peeling_Recheck_vacuum1_Release, //Remove, not in use
         OUT4_4Reserve,
         OUT4_5Reserve,
         OUT4_6Reserve,
@@ -85,9 +85,9 @@ namespace AkribisFAM.CommunicationProtocol
         OUT5_2Feeder2_limit_cylinder_extend,
         OUT5_3Feeder2_limit_cylinder_retract,
         OUT5_4Backup,
-        OUT5_5Reserve,
-        OUT5_6Reserve,
-        OUT5_7Reserve,//rename to camera trigger
+        OUT5_5PnP_Gantry_Camera_Trig,
+        OUT5_6Feeder_Camera_Trig,
+        OUT5_7Recheck_Camera_Trig,//rename to camera trigger
         OUT5_8Feeder_vacuum1_Supply,
         OUT5_9Feeder_vacuum1_Release,
         OUT5_10Feeder_vacuum2_Supply,
@@ -98,11 +98,11 @@ namespace AkribisFAM.CommunicationProtocol
         OUT5_15Feeder_vacuum4_Release,
 
 
-        OUT6_0Tri_color_light_red,
+        OUT6_0Tri_color_light_red, // machine tower light bar
         OUT6_1Tri_color_light_yellow,
         OUT6_2Tri_color_light_green,
-        OUT6_3light1,
-        OUT6_4light2,
+        OUT6_3light1, //machine front
+        OUT6_4light2, //machine back
         OUT6_5Buzzer,
         OUT6_6Reserve,
         OUT6_7Reserve,
@@ -181,7 +181,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN3_8Reserve,
         IN3_9Claw_extend_in_position,
         IN3_10Claw_retract_in_position,
-        IN3_11Peeling_Recheck_vacuum1_Pressure_feedback,
+        IN3_11Peeling_Recheck_vacuum1_Pressure_feedback,//****
         IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
         IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
         IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
@@ -204,7 +204,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN4_12Feeder1_drawer_InPos,
         IN4_13Feeder2_drawer_InPos,
         IN4_14Reserve,
-        IN4_15Main_Air, // Compressed Air Present
+        IN4_15Compressed_Air_Pressure, // Compressed Air Present
 
         IN5_0Feeder_vacuum1_Pressure_feedback,
         IN5_1Feeder_vacuum2_Pressure_feedback,
@@ -216,7 +216,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN5_7Door_closed_lock4,
         IN5_8Run,
         IN5_9Stop,
-        IN5_10Feeder1,
+        IN5_10Feeder1, //physical button input
         IN5_11Feeder2,
         IN5_12Reset,
         IN5_13emergency_stop,
@@ -224,8 +224,8 @@ namespace AkribisFAM.CommunicationProtocol
         IN5_15SSR2_OK_LOCK,
 
 
-        IN6_0NG_plate_1_in_position,
-        IN6_1plate_type1,
+        IN6_0NG_plate_1_in_position, // NG tray present
+        IN6_1plate_type1, //Differentiate type Block high
         IN6_2plate_type2,
         IN6_3plate_type3,
         IN6_4plate_type4,
@@ -242,8 +242,8 @@ namespace AkribisFAM.CommunicationProtocol
         IN6_15Reserve,
 
 
-        IN7_0BOARD_AVAILABLE,
-        IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL,
+        IN7_0BOARD_AVAILABLE, // SMEMA
+        IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL, 
         IN7_2MACHINE_READY_TO_RECEIVE,
         IN7_3Reserve,
         IN7_4Reserve,

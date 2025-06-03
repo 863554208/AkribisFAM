@@ -534,7 +534,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool Trigger()
         {
-            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1);
         }
 
         public bool CheckFilm(int index, int totalRow, int totalColumn)

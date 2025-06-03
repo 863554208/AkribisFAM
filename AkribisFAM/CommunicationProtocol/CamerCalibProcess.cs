@@ -57,9 +57,9 @@ namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 
         public int ReCheckCalibration()
         {
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0);
             CalibCommunicationProcess.CalibPushcommand($"CB,6" + "\r\n");
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1);
             return 0;
         }
 
