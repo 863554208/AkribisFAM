@@ -1490,7 +1490,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     // Handle error or retry logic here
-                    return; // MOVE FAILED
+                    return false; // MOVE FAILED
                 }
                 // additional check for timeout or error handling if needed
             }
@@ -1505,7 +1505,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     // Handle error or retry logic here
-                    return; // ON THE FLY CAPTURE FAILED   
+                    return false; // ON THE FLY CAPTURE FAILED   
                 }
 
                     //var PickSeqResult = PickCaptureSequence();
@@ -1530,7 +1530,7 @@ namespace AkribisFAM.WorkStation
                 {
                     // Handle error or retry logic here
                     _movestep = 4;
-                    return; // PICK FAILED
+                    return false; // PICK FAILED
                 }
                 //var PickResult = PickPartSequence();
                 //if (PickResult == 1)
@@ -1626,7 +1626,7 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    return; // OTF CAPTURE NOT DONE YET
+                    return false; // OTF CAPTURE NOT DONE YET
                 }
             }
 
@@ -1651,6 +1651,7 @@ namespace AkribisFAM.WorkStation
                     //return;
                 }
             }
+            return true;
         }
 
         private int PickCaptureSequence()

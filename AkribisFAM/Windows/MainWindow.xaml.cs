@@ -212,7 +212,10 @@ namespace AkribisFAM
                 {
                     App.buzzer.BeepOn();
                 }
-
+                if (IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_12Reset))
+                {
+                    ErrorManager.Current.Clear();
+                }
                 //button panel
                 BlinkLightFeeder1();
                 BlinkLightFeeder2();

@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
-using System.Threading.Tasks;
 using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
-using static AkribisFAM.CommunicationProtocol.ResetCamrea.Pushcommand;
 using AkribisFAM.Util;
 using AkribisFAM.Windows;
-using static System.Data.Entity.Infrastructure.Design.Executor;
-using YamlDotNet.Core.Tokens;
-using Newtonsoft.Json.Linq;
-using System.Runtime.Remoting.Messaging;
 
 namespace AkribisFAM
 {
@@ -62,7 +55,7 @@ namespace AkribisFAM
 
                 if (ThreadConveyor == null /*|| !ThreadConveyor.IsAlive*/)
                 {
-                    ThreadConveyor = new Thread(() => RunAutoStation(Reject.Current, CancelToken.Token)) { Name = "Conveyor", Priority = ThreadPriority.Highest };
+                    ThreadConveyor = new Thread(() => RunAutoStation(Conveyor.Current, CancelToken.Token)) { Name = "Conveyor", Priority = ThreadPriority.Highest };
                     ThreadConveyor.IsBackground = true;
                     //ThreadConveyor.Start();
 
@@ -92,7 +85,7 @@ namespace AkribisFAM
 
                 if (ThreadFeeder == null /*|| !ThreadFeeder.IsAlive*/)
                 {
-                    ThreadFeeder = new Thread(() => RunAutoStation(Conveyor.Current, CancelToken.Token)) { Name = "Feeder", Priority = ThreadPriority.Highest };
+                    ThreadFeeder = new Thread(() => RunAutoStation(Feeder.Current, CancelToken.Token)) { Name = "Feeder", Priority = ThreadPriority.Highest };
                     ThreadFeeder.IsBackground = true;
                     //ThreadFeeder.Start();
 
@@ -205,21 +198,69 @@ namespace AkribisFAM
                 Trace.WriteLine("Autorun Process");
                 Logger.WriteLog("Autorun Process Start");
                 ParameterConfig.LoadPoints();
-                try
-                {
 
-                    //if (ThreadConveyor != null && !ThreadConveyor.IsAlive) ThreadConveyor.Start();
-                    //if (ThreadLaser != null && !ThreadLaser.IsAlive) ThreadLaser.Start();
-                    //if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive) ThreadFoamAssembly.Start();
-                    //if (ThreadRecheck != null && !ThreadRecheck.IsAlive) ThreadRecheck.Start();
-                    if (ThreadTest1 != null && !ThreadTest1.IsAlive) ThreadTest1.Start();
-                    if (ThreadTest2 != null && !ThreadTest2.IsAlive) ThreadTest2.Start();
+                    //if (ThreadConveyor != null && !ThreadConveyor.IsAlive)
+                    //{
+                    //    ThreadConveyor.Start();
+                    //}
+                    //else
+                    //{
+                    //    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    //}
+                    //if (ThreadLaser != null && !ThreadLaser.IsAlive)
+                    //{
+                    //    ThreadLaser.Start();
+                    //}
+                    //else
+                    //{
+                    //    LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    //}
+                    //if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
+                    //{
+                    //    ThreadFoamAssembly.Start();
+                    //}
+                    //else
+                    //{
+                    //    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    //}
+                    //if (ThreadRecheck != null && !ThreadRecheck.IsAlive)
+                    //{
+                    //    ThreadRecheck.Start();
+                    //}
+                    //else
+                    //{
+                    //    FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    //}
 
-                }
-                catch (Exception ex)
-                {
+                    //if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
+                    //{
+                    //    ThreadFeeder.Start();
+                    //}
+                    //else
+                    //{
+                    //    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    //}
 
-                }
+
+                    if (ThreadTest1 != null && !ThreadTest1.IsAlive)
+                    {
+                        ThreadTest1.Start();
+                    }
+                    else
+                    {
+                        TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    }
+
+
+                    if (ThreadTest2 != null && !ThreadTest2.IsAlive)
+                    {
+                        ThreadTest2.Start();
+                    }
+                    else
+                    {
+                        TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    }
+
 
             }
             catch (OperationCanceledException)
@@ -243,17 +284,17 @@ namespace AkribisFAM
             while (!token.IsCancellationRequested)
             {
 
-                switch (station.threadState)
+                switch (station.ThreadState)
                 {
                     case WorkStationBase.ThreadStatus.Init:
                         station.Initialize();
-                        station.threadState = WorkStationBase.ThreadStatus.Running;
+                        station.ThreadState = WorkStationBase.ThreadStatus.Running;
                         break;
                     case WorkStationBase.ThreadStatus.Running:
                         {
                             if (IsPause)
                             {
-                                station.threadState = WorkStationBase.ThreadStatus.Pausing;
+                                station.ThreadState = WorkStationBase.ThreadStatus.Pausing;
                                 break;
                             }
                             else
@@ -263,13 +304,13 @@ namespace AkribisFAM
                                 {
                                     if (!station.AutoRun())
                                     {
-                                        station.threadState = WorkStationBase.ThreadStatus.Pausing;
+                                        station.ThreadState = WorkStationBase.ThreadStatus.Pausing;
                                     }
 
                                 }
                                 catch (Exception ex)
                                 {
-                                    station.threadState = WorkStationBase.ThreadStatus.Pausing;
+                                    station.ThreadState = WorkStationBase.ThreadStatus.Pausing;
                                 }
                             }
                         }
@@ -277,7 +318,7 @@ namespace AkribisFAM
                     case WorkStationBase.ThreadStatus.Pausing:
                         IsPause = true;
                         station.Paused();
-                        station.threadState = WorkStationBase.ThreadStatus.Paused;
+                        station.ThreadState = WorkStationBase.ThreadStatus.Paused;
                         break;
                     case WorkStationBase.ThreadStatus.Paused:
                         break;
@@ -397,6 +438,7 @@ namespace AkribisFAM
         }
         public bool Reset()
         {
+            ErrorManager.Current.Clear();
             return true;
         }
 

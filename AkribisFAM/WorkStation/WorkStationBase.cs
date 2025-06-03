@@ -13,7 +13,7 @@ namespace AkribisFAM.WorkStation
         public abstract void Initialize();
         public abstract bool AutoRun();
         public abstract void Paused();
-        public ThreadStatus threadState = ThreadStatus.Init;
+        public ThreadStatus ThreadState = ThreadStatus.Init;
         public enum ThreadStatus
         {
             Init,

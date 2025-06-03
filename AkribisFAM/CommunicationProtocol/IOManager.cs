@@ -254,7 +254,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN7_9Reserve,
         IN7_10Reserve,
         IN7_11Reserve,
-        IN7_12Reset,
+        IN7_12Reserve,
         IN7_13Reserve,
         IN7_14Reserve,
         IN7_15Reserve
@@ -324,89 +324,89 @@ namespace AkribisFAM.CommunicationProtocol
         }
         private static readonly object _instanceLock = new object();
         private static readonly object _instanceLock2 = new object();
-        public void ReadIO_status()
-        {
-            //循环读取输出IO
-            Task.Run(new Action(() =>
-            {
-                Thread.CurrentThread.Name = "OutIO_statusThread";
+        //public void ReadIO_status()
+        //{
+        //    //循环读取输出IO
+        //    Task.Run(new Action(() =>
+        //    {
+        //        Thread.CurrentThread.Name = "OutIO_statusThread";
 
-                while (true)
-                {
+        //        while (true)
+        //        {
 
-                    Parallel.ForEach(IO_OutFunctionnames, IOname =>
-                    {
-                        var IOnamekey = IOname.Key;
-                        var IOnamevalue = IOname.Value;
-                        bool IOstatus = false;
-                        lock (_instanceLock2)
-                        {
-                            bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
-                            if (ret == false)
-                            {
-                                OutIO_status[(int)IOnamekey] = -1;
-                                //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:-1");
-                            }
-                            else
-                            {
-                                if (IOstatus)
-                                {
-                                    OutIO_status[(int)IOnamekey] = 0;
-                                    //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:0");
-                                }
-                                else
-                                {
-                                    OutIO_status[(int)IOnamekey] = 1;
-                                    //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:1");
-                                }
-                            }
-                        }
-                        Thread.Sleep(1000);
-                    });
-                    //Thread.Sleep(1);
-                }
-            }));
-            //循环读取输入IO
-            Task.Run(new Action(() =>
-            {
-                while (true)
-                {
-                    Parallel.ForEach(IO_INFunctionnames, IOname =>
-                   {
-                       var IOnamekey = IOname.Key;
-                       var IOnamevalue = IOname.Value;
-                       bool IOstatus = false;
-                       lock (_instanceLock)
-                       {
-                           bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
-                           if (ret == false)
-                           {
-                               INIO_status[(int)IOnamekey] = -1;
-                            }
-                           else
-                           {
-                               if (IOstatus)
-                               {
-                                   INIO_status[(int)IOnamekey] = 0;
-                               }
-                               else
-                               {
-                                   INIO_status[(int)IOnamekey] = 1;
-                                }
+        //            Parallel.ForEach(IO_OutFunctionnames, IOname =>
+        //            {
+        //                var IOnamekey = IOname.Key;
+        //                var IOnamevalue = IOname.Value;
+        //                bool IOstatus = false;
+        //                lock (_instanceLock2)
+        //                {
+        //                    bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
+        //                    if (ret == false)
+        //                    {
+        //                        OutIO_status[(int)IOnamekey] = -1;
+        //                        //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:-1");
+        //                    }
+        //                    else
+        //                    {
+        //                        if (IOstatus)
+        //                        {
+        //                            OutIO_status[(int)IOnamekey] = 0;
+        //                            //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:0");
+        //                        }
+        //                        else
+        //                        {
+        //                            OutIO_status[(int)IOnamekey] = 1;
+        //                            //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:1");
+        //                        }
+        //                    }
+        //                }
+        //                Thread.Sleep(1000);
+        //            });
+        //            //Thread.Sleep(1);
+        //        }
+        //    }));
+        //    //循环读取输入IO
+        //    Task.Run(new Action(() =>
+        //    {
+        //        while (true)
+        //        {
+        //            Parallel.ForEach(IO_INFunctionnames, IOname =>
+        //           {
+        //               var IOnamekey = IOname.Key;
+        //               var IOnamevalue = IOname.Value;
+        //               bool IOstatus = false;
+        //               lock (_instanceLock)
+        //               {
+        //                   bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
+        //                   if (ret == false)
+        //                   {
+        //                       INIO_status[(int)IOnamekey] = -1;
+        //                    }
+        //                   else
+        //                   {
+        //                       if (IOstatus)
+        //                       {
+        //                           INIO_status[(int)IOnamekey] = 0;
+        //                       }
+        //                       else
+        //                       {
+        //                           INIO_status[(int)IOnamekey] = 1;
+        //                        }
 
-                           }
-                       }
-                       Thread.Sleep(5);
+        //                   }
+        //               }
+        //               Thread.Sleep(5);
 
 
-                   });
-                    //Thread.Sleep(1000);
-                }
-            }));
+        //           });
+        //            //Thread.Sleep(1000);
+        //        }
+        //    }));
 
-        }
+        //}
 
-        public void ReadIO_statusV2()
+        public void ReadIO_loop()
         {
             //循环读取输出IO
             Task.Run(new Action(() =>
