@@ -67,6 +67,7 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            assemblyGantryControl.XOffset = 16;
             filmRemoveGantryControl = new FilmRemoveGantryControl();
             buzzer = new BuzzerControl();
             CioManager = new CriticalIOManager();
@@ -75,6 +76,7 @@ namespace AkribisFAM
             calib = new LoadCellCalibration();
             door = new DoorControl();
             reject = new RejectControl();
+            AkrAction.Current.SetSpeedMultiplier(100);
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
             //TODO

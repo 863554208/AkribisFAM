@@ -377,7 +377,7 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-
+            
             //Read teach points named "Laser Points"
             var teachpoints = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
             if (teachpoints == null)
@@ -417,7 +417,8 @@ namespace AkribisFAM.WorkStation
             return true;
         }
         private bool _isTrayReadyToProcess = false;
-        private int _currentPointIndex = 0;
+        private int _currentPeelerIndex = 0;
+        private int _currentVisionIndex = 0;
         public void SetTrayReadyToProcess()
         {
             _isTrayReadyToProcess = true;
@@ -452,7 +453,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints))
                 {
-                    _currentPointIndex = 0; // Reset index for move points
+                    _currentPeelerIndex = 0; // Reset index for move points
                     Logger.WriteLog("retest teach points loaded successfully.");
                     _movestep = 2;
                 }
@@ -469,7 +470,8 @@ namespace AkribisFAM.WorkStation
                 var filmRemovalSeqRes = FilmRemovalSequence();
                 if (filmRemovalSeqRes)
                 {
-                    _movestep = 5;
+                    _currentVisionIndex = 0;
+                    _movestep = 3;
                 }
                 else if (filmRemovalSeqRes)
                 {
@@ -478,13 +480,30 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-            // INSPECT SEQUENCE
+            // GET VISION TEACH POINTS
             if (_movestep == 3)
+            {
+                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints))
+                {
+                    _currentVisionIndex = 0; // Reset index for move points
+                    _inspectMovestep = 0;
+                    Logger.WriteLog("retest teach points loaded successfully.");
+                    _movestep = 4;
+                }
+                else
+                {
+                    Logger.WriteLog("Failed to load retest teach points.");
+                    return; // Exit the process
+                }
+            }
+
+            // INSPECT SEQUENCE
+            if (_movestep == 4)
             {
                 var inspectRes = InspectSequence();
                 if (inspectRes)
                 {
-                    _movestep = 4;
+                    _movestep = 5;
                 }
                 else if (inspectRes)
                 {
@@ -518,12 +537,12 @@ namespace AkribisFAM.WorkStation
             if (_filmRemoveMovestep == 0)
             {
 
-                if (_currentPointIndex >= _movePoints.Count)
+                if (_currentPeelerIndex >= _movePoints.Count)
                 {
                     return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"FilmRemovalSequence : ({_currentPointIndex} >= {_movePoints.Count})"); // Exit the process
                 }
 
-                var movePt = _movePoints[_currentPointIndex];
+                var movePt = _movePoints[_currentPeelerIndex];
                 if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
                 {
                     // Error moving to position
@@ -535,7 +554,7 @@ namespace AkribisFAM.WorkStation
             // WAIT XY REACH POSITION  AND OPEN GRIP IF NOT OPEN YET
             if (_filmRemoveMovestep == 1)
             {
-                var movePt = _movePoints[_currentPointIndex];
+                var movePt = _movePoints[_currentPeelerIndex];
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
                     App.filmRemoveGantryControl.ClawOpen();
@@ -746,7 +765,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (App.filmRemoveGantryControl.IsClawClose())
                 {
-                    _currentPointIndex++;
+                    _currentPeelerIndex++;
                     _filmRemoveMovestep = 0; // Move to next step
                 }
                 else
@@ -760,10 +779,54 @@ namespace AkribisFAM.WorkStation
         private bool InspectSequence()
         {
             // MOVE TO POSITION
+            if (_filmRemoveMovestep == 0)
+            {
+
+                if (_currentVisionIndex >= _movePoints.Count)
+                {
+                    return 1;
+                }
+
+                var movePt = _movePoints[_currentVisionIndex];
+                if (!App.filmRemoveGantryControl.MoveToVisionPos(movePt.X, movePt.Y, true))
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _inspectMovestep = 2; // Move to next step
+            }
 
             // WAIT TO REACH POSITION
+            if (_inspectMovestep == 1)
+            {
+                var movePt = _movePoints[_currentVisionIndex];
+                if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X + App.filmRemoveGantryControl.XOffset, movePt.Y + (-App.filmRemoveGantryControl.YOffset))) // if motion stopped/reached position
+                {
+                    _inspectMovestep = 2;
+                }
+                // TODO: Add a timeout mechanism here
+            }
 
             // INSPECT
+            if (_inspectMovestep == 2)
+            {
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                {
+                    return -1;
+                }
+                System.Threading.Thread.Sleep(100);
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1))
+                {
+                    return -1;
+                }
+                System.Threading.Thread.Sleep(100);
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                {
+                    return -1;
+                }
+                _currentVisionIndex++;
+                _inspectMovestep = 0;
+            }
 
             // CHECK RESULT
 

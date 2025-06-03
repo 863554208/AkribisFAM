@@ -83,7 +83,7 @@ namespace AkribisFAM.DeviceClass
             return true;
         }
 
-        public bool MoveToVisionPos(double teachpointX, double teachpointY)
+        public bool MoveToVisionPos(double teachpointX, double teachpointY, bool waitMotionDone = true)
         {
             if (!ZUp())
             {
@@ -94,7 +94,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (AkrAction.Current.MoveRecheckXY(teachpointX + (xOffset) + 0, teachpointY + (-yOffset) + 0) != (int)AkrAction.ACTTION_ERR.NONE)
+            if (AkrAction.Current.MoveRecheckXY(teachpointX + (xOffset) + 0, teachpointY + (-yOffset) + 0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
