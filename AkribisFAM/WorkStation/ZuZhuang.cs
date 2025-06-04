@@ -1418,7 +1418,6 @@ namespace AkribisFAM.WorkStation
         private bool GetPlacePositionDryRun(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
 
-            Thread.Sleep(1);
             point = new SinglePoint()
             {
                 X = GlobalManager.Current.placeFoamPoints[Fovnum - 1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
@@ -1428,6 +1427,18 @@ namespace AkribisFAM.WorkStation
             };
             return true;
 
+        }
+        public bool GetRejectPosition(int Nozzlenum, out SinglePoint point)
+        {
+
+            point = new SinglePoint()
+            {
+                X = GlobalManager.Current.rejectFoamPoints[Nozzlenum - 1].X - (Nozzlenum - 1) * App.assemblyGantryControl.XOffset,
+                Y = GlobalManager.Current.rejectFoamPoints[Nozzlenum - 1].Y,
+                R = GlobalManager.Current.rejectFoamPoints[Nozzlenum - 1].R,
+                Z = GlobalManager.Current.rejectFoamPoints[Nozzlenum - 1].Z,
+            };
+            return true;
         }
         /// <summary>
         /// Use this to get the list of teach points for pick process. MUST PERFORM ON THE FLY CAPTURE FIRST

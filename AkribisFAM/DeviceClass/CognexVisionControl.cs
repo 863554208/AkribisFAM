@@ -1,15 +1,10 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Helper;
-using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Mapping;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;

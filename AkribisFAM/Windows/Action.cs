@@ -974,6 +974,62 @@ namespace AkribisFAM.WorkStation
             return false;
         }
         /// <summary>
+        /// Check if Foam picker T1 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT1Done(double tpos)
+        {
+            var taxis = AxisName.PICK1_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T2 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT2Done(double tpos)
+        {
+            var taxis = AxisName.PICK2_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T3 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT3Done(double tpos)
+        {
+            var taxis = AxisName.PICK3_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T4 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT4Done(double tpos)
+        {
+            var taxis = AxisName.PICK4_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
         /// Gang move 4 Z pickers
         /// </summary>
         /// <param name="z1pos"></param>
@@ -1128,7 +1184,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT1(double t1pos)
+        public int MoveFoamT1(double t1pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1137,7 +1193,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t1 - to consider vector move
-                if (MoveAbs(t1, t1pos, t1speed, true) != 0)
+                if (MoveAbs(t1, t1pos, t1speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1147,7 +1203,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT2(double t2pos)
+        public int MoveFoamT2(double t2pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1156,7 +1212,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t2 - to consider vector move
-                if (MoveAbs(t2, t2pos, t2speed, true) != 0)
+                if (MoveAbs(t2, t2pos, t2speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1166,7 +1222,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT3(double t3pos)
+        public int MoveFoamT3(double t3pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1175,7 +1231,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t3 - to consider vector move
-                if (MoveAbs(t3, t3pos, t3speed, true) != 0)
+                if (MoveAbs(t3, t3pos, t3speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1185,7 +1241,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT4(double t4pos)
+        public int MoveFoamT4(double t4pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1194,7 +1250,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t4 - to consider vector move
-                if (MoveAbs(t4, t4pos, t4speed, true) != 0)
+                if (MoveAbs(t4, t4pos, t4speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
