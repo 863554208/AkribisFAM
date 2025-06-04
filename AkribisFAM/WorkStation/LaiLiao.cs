@@ -700,7 +700,6 @@ namespace AkribisFAM.WorkStation
         public int Step3()
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
-
             GlobalManager.Current.current_Lailiao_step = 3;
 
             //激光测距
@@ -898,6 +897,7 @@ namespace AkribisFAM.WorkStation
                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"AkrAction.Current.MoveLaserXY({movePt.X}, {movePt.Y}, false)");
                     return -1;
                 }
+                startTime = DateTime.Now;
                 _laserMoveStep = 1; // Move to next step
             }
 
@@ -905,15 +905,19 @@ namespace AkribisFAM.WorkStation
             if (_laserMoveStep == 1)
             {
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
-                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                if ((startTime - DateTime.Now).TotalMilliseconds < 3000)
                 {
-                    _currentLaserPointIndex++;
-                    _laserMoveStep = 0;
+                    if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                    {
+                        _currentLaserPointIndex++;
+                        _laserMoveStep = 0;
+                    }
                 }
                 else
                 {
                     ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveLaserXYDone({movePt.X},{movePt.Y})");
                     return -1;
+
                 }
             }
 

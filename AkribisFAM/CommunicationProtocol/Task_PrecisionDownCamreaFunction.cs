@@ -37,7 +37,7 @@ namespace AkribisFAM.CommunicationProtocol
             public class AcceptTLNDownPosition
             {
                 public string Errcode;//错误代码，1为成功
-                public string PartX1;//吸嘴上物料特征坐标X1
+                public string PartX1;//吸嘴上物料特征坐标X1 
                 public string PartY1;//吸嘴上物料特征坐标Y1
                 public string PartR1;//吸嘴上物料特征坐标R1
                 public string Data1;//视觉收集数据

@@ -40,7 +40,8 @@ namespace AkribisFAM.CommunicationProtocol
         public static ConcurrentDictionary<ClientNames, (string ip, int port)> clientNameToEndpoint = new ConcurrentDictionary<ClientNames, (string, int)>();
         // 用来存储每个客户端的连接，字典的键是ClientNames，值是 TcpClientWorker 实例
         public static ConcurrentDictionary<ClientNames, TcpClientWorker> namedClients = new ConcurrentDictionary<ClientNames, TcpClientWorker>();
-        public static bool IsAllConnected => namedClients.All(x => x.Value.isConnected);
+        public static bool IsAllConnected => namedClients.Where(x => x.Key != ClientNames.mes && x.Key != ClientNames.Pressure_sensor).All(x => x.Value.isConnected);
+        //public static bool IsAllConnected => namedClients.All(x => x.Value.isConnected);
 
         public static List<KeyValuePair<ClientNames, TcpClientWorker>> GetDisconnectedClients()
         {

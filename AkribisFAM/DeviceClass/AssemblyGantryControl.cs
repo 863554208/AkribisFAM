@@ -815,9 +815,9 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-           if (!ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum, out SinglePoint point))
-            { 
-                return false; 
+            if (!ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum, out SinglePoint point))
+            {
+                return false;
             }
             if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
@@ -1001,8 +1001,8 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePickAll()
         {
-            return (GlobalManager.Current.CurrentMode == RunMode.DryrunMode || 
-                (TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && 
+            return (GlobalManager.Current.CurrentMode == RunMode.DryrunMode ||
+                (TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) &&
                 TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4)));
         }
         public bool TCompensatePlaceAll()
@@ -1011,7 +1011,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePick(Picker picker)
         {
-            if (ZuZhuang.Current.PickPositions[((int)picker-1)] == null)
+            if (ZuZhuang.Current.PickPositions[((int)picker - 1)] == null)
                 return true;
 
             if (IsBypass(picker))
@@ -1024,7 +1024,7 @@ namespace AkribisFAM.DeviceClass
 
         public bool TCompensatePlace(Picker picker)
         {
-            if (ZuZhuang.Current.PlacePositions[((int)picker-1)] == null)
+            if (ZuZhuang.Current.PlacePositions[((int)picker - 1)] == null)
                 return true;
 
             if (IsBypass(picker))
