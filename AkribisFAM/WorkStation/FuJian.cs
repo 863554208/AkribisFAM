@@ -752,7 +752,7 @@ namespace AkribisFAM.WorkStation
             {
                 //if ((DateTime.Now - startTime).TotalMilliseconds >= vacuumDelay)
                 //{
-                    App.filmRemoveGantryControl.VacOff();
+                    
                     _filmRemoveMovestep = 22; // Move to next step
                 //}
             }
@@ -789,6 +789,7 @@ namespace AkribisFAM.WorkStation
             // WAIT
             if (_filmRemoveMovestep == 25)
             {
+                App.filmRemoveGantryControl.VacOff();
                 if (App.filmRemoveGantryControl.IsClawClose())
                 {
                     _currentPeelerIndex++;
