@@ -132,7 +132,7 @@ namespace AkribisFAM.WorkStation
             {
                 //报错
                 GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 1;
-                AutorunManager.Current.IsPause = true;
+                AutorunManager.Current.ToPause = true;
                 ErrorManager.Current.Insert(errorCode);
             }
             GlobalManager.Current.FuJian_CheckState();

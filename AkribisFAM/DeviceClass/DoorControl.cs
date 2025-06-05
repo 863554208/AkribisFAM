@@ -10,7 +10,7 @@ namespace AkribisFAM.DeviceClass
         public bool IsDoor3Locked => !IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_6Door_opened_lock3);
         public bool IsDoor4Locked => !IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_7Door_opened_lock4);
         public bool IsAllDoorClosed => !IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_15SSR2_OK_LOCK);
-        public bool IsAllLockTriggered => IOManager.Instance.GetOutputStatus(IO_OutFunction_Table.OUT6_10Feeder1_light) &&
+        public bool IsAllLockTriggered => IOManager.Instance.GetOutputStatus(IO_OutFunction_Table.OUT2_8LOCK1) &&
                                         IOManager.Instance.GetOutputStatus(IO_OutFunction_Table.OUT2_9LOCK2) &&
                                         IOManager.Instance.GetOutputStatus(IO_OutFunction_Table.OUT2_10LOCK3) &&
                                         IOManager.Instance.GetOutputStatus(IO_OutFunction_Table.OUT2_11LOCK4);

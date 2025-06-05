@@ -115,6 +115,7 @@ namespace AkribisFAM
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
+            if (AutorunManager.Current.IsRunning)
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
@@ -247,6 +248,33 @@ namespace AkribisFAM
                 if (IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_12Reset))
                 {
                     ErrorManager.Current.Clear();
+                }
+                if (AutorunManager.Current.IsRunning)
+                {
+                    StartAutoRunButton.IsEnabled = false;
+                    PauseAutoRunButton.IsEnabled = true;
+                    StopAutoRunButton.IsEnabled = true;
+                }
+                else
+                {
+                    StartAutoRunButton.IsEnabled = true;
+                    PauseAutoRunButton.IsEnabled = false;
+                    StopAutoRunButton.IsEnabled = false;
+                }
+                if (AutorunManager.Current.IsPause)
+                {
+                    StartAutoRunButton.IsEnabled = true;
+                    PauseAutoRunButton.IsEnabled = false;
+                    StopAutoRunButton.IsEnabled = false;
+                }
+
+                if (ErrorManager.Current.IsAlarm || !App.CioManager.IsSSR1Ok || !App.CioManager.IsSSR2Ok)
+                {
+                    ResetButton.IsEnabled = true;
+                }
+                else
+                {
+                    ResetButton.IsEnabled = false;
                 }
                 //button panel
                 BlinkLightFeeder1();
@@ -634,12 +662,6 @@ namespace AkribisFAM
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
-
-            Thread.Sleep(500);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 1);
-            Thread.Sleep(500);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
 
             ErrorManager.Current.Clear();
             App.buzzer.EnableBeep = true;
@@ -849,7 +871,7 @@ namespace AkribisFAM
             App.buzzer.Warn();
 
 
-            AutorunManager.Current.IsPause = false;
+            AutorunManager.Current.ToPause = false;
             AutorunManager.Current.IsError = false;
             AutorunManager.Current.IsReset = true;
 
@@ -887,7 +909,7 @@ namespace AkribisFAM
 
                 //测试用
                 GlobalManager.Current.isRun = true;
-                AutorunManager.Current.IsPause = false;
+                AutorunManager.Current.ToPause = false;
                 //StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
@@ -905,20 +927,20 @@ namespace AkribisFAM
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Pause Button is clicked.");
-            if (StateManager.Current.State == StateCode.RUNNING && AutorunManager.Current.IsPause == false)
+            if (StateManager.Current.State == StateCode.RUNNING && AutorunManager.Current.ToPause == false)
             {
                 Logger.WriteLog("Change from running to idle.");
-                AutorunManager.Current.IsPause = true;
+                AutorunManager.Current.ToPause = true;
                 StateManager.Current.IdleStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.IDLE;
                 //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
                 //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
             }
-            else if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.IsPause == true)
+            else if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.ToPause == true)
             {
                 Logger.WriteLog("Change from idle to running.");
-                AutorunManager.Current.IsPause = false;
+                AutorunManager.Current.ToPause = false;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.State = StateCode.RUNNING;
