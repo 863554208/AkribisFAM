@@ -116,21 +116,21 @@ namespace AkribisFAM
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (AutorunManager.Current.IsRunning)
-            if (StateManager.Current.State == StateCode.RUNNING)
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                if (StateManager.Current.State == StateCode.RUNNING)
                 {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
+                    StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
 
-                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
-                }));
-            }
-            else
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
-            }
+                        performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                    }));
+                }
+                else
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+                }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
@@ -644,7 +644,7 @@ namespace AkribisFAM
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
- 
+
 
             //isResetButtonTriggered = false;
             //resetPressStopwatch.Restart();
@@ -816,7 +816,7 @@ namespace AkribisFAM
             //    return false;
             //}
 
-         
+
             #region Feeder
             if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
             {
@@ -861,7 +861,7 @@ namespace AkribisFAM
                 MessageBox.Show("Please at least lock one feeder and feed in material");
                 return false;
             }
-  
+
             #endregion
             return true;
         }
@@ -1267,112 +1267,113 @@ namespace AkribisFAM
                 AkrAction.Current.StartSystemHome();
             }
         }
-
-    internal class PromptableButton : Button
-    {
-
-        public ImageSource CoverImageSource
-        {
-            get { return (ImageSource)GetValue(CoverImageSourceProperty); }
-            set { SetValue(CoverImageSourceProperty, value); }
-        }
-
-        public static readonly DependencyProperty CoverImageSourceProperty =
-            DependencyProperty.Register("CoverImageSource", typeof(ImageSource), typeof(PromptableButton), new UIPropertyMetadata(null));
-
-
-        public int PromptCount
-        {
-            get { return (int)GetValue(PromptCountProperty); }
-            set { SetValue(PromptCountProperty, value); }
-        }
-
-        public static readonly DependencyProperty PromptCountProperty =
-            DependencyProperty.Register("PromptCount", typeof(int), typeof(PromptableButton),
-            new FrameworkPropertyMetadata(0, new PropertyChangedCallback(PromptCountChangedCallBack), new CoerceValueCallback(CoercePromptCountCallback)));
-
-
-        public PromptableButton()
-        {
-
-        }
-
-        static PromptableButton()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptableButton), new FrameworkPropertyMetadata(typeof(PromptableButton)));
-        }
-
-        private static object CoercePromptCountCallback(DependencyObject d, object value)
-        {
-            int promptCount = (int)value;
-            promptCount = Math.Max(0, promptCount);
-
-            return promptCount;
-        }
-
-        public static void PromptCountChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-
-        }
-
     }
-
-    internal class PromptAdorner : Adorner
-    {
-
-        protected override int VisualChildrenCount
-        {
-            get { return 1; }
-        }
-
-        public PromptAdorner(UIElement adornedElement)
-            : base(adornedElement)
+        internal class PromptableButton : Button
         {
 
-            _chrome = new PromptChrome();
-            _chrome.DataContext = adornedElement;
-            this.AddVisualChild(_chrome);
+            public ImageSource CoverImageSource
+            {
+                get { return (ImageSource)GetValue(CoverImageSourceProperty); }
+                set { SetValue(CoverImageSourceProperty, value); }
+            }
+
+            public static readonly DependencyProperty CoverImageSourceProperty =
+                DependencyProperty.Register("CoverImageSource", typeof(ImageSource), typeof(PromptableButton), new UIPropertyMetadata(null));
+
+
+            public int PromptCount
+            {
+                get { return (int)GetValue(PromptCountProperty); }
+                set { SetValue(PromptCountProperty, value); }
+            }
+
+            public static readonly DependencyProperty PromptCountProperty =
+                DependencyProperty.Register("PromptCount", typeof(int), typeof(PromptableButton),
+                new FrameworkPropertyMetadata(0, new PropertyChangedCallback(PromptCountChangedCallBack), new CoerceValueCallback(CoercePromptCountCallback)));
+
+
+            public PromptableButton()
+            {
+
+            }
+
+            static PromptableButton()
+            {
+                DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptableButton), new FrameworkPropertyMetadata(typeof(PromptableButton)));
+            }
+
+            private static object CoercePromptCountCallback(DependencyObject d, object value)
+            {
+                int promptCount = (int)value;
+                promptCount = Math.Max(0, promptCount);
+
+                return promptCount;
+            }
+
+            public static void PromptCountChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+            {
+
+            }
+
         }
 
-
-        protected override Visual GetVisualChild(int index)
+        internal class PromptAdorner : Adorner
         {
-            return _chrome;
+
+            protected override int VisualChildrenCount
+            {
+                get { return 1; }
+            }
+
+            public PromptAdorner(UIElement adornedElement)
+                : base(adornedElement)
+            {
+
+                _chrome = new PromptChrome();
+                _chrome.DataContext = adornedElement;
+                this.AddVisualChild(_chrome);
+            }
+
+
+            protected override Visual GetVisualChild(int index)
+            {
+                return _chrome;
+            }
+
+            protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+            {
+                _chrome.Arrange(new Rect(arrangeBounds));
+                return arrangeBounds;
+            }
+
+            PromptChrome _chrome;
         }
 
-        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+        internal class PromptChrome : Control
         {
-            _chrome.Arrange(new Rect(arrangeBounds));
-            return arrangeBounds;
+            static PromptChrome()
+            {
+                DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptChrome), new FrameworkPropertyMetadata(typeof(PromptChrome)));
+            }
+
+            protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+            {
+
+                this.Width = 34;
+                this.Height = 34;
+
+                this.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+                TranslateTransform tt = new TranslateTransform();
+                tt.X = 10;
+                tt.Y = -10;
+                this.RenderTransform = tt;
+
+                return base.ArrangeOverride(arrangeBounds);
+            }
+
+
         }
-
-        PromptChrome _chrome;
-    }
-
-    internal class PromptChrome : Control
-    {
-        static PromptChrome()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptChrome), new FrameworkPropertyMetadata(typeof(PromptChrome)));
-        }
-
-        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
-        {
-
-            this.Width = 34;
-            this.Height = 34;
-
-            this.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-            this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-
-            TranslateTransform tt = new TranslateTransform();
-            tt.X = 10;
-            tt.Y = -10;
-            this.RenderTransform = tt;
-
-            return base.ArrangeOverride(arrangeBounds);
-        }
-
-
-    }
+    
 }

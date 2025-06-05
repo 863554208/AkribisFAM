@@ -809,11 +809,12 @@ namespace AkribisFAM.WorkStation
 
                 var axisparam = axisParamsArray[(int)axisName];
                 var homevel = ToPulse(axisName, axisparam.HomeVelocity);
+                var homeaccel = ToPulse(axisName, axisparam.Acceleration);
                 var homedecel = ToPulse(axisName, axisparam.Deceleration);
                 var homeoffset = ToPulse(axisName, axisparam.HomeOffset);
                 var direction = (isPositive) ? 1 : -1;
 
-                axis.Home(toLimit, toIndex, homevel * direction, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
+                axis.Home(toLimit, toIndex, homevel, (uint)homeaccel, (uint)homedecel, homeoffset, 30000);
 
                 while (!IsHomeCompleted(axisName))
                 {
@@ -859,7 +860,7 @@ namespace AkribisFAM.WorkStation
                 var direction = (isPositive) ? 1 : -1;
                 var threshold = ToPulse(axisName, 0.1);
 
-                axis.HomeToHardStop(threshold, homevel, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
+                axis.HomeToHardStop(threshold, homevel * direction, (uint)homedecel, (uint)homedecel, homeoffset, 30000);
 
                 while (!IsHomeCompleted(axisName))
                 {
@@ -1499,7 +1500,7 @@ namespace AkribisFAM.WorkStation
                     //if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
                     //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
                     //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
-
+                
                     // HOME XY
                     if (HomeAxis(AxisName.FSX, true, true, false) != 0) return -1;
                     if (HomeAxis(AxisName.FSY, true, true, false) != 0) return -1;
@@ -1570,13 +1571,13 @@ namespace AkribisFAM.WorkStation
                     axisNames.Add(AxisName.FSY);
 
                     axisNames.Add(AxisName.PICK1_Z);
-                    axisNames.Add(AxisName.PICK1_T);
+                    //axisNames.Add(AxisName.PICK1_T);
                     axisNames.Add(AxisName.PICK2_Z);
-                    axisNames.Add(AxisName.PICK2_T);
-                    axisNames.Add(AxisName.PICK3_Z);
-                    axisNames.Add(AxisName.PICK3_T);
-                    axisNames.Add(AxisName.PICK4_Z);
-                    axisNames.Add(AxisName.PICK4_T);
+                    //axisNames.Add(AxisName.PICK2_T);
+                    //axisNames.Add(AxisName.PICK3_Z);
+                    //axisNames.Add(AxisName.PICK3_T);
+                    //axisNames.Add(AxisName.PICK4_Z);
+                    //axisNames.Add(AxisName.PICK4_T);
                     break;
                 case Modules.FuJian:
                     axisNames.Add(AxisName.PRX);
