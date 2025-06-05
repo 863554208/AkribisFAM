@@ -166,7 +166,11 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            //feeders = feeders;
+            foreach (var sts in feeders)
+            {
+                sts.FeederInList = new ObservableCollection<IO_INFunction_Table>(sts.FeederInList);
+                sts.PickerInList = new ObservableCollection<IO_INFunction_Table>(sts.PickerInList);
+            }
 
         }
         class FeederVM : ViewModelBase

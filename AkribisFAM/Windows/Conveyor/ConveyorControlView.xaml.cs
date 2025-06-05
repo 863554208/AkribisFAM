@@ -222,6 +222,13 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
+            foreach (var sts in stations)
+            {
+                sts.LifterInList = new ObservableCollection<IO_INFunction_Table>(sts.LifterInList);
+                sts.GateInList = new ObservableCollection<IO_INFunction_Table>(sts.GateInList);
+                sts.ConveyorInList = new ObservableCollection<IO_INFunction_Table>(sts.ConveyorInList);
+            }
+            
             //var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
             //Dispatcher.Invoke(() =>
             //{
