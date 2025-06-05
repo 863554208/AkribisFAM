@@ -787,7 +787,6 @@ namespace AkribisFAM.WorkStation
 
                     if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
                     {
-                        // TODO: Handle maximum retries exceeded
                         return ErrorManager.Current.Insert(ErrorCode.BarocdeScan_Failed, "ScanBarcode");
                     }
                 }
@@ -897,8 +896,8 @@ namespace AkribisFAM.WorkStation
                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"AkrAction.Current.MoveLaserXY({movePt.X}, {movePt.Y}, false)");
                     return -1;
                 }
-                startTime = DateTime.Now;
                 _laserMoveStep = 1; // Move to next step
+                startTime = DateTime.Now;
             }
 
             // WAIT FOR POSITION ARRIVAL
@@ -910,7 +909,7 @@ namespace AkribisFAM.WorkStation
                     if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                     {
                         _currentLaserPointIndex++;
-                        _laserMoveStep = 0;
+                        _laserMoveStep = 2;
                     }
                 }
                 else
@@ -926,7 +925,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.laser.Measure(out double res))
                 {
-                    ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double res)");
+                    ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double {res})");
                     return -1;
                 }
                 else
@@ -945,6 +944,7 @@ namespace AkribisFAM.WorkStation
         public override void ResetAfterPause()
         {
             startTime = DateTime.Now;
+            _BarcodeScanRetryCount = 0;
         }
 
         private class LaserPointData

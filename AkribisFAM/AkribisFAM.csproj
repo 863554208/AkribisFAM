@@ -188,6 +188,7 @@
     <Compile Include="DeviceClass\CognexVisionControl.cs" />
     <Compile Include="DeviceClass\FeederControl.cs" />
     <Compile Include="DeviceClass\KeyenceLaserControl.cs" />
+    <Compile Include="DeviceClass\LEDLightControl.cs" />
     <Compile Include="DeviceClass\RejectControl.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\AlgorithmHelper.cs" />
@@ -330,13 +331,10 @@
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\Conveyor.cs" />
     <Compile Include="WorkStation\Feeder.cs" />
-    <Compile Include="WorkStation\TEST2.cs" />
-    <Compile Include="WorkStation\TEST1.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
     <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
-    <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="Dict\AppResource_en_US.xaml">
       <Generator>MSBuild:Compile</Generator>

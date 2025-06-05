@@ -73,11 +73,11 @@ namespace AkribisFAM.DeviceClass
         }
         public bool UnlockAll()
         {
-            return Unlock(DoorNumber.Door1) && Unlock(DoorNumber.Door2) && Unlock(DoorNumber.Door3) && Unlock(DoorNumber.Door4);
+            return Unlock(DoorNumber.Door1) & Unlock(DoorNumber.Door2) & Unlock(DoorNumber.Door3) & Unlock(DoorNumber.Door4);
         }
         public bool LockAll()
         {
-            return Lock(DoorNumber.Door1) && Lock(DoorNumber.Door2) && Lock(DoorNumber.Door3) && Lock(DoorNumber.Door4);
+            return Lock(DoorNumber.Door1) & Lock(DoorNumber.Door2) & Lock(DoorNumber.Door3) & Lock(DoorNumber.Door4);
         }
     }
 

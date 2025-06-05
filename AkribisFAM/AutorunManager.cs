@@ -91,21 +91,7 @@ namespace AkribisFAM
 
                 }
 
-                if (ThreadTest1 == null /*|| !ThreadFeeder.IsAlive*/)
-                {
-                    ThreadTest1 = new Thread(() => RunAutoStation(TEST1.Current, CancelToken.Token)) { Name = "TEST1", Priority = ThreadPriority.Highest };
-                    ThreadTest1.IsBackground = true;
-                    //ThreadFeeder.Start();
-
-                }
-
-                if (ThreadTest2 == null /*|| !ThreadFeeder.IsAlive*/)
-                {
-                    ThreadTest2 = new Thread(() => RunAutoStation(TEST2.Current, CancelToken.Token)) { Name = "TEST2", Priority = ThreadPriority.Highest };
-                    ThreadTest2.IsBackground = true;
-                    //ThreadFeeder.Start();
-
-                }
+               
                 return true;
 
             }
