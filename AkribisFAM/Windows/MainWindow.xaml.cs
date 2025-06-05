@@ -615,6 +615,9 @@ namespace AkribisFAM
         //ResetButton 按住3秒才能触发
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+
+ 
+
             //isResetButtonTriggered = false;
             //resetPressStopwatch.Restart();
 
@@ -631,6 +634,13 @@ namespace AkribisFAM
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
+
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
+
             ErrorManager.Current.Clear();
             App.buzzer.EnableBeep = true;
         }

@@ -417,7 +417,7 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_4light2, 1);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
 
             //判断所有气缸缩回
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos, 1);
