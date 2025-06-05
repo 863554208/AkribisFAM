@@ -30,7 +30,7 @@
                 <StackPanel Orientation="Horizontal" Background="White"  HorizontalAlignment="Left"  Margin="20 0 ">
                     <Label Content="Conveyor" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
                     <RadioButton x:Name="btnMove" Content="Move" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnMove_Click"/>
-                    <RadioButton x:Name="btnSlowMove" Content="Slow Move" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnSlowMove_Click"/>
+                    <!--<RadioButton x:Name="btnSlowMove" Content="Slow Move" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnSlowMove_Click"/>-->
                     <RadioButton x:Name="btnStop" Content="Stop" Background="Red" Foreground="White" Width="100" Margin="3"   Style="{StaticResource MaterialDesignPaperButton}" Click="btnStop_Click"/>
                 </StackPanel>
             </Border>

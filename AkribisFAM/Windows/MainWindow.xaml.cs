@@ -1,27 +1,29 @@
-﻿using System;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
+using AkribisFAM.Util;
+using AkribisFAM.ViewModel;
+using AkribisFAM.Windows;
+using AkribisFAM.WorkStation;
+using MaterialDesignThemes.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
-using AkribisFAM.Windows;
-using AkribisFAM.Util;
-using System.Globalization;
-using System.Windows.Markup;
-using AkribisFAM.WorkStation;
-using AkribisFAM.Manager;
-using AkribisFAM.ViewModel;
-using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.GlobalManager;
-using System.Reflection;
+using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.WorkStation.AkrAction;
-using System.Linq;
+using static AkribisFAM.WorkStation.Conveyor;
 
 namespace AkribisFAM
 {
@@ -51,6 +53,8 @@ namespace AkribisFAM
         public MainWindow()
         {
             InitializeComponent();
+
+            App.buzzer.EnableBeep = true;
 
             // 创建定时器
             _timer = new DispatcherTimer();
@@ -210,7 +214,35 @@ namespace AkribisFAM
                 ConnectState();
                 if (ErrorManager.Current.IsAlarm)
                 {
-                    App.buzzer.BeepOn();
+                    if (!App.buzzer.BeepStatus && App.buzzer.EnableBeep)
+                    {
+                        App.buzzer.BeepOn();
+                        if (ErrorWindow == null)
+                        {
+                            ErrorWindow = new ErrorWindow();
+                            ErrorWindow.Closed += (s, args) => ErrorWindow = null; //窗口关闭时清空引用
+
+
+                            // 手动设置居中（相对于屏幕）
+                            var screenWidth = SystemParameters.PrimaryScreenWidth;
+                            var screenHeight = SystemParameters.PrimaryScreenHeight;
+                            var windowWidth = ErrorWindow.Width;
+                            var windowHeight = ErrorWindow.Height;
+
+                            ErrorWindow.Left = (screenWidth - windowWidth) / 2;
+                            ErrorWindow.Top = (screenHeight - windowHeight) / 2;
+
+                            ErrorWindow.Show();
+                        }
+                        else
+                        {
+                            if (ErrorWindow.WindowState == WindowState.Minimized)
+                            {
+                                ErrorWindow.WindowState = WindowState.Normal;
+                            }
+                            ErrorWindow.Activate(); // 激活已有窗口
+                        }
+                    }
                 }
                 if (IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_12Reset))
                 {
@@ -248,7 +280,8 @@ namespace AkribisFAM
             if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 1)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
-                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0) {
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0)
+                {
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 1);
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 0);
                 }
@@ -582,20 +615,35 @@ namespace AkribisFAM
         //ResetButton 按住3秒才能触发
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            isResetButtonTriggered = false;
-            resetPressStopwatch.Restart();
 
-            resetTimer = new DispatcherTimer();
-            resetTimer.Interval = TimeSpan.FromSeconds(1);
-            resetTimer.Tick += (s, args) =>
-            {
-                resetTimer.Stop();
-                isResetButtonTriggered = true;
-                ExecuteReset();
-            };
-            resetTimer.Start();
+ 
+
+            //isResetButtonTriggered = false;
+            //resetPressStopwatch.Restart();
+
+            //resetTimer = new DispatcherTimer();
+            //resetTimer.Interval = TimeSpan.FromSeconds(1);
+            //resetTimer.Tick += (s, args) =>
+            //{
+            //    resetTimer.Stop();
+            //    isResetButtonTriggered = true;
+            //    ExecuteReset();
+            //};
+            //resetTimer.Start();
         }
 
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
+
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 1);
+            Thread.Sleep(500);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
+
+            ErrorManager.Current.Clear();
+            App.buzzer.EnableBeep = true;
+        }
         private void ResetButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             resetTimer?.Stop();
@@ -609,14 +657,23 @@ namespace AkribisFAM
         }
         public bool PreRunCheck()
         {
-            if (!App.CioManager.IsSSR1Ok || App.CioManager.IsEmergencyStopTriggered)
+
+            var res1 = App.CioManager.IsSSR1Ok;
+            var res2 = App.CioManager.IsEmergencyStopOk;
+            if (!App.CioManager.IsEmergencyStopOk)
+            {
+                MessageBox.Show("E-Stop triggered!");
+                return false;
+            }
+
+            if (!App.CioManager.IsSSR1Ok)
             {
                 MessageBox.Show("E-Stop triggered!");
                 return false;
             }
             if (!App.CioManager.IsSSR2Ok)
             {
-                MessageBox.Show("Door is not locked");
+                MessageBox.Show("Door SSR is not reseted");
                 return false;
             }
             if (!App.CioManager.IsMainAirOn)
@@ -687,7 +744,7 @@ namespace AkribisFAM
 
 
             #region motor
-            if (!(AkrAction.Current.CheckAllAxisHomeCompleted(out bool res) != (int)ACTTION_ERR.NONE && res == true))
+            if (!(AkrAction.Current.CheckAllAxisHomeCompleted(out bool res) == (int)ACTTION_ERR.NONE && res == true))
             {
                 MessageBox.Show("Please home first before start process");
                 return false;
@@ -725,11 +782,6 @@ namespace AkribisFAM
                 return false;
             }
 
-            if (Conveyor.Current.MoveConveyorAll() != 0)
-            {
-                MessageBox.Show("Failed to move conveyor");
-                return false;
-            }
             #endregion
             //if (App.feeder1.IsDrawerInPos && App.feeder1.IsLock)
             //{
@@ -742,6 +794,7 @@ namespace AkribisFAM
             //    return false;
             //}
 
+         
             #region Feeder
             if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
             {
@@ -757,22 +810,49 @@ namespace AkribisFAM
                     MessageBox.Show("Failed to clear feeder 2 alarm");
                 }
             }
+            if (!(App.feeder1.IsDrawerInPos && App.feeder1.IsLock))
+            {
+                if (App.feeder1.IsDrawerInPos)
+                {
+                    App.feeder1.Lock();
+                    if (!App.feeder1.IsLock)
+                    {
+                        MessageBox.Show("Failed to lock feeder 1");
+                        return false;
+                    }
+                }
+            }
+            if (!(App.feeder2.IsDrawerInPos && App.feeder2.IsLock))
+            {
+                if (App.feeder2.IsDrawerInPos)
+                {
+                    App.feeder2.Lock();
+                    if (!App.feeder2.IsLock)
+                    {
+                        MessageBox.Show("Failed to lock feeder 2");
+                        return false;
+                    }
+                }
+            }
             if (!(App.feeder1.IsDrawerInPos && App.feeder1.IsLock) && !(App.feeder2.IsDrawerInPos && App.feeder2.IsLock))
             {
                 MessageBox.Show("Please at least lock one feeder and feed in material");
                 return false;
             }
+  
             #endregion
             return true;
         }
         public bool PreruncheckComplete()
         {
+
+            App.buzzer.Warn();
+
+
             AutorunManager.Current.IsPause = false;
             AutorunManager.Current.IsError = false;
             AutorunManager.Current.IsReset = true;
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_15FFU, 1);
-            App.buzzer.Warn();
             return true;
         }
         private void StartAutoRun_Click(object sender, RoutedEventArgs e)
@@ -781,7 +861,7 @@ namespace AkribisFAM
 
 
 
-            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true)
+            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
             {
                 Logger.WriteLog("Change from idle to running.");
 
@@ -808,7 +888,7 @@ namespace AkribisFAM
                 //测试用
                 GlobalManager.Current.isRun = true;
                 AutorunManager.Current.IsPause = false;
-                StartAutoRunButton.IsEnabled = false;
+                //StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
                 {
@@ -893,7 +973,7 @@ namespace AkribisFAM
                 AkrAction.Current.StopAllAxis();
                 AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
-                StartAutoRunButton.IsEnabled = true;
+                //StartAutoRunButton.IsEnabled = true;
             }
             else if (StateManager.Current.State == StateCode.MAINTENANCE)
             {
@@ -906,7 +986,7 @@ namespace AkribisFAM
                 AkrAction.Current.StopAllAxis();
                 AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
-                StartAutoRunButton.IsEnabled = true;
+                //StartAutoRunButton.IsEnabled = true;
             }
             else
             {
@@ -1000,6 +1080,10 @@ namespace AkribisFAM
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
             layer.Add(new PromptAdorner(button));
+
+            DoorIcon.Kind = App.door.IsAllLockTriggered ? PackIconKind.LockOutline : PackIconKind.LockOpenVariantOutline;
+            btnLock.Background = App.door.IsAllLockTriggered ? Brushes.Gray : Brushes.Gold;
+
         }
 
 
@@ -1124,13 +1208,19 @@ namespace AkribisFAM
 
         private void btnLock_Click(object sender, RoutedEventArgs e)
         {
-            ErrorManager.Current.Insert(ErrorCode.IOErr, "this is weird");
+            //ErrorManager.Current.Insert(ErrorCode.IOErr, "this is weird");
             //if (App.door.IsAllDoorLocked)
-            if (App.door.IsAllDoorLocked)
+            if (App.door.IsAllLockTriggered)
             {
                 if (!App.door.UnlockAll())
                 {
                     MessageBox.Show("Failed to unlock");
+                }
+                else
+                {
+                    //btnLock.Content = "Lock door";
+                    DoorIcon.Kind = PackIconKind.LockOpenVariantOutline;
+                    btnLock.Background = Brushes.Gold;
                 }
             }
             else
@@ -1139,8 +1229,16 @@ namespace AkribisFAM
                 {
                     MessageBox.Show("Failed to lock");
                 }
+                else
+                {
+                    //btnLock.Content = "Unlock door";
+                    DoorIcon.Kind = PackIconKind.LockOutline;
+                    btnLock.Background = Brushes.Gray;
+                }
             }
         }
+
+
     }
 
     internal class PromptableButton : Button

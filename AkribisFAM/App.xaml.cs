@@ -76,7 +76,7 @@ namespace AkribisFAM
             calib = new LoadCellCalibration();
             door = new DoorControl();
             reject = new RejectControl();
-            AkrAction.Current.SetSpeedMultiplier(100);
+            AkrAction.Current.SetSpeedMultiplier(10);
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
             //TODO

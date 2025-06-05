@@ -699,7 +699,6 @@ namespace AkribisFAM.WorkStation
         public int Step3()
         {
             Console.WriteLine("LaiLiao.Current.Step3()");
-
             GlobalManager.Current.current_Lailiao_step = 3;
 
             //激光测距
@@ -787,7 +786,6 @@ namespace AkribisFAM.WorkStation
 
                     if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
                     {
-                        // TODO: Handle maximum retries exceeded
                         return ErrorManager.Current.Insert(ErrorCode.BarocdeScan_Failed, "ScanBarcode");
                     }
                 }
@@ -898,21 +896,26 @@ namespace AkribisFAM.WorkStation
                     return -1;
                 }
                 _laserMoveStep = 1; // Move to next step
+                startTime = DateTime.Now;
             }
 
             // WAIT FOR POSITION ARRIVAL
             if (_laserMoveStep == 1)
             {
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
-                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                if ((startTime - DateTime.Now).TotalMilliseconds < 3000)
                 {
-                    _currentLaserPointIndex++;
-                    _laserMoveStep = 0;
+                    if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                    {
+                        _currentLaserPointIndex++;
+                        _laserMoveStep = 2;
+                    }
                 }
                 else
                 {
                     ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveLaserXYDone({movePt.X},{movePt.Y})");
                     return -1;
+
                 }
             }
 
@@ -921,7 +924,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.laser.Measure(out double res))
                 {
-                    ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double res)");
+                    ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double {res})");
                     return -1;
                 }
                 else
@@ -940,6 +943,7 @@ namespace AkribisFAM.WorkStation
         public override void ResetAfterPause()
         {
             startTime = DateTime.Now;
+            _BarcodeScanRetryCount = 0;
         }
 
         private class LaserPointData

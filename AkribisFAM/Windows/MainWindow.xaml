@@ -181,14 +181,20 @@
 
             <!-- 按钮组放在右边 -->
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="btnLock" Background="MediumPurple" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="DoorLock" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="btnLock_Click" />
+                <Button x:Name="btnLock" Background="Gray" Style="{StaticResource MaterialDesignRaisedLightButton}" 
+                         Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="btnLock_Click">
+                    <Viewbox>
+                        
+                    <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
+                    </Viewbox>
+                </Button>
 
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
-                <Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
+                <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>
                 <Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
-                <Button x:Name="PauseAutoRunButton" Background="Yellow" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-                <Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+                <Button x:Name="PauseAutoRunButton" Background="Gold" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
+                <Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Click="ResetButton_Click" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
                 <Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
                 <Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
             </StackPanel>

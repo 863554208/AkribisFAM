@@ -7,12 +7,12 @@ namespace AkribisFAM.DeviceClass
 
         public bool IsCover1Closed()
         {
-            return IOManager.Instance.ReadIO(IO_INFunction_Table.IN1_8NG_cover_plate1);
+            return !IOManager.Instance.ReadIO(IO_INFunction_Table.IN1_8NG_cover_plate1);
 
         }
         public bool IsCover2Closed()
         {
-            return IOManager.Instance.ReadIO(IO_INFunction_Table.IN1_9NG_cover_plate2);
+            return !IOManager.Instance.ReadIO(IO_INFunction_Table.IN1_9NG_cover_plate2);
 
         }
 

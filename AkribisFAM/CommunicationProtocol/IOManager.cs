@@ -66,7 +66,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT4_0Pneumatic_Claw_A,
         OUT4_1Pneumatic_Claw_B,
         OUT4_2Peeling_Recheck_vacuum1_Supply,
-        OUT4_3Peeling_Recheck_vacuum1_Release, //Remove, not in use
+        OUT4_3Machine_Reset,
         OUT4_4Reserve,
         OUT4_5Reserve,
         OUT4_6Reserve,
@@ -210,10 +210,10 @@ namespace AkribisFAM.CommunicationProtocol
         IN5_1Feeder_vacuum2_Pressure_feedback,
         IN5_2Feeder_vacuum3_Pressure_feedback,
         IN5_3Feeder_vacuum4_Pressure_feedback,
-        IN5_4Door_closed_lock1,
-        IN5_5Door_closed_lock2,
-        IN5_6Door_closed_lock3,
-        IN5_7Door_closed_lock4,
+        IN5_4Door_opened_lock1, // Only indicate door is closed, not locked
+        IN5_5Door_opened_lock2,
+        IN5_6Door_opened_lock3,
+        IN5_7Door_opened_lock4,
         IN5_8Run,
         IN5_9Stop,
         IN5_10Feeder1, //physical button input
@@ -243,7 +243,7 @@ namespace AkribisFAM.CommunicationProtocol
 
 
         IN7_0BOARD_AVAILABLE, // SMEMA
-        IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL, 
+        IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL,
         IN7_2MACHINE_READY_TO_RECEIVE,
         IN7_3Reserve,
         IN7_4Reserve,
@@ -444,8 +444,16 @@ namespace AkribisFAM.CommunicationProtocol
             }));
 
         }
-
-
+        //public bool ReadOutput(IO_OutFunction_Table output)
+        //{
+        //    bool IOstatusOut = false;
+        //    bool ret = ModbusTCPWorker.GetInstance().Read_Coil((int)output, ref IOstatusOut);
+        //    return ret? IOstatusOut : false;
+        //}
+        public bool GetOutputStatus(IO_OutFunction_Table output)
+        {
+            return OutIO_status[(int)output] == 0? true : false;
+        }
         public bool IO_ControlStatus(IO_OutFunction_Table iO_OutFunction_Table, int writestatus)
         {
 
@@ -453,16 +461,16 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 //if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
                 //{
-                    //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    //Logger.WriteLog(err);
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, true);
-                    if (!Sucessstatus)
-                    {
-                        return false;
-                    }
+                //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                //Logger.WriteLog(err);
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, true);
+                if (!Sucessstatus)
+                {
+                    return false;
+                }
 
-                    OutIO_status[(int)iO_OutFunction_Table] = 0;
-                    return true;
+                OutIO_status[(int)iO_OutFunction_Table] = 0;
+                return true;
                 //}
                 return true;
             }
@@ -471,16 +479,16 @@ namespace AkribisFAM.CommunicationProtocol
             {
                 //if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
                 //{
-                    //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    //Logger.WriteLog(err);
+                //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                //Logger.WriteLog(err);
 
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, false);
-                    if (!Sucessstatus)
-                    {
-                        return false;
-                    }
-                    OutIO_status[(int)iO_OutFunction_Table] = 1;
-                    return true;
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, false);
+                if (!Sucessstatus)
+                {
+                    return false;
+                }
+                OutIO_status[(int)iO_OutFunction_Table] = 1;
+                return true;
                 //}
                 //return true;
             }
@@ -490,11 +498,11 @@ namespace AkribisFAM.CommunicationProtocol
         {
             if (INIO_status[(int)index] == 0)
             {
-                return false;
+                return true;
             }
             else if (INIO_status[(int)index] == 1)
             {
-                return true;
+                return false;
             }
             else
             {

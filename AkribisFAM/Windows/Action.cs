@@ -506,7 +506,7 @@ namespace AkribisFAM.WorkStation
                 if (IsMotorInPos(yaxis, yPos))
                 {
                     return true;
-        }
+                }
             }
             return false;
         }
@@ -521,7 +521,7 @@ namespace AkribisFAM.WorkStation
                 {
                     return true;
                 }
-        }
+            }
             return false;
         }
 
@@ -995,8 +995,8 @@ namespace AkribisFAM.WorkStation
                 var z4speed = axisParamsArray[(int)AxisName.PICK4_Z].Velocity * speedmultiplier;
 
                 //start move 4Z 
-                if (MoveAbs(z1, z1pos, z1speed) != 0 || MoveAbs(z2, z2pos, z2speed) != 0 ||
-                    MoveAbs(z3, z3pos, z3speed) != 0 /*|| MoveAbs(z4, z4pos, z4speed) != 0*/)
+                if (MoveAbs(z1, z1pos, z1speed) != 0 || MoveAbs(z2, z2pos, z2speed) != 0 /*||
+                    MoveAbs(z3, z3pos, z3speed) != 0 || MoveAbs(z4, z4pos, z4speed) != 0*/)
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4Z motion done
@@ -1273,7 +1273,15 @@ namespace AkribisFAM.WorkStation
             int ret = 0;
             foreach (AxisName axisname in (AxisName[])Enum.GetValues(typeof(AxisName)))
             {
-                ret += EnableMotor(axisname, toenable);
+                if (axisname == AxisName.PICK3_Z || axisname == AxisName.PICK4_Z || axisname == AxisName.PICK3_T || axisname == AxisName.PICK4_T) // temporary
+                {
+                    ret += 0;
+                }
+                else
+                {
+
+                    ret += EnableMotor(axisname, toenable);
+                }
             }
             if (ret != 0)
             {
@@ -1307,20 +1315,53 @@ namespace AkribisFAM.WorkStation
             int ret = 0, total = 0;
             foreach (AxisName axisname in (AxisName[])Enum.GetValues(typeof(AxisName)))
             {
-                var agmIndex = (int)axisname / 8;
-                var axisRefNum = (int)axisname % 8;
-                var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
-                var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
-                var axis = controller.GetAxis(axisnum);
+                if (axisname == AxisName.PICK3_Z || axisname == AxisName.PICK4_Z || axisname == AxisName.PICK3_T || axisname == AxisName.PICK4_T //temporary
+                    || axisname == AxisName.BL1 || axisname == AxisName.BL2 || axisname == AxisName.BL3 || axisname == AxisName.BL4 || axisname == AxisName.BL5
+                    || axisname == AxisName.BR1 || axisname == AxisName.BR2 | axisname == AxisName.BR3 || axisname == AxisName.BR4 || axisname == AxisName.BR5)
+                {
+                    ret += 1;
+                    total++;
+                }
+                else
+                {
+                    var agmIndex = (int)axisname / 8;
+                    var axisRefNum = (int)axisname % 8;
+                    var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
+                    var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
+                    var axis = controller.GetAxis(axisnum);
+                    if (axis.HomingStat != 100)
+                    {
+                        Thread.Sleep(1);
+                    }
+                    ret += (axis.HomingStat == 100) ? 1 : 0;
+                    total++;
 
-                ret += (axis.HomingStat == 100) ? 1 : 0;
-                total++;
+                }
             }
 
             allEnable = (ret == total);
 
             return (int)ACTTION_ERR.NONE;
         }
+        //public int CheckAllAxisHomeCompleted(out bool allEnable)
+        //{
+        //    int ret = 0, total = 0;
+        //    foreach (AxisName axisname in (AxisName[])Enum.GetValues(typeof(AxisName)))
+        //    {
+        //        var agmIndex = (int)axisname / 8;
+        //        var axisRefNum = (int)axisname % 8;
+        //        var controller = AAmotionFAM.AGM800.Current.controller[agmIndex];
+        //        var axisnum = GlobalManager.Current.GetAxisRefFromInteger(axisRefNum);
+        //        var axis = controller.GetAxis(axisnum);
+
+        //        ret += (axis.HomingStat == 100) ? 1 : 0;
+        //        total++;
+        //    }
+
+        //    allEnable = (ret == total);
+
+        //    return (int)ACTTION_ERR.NONE;
+        //}
         /// <summary>
         /// Set Machine speed multiplier
         /// </summary>
