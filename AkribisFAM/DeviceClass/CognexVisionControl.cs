@@ -30,6 +30,7 @@ namespace AkribisFAM.DeviceClass
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
         List<SinglePoint> feedar1pointList = new List<SinglePoint>();
+        private List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> _feederVisionResult = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
         public enum FeederNum
         {
             Feeder1 = 1,
@@ -120,13 +121,17 @@ namespace AkribisFAM.DeviceClass
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
 
             ////接受Cognex的信息
-            List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
-            msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+            //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+            _feederVisionResult = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
 
-
-
-            Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
+            Logger.WriteLog("feedar飞拍接收到的消息为:" + _feederVisionResult[0].Errcode1);
             return true;
+        }
+
+        public bool IsAllFeederVisionOK()
+        {
+            var isAllFeederVisionOK = _feederVisionResult.All(x => x.Errcode1 == "1");
+            return isAllFeederVisionOK;
         }
 
         public bool Vision2OnTheFlyTrigger()

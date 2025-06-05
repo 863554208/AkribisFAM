@@ -238,9 +238,9 @@ namespace AkribisFAM.WorkStation
             var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4BInitialized_feeder2;
             return ReadIO(IO);
         }
-        private bool HasPartIn(FeederControl feeder)
+        public bool HasPartIn()
         {
-            var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2;
+            var IO = _feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2;
             return ReadIO(IO);
         }
         public void SetIO(IO_OutFunction_Table index, int value)

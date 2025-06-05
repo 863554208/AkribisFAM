@@ -13,7 +13,6 @@ namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
-        private static int _movestep = 0;
         private static int _laserMoveStep = 0;
         private static DateTime startTime = DateTime.Now;
         private bool _isProcessOngoing = false;

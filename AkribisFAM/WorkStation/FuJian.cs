@@ -14,7 +14,6 @@ namespace AkribisFAM.WorkStation
 {
     internal class FuJian : WorkStationBase
     {
-        private static int _movestep = 0;
         private static int _filmRemoveMovestep = 0;
         private static DateTime startTime = DateTime.Now;
         private static int _inspectMovestep = 0;
