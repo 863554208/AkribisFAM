@@ -1,12 +1,17 @@
-﻿using System;
+﻿using AAMotion;
+using AkribisFAM.Util;
+using AkribisFAM.Windows;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 using System.Xml.Serialization;
-using AAMotion;
-using AkribisFAM.Util;
 using static AAMotion.AAMotionAPI;
 using static AkribisFAM.GlobalManager;
 
@@ -22,6 +27,12 @@ namespace AkribisFAM.WorkStation
             MOTORALARM = 3,
             GTOUPERR = 4,
             ERR = -1
+        }
+        public enum Modules
+        {
+            LaiLiao,
+            ZuZhuang,
+            FuJian
         }
         public AkrAction()
         {
@@ -52,6 +63,8 @@ namespace AkribisFAM.WorkStation
         public OneAxisParams axisPrm;
         public OneAxisParams[] axisParamsArray = new OneAxisParams[Enum.GetValues(typeof(AxisName)).Cast<int>().Max() + 1];
         private double speedmultiplier = 1;
+        private CancellationTokenSource _cts;
+        private HomingWindow _homingWindow;
 
         #endregion
 
@@ -1377,6 +1390,206 @@ namespace AkribisFAM.WorkStation
         /// Return current speed multiplier in percentage (10 to 100%)
         /// </summary>
         public double CurrentSpeedMultiplier => speedmultiplier * 100;
+
+        /// <summary>
+        /// Performs the homing sequence for all machine axes concurrently.
+        /// Each axis homing method returns 0 on success or a negative value on failure.
+        /// Logs and reports the result of the homing sequence.
+        /// </summary>
+        public void StartSystemHome()
+        {
+            // Cancel any previous operations
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+
+            _homingWindow = new HomingWindow(() =>
+            {
+                CancelSystemHome();
+                _homingWindow?.Close();
+            });
+            _homingWindow.Topmost = true;
+            _homingWindow.Show();
+
+            Task.Run(() => SystemHome(_cts.Token));
+        }
+        /// <summary>
+        /// Cancels the ongoing system homing operation.
+        /// </summary>
+        public void CancelSystemHome()
+        {
+            _cts?.Cancel();
+        }
+        private async Task SystemHome(CancellationToken token)
+        {
+            try
+            {
+                // Do homing concurrently using Task.Run
+                Task<int> homeLaiLiao = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.LaiLiao, token));
+                Task<int> homeZuZhuang = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.ZuZhuang, token));
+                Task<int> homeFuJian = Task.Run(() => AkrAction.Current.HomeModule(AkrAction.Modules.FuJian, token));
+
+                // Wait for all to complete
+                int[] results = await Task.WhenAll(homeLaiLiao, homeZuZhuang, homeFuJian);
+
+                // Evaluate result codes, check if all homed successfully
+                bool allHomedSuccessfully = results.All(r => r == 0);
+
+                if (allHomedSuccessfully)
+                {
+                    Logger.WriteLog("SystemHome: All axes homed successfully.");
+                    MessageBox.Show("System homing completed successfully.", "Homing Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                }
+                else
+                {
+                    Logger.WriteLog("SystemHome: One or more axes failed to home:");
+                    for (int i = 0; i < results.Length; i++)
+                    {
+                        Logger.WriteLog($"  Axis {i + 1} result: {results[i]}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLog($"SystemHome: Exception occurred during homing - {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Homing of modules
+        /// </summary>
+        /// <param name="modules">Selected module to home</param>
+        /// <returns></returns>
+        public int HomeModule(Modules module, CancellationToken token)
+        {
+            // cancellation feature
+            int ret = 0;
+
+            // ENABLE ALL AXIS BY SPECIFIC MODULE
+            var axisList = GetAllAxisName(module);
+            foreach (var axis in axisList)
+            {
+                if (EnableMotor(axis, true) != 0)
+                {
+                    Logger.WriteLog($"HomeModule: Failed to enable motor {axis} for module {module}.");
+                    return -1;
+                }
+            }
+
+            switch (module)
+            {
+                case Modules.LaiLiao:
+                    // ABSOLUTE MOTOR NO HOMING, MOVE SAFE POSITION
+                    // Safe position is not yet available
+                    if (MoveLaserXY(0, 0) != 0)
+                    {
+                        Logger.WriteLog("HomeModule: Failed to move laser XY to (0,0) position.");
+                        return -1;
+                    }
+
+                    break;
+                case Modules.ZuZhuang:
+                    // MOVE Z HARDSTOP FIRST FOR SAFETY
+                    if (HomeAxisToHardstop(AxisName.PICK1_Z, false) != 0) return -1;
+                    if (HomeAxisToHardstop(AxisName.PICK2_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    //if (WaitHomingFinished(AxisName.PICK1_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
+
+                    // HOME XY
+                    if (HomeAxis(AxisName.FSX, true, true, false) != 0) return -1;
+                    if (HomeAxis(AxisName.FSY, true, true, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    //if (WaitHomingFinished(AxisName.FSX, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.FSY, token) != 0) return -1;
+
+                    // HOME Z
+                    if (HomeAxis(AxisName.PICK1_Z, false, true, false) != 0) return -1;
+                    if (HomeAxis(AxisName.PICK1_T, false, true, false) != 0) return -1;
+                    if (HomeAxis(AxisName.PICK2_Z, false, true, false) != 0) return -1;
+                    if (HomeAxis(AxisName.PICK2_T, false, true, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK3_T, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_Z, false) != 0) return -1;
+                    //if (Home(AxisName.PICK4_T, false) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    //if (WaitHomingFinished(AxisName.PICK1_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK1_T, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK2_T, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_T) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_T) != 0) return -1;
+                    break;
+                case Modules.FuJian:
+                    //// MOVE Z HARDSTOP FIRST FOR SAFETY
+                    //if (HomeToHardStop(AxisName.PRZ, token, 20000, false) != 0) return -1;
+                    if (MoveRecheckZ(0) != 0) return -1;
+
+                    // WAIT MOVE/HOMING TO FINISH
+                    //if (WaitMotionDone(AxisName.PRZ) != 0) return -1;
+
+                    // HOME XY
+                    if (MoveRecheckXY(0, 0) != 0) return -1;
+
+                    // WAIT HOMING TO FINISH
+                    //if (WaitHomingFinished(AxisName.PRX, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PRY, token) != 0) return -1;
+
+                    //// HOME Z First for safety
+                    //if (Home_v2(AxisName.PRZ, token, false) != 0) return -1;
+
+                    //// WAIT HOMING TO FINISH
+                    //if (WaitHomingFinished(AxisName.PRZ, token) != 0) return -1;
+
+                    break;
+                default:
+                    return -1;
+            }
+            return ret;
+        }
+
+        public List<GlobalManager.AxisName> GetAllAxisName(Modules module)
+        {
+            List<GlobalManager.AxisName> axisNames = new List<GlobalManager.AxisName>();
+            switch (module)
+            {
+                case Modules.LaiLiao:
+                    axisNames.Add(AxisName.LSX);
+                    axisNames.Add(AxisName.LSY);
+                    break;
+                case Modules.ZuZhuang:
+                    axisNames.Add(AxisName.FSX);
+                    axisNames.Add(AxisName.FSY);
+
+                    axisNames.Add(AxisName.PICK1_Z);
+                    axisNames.Add(AxisName.PICK1_T);
+                    axisNames.Add(AxisName.PICK2_Z);
+                    axisNames.Add(AxisName.PICK2_T);
+                    axisNames.Add(AxisName.PICK3_Z);
+                    axisNames.Add(AxisName.PICK3_T);
+                    axisNames.Add(AxisName.PICK4_Z);
+                    axisNames.Add(AxisName.PICK4_T);
+                    break;
+                case Modules.FuJian:
+                    axisNames.Add(AxisName.PRX);
+                    axisNames.Add(AxisName.PRY);
+                    axisNames.Add(AxisName.PRZ);
+                    break;
+                default:
+                    return null;
+            }
+            return axisNames;
+        }
+
+
         #endregion
         public int StopAllAxis()
         {

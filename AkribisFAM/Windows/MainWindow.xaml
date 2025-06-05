@@ -188,6 +188,16 @@
                     <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
                     </Viewbox>
                 </Button>
+                <Button x:Name="btnSystemHome"
+                        Background="Gray"
+                        Style="{StaticResource MaterialDesignRaisedLightButton}"
+                        Height="64"
+                        Width="140"
+                        FontWeight="Bold"
+                        Margin="0,0,10,0"
+                        Content="System Home"
+                        Click="btnSystemHome_Click">
+                </Button>
 
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">

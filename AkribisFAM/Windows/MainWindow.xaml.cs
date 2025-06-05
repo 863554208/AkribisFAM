@@ -963,12 +963,12 @@ namespace AkribisFAM
         {
             var a = GlobalManager.Current.stationPoints;
             GlobalManager.Current.IO_test1 = true;
-            TestBoardIn.IsEnabled = false;
+            //TestBoardIn.IsEnabled = false;
 
             // 等待 1 秒而不阻塞 UI 线程
             await Task.Delay(1000);
 
-            TestBoardIn.IsEnabled = true;
+            //TestBoardIn.IsEnabled = true;
         }
 
         //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
@@ -1260,8 +1260,13 @@ namespace AkribisFAM
             }
         }
 
-
-    }
+        private void btnSystemHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to system home?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                AkrAction.Current.StartSystemHome();
+            }
+        }
 
     internal class PromptableButton : Button
     {
