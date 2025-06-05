@@ -173,6 +173,15 @@ namespace AkribisFAM
         public int PalleteGap_Y = 40;
         public int TotalRow = 3;
         public int TotalColumn = 4;
+        public RunMode CurrentMode = RunMode.DryrunMode;
+
+
+        public enum RunMode
+        { 
+            ProductionMode,
+            DryrunMode,
+        
+        }
 
         public SinglePoint RecheckRecylePos = new SinglePoint();
         public SinglePoint SafeZPos = new SinglePoint();

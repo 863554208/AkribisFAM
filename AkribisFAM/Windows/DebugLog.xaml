@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="#FF77C0D1">
+    <Grid>
         <ListBox x:Name="MessageListView"  />
 
     </Grid>

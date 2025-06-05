@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Markup;
 using YamlDotNet.Serialization.NodeTypeResolvers;
 using static AkribisFAM.DeviceClass.AssemblyGantryControl;
@@ -57,6 +58,13 @@ namespace AkribisFAM.DeviceClass
             Picker2 = 2,
             Picker3 = 3,
             Picker4 = 4,
+        }
+        private double xOffset;
+
+        public double XOffset
+        {
+            get { return xOffset; }
+            set { xOffset = value; }
         }
 
 
@@ -181,36 +189,21 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            AxisName axis;
-            AxisSpeed speed;
+            SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
+            sp.Z = GlobalManager.Current.CurrentMode == RunMode.DryrunMode ? sp.Z / 2 : sp.Z;
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_Z;
-                    speed = AxisSpeed.PICK1_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ1(sp.Z) == 0;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_Z;
-                    speed = AxisSpeed.PICK2_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ2(sp.Z) == 0;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_Z;
-                    speed = AxisSpeed.PICK3_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ3(sp.Z) == 0;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_Z;
-                    speed = AxisSpeed.PICK4_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ4(sp.Z) == 0;
                 default:
                     return false;
             }
-
-            SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
-            return AkrAction.Current.Move(axis, sp.Z, (int)speed) == 0;
-
         }
 
         public bool ZLoadCellPosition(Picker picker)
@@ -220,37 +213,23 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
+            SinglePoint sp = ZuZhuang.Current.GetLoadCellPosition((int)picker);
+            sp.Z = 21.5;
             AxisName axis;
             AxisSpeed speed;
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_Z;
-                    speed = AxisSpeed.PICK1_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ1(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_Z;
-                    speed = AxisSpeed.PICK2_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ2(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_Z;
-                    speed = AxisSpeed.PICK3_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ3(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_Z;
-                    speed = AxisSpeed.PICK4_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ4(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
-
-            SinglePoint sp = ZuZhuang.Current.GetLoadCellPosition((int)picker);
-            sp.Z = 21.5;
-            return AkrAction.Current.Move(axis, sp.Z, (int)speed) == 0;
-
         }
 
         public static (double m, double c) CalculateLinearCoefficients(List<double> x, List<double> y) //x=newton, y=current
@@ -284,7 +263,9 @@ namespace AkribisFAM.DeviceClass
 
         public bool ZCamPosAll()
         {
-            return ZCamPos(Picker.Picker1) && ZCamPos(Picker.Picker2) && ZCamPos(Picker.Picker3) && ZCamPos(Picker.Picker4);
+            SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)Picker.Picker1);
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+
         }
         public bool ZCamPos(Picker picker)
         {
@@ -292,36 +273,21 @@ namespace AkribisFAM.DeviceClass
             {
                 return true;
             }
-
-            AxisName axis;
-            AxisSpeed speed;
+            SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)picker);
+            //AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z);
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_Z;
-                    speed = AxisSpeed.PICK1_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ1(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_Z;
-                    speed = AxisSpeed.PICK2_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ2(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_Z;
-                    speed = AxisSpeed.PICK3_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ3(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_Z;
-                    speed = AxisSpeed.PICK4_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ4(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
-
-            SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)picker);
-            return AkrAction.Current.Move(axis, sp.Z, (int)speed) == 0;
 
         }
         public bool IsBypass(Picker picker)
@@ -342,40 +308,25 @@ namespace AkribisFAM.DeviceClass
         }
         public bool ZSafe(Picker picker)
         {
-            AxisName axis;
-            AxisSpeed speed;
+            SinglePoint sp = ZuZhuang.Current.GetZSafePosition((int)picker);
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_Z;
-                    speed = AxisSpeed.PICK1_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ1(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_Z;
-                    speed = AxisSpeed.PICK2_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ2(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_Z;
-                    speed = AxisSpeed.PICK3_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ3(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_Z;
-                    speed = AxisSpeed.PICK4_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ4(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
 
-            SinglePoint sp = ZuZhuang.Current.GetZSafePosition((int)picker);
-            return AkrAction.Current.Move(axis, sp.Z, (int)speed) == 0;
-
         }
         public bool ZUpAll()
         {
-            return ZUp(Picker.Picker1) && ZUp(Picker.Picker2) && ZUp(Picker.Picker3) && ZUp(Picker.Picker4);
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(0, 0, 0, 0) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool MovePickPos(Picker pickerNum, int fovNum)
         {
@@ -384,14 +335,16 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint res1 = ZuZhuang.Current.GetPickPosition((int)pickerNum, (int)fovNum);
-
-            if (res1.X == 0 && res1.Y == 0 && res1.Z == 0)
+            if (!ZuZhuang.Current.GetPickPosition((int)pickerNum, fovNum, out SinglePoint point))
             {
                 return false;
             }
-            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-                AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
@@ -405,17 +358,18 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint res1 = ZuZhuang.Current.GetLoadCellPosition((int)pickerNum);
+            SinglePoint point = ZuZhuang.Current.GetLoadCellPosition((int)pickerNum);
 
-            if (res1.X == 0 && res1.Y == 0 && res1.Z == 0)
+            if (point.X == 0 && point.Y == 0 && point.Z == 0)
             {
                 return false;
             }
-            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 || AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
             }
+
             return true;
         }
         public bool MoveZLoadCellZPlacePosition(Picker pickerNum)
@@ -426,14 +380,13 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint res1 = ZuZhuang.Current.GetLoadCellPosition((int)pickerNum);
+            SinglePoint point = ZuZhuang.Current.GetLoadCellPosition((int)pickerNum);
 
-            if (res1.X == 0 && res1.Y == 0 && res1.Z == 0)
+            if (point.X == 0 && point.Y == 0 && point.Z == 0)
             {
                 return false;
             }
-            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-                AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
@@ -596,7 +549,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
 
             return true;
-            
+
         }
         public bool CallCalib(Picker picker)
         {
@@ -649,14 +602,14 @@ namespace AkribisFAM.DeviceClass
 
 
 
-            App.calib.NewtonCurrentList[(int)picker-1].Clear();
-            NewtonCurrent  data = new NewtonCurrent();
-            List<NewtonCurrent>  list = new List<NewtonCurrent>();
+            App.calib.NewtonCurrentList[(int)picker - 1].Clear();
+            NewtonCurrent data = new NewtonCurrent();
+            List<NewtonCurrent> list = new List<NewtonCurrent>();
             for (int i = 0; i < stepMultiply; i++)
             {
                 if (!IsCurrentMode(picker) && !SetCurrMode(picker))
                 {
-                        return false;
+                    return false;
                 }
                 IncreaseForce(axis, ((int)picker).ToString());
                 if (!GetData(axis, ((int)picker).ToString(), out data))
@@ -666,7 +619,7 @@ namespace AkribisFAM.DeviceClass
                 Thread.Sleep(200);
                 list.Add(data);
             }
-            
+
             var usefuldata = list.Where(x => x.Newton > 0.05).ToList();
             App.calib.NewtonCurrentList[(int)picker - 1] = usefuldata;
 
@@ -745,7 +698,7 @@ namespace AkribisFAM.DeviceClass
             return false;
         }
 
-    
+
 
         private void IncreaseForce(string axisCode, string pickerNum)
         {
@@ -818,7 +771,7 @@ namespace AkribisFAM.DeviceClass
         {
             AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNUm}11]=1", out string response5); // close agito
 
-         
+
             if (!WaitModeToPositionControl(axisCode))
             {
                 SetPositionMode(axisCode);
@@ -859,11 +812,12 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SinglePoint res1 = ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum);
-            if (AkrAction.Current.Move(AxisName.FSX, res1.X, (int)AxisSpeed.FSX, (int)AxisAcc.FSX) != 0 ||
-            AkrAction.Current.Move(AxisName.FSY, res1.Y, (int)AxisSpeed.FSY, (int)AxisAcc.FSY) != 0)
+           if (!ZuZhuang.Current.GetPlacePosition((int)pickerNum, fovNum, out SinglePoint point))
+            { 
+                return false; 
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
-
                 return false;
             }
             return true;
@@ -1024,35 +978,19 @@ namespace AkribisFAM.DeviceClass
                 return true;
             }
 
-            AxisName axis;
-            AxisSpeed speed;
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_T;
-                    speed = AxisSpeed.PICK1_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT1(angle) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_T;
-                    speed = AxisSpeed.PICK2_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT2(angle) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_T;
-                    speed = AxisSpeed.PICK3_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT3(angle) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_T;
-                    speed = AxisSpeed.PICK4_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT4(angle) != (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
-
-
-            return AkrAction.Current.Move(axis, angle, (int)speed) == 0;
         }
         public bool TZeroAll()
         {
@@ -1060,7 +998,9 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePickAll()
         {
-            return TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4);
+            return (GlobalManager.Current.CurrentMode == RunMode.DryrunMode || 
+                (TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) && 
+                TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4)));
         }
         public bool TCompensatePlaceAll()
         {
@@ -1068,7 +1008,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePick(Picker picker)
         {
-            if (ZuZhuang.Current.PlacePositions[((int)picker)] == null)
+            if (ZuZhuang.Current.PickPositions[((int)picker-1)] == null)
                 return true;
 
             if (IsBypass(picker))
@@ -1081,7 +1021,7 @@ namespace AkribisFAM.DeviceClass
 
         public bool TCompensatePlace(Picker picker)
         {
-            if (ZuZhuang.Current.PlacePositions[((int)picker)] == null)
+            if (ZuZhuang.Current.PlacePositions[((int)picker-1)] == null)
                 return true;
 
             if (IsBypass(picker))
@@ -1103,35 +1043,19 @@ namespace AkribisFAM.DeviceClass
                 return true;
             }
 
-            AxisName axis;
-            AxisSpeed speed;
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_T;
-                    speed = AxisSpeed.PICK1_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT1(0) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_T;
-                    speed = AxisSpeed.PICK2_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT2(0) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_T;
-                    speed = AxisSpeed.PICK3_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT3(0) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_T;
-                    speed = AxisSpeed.PICK4_T;
-                    break;
+                    return AkrAction.Current.MoveFoamT4(0) != (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
-
-
-            return AkrAction.Current.Move(axis, 0, (int)speed) == 0;
         }
         public bool ZUp(Picker picker)
         {
@@ -1139,34 +1063,19 @@ namespace AkribisFAM.DeviceClass
             {
                 return true;
             }
-            AxisName axis;
-            AxisSpeed speed;
             switch (picker)
             {
                 case Picker.Picker1:
-                    axis = AxisName.PICK1_Z;
-                    speed = AxisSpeed.PICK1_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ1(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-
-                    axis = AxisName.PICK2_Z;
-                    speed = AxisSpeed.PICK2_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ2(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-
-                    axis = AxisName.PICK3_Z;
-                    speed = AxisSpeed.PICK3_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ3(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-
-                    axis = AxisName.PICK4_Z;
-                    speed = AxisSpeed.PICK4_Z;
-                    break;
+                    return AkrAction.Current.MoveFoamZ4(0) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
-
-            return AkrAction.Current.Move(axis, 0, (int)speed) == 0;
 
         }
     }

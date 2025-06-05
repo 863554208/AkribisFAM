@@ -12,6 +12,7 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.DeviceClass;
+using AkribisFAM.WorkStation;
 
 namespace AkribisFAM
 {
@@ -45,7 +46,7 @@ namespace AkribisFAM
             StartConnectAGM800();
 
             ModbusTCPWorker.GetInstance().Connect();
-            IOManager.Instance.ReadIO_status();
+            IOManager.Instance.ReadIO_statusV2();
 
 
             //调试用
@@ -61,11 +62,23 @@ namespace AkribisFAM
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
+            assemblyGantryControl.XOffset = 16;
             filmRemoveGantryControl = new FilmRemoveGantryControl();
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
+            AkrAction.Current.SetSpeedMultiplier(100);
+            App.assemblyGantryControl.BypassPicker4 = true;
+            App.assemblyGantryControl.BypassPicker3 = true;
+            //TODO
+            //try
+            //{
+            //    // 初始化数据库连接
+            //    DatabaseManager.Initialize();
 
+            //20250530 测试mes的tcp连接 【史彦洋】 Start
+
+            //20250530 测试mes的tcp连接 【史彦洋】 End
 
             SetLanguage("en-US");
 

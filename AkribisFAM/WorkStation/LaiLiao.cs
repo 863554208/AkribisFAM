@@ -1,29 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Windows.Media;
-using AAMotion;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
-using static AAComm.Extensions.AACommFwInfo;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
-using System.CodeDom;
-using static AkribisFAM.CommunicationProtocol.KEYENCEDistance.Acceptcommand;
-using Microsoft.SqlServer.Server;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Sockets;
+using System.Collections.ObjectModel;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
+        private static int _movestep = 0;
+        private static int _laserMoveStep = 0;
+        private bool _isProcessOngoing = false;
+        private int _BarcodeScanRetryCount = 0;
+        private int _BarcodeScanRetryMax = 5;
+        private List<List<SinglePointExt>> _laserPoints = null; // List of laser points to measure
+        //private List<Point> _laserMoveList = new List<Point>(); // List of points to move the laser to
+        private List<LaserPointData> _laserPointData = new List<LaserPointData>();
 
         public enum LailiaoStep
         {
@@ -113,11 +111,11 @@ namespace AkribisFAM.WorkStation
         {
             if (IOManager.Instance.INIO_status[(int)index] == 0)
             {
-                return true;
+                return false;
             }
             else if (IOManager.Instance.INIO_status[(int)index] == 1)
             {
-                return false;
+                return true;
             }
             else
             {
@@ -263,14 +261,7 @@ namespace AkribisFAM.WorkStation
                     //var arr2 = new object[] { AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
 
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if(y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X , point.Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -296,14 +287,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 1) 
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X+ GlobalManager.Current.laserpoint1_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X+ GlobalManager.Current.laserpoint1_shift_X, 
+                        (int)point.Y+ GlobalManager.Current.laserpoint1_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -330,14 +315,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count %4 == 2)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint2_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
-
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
+                    int x_move = AkrAction.Current.MoveLaserXY ((int)point.X + GlobalManager.Current.laserpoint2_shift_X, 
+                        (int)point.Y + GlobalManager.Current.laserpoint2_shift_Y);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -364,14 +343,8 @@ namespace AkribisFAM.WorkStation
                 }
                 if (count % 4 == 3)
                 {
-                    int x_move = AkrAction.Current.Move(AxisName.LSX, (int)point.X + GlobalManager.Current.laserpoint3_shift_X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX);
-                    int y_move = AkrAction.Current.Move(AxisName.LSY, (int)point.Y + GlobalManager.Current.laserpoint3_shift_Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY);
+                    int x_move = AkrAction.Current.MoveLaserXY(point.X + GlobalManager.Current.laserpoint3_shift_X, point.Y + GlobalManager.Current.laserpoint3_shift_Y);
 
-                    if (x_move != 0) return x_move;
-                    CheckState(x_move);
-
-                    if (y_move != 0) return y_move;
-                    CheckState(y_move);
 
                     //int moveToPointX = MoveView.MovePTP(arr1);
                     //int moveToPointY = MoveView.MovePTP(arr2);
@@ -405,9 +378,76 @@ namespace AkribisFAM.WorkStation
 
         public void MoveConveyor(int vel)
         {
-            AkrAction.Current.MoveConveyor(vel);
+            AkrAction.Current.MoveAllConveyor();
         }
+        /// <summary>
+        /// Use this to get the list of teach points for fujian tearing process and refernce for vision capture
+        /// </summary>
+        /// <param name="type">Recipe Tray Type enum</param>
+        /// <param name="listOfPoints">List of SinglePoint Ext including the index, x, y, z, r</param>
+        /// <returns>True: Get teach points successfully , False : Failed to get teach points</returns>
 
+        public bool GetTeachPointList(TrayType type, out List<List<SinglePointExt>> listOfPoints)
+        {
+            listOfPoints = new List<List<SinglePointExt>>();
+            List<SinglePointExt> lsp = new List<SinglePointExt>();
+            
+            //Get teach points from recipe file
+            var stationsPoints = App.recipeManager.Get_RecipeStationPoints(type);
+            if (stationsPoints == null) 
+                return false;
+
+            //Read teach points named "Laser Points"
+            var laser = stationsPoints.LaiLiaoPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Laser Points"));
+            if (laser == null)
+            {
+                return false;
+            }
+
+            //Extract X,Y,Z,R data
+            lsp = laser.childList.Select((x, index) => new SinglePointExt
+            {
+                X = x.childPos[0],
+                Y = x.childPos[1],
+                Z = x.childPos[2],
+                R = x.childPos[3],
+                TeachPointIndex = index + 1
+            }).ToList();
+
+
+             var points = new List<SinglePointExt>(lsp);
+            var individualTeachPoint = new List<SinglePointExt>();
+            listOfPoints.Clear();
+            
+            //Compile list of points for measuring teach points.
+            foreach (var pt in points)
+            {
+                individualTeachPoint = new List<SinglePointExt>();
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + 0,
+                    Y = pt.Y + 0,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint1_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint1_shift_Y,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint2_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint2_shift_Y,
+                });
+                individualTeachPoint.Add(new SinglePointExt()
+                {
+                    X = pt.X + GlobalManager.Current.laserpoint3_shift_X,
+                    Y = pt.Y + GlobalManager.Current.laserpoint3_shift_Y,
+                });
+                listOfPoints.Add(individualTeachPoint);
+            }
+            return true;
+
+        }
         public void StopConveyor()
         {
             AkrAction.Current.StopConveyor();
@@ -707,123 +747,201 @@ namespace AkribisFAM.WorkStation
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }
+        private bool _isTrayReadyToProcess = false;
+        private int _currentLaserPointIndex = 0;
+
+        public void SetTrayReadyToProcess()
+        {
+            _isTrayReadyToProcess = true;
+        }
+        public bool IsProcessOngoing()
+        {
+            return _isProcessOngoing;
+        }
+        private void ProcessingDone()
+        {
+            _isProcessOngoing = false;
+            _isTrayReadyToProcess = false;
+        }
+        private void StartProcessing()
+        {
+            _isProcessOngoing = true;
+        }
 
         public override void AutoRun(CancellationToken token)
         {
-            try
+
+            // WAIT FOR TRAY IN POSITION
+            if (_movestep == 0) 
             {
-                while (true)
+                if (_isTrayReadyToProcess)
                 {
-                    //20250519 测试 【史彦洋】 追加 Start
-                    //Console.WriteLine("lailiao ceshi 1");
-                    //Thread.Sleep(1000);
-                    //continue;
+                    StartProcessing();
+                    _movestep = 1;
+                }
+            }
+            
+            // SCAN BARCODE
+            if (_movestep == 1)
+            {
+                if (App.scanner.ScanBarcode(out string result) == 0)
+                {
+                    _movestep = 2;
+                }
+                else
+                {
+                    _BarcodeScanRetryCount++;
+                    Logger.WriteLog($"Barcode scan failed. Retry count {_BarcodeScanRetryCount}");
 
-
-                    step1: bool ret = Step1();
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (!ret) continue;
-
-                    step2: 
-                        int ret2 = Step2();
-                        if (ret2 != 0)
-                        {
-                            ShowErrorMessage(ret2);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-                        if (GlobalManager.Current.IsByPass) goto step4;
-
-                    step3: 
-                        int ret3 = Step3();
-                        if(ret3 != 0)
-                        {
-                            ShowErrorMessage(ret3);
-                            break;
-                        }
-                        if (GlobalManager.Current.Lailiao_exit) break;
-
-                    //出板
-                    step4:
-                        Boardout();
-
-                    #region 老代码
-                    //if (GlobalManager.Current.lailiao_ChuFaJinBan)
-                    //{
-                    //    //TODO 执行进板
-                    //    GlobalManager.Current.lailiao_ChuFaJinBan = false;
-
-
-                    //    WorkState = 1;
-                    //    has_board = true;
-                    //    Console.WriteLine("检测到进板信号，已进板");
-                    //    GlobalManager.Current.lailiao_JinBanWanCheng = true;
-                    //}
-
-                    //// 处理板
-                    //if (has_board && WorkState == 1)
-                    //{
-                    //    try
-                    //    {
-                    //        //执行完才能改变workstatiion
-                    //        WorkState = 2;
-
-                    //        //TODO 扫码枪扫码
-                    //        System.Threading.Thread.Sleep(1000);
-                    //        OnJinBanExecuted?.Invoke();
-                    //        GlobalManager.Current.lailiao_SaoMa = true;
-                    //        Console.WriteLine("扫码枪扫码已完成");
-
-                    //        bool asd = false;
-                    //        //TODO 上传条码，等待HIVE返回该板是否组装的指令
-                    //        if (asd)
-                    //        {
-                    //            GlobalManager.Current.hive_Result = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            //TODO 基恩士激光测距
-                    //            System.Threading.Thread.Sleep(1000);
-                    //            GlobalManager.Current.lailiao_JiGuangCeJu = true;
-                    //            OnLaserExecuted.Invoke();
-                    //            Console.WriteLine("激光测距已完成");
-                    //        }
-
-                    //        WorkState = 3; // 更新状态为出板
-                    //    }
-                    //    catch (Exception ex)
-                    //    {
-                    //        has_error = true; // 标记为出错
-                    //        Console.WriteLine($"处理过程中发生异常: {ex.Message}");
-                    //    }
-                    //}
-
-                    //// 出板
-                    //if (WorkState == 3 || has_error)
-                    //{
-                    //    if (has_error)
-                    //    {
-                    //        AutorunManager.Current.isRunning = false;
-                    //    }
-                    //    System.Threading.Thread.Sleep(1000);
-                    //    OnMovePalleteExecuted.Invoke();
-                    //    WorkState = 0;
-                    //    has_board = false;
-                    //    Console.WriteLine("来料工站所有工序完成，流至下一工站");
-                    //    GlobalManager.Current.IO_test2 = true;
-                    //}
-
-                    #endregion
-
-                    System.Threading.Thread.Sleep(100);
+                    if (_BarcodeScanRetryCount >= _BarcodeScanRetryMax)
+                    {
+                        // TODO: Handle maximum retries exceeded
+                        return; // Exit the process
+                    }
+                    return; // Retry scanning
                 }
             }
 
-            catch (Exception ex)
+            // SEND REQUEST BARCODE DATA
+            if (_movestep == 2)
             {
-                AutorunManager.Current.isRunning = false;
-                ErrorReportManager.Report(ex);
+                if (true) // TODO: ADD SERVER REQUEST HERE
+                {
+                    _movestep = 3;
+                }
+                else
+                {
+
+                }
             }
+
+          
+
+            //// GET THE TEACH POINTS
+            //if (_movestep == 0)
+            //{
+            //    if (!GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+            //    {
+            //        ShowErrorMessage((int)ErrorCode.Laser_Failed);
+            //        return -1; // Failed to get teach points
+            //    }
+            //    _laserMoveStep = 1;
+            //}
+
+            // GET LASER TEACH POINTS
+            if (_movestep == 3)
+            {
+                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+                {
+                    _laserPointData.Clear(); // Clear previous laser point data
+                    foreach (var pointList in _laserPoints)
+                    {
+                        foreach (var point in pointList)
+                        {
+                            _laserPointData.Add(new LaserPointData
+                            {
+                                Point = point
+                            });
+                        }
+                    }
+                    _currentLaserPointIndex = 0; // Reset index for laser points
+                    Logger.WriteLog("Laser teach points loaded successfully.");
+                    _movestep = 4;
+                }
+                else
+                {
+                    Logger.WriteLog("Failed to load laser teach points.");
+                    return; // Exit the process
+                }
+            }
+
+            // RUN LASER MEASUREMENT SEQUENCE
+            if (_movestep == 4)
+            {
+                var laserSeqResult = LaserMeasureSequence(); // Returns 2 on sequence complete, -1 on error
+                if (laserSeqResult == 1)
+                {
+                    _movestep = 5;
+                }
+                else if (laserSeqResult == -1)
+                {
+                    // Error occurred during laser measurement
+                    return;
+                }
+            }
+            
+
+            // PROCESSING DONE
+            if (_movestep == 5)
+            {
+                ProcessingDone();
+
+                // Temporary, should be conveyor checking the stations status
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, true);
+
+                _movestep = 0; // Reset for next tray
+            }
+
+        }
+
+        /// <summary>
+        /// Laser measurement sequence logic.
+        /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
+        /// </summary>
+        /// <returns></returns>
+        private int LaserMeasureSequence()
+        {
+            // MOVE TO POSITION
+            if (_laserMoveStep == 0)
+            {
+                if (_currentLaserPointIndex >= _laserPointData.Count)
+                {
+                    return 1;
+                }
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                // Move to the laser point position
+                if(AkrAction.Current.MoveLaserXY(movePt.X, movePt.Y, false) != 0)
+                {
+                    // Error moving to position
+                    return -1;
+                }
+                _laserMoveStep = 1; // Move to next step
+            }
+
+            // WAIT FOR POSITION ARRIVAL
+            if (_laserMoveStep == 1)
+            {
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
+                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                {
+                    _currentLaserPointIndex++;
+                    _laserMoveStep = 0;
+                }
+                // TODO: Add a timeout mechanism here
+            }
+
+            // DO LASER MEASURE
+            if (_laserMoveStep == 2)
+            {
+                if (true) // Do laser measure
+                {
+                    // Log laser measurement result
+                    _laserMoveStep = 0; // Move back from the start
+                }
+                else
+                {
+                    return (int)ErrorCode.Laser_Failed; // Laser measure failed
+                }
+            }
+            return 0;
+        }
+
+        private class LaserPointData
+        {
+            public SinglePointExt Point { get; set; } // The point data
+            public int TeachPointIndex { get; set; }
+            public double? Measurement { get; set; } = null; // Measurement result from laser
+
         }
     }
 }

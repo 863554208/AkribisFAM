@@ -128,7 +128,7 @@ namespace AkribisFAM
             try
             {
                 Trace.WriteLine("Autorun Process");
-
+                Logger.WriteLog("Autorun Process Start");
                 Clear();
                 ParameterConfig.LoadPoints();
                 //打开力控
@@ -139,12 +139,13 @@ namespace AkribisFAM
                         
                     List<Task> tasks = new List<Task>();
 
-                    //tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(LaiLiao.Current, token)));
+                    tasks.Add(Task.Run(() => RunAutoStation(ZuZhuang.Current, token)));
                     tasks.Add(Task.Run(() => RunAutoStation(FuJian.Current, token)));
                     //tasks.Add(Task.Run(() => RunAutoStation(Reject.Current, token)));
-                    //tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
-
+                    tasks.Add(Task.Run(() => RunAutoStation(Conveyor.Current, token)));
+                    //tasks.Add(Task.Run(() => RunAutoStation(Feeder.Current, token)));
+                    
                     await Task.WhenAll(tasks);
                 }
                 catch (Exception ex) 
@@ -155,7 +156,7 @@ namespace AkribisFAM
             }
             catch (OperationCanceledException)
             {
-                Trace.WriteLine("自动运行被取消。");
+                Trace.WriteLine("AutoRun is Cancelled");
             }
             catch (Exception ex) 
             {
@@ -166,7 +167,7 @@ namespace AkribisFAM
             {
                 Trace.WriteLine("Final Process");
             }
-
+            Logger.WriteLog("Autorun Process End");
         }
 
         private bool IsSafe()
@@ -179,7 +180,7 @@ namespace AkribisFAM
             try
             {
 
-                while (isRunning)
+                while (isRunning && !token.IsCancellationRequested)
                 {
                     if (!IsSafe())
                     {
@@ -188,7 +189,7 @@ namespace AkribisFAM
 
                     station.AutoRun(token); 
 
-                    Thread.Sleep(50);
+                    Thread.Sleep(1);
                 }
             }
             catch (Exception ex)
@@ -307,7 +308,7 @@ namespace AkribisFAM
             //Conveyor.Current.AllWorkStopCylinderAct(1, 0);
             //return true;
 
-
+            AkrAction.Current.MoveAllConveyor();
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 0);
@@ -326,8 +327,8 @@ namespace AkribisFAM
             Thread.Sleep(300);
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
 
-            //AkrAction.Current.axisAllZAxisEnable(true);
-            Thread.Sleep(200);
+            //AkrAction.Current.axisAllZEnableMotor(true);
+            //Thread.Sleep(200);
 
 
             //先对Z轴hardstop回零
@@ -342,29 +343,31 @@ namespace AkribisFAM
             CylinderDown();
 
             //轴使能
-            AkrAction.Current.axisAllEnable(true);
+            AkrAction.Current.EnableAllMotors(true);
 
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response4);
             Thread.Sleep(300);
             //轴回原点
 
-            AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
+            //AkrAction.Current.axisAllHome("D:\\akribisfam_config\\HomeFile");
             //AkrAction.Current.axisAllTHome("D:\\akribisfam_config\\HomeFileT");
 
-            if (AkrAction.Current.WaitAllHomingFinished() != 0) return false;
+            //if (AkrAction.Current.CheckAllAxisHomeCompleted(out bool allEnabled) != (int)AkrAction.ACTTION_ERR.NONE) return false;
 
             //把旋转轴的当前位置作为0位置
-            AkrAction.Current.SetZeroAll();
+            //AkrAction.Current.SetZeroAll();
 
 
-            if (LaiLiao.Current.board_count != 0 || ZuZhuang.Current.board_count != 0 || FuJian.Current.board_count != 0 || Reject.Current.board_count != 0)
-            {
-                AkrAction.Current.MoveConveyor(100);
-                Thread.Sleep(3000);
-            }
+            //if (LaiLiao.Current.board_count != 0 || ZuZhuang.Current.board_count != 0 || FuJian.Current.board_count != 0 || Reject.Current.board_count != 0)
+            //{
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_6Stopping_Cylinder4_extend, 1);
+            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT2_7Stopping_Cylinder4_retract, 0);
+             
+            //    Thread.Sleep(3000);
+            //}
 
             //传送带停止
-            AkrAction.Current.StopConveyor();
+            //AkrAction.Current.StopConveyor();
 
 
             //激光测距复位(tcp)
@@ -399,16 +402,16 @@ namespace AkribisFAM
             //把所有阻挡气缸伸出
             Conveyor.Current.AllWorkStopCylinderAct(1, 0);
 
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
-            Thread.Sleep(500);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
-            Thread.Sleep(500);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
-            Thread.Sleep(500);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+            //Thread.Sleep(500);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+            //Thread.Sleep(500);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
+            //Thread.Sleep(500);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
 
-            AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
-            if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
+            //AkrAction.Current.axisAllZHome("D:\\akribisfam_config\\HomeFileZ");
+            //if (AkrAction.Current.WaitAllHomingZFinished() != 0) return false;
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
             Thread.Sleep(500);

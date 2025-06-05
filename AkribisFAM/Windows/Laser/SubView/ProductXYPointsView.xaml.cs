@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Windows.LaserHeighCheckView;
 using System.Windows;
+using System.Collections.Generic;
 
 namespace AkribisFAM.Windows
 {
@@ -22,18 +23,17 @@ namespace AkribisFAM.Windows
         {
             try
             {
-                var dc = (ObservableCollection<SinglePointExt>)DataContext;
+                var dc = (List<SinglePointExt>)DataContext;
                 foreach (var pts in dc)
                 {
 
-                    if (AkrAction.Current.MoveNoWait(AxisName.LSX, (int)pts.X, (int)AxisSpeed.LSX, (int)AxisAcc.LSX) != 0 ||
-                    AkrAction.Current.Move(AxisName.LSY, (int)pts.Y, (int)AxisSpeed.LSY, (int)AxisAcc.LSY) != 0)
+                    if (AkrAction.Current.MoveLaserXY(pts.X, pts.Y) != (int)AkrAction.ACTTION_ERR.NONE)
                     {
                         System.Windows.Forms.MessageBox.Show("Failed to move position");
                         return;
                     }
 
-                    if (!App.laser.Measure(out int readout))
+                    if (!App.laser.Measure(out double readout))
                     {
                         System.Windows.Forms.MessageBox.Show("Failed to measure");
                         return;

@@ -183,7 +183,7 @@ namespace AkribisFAM.Windows
                     DateTime time = DateTime.Now;
                     try
                     {
-                        AkrAction.Current.axisEnable(axisName, true);
+                        AkrAction.Current.EnableMotor(axisName, true);
                         AAMotionAPI.Home(AAmotionFAM.AGM800.Current.controller[agmIndex], GlobalManager.Current.GetAxisRefFromInteger(axisRefNum), path);
                         while (AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).HomingStat != 100)
                         {
@@ -277,7 +277,7 @@ namespace AkribisFAM.Windows
                 tbNowPos.Text = axis.nowPos.ToString();
                 tbTargetPos.Text = axis.tarpos.ToString();
                 tbAxisVel.Text = axis.vel.ToString();
-                IsAxisEnable.IsChecked = axis.AxisStat[0];
+                IsEnableMotor.IsChecked = axis.AxisStat[0];
 
                 if (axis.AxisStat.Count < statList.Count)
                 {
@@ -402,7 +402,9 @@ namespace AkribisFAM.Windows
             //AkrAction.Current.Move(axis, posValue, velValue, accValue);
             await Task.Run(() =>
             {
-                AkrAction.Current.Move(axis, posValue, velValue, accValue);
+                //AkrAction.Current.Move(axis, posValue, velValue, accValue); //remove this feature later
+
+                AkrAction.Current.MoveAbs(axis, posValue, velValue);
             });
         }
 
@@ -430,11 +432,11 @@ namespace AkribisFAM.Windows
             AxisName axis = GlobalManager.Current.GetAxisNameFromInteger(nowAxisIndex+1);
             if (btn != null && btn.IsChecked == true)
             {
-                AkrAction.Current.axisEnable(axis, true);
+                AkrAction.Current.EnableMotor(axis, true);
             }
             else
             {
-                AkrAction.Current.axisEnable(axis, false);
+                AkrAction.Current.EnableMotor(axis, false);
             }
         }
         private void ToggleAllButton_Click(object sender, RoutedEventArgs e)
@@ -443,11 +445,11 @@ namespace AkribisFAM.Windows
             var btn = sender as System.Windows.Controls.Primitives.ToggleButton;
             if (btn != null && btn.IsChecked == true)
             {
-                AkrAction.Current.axisAllEnable(true);
+                AkrAction.Current.EnableAllMotors(true);
             }
             else
             {
-                AkrAction.Current.axisAllEnable(false);
+                AkrAction.Current.EnableAllMotors(false);
             }
         }
 
