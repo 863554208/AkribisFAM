@@ -66,7 +66,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT4_0Pneumatic_Claw_A,
         OUT4_1Pneumatic_Claw_B,
         OUT4_2Peeling_Recheck_vacuum1_Supply,
-        OUT4_3Peeling_Recheck_vacuum1_Release, //Remove, not in use
+        OUT4_3Machine_Reset,
         OUT4_4Reserve,
         OUT4_5Reserve,
         OUT4_6Reserve,
@@ -210,10 +210,10 @@ namespace AkribisFAM.CommunicationProtocol
         IN5_1Feeder_vacuum2_Pressure_feedback,
         IN5_2Feeder_vacuum3_Pressure_feedback,
         IN5_3Feeder_vacuum4_Pressure_feedback,
-        IN5_4Door_closed_lock1, // Only indicate door is closed, not locked
-        IN5_5Door_closed_lock2,
-        IN5_6Door_closed_lock3,
-        IN5_7Door_closed_lock4,
+        IN5_4Door_opened_lock1, // Only indicate door is closed, not locked
+        IN5_5Door_opened_lock2,
+        IN5_6Door_opened_lock3,
+        IN5_7Door_opened_lock4,
         IN5_8Run,
         IN5_9Stop,
         IN5_10Feeder1, //physical button input
