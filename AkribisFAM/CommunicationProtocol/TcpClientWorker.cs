@@ -38,6 +38,26 @@ namespace AkribisFAM.CommunicationProtocol
         {
             return Task.Run(new Action(() =>
             {
+                lock (socketLock)//判断Socket是否有之前的soket连接成功
+                {
+                    if (socket != null)
+                    {
+                        if (socket.Connected) { return; };
+                        
+                        try
+                        {
+                            socket?.Shutdown(SocketShutdown.Both); // 关闭连接
+                        }
+                        catch { }
+                        try
+                        {
+                            socket?.Close();
+                        }
+                        catch { }  // 关闭socket
+                        socket = null;  // 清空socket
+                    }
+                }
+
                 int retryCount = 0;
                 const int maxRetries = 5;//重新连接最大次数
                 while (true)
@@ -83,7 +103,7 @@ namespace AkribisFAM.CommunicationProtocol
         // 消息接收循环
         private void ReceiveLoop()
         {
-           
+
             byte[] buffer = new byte[4096];  // 接收消息的缓冲区
             try
             {
@@ -106,6 +126,10 @@ namespace AkribisFAM.CommunicationProtocol
                     {
                         //Console.WriteLine($"[{host}:{port}] Server closed connection.");
                         //Logger.WriteLog($"[{host}:{port}] Server closed connection.");//该服务器关闭连接
+                        if (!isRunning)
+                        {
+                            return;
+                        }
                         Reconnect();  // 如果服务器关闭连接，则尝试重连
                         break;
                     }
@@ -113,8 +137,12 @@ namespace AkribisFAM.CommunicationProtocol
             }
             catch (Exception ex)
             {
-               // Logger.WriteLog($"[{host}:{port}] Receive error: {ex.Message}");
+                // Logger.WriteLog($"[{host}:{port}] Receive error: {ex.Message}");
                 //Console.WriteLine($"[{host}:{port}] Receive error: {ex.Message}");
+                if (!isRunning)
+                {
+                    return;
+                }
                 Reconnect();  // 如果接收出错，尝试重连
             }
         }
