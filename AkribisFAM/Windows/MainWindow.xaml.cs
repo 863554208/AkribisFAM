@@ -662,20 +662,20 @@ namespace AkribisFAM
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-
+            App.CioManager.ResetMachine();
             ErrorManager.Current.Clear();
             App.buzzer.EnableBeep = true;
         }
         private void ResetButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            resetTimer?.Stop();
-            resetPressStopwatch.Stop();
+            //resetTimer?.Stop();
+            //resetPressStopwatch.Stop();
 
             // 如果松开太早，提示用户
-            if (!isResetButtonTriggered)
-            {
-                MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
-            }
+            //if (!isResetButtonTriggered)
+            //{
+            //    MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
+            //}
         }
         public bool PreRunCheck()
         {
@@ -963,12 +963,12 @@ namespace AkribisFAM
         {
             var a = GlobalManager.Current.stationPoints;
             GlobalManager.Current.IO_test1 = true;
-            TestBoardIn.IsEnabled = false;
+            //TestBoardIn.IsEnabled = false;
 
             // 等待 1 秒而不阻塞 UI 线程
             await Task.Delay(1000);
 
-            TestBoardIn.IsEnabled = true;
+            //TestBoardIn.IsEnabled = true;
         }
 
         //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
@@ -1260,7 +1260,18 @@ namespace AkribisFAM
             }
         }
 
-
+        private void btn_Click(object sender, RoutedEventArgs e)
+        {
+            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Orange);
+            Thread.Sleep(1000);
+            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Red);
+            Thread.Sleep(1000);
+            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Yellow);
+            Thread.Sleep(1000);
+            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Green);
+            Thread.Sleep(1000);
+            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Default);
+        }
     }
 
     internal class PromptableButton : Button

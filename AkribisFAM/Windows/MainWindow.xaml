@@ -197,6 +197,7 @@
                 <Button x:Name="ResetButton" Background="DeepSkyBlue" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Click="ResetButton_Click" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
                 <Button x:Name="IdleButton" Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
                 <Button x:Name="MaintenanceButton"  Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
+                <Button x:Name="btn"   Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="btn_Click"/>
             </StackPanel>
             <!--<Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
             <Button Content="testFeipai2" HorizontalAlignment="Left" Margin="349,0,0,0" VerticalAlignment="Center" Height="37" Width="80" Click="TestFeiPai_Click"/>-->

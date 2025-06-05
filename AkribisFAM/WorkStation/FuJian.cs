@@ -670,7 +670,7 @@ namespace AkribisFAM.WorkStation
             {
                 if ((DateTime.Now - startTime).TotalMilliseconds <= 5000)
                 {
-                    if (!AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
+                    if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
                     {
                         _filmRemoveMovestep = 15;
                     }
@@ -765,7 +765,7 @@ namespace AkribisFAM.WorkStation
             // WAIT GRIPPER OPEN
             if (_filmRemoveMovestep == 20)
             {
-                if ((DateTime.Now - startTime).TotalMilliseconds <= 5000)
+                if ((DateTime.Now - startTime).TotalMilliseconds <= 10000)
                 {
                     if (App.filmRemoveGantryControl.IsClawOpen())
                     {
@@ -808,7 +808,7 @@ namespace AkribisFAM.WorkStation
             {
                 if ((DateTime.Now - startTime).TotalMilliseconds <= 5000)
                 {
-                    if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
+                    if (AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
                     {
                         _filmRemoveMovestep = 24;
 

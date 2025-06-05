@@ -769,7 +769,7 @@ namespace AkribisFAM.WorkStation
                                     //if (ReadIO(IO_INFunction_Table.IN1_0Slowdown_Sign1))
                                     //{
                                     //}
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= 5000)
+                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= 5000000)
                                     {
                                         //if detect tray
                                         if (TrayPresenceCheck(currentstation))

@@ -212,15 +212,15 @@ namespace AkribisFAM
                 {
                     LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
                 }
-                if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
-                {
-                    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    ThreadFoamAssembly.Start();
-                }
-                else
-                {
-                    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
-                }
+                //if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
+                //{
+                //    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                //    ThreadFoamAssembly.Start();
+                //}
+                //else
+                //{
+                //    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                //}
                 if (ThreadRecheck != null && !ThreadRecheck.IsAlive)
                 {
                     FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
@@ -231,15 +231,15 @@ namespace AkribisFAM
                     FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
                 }
 
-                if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
-                {
-                    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    ThreadFeeder.Start();
-                }
-                else
-                {
-                    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
-                }
+                //if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
+                //{
+                //    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                //    ThreadFeeder.Start();
+                //}
+                //else
+                //{
+                //    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                //}
 
 
                 //if (ThreadTest1 != null && !ThreadTest1.IsAlive)

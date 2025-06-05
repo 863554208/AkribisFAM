@@ -462,7 +462,7 @@ namespace AkribisFAM.WorkStation
             var currentpos = ToMilimeter(axisName, axis.Pos);
             startTime = DateTime.Now;
             timeoutDuration = TimeSpan.FromSeconds(3);
-            while (Math.Abs(checkpos - currentpos) > 0.05)
+            while (Math.Abs(checkpos - currentpos) > 0.1)
             {
                 if (DateTime.Now - startTime > timeoutDuration)
                 {

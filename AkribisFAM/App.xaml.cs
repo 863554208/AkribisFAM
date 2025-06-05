@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
-using System.Windows;
-using AAMotion;
+﻿using AAMotion;
+using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.DeviceClass;
+using AkribisFAM.Interfaces;
 using AkribisFAM.Manager;
 using AkribisFAM.Windows;
-using AkribisFAM.CommunicationProtocol;
-using Newtonsoft.Json.Linq;
-using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.Interfaces;
-using System.IO;
-using AkribisFAM.DeviceClass;
 using AkribisFAM.WorkStation;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Threading;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Media.Media3D;
+using static AkribisFAM.Manager.StateManager;
 
 namespace AkribisFAM
 {
@@ -37,6 +39,7 @@ namespace AkribisFAM
         public static RejectControl reject;
         public static BuzzerControl buzzer;
         public static DoorControl door;
+        public static LEDLightControl light;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -75,6 +78,9 @@ namespace AkribisFAM
             filmRemoveGantryControl.YOffset = 56.3;
             calib = new LoadCellCalibration();
             door = new DoorControl();
+            light = new LEDLightControl();
+            light.SystemLightON();
+
             reject = new RejectControl();
             AkrAction.Current.SetSpeedMultiplier(10);
             App.assemblyGantryControl.BypassPicker4 = true;
