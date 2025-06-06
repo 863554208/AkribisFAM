@@ -18,7 +18,6 @@ using System.Windows.Shapes;
 using AkribisFAM.CommunicationProtocol;
 using static System.Windows.Forms.AxHost;
 using System.Collections;
-using AkribisFAM.CommunicationProtocol;
 using System.ComponentModel.Design;
 using System.Reflection;
 using System.Windows.Threading;
@@ -35,64 +34,11 @@ namespace AkribisFAM.Windows
     {
 
         private Dictionary<string, int> OutputIOPairs { get; set; }
-        private Dictionary<int, Rectangle> InputIOPairs { get; set; }
+        private Dictionary<string ,int> InputIOPairs { get; set; }
 
         public IOConfigure()
         {
             InitializeComponent();
-            for (int i = 0; i < 112; i++)
-            {
-                Rectangle rectangle = this.FindName($"IN{i}") as Rectangle;
-                rectangle.Width = 120;
-                rectangle.Height = 50;
-                ((TextBlock)this.FindName($"Text_IN{i}")).HorizontalAlignment = HorizontalAlignment.Center;
-                ((TextBlock)this.FindName($"Text_IN{i}")).VerticalAlignment = VerticalAlignment.Center;
-                ((TextBlock)this.FindName($"Text_IN{i}")).Width = 70;
-                ((TextBlock)this.FindName($"Text_IN{i}")).Height = 50;
-                ((TextBlock)this.FindName($"Text_IN{i}")).FontSize = 12;
-                ((TextBlock)this.FindName($"Text_IN{i}")).TextAlignment = TextAlignment.Center;
-                //rect.RadiusX = 10;
-                //rect.RadiusY = 10;
-                // ((TextBlock)this.FindName($"Text_IN{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
-
-                Button button = this.FindName($"Out{i}") as Button;
-                button.Width = 120;
-                button.Height = 53;
-                button.BorderBrush = Brushes.Black;
-                button.BorderThickness = new Thickness(1);
-
-                // 创建圆角模板
-                ControlTemplate template = new ControlTemplate(typeof(Button));
-                FrameworkElementFactory border = new FrameworkElementFactory(typeof(Border));
-                border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Button.BackgroundProperty));
-                border.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Button.BorderBrushProperty));
-                border.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Button.BorderThicknessProperty));
-                border.SetValue(Border.CornerRadiusProperty, new CornerRadius(5)); // 设置圆角半径
-
-                FrameworkElementFactory contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
-                contentPresenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
-                contentPresenter.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
-                border.AppendChild(contentPresenter);
-
-                template.VisualTree = border;
-                button.Template = template;
-
-
-
-
-
-
-
-                ((TextBlock)this.FindName($"Textout{i}")).HorizontalAlignment = HorizontalAlignment.Center;
-                ((TextBlock)this.FindName($"Textout{i}")).VerticalAlignment = VerticalAlignment.Center;
-                ((TextBlock)this.FindName($"Textout{i}")).Width = 70;
-                ((TextBlock)this.FindName($"Textout{i}")).Height = 30;
-                ((TextBlock)this.FindName($"Textout{i}")).FontSize = 12;
-                ((TextBlock)this.FindName($"Textout{i}")).TextAlignment = TextAlignment.Center;
-                //((TextBlock)this.FindName($"Textout{i}")).TextWrapping = TextWrapping.WrapWithOverflow;
-            }
-
-
 
             // 初始化字典
             OutputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 }}
@@ -101,14 +47,52 @@ namespace AkribisFAM.Windows
                 OutputIOPairs.Add($"Out{(int)outitem}", (int)outitem);
             }
 
-            InputIOPairs = new Dictionary<int, Rectangle> { };//{{ 1, IN1 } };
+            InputIOPairs = new Dictionary<string, int> { };//{{ "button1",1 } };
             foreach (IO_INFunction_Table initem in Enum.GetValues(typeof(IO_INFunction_Table)))
             {
-                InputIOPairs.Add((int)initem, this.FindName($"IN{(int)initem}") as Rectangle);
+                InputIOPairs.Add($"IN{(int)initem}", (int)initem);
             }
+
 
             Task task1 = new Task(UpdateUI_IO);
             task1.Start();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 创建样式
+            Style derivedStyle = new Style(typeof(Button), (Style)FindResource("RoundCornerButton"));
+            // 遍历窗口中的所有按钮并应用样式
+            ApplyStyleToButtons(this, derivedStyle);
+        }
+
+        private void ApplyStyleToButtons(DependencyObject parent, Style style)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is Button button)
+                {
+                    button.Style = style;
+                    button.Width = double.NaN;
+                    button.Height = 55;
+                    button.HorizontalAlignment = HorizontalAlignment.Stretch;
+                    button.VerticalAlignment = VerticalAlignment.Center;
+                }
+
+                if (child is TextBlock textblock)
+                {
+                    textblock.Width = 120;
+                    textblock.Height = 50;
+                    textblock.HorizontalAlignment = HorizontalAlignment.Center;
+                    textblock.VerticalAlignment = VerticalAlignment.Center;
+                    textblock.TextAlignment = TextAlignment.Justify;
+                }
+
+                // 递归查找子元素
+                ApplyStyleToButtons(child, style);
+            }
         }
 
         private void UpdateUI_IO()
@@ -117,37 +101,35 @@ namespace AkribisFAM.Windows
             {
                 foreach (var Inkvp in InputIOPairs)//ShowInputIO
                 {
-                    var InputIOPairskey = Inkvp.Key;
-                    var rect = Inkvp.Value;
-                    ShowChangeInIOState(rect, IOManager.Instance.INIO_status[InputIOPairskey] ? 1 : 0);
+                    var inbuttonname = Inkvp.Key;
+                    var InputIOPairskey = Inkvp.Value;
+                    ShowChangeInIOState(inbuttonname, IOManager.Instance.INIO_status[InputIOPairskey]);
                 }
 
                 foreach (var Outkvp in OutputIOPairs)//ShowOutputIO
                 {
                     var buttonname = Outkvp.Key;
                     var OutputIOPairsvalue = Outkvp.Value;
-                    ShowChangeOutIOState(buttonname, IOManager.Instance.OutIO_status[OutputIOPairsvalue] ? 1 : 0);
+                    ShowChangeOutIOState(buttonname, IOManager.Instance.OutIO_status[OutputIOPairsvalue]);
                 }
                 Thread.Sleep(200);
             }
         }
 
-        private void ShowChangeInIOState(Rectangle rect, int state)
+        private void ShowChangeInIOState(string inbuttonname, int state)
         {
-            if (state == 1)
+            this.Dispatcher.BeginInvoke(new Action(() =>
             {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                Button button = this.FindName(inbuttonname) as Button;
+                if (state == 0)
                 {
-                    rect.Fill = new SolidColorBrush(Colors.LightGreen);
-                }));
-            }
-            else
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF4ECE4E"));//#FF4ECE4E
+                }
+                else
                 {
-                    rect.Fill = new SolidColorBrush(Colors.LightGray);
-                }));
-            }
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF919791"));//#FF919791
+                }
+            }));
         }
 
         private void ShowChangeOutIOState(string ButtonName, int state)
@@ -155,22 +137,43 @@ namespace AkribisFAM.Windows
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 Button button = this.FindName(ButtonName) as Button;
-                if (state == 1)
+                if (state == 0)
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGreen);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF4ECE4E"));//#FF4ECE4E
                 }
                 else
                 {
-                    button.Background = new SolidColorBrush(Colors.LightGray);
+                    button.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF919791"));//#FF919791
                 }
             }));
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         bool IO_Clickstatus = true;
-        private async void Out_Click(object sender, RoutedEventArgs e)
+        private async void Out_Click(object sender, RoutedEventArgs e)//单独触发点亮IO
         {
-            //((Button)sender).text
-            //Logger.WriteLog($"{ }")
             if (IO_Clickstatus)
             {
                 IO_Clickstatus = false;
@@ -202,8 +205,7 @@ namespace AkribisFAM.Windows
                         IO_OutFunction_Table outEnum = (IO_OutFunction_Table)Enum.ToObject(typeof(IO_OutFunction_Table), index);
                         try
                         {
-                            bool currentStatus = IOManager.Instance.OutIO_status[(int)outEnum];
-                            IOManager.Instance.IO_ControlStatus(outEnum, currentStatus ? 0 : 1);
+                            IOManager.Instance.IO_ControlStatus(outEnum, IOManager.Instance.OutIO_status[(int)outEnum]);
                             return;
                         }
                         catch (Exception ex)

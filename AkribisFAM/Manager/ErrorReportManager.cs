@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AkribisFAM.Util;
-using AkribisFAM.ViewModel;
-using AkribisFAM.WorkStation;
+using System.Collections.ObjectModel;
 
 namespace AkribisFAM.Manager
 {
-    public enum ErrorCode { 
+    public enum ErrorCode
+    {
         NoError = 0x0000,
         //hardware
         AGM800Disconnect = 0x1000,
@@ -26,6 +18,7 @@ namespace AkribisFAM.Manager
         FeederErr = 0x8000,
         LaserErr = 0x9000,
         HardwareErr = 0xA000,
+        ProcessErr = 0xB000,
         //operation
         FeederEmpty = 0x0100,
         DoorOpened = 0x0200,
@@ -33,39 +26,80 @@ namespace AkribisFAM.Manager
         CCD1DataErr = 0x0400,
         CCD2DataErr = 0x0500,
         CCD3DataErr = 0x0600,
+        TimeOut = 0x0700,
         //process warning
         NoInPallet = 0x0001,
         FeederLow = 0x0002,
         AssemblyNGFull = 0x0003,
         RecheckNGFull = 0x0004,
         YieldLow = 0x0005,
-        HasNGPallet = 0x0006
+        HasNGPallet = 0x0006,
+        BarocdeScan_Failed = 0x0007,
+        BarocdeScan_NoBarcode = 0x0008,
+        Laser_Failed = 0x0009,
+        Cognex_DisConnected = 0x000A,
+        OUT3_1_PNP_Gantry_vacuum1_Release_Error = 0x000B,
+        OUT3_2_PNP_Gantry_vacuum2_Release_Error = 0x000C,
+        WaitMotion = 0x000D,
+        WaitIO = 0x000E,
+        CognexErr = 0x000F,
+        Nozzle1_feedback = 0x0010,
+        TeachpointErr = 0x0011,
+        LogicErr = 0x0012,
+        motionErr = 0x0013,
+        motionTimeoutErr = 0x0014,
+        PneumaticErr = 0x0015,
+
+
+        //Conveyor Error
+        TrayLeaveSensorErr = 0x0016,
+        GateReedSwitchTimeOut = 0x0017,
+        LifterReedSwitchTimeOut = 0x0018,
+        TrayPresentSensorTimeOut = 0x0019,
+        IncomingTrayTimeOut = 0x0020,
+
+
+
+        RejectCoverOpened = 0x0021,
+        NGOccupied = 0x0022,
+        MissingNGTray = 0x0023,
+
+        ClawReedSwitchTimeOut = 0x0024,
+
     }
 
-    public struct ErrorInfo
+    public class ErrorInfo
     {
-        public string dateTime;
-        public string user;
-        public string errorCode;
-        public int level;
+        //Modify By YXW
+        public string DateTime { get; set; }
+        public string User { get; set; }
+        public string ErrorCode { get; set; }
+        public int Level { get; set; }
 
-        public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
+        public string Info { get; set; }
+        public string Description { get; set; }
+
+        public ErrorInfo(DateTime dT, string usr, ErrorCode eC, string description = "")
         {
-            dateTime = dT.ToString();
-            user = usr;
-            errorCode = "0x" + Convert.ToString((int)eC, 16);
+            DateTime = dT.ToString();
+            User = usr;
+            ErrorCode = "0x" + Convert.ToString((int)eC, 16);
             if ((int)eC > 0x0FFF)
             {
-                level = 1;
+                Level = 1;
             }
             else if ((int)eC > 0x00FF)
             {
-                level = 2;
+                Level = 2;
             }
-            else {
-                level = 3;
+            else
+            {
+                Level = 3;
             }
+            Description = description;
+            Info = eC.ToString();
         }
+        //End Modify
     }
 
     public class ErrorManager
@@ -87,29 +121,39 @@ namespace AkribisFAM.Manager
             }
         }
 
-        private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
-        public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+        public bool IsAlarm => ErrorStack.Count > 0 || ErrorInfos.Count > 0;
 
-        public int ErrorCnt = 0;
+        private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
+        //public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+
+        //Modify By YXW
+        public ObservableCollection<ErrorInfo> ErrorInfos { get; set; } = new ObservableCollection<ErrorInfo>();
+
+        //End Modify
+
+        public int ErrorCnt => ErrorStack.Count;
         public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
         public static int ModbusErrCntLimit = 10;
 
-        public void Insert(ErrorCode err)
+        public bool Insert(ErrorCode err, string descriptions = "")
         {
             ErrorStack.Push(err);
-            ErrorCnt = ErrorStack.Count;
-            ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
-            UpdateErrorCnt?.Invoke();
-        }
 
+            //Modify By YXW
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err, descriptions));
+            });
+            UpdateErrorCnt?.Invoke();
+            return false;
+        }
         public void Pop()
         {
             ErrorCode result;
             if (ErrorStack.TryPop(out result))
             {
                 Console.WriteLine("Removed element: " + result);
-                ErrorCnt = ErrorStack.Count;
                 UpdateErrorCnt?.Invoke();
             }
         }
@@ -117,7 +161,6 @@ namespace AkribisFAM.Manager
         public void Clear()
         {
             ErrorStack.Clear();
-            ErrorCnt = ErrorStack.Count;
             UpdateErrorCnt?.Invoke();
         }
     }

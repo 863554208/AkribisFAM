@@ -1,12 +1,53 @@
 ﻿<Application x:Class="AkribisFAM.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary x:Name="Language" Source="/Dict/AppResource_zh_CN.xaml"/>
+                <ResourceDictionary Source="/Dict/AppResource_en_US.xaml"/>
+                <materialDesign:CustomColorTheme PrimaryColor="#a7c0ec" SecondaryColor="White" BaseTheme="Dark"/>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+
+                <!--<ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />-->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <!--<ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml"/>-->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.RadioButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ListBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.CheckBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- 全局字体设置 --><!--
+            <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="19" />
+                --><!-- 全局字体大小 --><!--
+                <Setter Property="FontFamily" Value="Microsoft YaHei" />
+                --><!-- 可选：全局字体族 --><!--
+            </Style>
+
+            <Style TargetType="Label">
+                <Setter Property="FontSize" Value="19" />
+                <Setter Property="FontFamily" Value="Microsoft YaHei" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="FontSize" Value="19" />
+                <Setter Property="FontFamily" Value="Microsoft YaHei" />
+            </Style>
+
+            <Style TargetType="TextBox">
+                <Setter Property="FontSize" Value="19" />
+                <Setter Property="FontFamily" Value="Microsoft YaHei" />
+            </Style>-->
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
+
+    
+    

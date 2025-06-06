@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.LaserHeighCheckView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             IsVisibleChanged="UserControl_IsVisibleChanged"
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
+            <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged" />
+            <Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Height Check All" HorizontalAlignment="Right" Click="btnCheckAllTeachPoint_Click"/>
+            <Button x:Name="btnStop" Content="Stop" Grid.Column="3" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
+        </Grid>
+        <Grid x:Name="grpControl" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="4*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ItemsControl ItemsSource="{Binding Points}" Grid.Column="0">
+                <ItemsControl.ItemsPanel>
+
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="{Binding Row}" Columns="{Binding Column}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ProductXYPointsView  />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Grid Grid.Column="1" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid Margin="5" Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border BorderBrush="Gray" BorderThickness="0 0 0 2" Margin="3" Grid.Row="0" VerticalAlignment="Top">
+                        <Label Content="Cognex Barcode Scanner" FontWeight="Bold" FontSize="14"/>
+                    </Border>
+                    <Button x:Name="btnTriggerScanner" Content="Scan" Margin="3" Grid.Row="1" Click="btnTriggerScanner_Click"/>
+                    <ScrollViewer Grid.Row="2" x:Name="scrollviewerTray">
+
+                        <TextBlock x:Name="txtTrayBarcode" ScrollViewer.CanContentScroll="True"  Background="LightGray" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                    <Button x:Name="btnClearBarcode" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClearBarcode_Click"/>
+                </Grid>
+                <Grid Margin="5" Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border BorderBrush="Gray" BorderThickness="0 0 0 2" Margin="3" Grid.Row="0" VerticalAlignment="Top">
+                        <Label Content="Keyence Laser Scanner" FontWeight="Bold" FontSize="14"/>
+                    </Border>
+                    <Button x:Name="btnTriggerLaser" Content="Measure" Margin="3" Grid.Row="1" Click="btnTriggerLaser_Click"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2"  x:Name="scrollviewerLaser">
+
+                        <TextBlock x:Name="txtHeightResult" ScrollViewer.CanContentScroll="True" Background="LightGray" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                    <Button x:Name="btnClearLaser" Content="Clear" Margin="3" Grid.Row="3" HorizontalAlignment="Right" Click="btnClearLaser_Click"/>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <ProgressBar x:Name="pbProgress" Grid.Row="2" Height="10" Style="{Binding}" Value="{Binding Progress}" Maximum="{Binding TotalProcess}" Visibility="Hidden"/>
+    </Grid>
+</UserControl>

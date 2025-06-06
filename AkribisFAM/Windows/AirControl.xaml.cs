@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ namespace AkribisFAM.Windows
         private Dictionary<string, IO_OutFunction_Table> OutputNozzleReleasePairs { get; set; }
         private Dictionary<string, IO_OutFunction_Table> OutputNozzleBlowPairs { get; set; }
         private Dictionary<string, IO_OutFunction_Table> OutputNozzleNoBlowPairs { get; set; }
+        private Dictionary<Ellipse, IO_INFunction_Table> InputCylinderPairs { get; set; }
+        private Dictionary<Ellipse, IO_INFunction_Table> InputNozzlePairs { get; set; }
         public AirControl()
         {
             InitializeComponent();
@@ -87,33 +90,73 @@ namespace AkribisFAM.Windows
             };
             OutputNozzleBlowPairs = new Dictionary<string, IO_OutFunction_Table>
             {
-                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_8solenoid_valve1_A },
-                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_10solenoid_valve2_A },
-                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_12solenoid_valve3_A },
-                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_14solenoid_valve4_A }
+                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_8Reserve },
+                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_10Reserve },
+                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_12Reserve },
+                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_14Reserve }
             };
             OutputNozzleNoBlowPairs = new Dictionary<string, IO_OutFunction_Table>
             {
-                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_9solenoid_valve1_B },
-                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_11solenoid_valve2_B },
-                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_13solenoid_valve3_B },
-                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_15solenoid_valve4_B }
+                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_9Reserve },
+                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_11Reserve },
+                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_13Reserve },
+                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_15Reserve }
             };
-            //DetectCylinderThread();
-            //DetectNozzleThread();
+            InputCylinderPairs = new Dictionary<Ellipse, IO_INFunction_Table>
+            {
+                { C1pos1, IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos },
+                { C1pos2, IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos },
+                { C2pos1, IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos },
+                { C2pos2, IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos },
+                { C3pos1, IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos },
+                { C3pos2, IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos },
+                { C4pos1, IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos },
+                { C4pos2, IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos },
+                { C5pos1, IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos },
+                { C5pos2, IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos },
+                { C6pos1, IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos },
+                { C6pos2, IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos },
+                { C7pos1, IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos },
+                { C7pos2, IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos },
+                { C8pos1, IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos },
+                { C8pos2, IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos },
+                { C9pos1, IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos },
+                { C9pos2, IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos },
+                { C10pos1, IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos },
+                { C10pos2, IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos },
+                { C11pos1, IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos },
+                { C11pos2, IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos },
+                { C12pos1, IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos },
+                { C12pos2, IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos },
+                { C13pos1, IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos },
+                { C13pos2, IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos },
+                { C14pos1, IO_INFunction_Table.IN3_9Claw_extend_in_position },
+                { C14pos2, IO_INFunction_Table.IN3_10Claw_retract_in_position },
+            };
+            InputNozzlePairs = new Dictionary<Ellipse, IO_INFunction_Table>
+            {
+                { SN1negativepressure, IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback },
+                { SN2negativepressure, IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback },
+                { SN3negativepressure, IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback },
+                { SN4negativepressure, IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback },
+            };
+            DetectIOThread();
             InitOutIOState();
         }
 
         private void InitOutIOState() {
             for (int i = 1; i < 14; i++)
             {
+                if (i == 2 || i == 4 || i == 6) {
+                    continue;
+                }
                 string name = "Cylinder" + i.ToString();
                 Button b1 = (Button)FindObject(name);
-                if (IOManager.Instance.INIO_status[(int)OutputCylinderExtendPairs[name]])
+                if (IOManager.Instance.INIO_status[(int)OutputCylinderExtendPairs[name]] == 0)
                 {
                     b1.Content = "Retract";
                 }
-                if (IOManager.Instance.INIO_status[(int)OutputCylinderRetractPairs[name]])
+                if (IOManager.Instance.INIO_status[(int)OutputCylinderRetractPairs[name]] == 0)
                 {
                     b1.Content = "Extend";
                 }
@@ -122,316 +165,56 @@ namespace AkribisFAM.Windows
             {
                 string name1 = "Suctionnozzle" + i.ToString();
                 Button b1 = (Button)FindObject(name1);
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleSupplyPairs[name1]])
+                if (IOManager.Instance.INIO_status[(int)OutputNozzleSupplyPairs[name1]] == 0)
                 {
                     b1.Content = "Release";
                 }
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleReleasePairs[name1]])
+                if (IOManager.Instance.INIO_status[(int)OutputNozzleReleasePairs[name1]] == 0)
                 {
                     b1.Content = "Supply";
                 }
-                string name2 = "Suctionnozzle" + i.ToString() + "1";
-                Button b2 = (Button)FindObject(name2);
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleBlowPairs[name2]])
-                {
-                    b2.Content = "Release";
-                }
-                if (IOManager.Instance.INIO_status[(int)OutputNozzleNoBlowPairs[name2]])
-                {
-                    b2.Content = "Blow";
-                }
             }
         }
 
-        public void DetectCylinderThread()
+        public void DetectIOThread()
         {
             Task.Run(new Action(() =>
             {
                 while (ThreadRun == 1)
                 {
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_0Left_1_lift_cylinder_Extend_InPos])
+                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table > entry in InputCylinderPairs)
                     {
-                        C1pos1.Fill = new SolidColorBrush(Colors.LightGreen);
+                        if (IOManager.Instance.INIO_status[(int)entry.Value] == 0)
+                        {
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                entry.Key.Fill = new SolidColorBrush(Colors.LightGreen);
+                            }));
+                        }
+                        else
+                        {
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                entry.Key.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
+                            }));
+                        }
                     }
-                    else
+                    foreach (KeyValuePair<Ellipse, IO_INFunction_Table> entry in InputNozzlePairs)
                     {
-                        C1pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos])
-                    {
-                        C1pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C1pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_2Right_1_lift_cylinder_Extend_InPos])
-                    {
-                        C2pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C2pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_3Right_1_lift_cylinder_retract_InPos])
-                    {
-                        C2pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C2pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_4Left_2_lift_cylinder_Extend_InPos])
-                    {
-                        C3pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C3pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_5Left_2_lift_cylinder_retract_InPos])
-                    {
-                        C3pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C3pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_6Right_2_lift_cylinder_Extend_InPos])
-                    {
-                        C4pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C4pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_7Right_2_lift_cylinder_retract_InPos])
-                    {
-                        C4pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C4pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_8Left_3_lift_cylinder_Extend_InPos])
-                    {
-                        C5pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C5pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_9Left_3_lift_cylinder_retract_InPos])
-                    {
-                        C5pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C5pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_10Right_3_lift_cylinder_Extend_InPos])
-                    {
-                        C6pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C6pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_11Right_3_lift_cylinder_retract_InPos])
-                    {
-                        C6pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C6pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_124_lift_cylinder_Extend_InPos])
-                    {
-                        C7pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C7pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN2_134_lift_cylinder_retract_InPos])
-                    {
-                        C7pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C7pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_0Stopping_cylinder_1_extend_InPos])
-                    {
-                        C8pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C8pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_1Stopping_cylinder_1_react_InPos])
-                    {
-                        C8pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C8pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_2Stopping_cylinder_2_extend_InPos])
-                    {
-                        C9pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C9pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_3Stopping_cylinder_2_react_InPos])
-                    {
-                        C9pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C9pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_4Stopping_cylinder_3_extend_InPos])
-                    {
-                        C10pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C10pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_5Stopping_cylinder_3_react_InPos])
-                    {
-                        C10pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C10pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_6Stopping_cylinder_4_extend_InPos])
-                    {
-                        C11pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C11pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_7Stopping_cylinder_4_react_InPos])
-                    {
-                        C11pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C11pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos])
-                    {
-                        C12pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C12pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_9Feeder1_limit_cylinder_retract_InPos])
-                    {
-                        C12pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C12pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_10Feeder2_limit_cylinder_extend_InPos])
-                    {
-                        C13pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C13pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_11Feeder2_limit_cylinder_retract_InPos])
-                    {
-                        C13pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C13pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_9Claw_extend_in_position])
-                    {
-                        C14pos1.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C14pos1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_10Claw_retract_in_position])
-                    {
-                        C14pos2.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        C14pos2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-                    Thread.Sleep(200);
-                }
-            }
-            ));
-        }
-
-        public void DetectNozzleThread()
-        {
-            Task.Run(new Action(() =>
-            {
-                while (ThreadRun == 1)
-                {
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback])
-                    {
-                        SN1negativepressure.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        SN1negativepressure.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback])
-                    {
-                        SN2negativepressure.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        SN2negativepressure.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback])
-                    {
-                        SN3negativepressure.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        SN3negativepressure.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                    }
-
-                    if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback])
-                    {
-                        SN4negativepressure.Fill = new SolidColorBrush(Colors.LightGreen);
-                    }
-                    else
-                    {
-                        SN4negativepressure.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
+                        if (IOManager.Instance.INIO_status[(int)entry.Value] == 0)
+                        {
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                entry.Key.Fill = new SolidColorBrush(Colors.LightGreen);
+                            }));
+                        }
+                        else
+                        {
+                            this.Dispatcher.BeginInvoke(new Action(() =>
+                            {
+                                entry.Key.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
+                            }));
+                        }
                     }
                     Thread.Sleep(200);
                 }
@@ -455,29 +238,17 @@ namespace AkribisFAM.Windows
             Ellipse p2 = (Ellipse)FindObject(p2name);
             int index = int.Parse(button.Name.ToString().Substring(8, button.Name.ToString().Length - 8));
 
-            //if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == false)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 1);
-            //    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 0);
-            //    button.Content = "Retract";
-            //}
-            //else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == true)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 0);
-            //    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 1);
-            //    button.Content = "Extend";
-            //}
-
-            if (f[index - 1] == 1)
+            if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == 1)
             {
-                p1.Fill = new SolidColorBrush(Colors.LightGreen);
-                p2.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                f[index - 1] = 0;
+                IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 1);
+                IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 0);
+                button.Content = "Retract";
             }
-            else {
-                p1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                p2.Fill = new SolidColorBrush(Colors.LightGreen);
-                f[index - 1] = 1;
+            else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs[button.Name.ToString()]] == 0)
+            {
+                IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs[button.Name.ToString()], 0);
+                IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs[button.Name.ToString()], 1);
+                button.Content = "Extend";
             }
         }
 
@@ -486,30 +257,17 @@ namespace AkribisFAM.Windows
         {
             Button button = sender as Button;
             int index = int.Parse(button.Name.ToString().Substring(13, 1));
-            //if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == false)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 1);
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 0);
-            //    button.Content = "Release";
-            //}
-            //else if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == true)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 0);
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 1);
-            //    button.Content = "Supply";
-            //}
-
-            string p1name = "SN" + button.Name.ToString().Substring(13, button.Name.ToString().Length - 13) + "negativepressure";
-            Ellipse p1 = (Ellipse)FindObject(p1name);
-            if (n[index - 1] == 1)
+            if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == 1)
             {
-                p1.Fill = new SolidColorBrush(Colors.LightGreen);
-                n[index - 1] = 0;
+                IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 1);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 0);
+                button.Content = "Release";
             }
-            else
+            else if (IOManager.Instance.OutIO_status[(int)OutputNozzleSupplyPairs[button.Name.ToString()]] == 0)
             {
-                p1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFC6C6C6"));
-                n[index - 1] = 1;
+                IOManager.Instance.IO_ControlStatus(OutputNozzleSupplyPairs[button.Name.ToString()], 0);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleReleasePairs[button.Name.ToString()], 0);
+                button.Content = "Supply";
             }
         }
 
@@ -517,18 +275,94 @@ namespace AkribisFAM.Windows
         {
             Button button = sender as Button;
             int index = int.Parse(button.Name.ToString().Substring(13, 1));
-            //if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == false)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 1);
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
-            //    button.Content = "Release";
-            //}
-            //else if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == true)
-            //{
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 0);
-            //    IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 1);
-            //    button.Content = "Blow";
-            //}
+            if (IOManager.Instance.OutIO_status[(int)OutputNozzleBlowPairs[button.Name.ToString()]] == 1)
+            {
+                IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 1);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
+                button.Content = "Release";
+                Thread.Sleep(50);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleBlowPairs[button.Name.ToString()], 0);
+                IOManager.Instance.IO_ControlStatus(OutputNozzleNoBlowPairs[button.Name.ToString()], 0);
+                button.Content = "Blow";
+            }
+        }
+
+        private void Cylinder2_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = sender as Button;
+            if (button.Name == "Cylinder1") {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder1"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 0);
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder1"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder1"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder1"], 1);
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder2"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder2"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder2"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder2"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder2"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder2"], 1);
+                    button.Content = "Extend";
+                }
+            }
+            else if (button.Name == "Cylinder3") {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder3"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 0);
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder3"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder3"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder3"], 1);
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder4"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder4"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder4"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder4"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder4"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder4"], 1);
+                    button.Content = "Extend";
+                }
+            }
+            else if (button.Name == "Cylinder5")
+            {
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder5"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 0);
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder5"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder5"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder5"], 1);
+                }
+                if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder6"]] == 1)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder6"], 1);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder6"], 0);
+                    button.Content = "Retract";
+                }
+                else if (IOManager.Instance.OutIO_status[(int)OutputCylinderExtendPairs["Cylinder6"]] == 0)
+                {
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderExtendPairs["Cylinder6"], 0);
+                    IOManager.Instance.IO_ControlStatus(OutputCylinderRetractPairs["Cylinder6"], 1);
+                    button.Content = "Extend";
+                }
+            }
         }
     }
 }

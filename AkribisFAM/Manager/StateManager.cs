@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.WorkStation;
+using YamlDotNet.Core.Tokens;
 
 namespace AkribisFAM.Manager
 {
@@ -35,7 +37,7 @@ namespace AkribisFAM.Manager
             RUNNING = 1,
             STOPPED = 2,
             MAINTENANCE = 3,
-            IDLE = 4,
+            IDLE = 4
         }
 
         public Dictionary<StateCode, string> StateDict = new Dictionary<StateCode, string>
@@ -48,6 +50,9 @@ namespace AkribisFAM.Manager
 
         public int Guarding;
         public StateCode State;
+        public int  RunningHourCnt;
+        public int currentUPH;
+        public int currentNG;
 
         public DateTime RunningEnd;
         public DateTime StoppedEnd;
@@ -58,6 +63,15 @@ namespace AkribisFAM.Manager
         public DateTime StoppedStart;    
         public DateTime MaintenanceStart; 
         public DateTime IdleStart;
+
+        public TimeSpan RunningTime;
+        public TimeSpan StoppedTime;
+        public TimeSpan MaintenanceTime;
+        public TimeSpan IdleTime;
+
+        public int TotalInput;
+        public int TotalOutputOK;
+        public int TotalOutputNG;
 
         public void DetectRemainBoard() {
             while (true)
@@ -124,6 +138,58 @@ namespace AkribisFAM.Manager
                         }
                     }
                 ));
+        }
+        public void StateLightThread()
+        {
+            Task.Run(new Action(() =>
+            {
+                while (true)
+                {
+                    if (State == StateCode.IDLE)
+                    {
+                        if (ErrorManager.Current.ErrorCnt == 0) {
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+                            Thread.Sleep(500);
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 0);
+                            Thread.Sleep(500);
+                        }
+                        else
+                        {
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+                            Thread.Sleep(500);
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+                            Thread.Sleep(500);
+                        }
+                    }
+                    else if (State == StateCode.RUNNING)
+                    {
+                        if (ErrorManager.Current.ErrorCnt == 0)
+                        {
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+                            Thread.Sleep(500);
+                        }
+                        else
+                        {
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+                            Thread.Sleep(500);
+                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+                            Thread.Sleep(500);
+                        }
+                    }
+                    else if (State == StateCode.MAINTENANCE)
+                    {
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+                        Thread.Sleep(500);
+                    }
+                    else if (State == StateCode.STOPPED)
+                    {
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 1);
+                        //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+                        Thread.Sleep(500);
+                    }
+                }
+            }
+            ));
         }
     }
 }

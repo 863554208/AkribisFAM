@@ -16,9 +16,103 @@ using AkribisFAM.ViewModel;
 using LiveCharts;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Windows;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using Newtonsoft.Json;
+using System.Windows.Forms.Design;
+using System.Windows.Documents;
+using System.Net.Sockets;
 
 namespace AkribisFAM
 {
+    [DataContract]
+    public class Point
+    {
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public int type { get; set; }
+        [DataMember]
+
+        public List<ChildPoint> childList { get; set; }
+        [DataMember]
+
+        public int col { get; set; }
+        [DataMember]
+        public int row { get; set; }
+        [DataMember]
+        public double X { get; set; }
+        [DataMember]
+        public double Y { get; set; }
+        [DataMember]
+        public double Z { get; set; }
+        [DataMember]
+        public double R { get; set; }
+
+        [DataMember]
+        public double spacingX { get; set; }
+
+        [DataMember]
+        public double spacingY { get; set; }
+
+        [DataMember]
+        public double offer10{ get; set; }
+
+        [DataMember]
+        public double offer11 { get; set; }
+
+        [DataMember]
+        public List<int> axisMap { get; set; }
+
+        [DataMember]
+        public double general { get; set; }
+
+    }
+
+    [DataContract]
+
+
+    public class ChildPoint
+    {
+        [DataMember]
+        public List<string> childName { get; set; }
+
+        [DataMember]
+        public List<double> childPos { get; set; }
+
+    }
+
+
+
+    [DataContract]
+    public class StationPoints
+    {
+        [DataMember]
+        public List<Point> LaiLiaoPointList { get; set; }
+        [DataMember]
+        public List<Point> ZuZhuangPointList { get; set; }
+        [DataMember]
+        public List<Point> FuJianPointList { get; set; }
+        [DataMember]
+        public List<Point> RejectPointList { get; set; }
+    }
+
+
+
+    [JsonObject]
+    public class AxisParams
+    {
+        [JsonProperty("AxisSpeedDict")]
+        public Dictionary<string, double> AxisSpeedDict { get; set; }
+        [JsonProperty("AxisAccDict")]
+        public Dictionary<string, double> AxisAccDict { get; set; }
+        [JsonProperty("AxisDecDict")]
+        public Dictionary<string, double> AxisDecDict { get; set; }
+    }
+
+
+
     public class GlobalManager
     {
         //全局标志位
@@ -38,6 +132,8 @@ namespace AkribisFAM
 
         public int i = 1;
 
+
+
         // 单例模式，确保全局只有一个实例
         private static GlobalManager _current;
 
@@ -46,6 +142,16 @@ namespace AkribisFAM
 
         private System.Timers.Timer PosTimer;
 
+        public Queue<string> BarcodeQueue = new Queue<string>();
+        public Queue<TcpClient> tcpQueue = new Queue<TcpClient> ();
+        public bool IsUseMES = false;
+
+        //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
+        public int LaserHeightDelay = 50;
+
+        public double[][] laser_data;
+
+        public bool isLowerCCD = false;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -53,6 +159,55 @@ namespace AkribisFAM
         public long current_APos = 0;
 
         public string username;
+
+        //传送带到位标志位
+        public int flag_RangeFindingTrayArrived;  //测距位料盘到位
+        public int flag_assembleTrayArrived;      //贴装位料盘到位
+        public int flag_RecheckTrayArrived;       //复检位料盘到位
+
+        public int flag_TrayProcessCompletedNumber;
+
+        public int flag_TrayArrivedNumber;
+
+        public int flag_NGStationAllowTrayEnter;
+
+        public int flag_RecheckStationHaveTray;
+
+        public int flag_RecheckStationRequestOutflowTray;
+        public int flag_Bypass;
+
+        public int laserpoint1_shift_X = 20;
+        public int laserpoint1_shift_Y = 0;
+        public int laserpoint2_shift_X = 20;
+        public int laserpoint2_shift_Y = 20;
+        public int laserpoint3_shift_X = 0;
+        public int laserpoint3_shift_Y = 20;
+
+        //参数界面
+        public int NozzleGap_X = 20;
+        public int PalleteGap_X = 50;
+        public int PalleteGap_Y = 40;
+        public int TotalRow = 3;
+        public int TotalColumn = 4;
+        public RunMode CurrentMode = RunMode.DryrunMode;
+
+
+        public enum RunMode
+        { 
+            ProductionMode,
+            DryrunMode,
+        
+        }
+
+        public SinglePoint RecheckRecylePos = new SinglePoint();
+        public SinglePoint SafeZPos = new SinglePoint();
+        public SinglePoint StartPoint = new SinglePoint();
+        public double TearX = 0;
+        public double TearY = 0;
+        public double TearZ = 0;
+        public double TearXvel = 0;
+        public double TearYvel = 0;
+        public double TearZvel = 0;
 
         //记录每个工站是否在气缸上气和顶升的状态
         public bool station1_IsLifting;
@@ -96,20 +251,54 @@ namespace AkribisFAM
 
         //记录3号工位检测出的是否是NG板
         public bool isNGPallete;
-
+        public bool IsByPass;
+        public bool SendByPassToStation2;
+        public bool SendByPassToStation3;
+        public bool SendByPassToStation4;
         public bool IsAInTarget { get; set; }
         public bool IsBInTarget { get; set; }
 
+        public bool UseFeedar1 = true;
+        public bool UseFeedar2 = false;
+
+        public int NGTrayDelaytime = 1000;
         //测试用
         public bool isRun = false;
 
-        public List<(double X, double Y)> laserPoints;
+        public List<SinglePoint> laserPoints = new List<SinglePoint>();
 
-        public List<(double X, double Y)> feedarPoints;
+        public List<SinglePoint> pickerZPickPoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerZCam2Points = new List<SinglePoint>();
+        public List<SinglePoint> pickerZSafePoints = new List<SinglePoint>();
+        public List<SinglePoint> pickerLoadCellPoints = new List<SinglePoint>();
 
-        public List<(double X, double Y)> palletePoints;
+        public List<SinglePoint> feedar1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> feedar2Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
+
+        public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
+
+        public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> dropBadFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> snapPalletePoints = new List<SinglePoint>();
+
+        public List<SinglePoint> placeFoamPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> recheckPoints = new List<SinglePoint>();
+
+        public List<SinglePoint> tearingPoints = new List<SinglePoint>();
+
 
         public int TotalLaserCount = 48;
+
+        public StationPoints stationPoints;
+
+
+        public int TotalBadFoam = 0;
         #region 全局用来判断机器状态的标志位
 
         //模拟进板位置有料和无料IO信号
@@ -123,7 +312,7 @@ namespace AkribisFAM
 
         public bool hive_Result { get; set; }
 
-        public bool IsPause { get; set; }
+   
 
         //是否已经拍了pallete拼盘
         public bool palleteSnaped { get; set; }
@@ -138,7 +327,9 @@ namespace AkribisFAM
         public int BadFoamCount { get; set; }
 
         //总共需要安装的穴位总数
-        public int total_Assemble_Count { get; set; }
+        public int total_Assemble_Count = 12;
+
+        public int laser_point_length = 4;
         public bool lailiao_ChuFaJinBan { get; set; }
         public bool lailiao_JinBanWanCheng { get; set; }
         public bool lailiao_SaoMa { get; set; }
@@ -167,10 +358,10 @@ namespace AkribisFAM
         public bool FuJian_exit = false;
         public bool Reject_exit = false;
 
-        const int Lailiao_stepnum = 5;
-        const int Zuzhuang_stepnum = 5;
-        const int FuJian_stepnum = 4;
-        const int Reject_stepnum = 3;
+        const int Lailiao_stepnum = 10;
+        const int Zuzhuang_stepnum = 10;
+        const int FuJian_stepnum = 10;
+        const int Reject_stepnum = 10;
         public int Pausetime = 999999;
 
         public int[] Lailiao_state = new int[Lailiao_stepnum];
@@ -224,15 +415,6 @@ namespace AkribisFAM
 
         #endregion
 
-        public struct Point
-        {
-            public double x;
-            public double y;
-            public double z;
-        }
-
-        public List<Point> Pointlist;
-
         public static GlobalManager Current
         {
             get
@@ -245,9 +427,13 @@ namespace AkribisFAM
             }
         }
 
-        public void ReadJsonPoint()
+        private void InitializeLaserData()
         {
-
+            laser_data = new double[total_Assemble_Count][];
+            for (int i = 0; i < TotalRow; i++)
+            {
+                laser_data[i] = new double[laser_point_length];
+            }
         }
 
         public void Lailiao_CheckState()
@@ -273,7 +459,6 @@ namespace AkribisFAM
                 GlobalManager.Current.Zuzhuang_delta[current_Zuzhuang_step] = Pausetime;
             }
         }
-
         public void FuJian_CheckState()
         {
             if (GlobalManager.Current.FuJian_state[current_FuJian_step] == 0)
@@ -319,10 +504,8 @@ namespace AkribisFAM
 
             //StartErrorMonitor();
 
+            InitializeLaserData();
 
-            IsAInTarget = false;
-            IsBInTarget = false;
-            IsPause = false;
 
         }
         //与AGM800的连接状态
@@ -381,7 +564,11 @@ namespace AkribisFAM
         public bool WaitIO(IO_INFunction_Table pos, int value)
         {
             int FeederRetry_Count = 0;
-            while (IOManager.Instance.INIO_status[(int)pos] == (value == 1))
+            int val = 0;
+            if (value == 0) {
+                val = 1;
+            }
+            while (IOManager.Instance.INIO_status[(int)pos] == val)
             {
                 Thread.Sleep(30);
                 FeederRetry_Count++;
@@ -396,11 +583,259 @@ namespace AkribisFAM
 
         public AxisRef GetAxisRefFromInteger(int index)
         {
-            string letter = ('A' + index).ToString();
-            Enum.TryParse<AxisRef>(letter, out AxisRef axisRef);
+            switch (index)
+            {
+                    case 0: return AxisRef.A;
+                    case 1: return AxisRef.B;
+                    case 2: return AxisRef.C;
+                    case 3: return AxisRef.D;
+                    case 4: return AxisRef.E;
+                    case 5: return AxisRef.F;            
+                    case 6: return AxisRef.G;
+                    case 7: return AxisRef.H;
+                    default : return AxisRef.A; 
 
-            return axisRef;
+            }
+
+          
         }
+
+        public AxisName GetAxisNameFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return AxisName.LSX;
+
+                case 2:
+                    return AxisName.LSY;
+
+                case 3:
+                    return AxisName.BL1;
+
+                case 4:
+                    return AxisName.BL2;
+
+                case 5:
+                    return AxisName.BL3;
+
+                case 6:
+                    return AxisName.BL4;
+
+                case 7:
+                    return AxisName.BL5;
+
+                case 8:
+                    return AxisName.BR1;
+
+                case 9:
+                    return AxisName.BR2;
+
+                case 10:
+                    return AxisName.BR3;
+
+                case 11:
+                    return AxisName.BR4;
+
+                case 12:
+                    return AxisName.BR5;
+
+                case 13:
+                    return AxisName.FSX;
+
+                case 14:
+                    return AxisName.FSY;
+
+                case 15:
+                    return AxisName.PICK1_Z;
+
+                case 16:
+                    return AxisName.PICK1_T;
+
+                case 17:
+                    return AxisName.PICK2_Z;
+
+                case 18:
+                    return AxisName.PICK2_T;
+
+                case 19:
+                    return AxisName.PICK3_Z;
+
+                case 20:
+                    return AxisName.PICK3_T;
+
+                case 21:
+                    return AxisName.PICK4_Z;
+
+                case 22:
+                    return AxisName.PICK4_T;
+
+                case 23:
+                    return AxisName.PRX;
+
+                case 24:
+                    return AxisName.PRY;
+
+                case 25:
+                    return AxisName.PRZ;
+
+                default:
+                    return AxisName.LSX;
+            }
+
+        }
+
+
+        public AxisName GetAxisNameFromString(string line)
+        {
+            switch (line) 
+            {
+                case "LSX":
+                    return AxisName.LSX;
+
+                case "LSY":
+                    return AxisName.LSY;
+
+                case "FSX":
+                    return AxisName.FSX;
+
+                case "FSY":
+                    return AxisName.FSY;
+
+                case "BL1":
+                    return AxisName.BL1;
+
+                case "BL2":
+                    return AxisName.BL2;
+                case "BL3":
+                    return AxisName.BL3;
+                case "BL4":
+                    return AxisName.BL4;
+                case "BL5":
+                    return AxisName.BL5;
+                case "BR1":
+                    return AxisName.BR1;
+                case "BR2":
+                    return AxisName.BR2;
+                case "BR3":
+                    return AxisName.BR3;
+                case "BR4":
+                    return AxisName.BR4;
+                case "BR5":
+                    return AxisName.BR5;
+                case "PICK1_Z":
+                    return AxisName.PICK1_Z;
+                case "PICK1_T":
+                    return AxisName.PICK1_T;
+                case "PICK2_Z":
+                    return AxisName.PICK2_Z;
+                case "PICK2_T":
+                    return AxisName.PICK2_T;
+                case "PICK3_Z":
+                    return AxisName.PICK3_Z;
+                case "PICK3_T":
+                    return AxisName.PICK3_T;
+                case "PICK4_Z":
+                    return AxisName.PICK4_Z;
+                case "PICK4_T":
+                    return AxisName.PICK4_T;
+                case "PRX":
+                    return AxisName.PRX;
+                case "PRY":
+                    return AxisName.PRY;
+                case "PRZ":
+                    return AxisName.PRZ;
+                default:
+                    return AxisName.PRZ;
+            }
+        }
+
+
+        public string GetAxisStringFromInteger(int index)
+        {
+            switch (index)
+            {
+                case 1:
+                    return "LSX";
+
+                case 2:
+                    return "LSY";
+
+                case 3:
+                    return "BL1";
+
+                case 4:
+                    return "BL2";
+
+                case 5:
+                    return "BL3";
+
+                case 6:
+                    return "BL4";
+
+                case 7:
+                    return "BL5";
+
+                case 8:
+                    return "BR1";
+
+                case 9:
+                    return "BR2";
+
+                case 10:
+                    return "BR3";
+
+                case 11:
+                    return "BR4";
+
+                case 12:
+                    return "BR5";
+
+                case 13:
+                    return "FSX";
+
+                case 14:
+                    return "FSY";
+
+                case 15:
+                    return "PICK1_Z";
+
+                case 16:
+                    return "PICK1_T";
+
+                case 17:
+                    return "PICK2_Z";
+
+                case 18:
+                    return "PICK2_T";
+
+                case 19:
+                    return "PICK3_Z";
+
+                case 20:
+                    return "PICK3_T";
+
+                case 21:
+                    return "PICK4_Z";
+
+                case 22:
+                    return "PICK4_T";
+
+                case 23:
+                    return "PRX";
+
+                case 24:
+                    return "PRY";
+
+                case 25:
+                    return "PRZ";
+
+                default:
+                    return "LSX";
+            }
+
+        }
+
 
         #region A,B轴状态
         public void UpdateAStatus()
@@ -498,13 +933,46 @@ namespace AkribisFAM
         }
         public enum AxisSpeed
         {
+            ////AGM800[0]
+            //LSX = 100,
+            //LSY = 100,
+            //FSX = 50,
+            //FSY = 50,
+            //BL5 = 100,
+            //BR5 = 100,
+
+            ////AGM800[1]
+            //BL1 = 100,
+            //BL2 = 100,
+            //BL3 = 100,
+            //BL4 = 100,
+            //BR1 = 100,
+            //BR2 = 100,
+            //BR3 = 100,
+            //BR4 = 100,
+
+            ////AGM800[2]
+            //PICK1_Z = 20,
+            //PICK1_T = 90,
+            //PICK2_Z = 20,
+            //PICK2_T = 90,
+            //PICK3_Z = 20,
+            //PICK3_T = 90,
+            //PICK4_Z = 20,
+            //PICK4_T = 90,
+
+            ////AGM800[3]
+            //PRX = 200,
+            //PRY = 200,
+            //PRZ = 30,
+
             //AGM800[0]
-            LSX = 100000,
-            LSY = 100000,
-            FSX = 100000,
-            FSY = 100000,
-            BL5 = 100,
-            BR5 = 100,
+            LSX = 50,
+            LSY = 50,
+            FSX = 50,
+            FSY = 50,
+            BL5 = 50,
+            BR5 = 50,
 
             //AGM800[1]
             BL1 = 100,
@@ -517,54 +985,71 @@ namespace AkribisFAM
             BR4 = 100,
 
             //AGM800[2]
-            PICK1_Z = 100000,
-            PICK1_T = 100000,
-            PICK2_Z = 100000,
-            PICK2_T = 100000,
-            PICK3_Z = 100000,
-            PICK3_T = 100000,
-            PICK4_Z = 100000,
-            PICK4_T = 100000,
+            PICK1_Z = 20,
+            PICK1_T = 90,
+            PICK2_Z = 20,
+            PICK2_T = 90,
+            PICK3_Z = 20,
+            PICK3_T = 90,
+            PICK4_Z = 20,
+            PICK4_T = 90,
 
             //AGM800[3]
-            PRX = 100000,
-            PRY = 100000,
-            PRZ = 100000,
+            PRX = 50,
+            PRY = 50,
+            PRZ = 10,
+
         }
         public enum AxisAcc
         {
             //AGM800[0]
-            LSX = 1000000,
-            LSY = 1000000,
-            FSX = 1000000,
-            FSY = 1000000,
-            BL5 = 4,
-            BR5 = 5,
+            LSX = 1000,
+            LSY = 1000,
+            FSX = 500,
+            FSY = 500,
+            BL5 = 500,
+            BR5 = 500,
 
             //AGM800[1]
-            BL1 = 8,
-            BL2 = 9,
-            BL3 = 10,
-            BL4 = 11,
-            BR1 = 12,
-            BR2 = 13,
-            BR3 = 14,
-            BR4 = 15,
+            BL1 = 800,
+            BL2 = 800,
+            BL3 = 800,
+            BL4 = 800,
+            BR1 = 800,
+            BR2 = 800,
+            BR3 = 800,
+            BR4 = 800,
 
             //AGM800[2]
-            PICK1_Z = 1000000,
-            PICK1_T = 1000000,
-            PICK2_Z = 1000000,
-            PICK2_T = 1000000,
-            PICK3_Z = 1000000,
-            PICK3_T = 1000000,
-            PICK4_Z = 1000000,
-            PICK4_T = 1000000,
+            PICK1_Z = 50,
+            PICK1_T = 50,
+            PICK2_Z = 50,
+            PICK2_T = 50,
+            PICK3_Z = 50,
+            PICK3_T = 50,
+            PICK4_Z = 50,
+            PICK4_T = 50,
 
             //AGM800[3]
-            PRX = 1000000,
-            PRY = 1000000,
-            PRZ = 1000000,
+            PRX = 2000,
+            PRY = 2000,
+            PRZ = 300,
         }
+
+        //轴参数
+        public AxisParams axisparams = new AxisParams();
+
     }
+}
+[DataContract]
+public class SinglePoint
+{
+    [DataMember]
+    public double X { get; set; }
+    [DataMember]
+    public double Y { get; set; }
+    [DataMember]
+    public double Z { get; set; }
+    [DataMember]
+    public double R { get; set; }
 }

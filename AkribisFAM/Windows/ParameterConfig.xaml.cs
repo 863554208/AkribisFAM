@@ -20,10 +20,17 @@ using Newtonsoft.Json;
 using System.Runtime.CompilerServices;
 using LiveCharts;
 using System.Threading;
+using MaterialDesignThemes.Wpf;
 using System.Windows.Markup;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Media3D;
 using System.ComponentModel;
+using System.Security.Cryptography;
+using System.Xml.Linq;
+using AkribisFAM.Helper;
+using System.Windows.Threading;
+using System.Runtime.ConstrainedExecution;
+
 
 namespace AkribisFAM.Windows
 {
@@ -32,432 +39,1327 @@ namespace AkribisFAM.Windows
     /// </summary>
     public partial class ParameterConfig : UserControl
     {
-        public ScanningAreaParams scanningareaparams = new ScanningAreaParams();
-        public AssemblyAreaParams assemblyareaparams = new AssemblyAreaParams();
-        public RecheckAreaParams recheckareaparams = new RecheckAreaParams();
-        PalletPointsWindow palletpointswindow;
-        JObject LimitJsonObject;
-        public Dictionary<string, double> AxisLimitList;
-        bool init = false;
+        private string[] axisarray = new string[] {
+        "LSX",
+        "LSY",
+        "FSX",
+        "FSY",
+        "BL5",
+        "BR5",
+        "BL1",
+        "BL2",
+        "BL3",
+        "BL4",
+        "BR1",
+        "BR2",
+        "BR3",
+        "BR4",
+        "PICK1_Z",
+        "PICK1_T",
+        "PICK2_Z",
+        "PICK2_T",
+        "PICK3_Z",
+        "PICK3_T",
+        "PICK4_Z",
+        "PICK4_T",
+        "PRX",
+        "PRY",
+        "PRZ"
+        };
+
+        List<string> posFilePre = new List<string>();
+        List<string> posFileName = new List<string>();
+
+        private const string MatrixPointPrefix = "矩阵点:";
+        TeachingWindow teachingWindow;
+
+        private StationPoints stationPoints = new StationPoints();
+        public StationPoints StationPoints
+        {
+            get { return stationPoints; }
+            set { stationPoints = value; }
+        }
 
         public ParameterConfig()
         {
             InitializeComponent();
-            ReadLimitJson();
+            ReadAxisParamJson();
 
+            //Add by yxw
+            posFilePre.Add("Station_points1.json");
+            posFilePre.Add("Station_points2.json");
+            posFilePre.Add("Station_points3.json");
+            posFilePre.Add("Station_points4.json");
+            posFilePre.Add("Station_points5.json");
+
+            for (int z = 0; z < posFilePre.Count; z++)
+            {
+                string nameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(posFilePre[z]);
+                CboxNowType.Items.Add(nameWithoutExtension);
+            }
+            CboxNowType.SelectedIndex = 0;
+            CboxNowType.SelectionChanged += CboxNowType_SelectionChanged;
+
+            // 读取数据并生成 UI
+            for (int i = 0; i < posFilePre.Count; i++)
+            {
+                string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, posFilePre[i]);
+                posFileName.Add(jsonFile);
+                if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+                {
+                    InitAxisJsonPos(jsonFile);
+                }
+            }
+            stationPoints = new StationPoints();
+            FileHelper.LoadConfig(posFileName[0], out stationPoints);
+            //20250523 点位从json文件里读取 【史彦洋】 Start
+
+            LoadPoints();
+            //20250523 点位从json文件里读取 【史彦洋】 Start
+            InitTabs(stationPoints);
+
+
+            //END ADD
         }
-
-        private void ReadLimitJson()
+        private static void Clear()
         {
 
-            try
-            {
-                string folder = Directory.GetCurrentDirectory(); //获取应用程序的当前工作目录。 
-                string path = folder + "\\Limit.json";
+            GlobalManager.Current.laserPoints.Clear();
+            GlobalManager.Current.feedar1Points.Clear();
+            GlobalManager.Current.feedar2Points.Clear();
+            GlobalManager.Current.pickFoam1Points.Clear();
+            GlobalManager.Current.pickFoam2Points.Clear();
+            GlobalManager.Current.lowerCCDPoints.Clear();
+            GlobalManager.Current.dropBadFoamPoints.Clear();
+            GlobalManager.Current.snapPalletePoints.Clear();
+            GlobalManager.Current.placeFoamPoints.Clear();
+            GlobalManager.Current.recheckPoints.Clear();
+            GlobalManager.Current.tearingPoints.Clear();
 
-                StreamReader file = File.OpenText(path);
-                JsonTextReader reader = new JsonTextReader(file);
-                LimitJsonObject = (JObject)JToken.ReadFrom(reader);
-            }
-            catch
+            //GlobalManager.Current.BarcodeQueue.Clear();
+        }
+        public static void LoadPoints()
+        {
+            Clear();
+            List<string> posFilePre = new List<string>();
+            List<string> posFileName = new List<string>();
+
+            posFilePre.Add("Station_points1.json");
+            posFilePre.Add("Station_points2.json");
+            posFilePre.Add("Station_points3.json");
+            posFilePre.Add("Station_points4.json");
+            posFilePre.Add("Station_points5.json");
+
+            for (int i = 0; i < posFilePre.Count; i++)
             {
-                MessageBox.Show("Read Json Failed!");
+                string jsonFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, posFilePre[i]);
+                posFileName.Add(jsonFile);
+                if (string.IsNullOrEmpty(jsonFile) || !File.Exists(jsonFile))
+                {
+                }
+            }
+
+            FileHelper.LoadConfig(posFileName[0], out GlobalManager.Current.stationPoints);
+            foreach (var Node in GlobalManager.Current.stationPoints.LaiLiaoPointList)
+            {
+                if (Node.name != null && Node.name.Equals("laserpoint1_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint1_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint1_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint1_shift_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint2_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint2_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint2_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint2_shift_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint3_shift_X"))
+                {
+                    GlobalManager.Current.laserpoint3_shift_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("laserpoint3_shift_Y"))
+                {
+                    GlobalManager.Current.laserpoint3_shift_Y = Convert.ToInt32(Node.general);
+                }
+
+
+                if (Node.name != null && Node.name.Equals("Laser Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.laserPoints.Add(temp);
+                    }
+                }
+            }
+
+            foreach (var Node in GlobalManager.Current.stationPoints.ZuZhuangPointList)
+            {
+                if (Node.name != null && Node.name.Equals("NozzleGap_X"))
+                {
+                    GlobalManager.Current.NozzleGap_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("PalleteGap_X"))
+                {
+                    GlobalManager.Current.PalleteGap_X = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("PalleteGap_Y"))
+                {
+                    GlobalManager.Current.PalleteGap_Y = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TotalRow"))
+                {
+                    GlobalManager.Current.TotalRow = Convert.ToInt32(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TotalColumn"))
+                {
+                    GlobalManager.Current.TotalColumn = Convert.ToInt32(Node.general);
+                }
+
+                if (Node.name != null && Node.name.Equals("Snap Feedar1 Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.feedar1Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Snap Feedar2 Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.feedar2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Feedar1 PickFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.pickFoam1Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Feedar2 PickFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.pickFoam2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Snap LowerCCD Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.lowerCCDPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("DropBadFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.dropBadFoamPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("SnapPallete Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.snapPalletePoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("PlaceFoam Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.placeFoamPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZPickPos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZPickPoints.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZCam2Pos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZCam2Points.Add(temp);
+                    }
+                }
+
+                if (Node.name != null && Node.name.Equals("Pickers_ZSafePos"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            Z = pointList.childPos[2]
+                        };
+                        GlobalManager.Current.pickerZSafePoints.Add(temp);
+                    }
+                }
+                if (Node.name != null && Node.name.Equals("Pickers_LoadCell"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.pickerLoadCellPoints.Add(temp);
+                    }
+                }
+            }
+
+            foreach (var Node in GlobalManager.Current.stationPoints.FuJianPointList)
+            {
+                if (Node.name != null && Node.name.Equals("Tearing Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.tearingPoints.Add(temp);
+                    }
+                }
+                if (Node.name != null && Node.name.Equals("Recheck Points"))
+                {
+                    foreach (var pointList in Node.childList)
+                    {
+                        SinglePoint temp = new SinglePoint()
+                        {
+                            X = pointList.childPos[0],
+                            Y = pointList.childPos[1],
+                            Z = pointList.childPos[2],
+                            R = pointList.childPos[3]
+                        };
+                        GlobalManager.Current.recheckPoints.Add(temp);
+                    }
+                }
+                if (Node.name != null && Node.name.Equals("Recycle Point"))
+                {
+                    GlobalManager.Current.RecheckRecylePos.X = Node.X;
+                    GlobalManager.Current.RecheckRecylePos.Y = Node.Y;
+                    GlobalManager.Current.RecheckRecylePos.Z = Node.Z;
+                    GlobalManager.Current.RecheckRecylePos.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("Zliftup Point"))
+                {
+                    GlobalManager.Current.SafeZPos.X = Node.X;
+                    GlobalManager.Current.SafeZPos.Y = Node.Y;
+                    GlobalManager.Current.SafeZPos.Z = Node.Z;
+                    GlobalManager.Current.SafeZPos.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("StartPoint"))
+                {
+                    GlobalManager.Current.StartPoint.X = Node.X;
+                    GlobalManager.Current.StartPoint.Y = Node.Y;
+                    GlobalManager.Current.StartPoint.Z = Node.Z;
+                    GlobalManager.Current.StartPoint.R = Node.R;
+                }
+                if (Node.name != null && Node.name.Equals("TearX"))
+                {
+                    GlobalManager.Current.TearX = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearY"))
+                {
+                    GlobalManager.Current.TearY = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearZ"))
+                {
+                    GlobalManager.Current.TearZ = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearXvel"))
+                {
+                    GlobalManager.Current.TearXvel = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearYvel"))
+                {
+                    GlobalManager.Current.TearYvel = Convert.ToDouble(Node.general);
+                }
+                if (Node.name != null && Node.name.Equals("TearZvel"))
+                {
+                    GlobalManager.Current.TearZvel = Convert.ToDouble(Node.general);
+                }
+            }
+            var c = GlobalManager.Current.laserPoints;
+            var a = GlobalManager.Current.feedar1Points;
+            var b = GlobalManager.Current.feedar2Points;
+            var d = GlobalManager.Current.pickFoam1Points;
+            var e = GlobalManager.Current.lowerCCDPoints;
+            var f = GlobalManager.Current.dropBadFoamPoints;
+            var g = GlobalManager.Current.snapPalletePoints;
+            var h = GlobalManager.Current.placeFoamPoints;
+            var ii = GlobalManager.Current.tearingPoints;
+            var j = GlobalManager.Current.recheckPoints;
+
+        }
+
+        //Add By YXW
+        private void InitAxisJsonPos(string file)
+        {
+            StationPoints newStats = new StationPoints
+            {
+                LaiLiaoPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "LL1",
+                        type = 1,
+                        col = 3,
+                        row = 1,
+                        general = 500,
+                        axisMap = new List<int>{555,11,12345,99},
+                        childList = new List<ChildPoint>
+                        {
+                        new ChildPoint { childName = new List<string>{ "LL1-1" }, childPos = new List<double>{ 10, 20, 30, 0 } },
+                        new ChildPoint { childName = new List<string>{ "LL1-2" }, childPos = new List<double>{ 11, 21, 31, 1 } },
+                        new ChildPoint { childName = new List<string>{ "LL1-3" }, childPos = new List<double>{ 12, 22, 32, 2 } }
+                    }
+                },
+                new Point
+                {
+                    name = "LL2",
+                    type = 1,
+                    col = 1,
+                    row = 1,
+                    axisMap = new List<int>{1,2,5,6},
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "LL2-1" }, childPos = new List<double>{ 15, 25, 35, 5 } }
+                        }
+                    }
+                },
+                ZuZhuangPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "ZZ1",
+                        type = 0,
+                        X = 100,
+                        Y = 200,
+                        Z = 300,
+                        R = 10,
+                        axisMap = new List<int>{1,2,5,6},
+                    }
+                },
+                FuJianPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "FJ1",
+                        type = 1,
+                        col = 2,
+                        row = 1,
+                        axisMap = new List<int>{1,2,5,6},
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "FJ1-1" }, childPos = new List<double>{ 50, 60, 70, 15 } },
+                        new ChildPoint { childName = new List<string>{ "FJ1-2" }, childPos = new List<double>{ 51, 61, 71, 16 } }
+                    }
+                        },
+                        new Point
+                        {
+                            name = "FJ2",
+                            type = 1,
+                            col = 2,
+                            row = 1,
+                            axisMap = new List<int>{1,2,5,6},
+                            childList = new List<ChildPoint>
+                            {
+                                new ChildPoint { childName = new List<string>{ "FJ2-1" }, childPos = new List<double>{ 55, 65, 75, 20 } },
+                                new ChildPoint { childName = new List<string>{ "FJ2-2" }, childPos = new List<double>{ 56, 66, 76, 21 } }
+                            }
+                        }
+                 },
+                RejectPointList = new List<Point>
+                {
+                    new Point
+                    {
+                        name = "RJ1",
+                        type = 1,
+                        col = 3,
+                        row = 1,
+                        axisMap = new List<int>{1,2,5,6},
+                    childList = new List<ChildPoint>
+                    {
+                        new ChildPoint { childName = new List<string>{ "RJ1-1" }, childPos = new List<double>{ 80, 90, 100, 25 } },
+                        new ChildPoint { childName = new List<string>{ "RJ1-2" }, childPos = new List<double>{ 81, 91, 101, 26 } },
+                        new ChildPoint { childName = new List<string>{ "RJ1-3" }, childPos = new List<double>{ 82, 92, 102, 27 } }
+                            }
+                        }
+                    }
+            };
+
+            // 保存到文件
+            bool saveOk = FileHelper.SaveToJson(file, newStats);
+            //MessageBox.Show(saveOk ? "The Json point file cannot be found, and the system automatically generates default point data" : "The automatic generation of the Json point file failed");
+        }
+
+        private void InitTabs(StationPoints points)
+        {
+            if (points == null)
+            {
                 return;
             }
+            PosTabControl.Items.Clear();
 
-            Beltspeed1min.Text = LimitJsonObject["ScanningArea"]["Belt"]["Speed"][0].ToString();
-            Beltspeed1max.Text = LimitJsonObject["ScanningArea"]["Belt"]["Speed"][1].ToString();
-            Liftspeed1min.Text = LimitJsonObject["ScanningArea"]["Lift"]["Speed"][0].ToString();
-            Liftspeed1max.Text = LimitJsonObject["ScanningArea"]["Lift"]["Speed"][1].ToString();
-            GantryXspeed1min.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][0].ToString();
-            GantryXspeed1max.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][1].ToString();
-            GantryYspeed1min.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][0].ToString();
-            GantryYspeed1max.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][1].ToString();
-            GantryZspeed1min.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][0].ToString();
-            GantryZspeed1max.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][1].ToString();
-            ShareValues.AxisSpeedMin[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][1].ToString());
+            AddTabIfHasData("Materials", points.LaiLiaoPointList);
+            AddTabIfHasData("Assembly", points.ZuZhuangPointList);
+            AddTabIfHasData("ReCheck", points.FuJianPointList);
 
-            Beltacc1min.Text = LimitJsonObject["ScanningArea"]["Belt"]["Acc"][0].ToString();
-            Beltacc1max.Text = LimitJsonObject["ScanningArea"]["Belt"]["Acc"][1].ToString();
-            Liftacc1min.Text = LimitJsonObject["ScanningArea"]["Lift"]["Acc"][0].ToString();
-            Liftacc1max.Text = LimitJsonObject["ScanningArea"]["Lift"]["Acc"][1].ToString();
-            GantryXacc1min.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][0].ToString();
-            GantryXacc1max.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][1].ToString();
-            GantryYacc1min.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][0].ToString();
-            GantryYacc1max.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][1].ToString();
-            GantryZacc1min.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][0].ToString();
-            GantryZacc1max.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][1].ToString();
-            ShareValues.AxisAccMin[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][1].ToString());
-
-            Beltdec1min.Text = LimitJsonObject["ScanningArea"]["Belt"]["Dec"][0].ToString();
-            Beltdec1max.Text = LimitJsonObject["ScanningArea"]["Belt"]["Dec"][1].ToString();
-            Liftdec1min.Text = LimitJsonObject["ScanningArea"]["Lift"]["Dec"][0].ToString();
-            Liftdec1max.Text = LimitJsonObject["ScanningArea"]["Lift"]["Dec"][1].ToString();
-            GantryXdec1min.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][0].ToString();
-            GantryXdec1max.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][1].ToString();
-            GantryYdec1min.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][0].ToString();
-            GantryYdec1max.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][1].ToString();
-            GantryZdec1min.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][0].ToString();
-            GantryZdec1max.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][1].ToString();
-            ShareValues.AxisDecMin[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][1].ToString());
-
-            Beltaxis1min.Text = LimitJsonObject["ScanningArea"]["Belt"]["Axis"][0].ToString();
-            Beltaxis1max.Text = LimitJsonObject["ScanningArea"]["Belt"]["Axis"][1].ToString();
-            Liftaxis1min.Text = LimitJsonObject["ScanningArea"]["Lift"]["Axis"][0].ToString();
-            Liftaxis1max.Text = LimitJsonObject["ScanningArea"]["Lift"]["Axis"][1].ToString();
-            GantryXaxis1min.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][0].ToString();
-            GantryXaxis1max.Text = LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][1].ToString();
-            GantryYaxis1min.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][0].ToString();
-            GantryYaxis1max.Text = LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][1].ToString();
-            GantryZaxis1min.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][0].ToString();
-            GantryZaxis1max.Text = LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][1].ToString();
-            ShareValues.AxisMin[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Axis"][0].ToString());
-            ShareValues.AxisMax[0] = double.Parse(LimitJsonObject["ScanningArea"]["Belt"]["Axis"][1].ToString());
-            ShareValues.AxisMin[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Axis"][0].ToString());
-            ShareValues.AxisMax[1] = double.Parse(LimitJsonObject["ScanningArea"]["Lift"]["Axis"][1].ToString());
-            ShareValues.AxisMin[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][0].ToString());
-            ShareValues.AxisMax[2] = double.Parse(LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][1].ToString());
-            ShareValues.AxisMin[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][0].ToString());
-            ShareValues.AxisMax[3] = double.Parse(LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][1].ToString());
-            ShareValues.AxisMin[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][0].ToString());
-            ShareValues.AxisMax[4] = double.Parse(LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][1].ToString());
-
-            Beltspeed2min.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][0].ToString();
-            Beltspeed2max.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][1].ToString();
-            Liftspeed2min.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][0].ToString();
-            Liftspeed2max.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][1].ToString();
-            GantryXspeed2min.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][0].ToString();
-            GantryXspeed2max.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][1].ToString();
-            GantryYspeed2min.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][0].ToString();
-            GantryYspeed2max.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][1].ToString();
-            GantryZspeed2min.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][0].ToString();
-            GantryZspeed2max.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][1].ToString();
-            PickerZspeed2min.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][0].ToString();
-            PickerZspeed2max.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][1].ToString();
-            PickerRspeed2min.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][0].ToString();
-            PickerRspeed2max.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][1].ToString();
-            ShareValues.AxisSpeedMin[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][1].ToString());
-
-            Beltacc2min.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][0].ToString();
-            Beltacc2max.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][1].ToString();
-            Liftacc2min.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][0].ToString();
-            Liftacc2max.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][1].ToString();
-            GantryXacc2min.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][0].ToString();
-            GantryXacc2max.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][1].ToString();
-            GantryYacc2min.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][0].ToString();
-            GantryYacc2max.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][1].ToString();
-            GantryZacc2min.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][0].ToString();
-            GantryZacc2max.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][1].ToString();
-            PickerZacc2min.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][0].ToString();
-            PickerZacc2max.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][1].ToString();
-            PickerRacc2min.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][0].ToString();
-            PickerRacc2max.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][1].ToString();
-            ShareValues.AxisAccMin[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][1].ToString());
-
-            Beltdec2min.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][0].ToString();
-            Beltdec2max.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][1].ToString();
-            Liftdec2min.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][0].ToString();
-            Liftdec2max.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][1].ToString();
-            GantryXdec2min.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][0].ToString();
-            GantryXdec2max.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][1].ToString();
-            GantryYdec2min.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][0].ToString();
-            GantryYdec2max.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][1].ToString();
-            GantryZdec2min.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][0].ToString();
-            GantryZdec2max.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][1].ToString();
-            PickerZdec2min.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][0].ToString();
-            PickerZdec2max.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][1].ToString();
-            PickerRdec2min.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][0].ToString();
-            PickerRdec2max.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][1].ToString();
-            ShareValues.AxisDecMin[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][1].ToString());
-
-            Beltaxis2min.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][0].ToString();
-            Beltaxis2max.Text = LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][1].ToString();
-            Liftaxis2min.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][0].ToString();
-            Liftaxis2max.Text = LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][1].ToString();
-            GantryXaxis2min.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][0].ToString();
-            GantryXaxis2max.Text = LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][1].ToString();
-            GantryYaxis2min.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][0].ToString();
-            GantryYaxis2max.Text = LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][1].ToString();
-            GantryZaxis2min.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][0].ToString();
-            GantryZaxis2max.Text = LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][1].ToString();
-            PickerZaxis2min.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][0].ToString();
-            PickerZaxis2max.Text = LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][1].ToString();
-            PickerRaxis2min.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][0].ToString();
-            PickerRaxis2max.Text = LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][1].ToString();
-            ShareValues.AxisMin[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][0].ToString());
-            ShareValues.AxisMax[5] = double.Parse(LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][1].ToString());
-            ShareValues.AxisMin[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][0].ToString());
-            ShareValues.AxisMax[6] = double.Parse(LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][1].ToString());
-            ShareValues.AxisMin[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][0].ToString());
-            ShareValues.AxisMax[7] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][1].ToString());
-            ShareValues.AxisMin[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][0].ToString());
-            ShareValues.AxisMax[8] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][1].ToString());
-            ShareValues.AxisMin[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][0].ToString());
-            ShareValues.AxisMax[9] = double.Parse(LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][1].ToString());
-            ShareValues.AxisMin[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][0].ToString());
-            ShareValues.AxisMax[10] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][1].ToString());
-            ShareValues.AxisMin[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][0].ToString());
-            ShareValues.AxisMax[11] = double.Parse(LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][1].ToString());
-
-            Beltspeed3min.Text = LimitJsonObject["RecheckArea"]["Belt"]["Speed"][0].ToString();
-            Beltspeed3max.Text = LimitJsonObject["RecheckArea"]["Belt"]["Speed"][1].ToString();
-            Liftspeed3min.Text = LimitJsonObject["RecheckArea"]["Lift"]["Speed"][0].ToString();
-            Liftspeed3max.Text = LimitJsonObject["RecheckArea"]["Lift"]["Speed"][1].ToString();
-            GantryXspeed3min.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][0].ToString();
-            GantryXspeed3max.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][1].ToString();
-            GantryYspeed3min.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][0].ToString();
-            GantryYspeed3max.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][1].ToString();
-            GantryZspeed3min.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][0].ToString();
-            GantryZspeed3max.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][1].ToString();
-            ShareValues.AxisSpeedMin[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][1].ToString());
-            ShareValues.AxisSpeedMin[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][0].ToString());
-            ShareValues.AxisSpeedMax[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][1].ToString());
-
-            Beltacc3min.Text = LimitJsonObject["RecheckArea"]["Belt"]["Acc"][0].ToString();
-            Beltacc3max.Text = LimitJsonObject["RecheckArea"]["Belt"]["Acc"][1].ToString();
-            Liftacc3min.Text = LimitJsonObject["RecheckArea"]["Lift"]["Acc"][0].ToString();
-            Liftacc3max.Text = LimitJsonObject["RecheckArea"]["Lift"]["Acc"][1].ToString();
-            GantryXacc3min.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][0].ToString();
-            GantryXacc3max.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][1].ToString();
-            GantryYacc3min.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][0].ToString();
-            GantryYacc3max.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][1].ToString();
-            GantryZacc3min.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][0].ToString();
-            GantryZacc3max.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][1].ToString();
-            ShareValues.AxisAccMin[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][1].ToString());
-            ShareValues.AxisAccMin[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][0].ToString());
-            ShareValues.AxisAccMax[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][1].ToString());
-
-            Beltdec3min.Text = LimitJsonObject["RecheckArea"]["Belt"]["Dec"][0].ToString();
-            Beltdec3max.Text = LimitJsonObject["RecheckArea"]["Belt"]["Dec"][1].ToString();
-            Liftdec3min.Text = LimitJsonObject["RecheckArea"]["Lift"]["Dec"][0].ToString();
-            Liftdec3max.Text = LimitJsonObject["RecheckArea"]["Lift"]["Dec"][1].ToString();
-            GantryXdec3min.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][0].ToString();
-            GantryXdec3max.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][1].ToString();
-            GantryYdec3min.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][0].ToString();
-            GantryYdec3max.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][1].ToString();
-            GantryZdec3min.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][0].ToString();
-            GantryZdec3max.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][1].ToString();
-            ShareValues.AxisDecMin[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][1].ToString());
-            ShareValues.AxisDecMin[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][0].ToString());
-            ShareValues.AxisDecMax[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][1].ToString());
-
-            Beltaxis3min.Text = LimitJsonObject["RecheckArea"]["Belt"]["Axis"][0].ToString();
-            Beltaxis3max.Text = LimitJsonObject["RecheckArea"]["Belt"]["Axis"][1].ToString();
-            Liftaxis3min.Text = LimitJsonObject["RecheckArea"]["Lift"]["Axis"][0].ToString();
-            Liftaxis3max.Text = LimitJsonObject["RecheckArea"]["Lift"]["Axis"][1].ToString();
-            GantryXaxis3min.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][0].ToString();
-            GantryXaxis3max.Text = LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][1].ToString();
-            GantryYaxis3min.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][0].ToString();
-            GantryYaxis3max.Text = LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][1].ToString();
-            GantryZaxis3min.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][0].ToString();
-            GantryZaxis3max.Text = LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][1].ToString();
-            ShareValues.AxisMin[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Axis"][0].ToString());
-            ShareValues.AxisMax[12] = double.Parse(LimitJsonObject["RecheckArea"]["Belt"]["Axis"][1].ToString());
-            ShareValues.AxisMin[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Axis"][0].ToString());
-            ShareValues.AxisMax[13] = double.Parse(LimitJsonObject["RecheckArea"]["Lift"]["Axis"][1].ToString());
-            ShareValues.AxisMin[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][0].ToString());
-            ShareValues.AxisMax[14] = double.Parse(LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][1].ToString());
-            ShareValues.AxisMin[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][0].ToString());
-            ShareValues.AxisMax[15] = double.Parse(LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][1].ToString());
-            ShareValues.AxisMin[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][0].ToString());
-            ShareValues.AxisMax[16] = double.Parse(LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][1].ToString());
-
-            AxisLimitList = new Dictionary<string, double>
-            {
-                { "Beltspeed1min", ShareValues.AxisSpeedMin[0]},
-                { "Beltspeed1max", ShareValues.AxisSpeedMax[0]},
-                { "Liftspeed1min", ShareValues.AxisSpeedMin[1]},
-                { "Liftspeed1max", ShareValues.AxisSpeedMax[1]},
-                { "GantryXspeed1min", ShareValues.AxisSpeedMin[2]},
-                { "GantryXspeed1max", ShareValues.AxisSpeedMax[2]},
-                { "GantryYspeed1min", ShareValues.AxisSpeedMin[3]},
-                { "GantryYspeed1max", ShareValues.AxisSpeedMax[3]},
-                { "GantryZspeed1min", ShareValues.AxisSpeedMin[4]},
-                { "GantryZspeed1max", ShareValues.AxisSpeedMax[4]},
-                { "Beltacc1min", ShareValues.AxisAccMin[0]},
-                { "Beltacc1max", ShareValues.AxisAccMax[0]},
-                { "Liftacc1min", ShareValues.AxisAccMin[1]},
-                { "Liftacc1max", ShareValues.AxisAccMax[1]},
-                { "GantryXacc1min", ShareValues.AxisAccMin[2]},
-                { "GantryXacc1max", ShareValues.AxisAccMax[2]},
-                { "GantryYacc1min", ShareValues.AxisAccMin[3]},
-                { "GantryYacc1max", ShareValues.AxisAccMax[3]},
-                { "GantryZacc1min", ShareValues.AxisAccMin[4]},
-                { "GantryZacc1max", ShareValues.AxisAccMax[4]},
-                { "Beltdec1min", ShareValues.AxisDecMin[0]},
-                { "Beltdec1max", ShareValues.AxisDecMax[0]},
-                { "Liftdec1min", ShareValues.AxisDecMin[1]},
-                { "Liftdec1max", ShareValues.AxisDecMax[1]},
-                { "GantryXdec1min", ShareValues.AxisDecMin[2]},
-                { "GantryXdec1max", ShareValues.AxisDecMax[2]},
-                { "GantryYdec1min", ShareValues.AxisDecMin[3]},
-                { "GantryYdec1max", ShareValues.AxisDecMax[3]},
-                { "GantryZdec1min", ShareValues.AxisDecMin[4]},
-                { "GantryZdec1max", ShareValues.AxisDecMax[4]},
-
-                { "Beltspeed2min", ShareValues.AxisSpeedMin[5]},
-                { "Beltspeed2max", ShareValues.AxisSpeedMax[5]},
-                { "Liftspeed2min", ShareValues.AxisSpeedMin[6]},
-                { "Liftspeed2max", ShareValues.AxisSpeedMax[6]},
-                { "GantryXspeed2min", ShareValues.AxisSpeedMin[7]},
-                { "GantryXspeed2max", ShareValues.AxisSpeedMax[7]},
-                { "GantryYspeed2min", ShareValues.AxisSpeedMin[8]},
-                { "GantryYspeed2max", ShareValues.AxisSpeedMax[8]},
-                { "GantryZspeed2min", ShareValues.AxisSpeedMin[9]},
-                { "GantryZspeed2max", ShareValues.AxisSpeedMax[9]},
-                { "PickerZspeedmin", ShareValues.AxisSpeedMin[10]},
-                { "PickerZspeedmax", ShareValues.AxisSpeedMax[10]},
-                { "PickerRspeedmin", ShareValues.AxisSpeedMin[11]},
-                { "PickerRspeedmax", ShareValues.AxisSpeedMax[11]},
-                { "Beltacc2min", ShareValues.AxisAccMin[5]},
-                { "Beltacc2max", ShareValues.AxisAccMax[5]},
-                { "Liftacc2min", ShareValues.AxisAccMin[6]},
-                { "Liftacc2max", ShareValues.AxisAccMax[6]},
-                { "GantryXacc2min", ShareValues.AxisAccMin[7]},
-                { "GantryXacc2max", ShareValues.AxisAccMax[7]},
-                { "GantryYacc2min", ShareValues.AxisAccMin[8]},
-                { "GantryYacc2max", ShareValues.AxisAccMax[8]},
-                { "GantryZacc2min", ShareValues.AxisAccMin[9]},
-                { "GantryZacc2max", ShareValues.AxisAccMax[9]},
-                { "PickerZaccmin", ShareValues.AxisAccMin[10]},
-                { "PickerZaccmax", ShareValues.AxisAccMax[10]},
-                { "PickerRaccmin", ShareValues.AxisAccMin[11]},
-                { "PickerRaccmax", ShareValues.AxisAccMax[11]},
-                { "Beltdec2min", ShareValues.AxisDecMin[5]},
-                { "Beltdec2max", ShareValues.AxisDecMax[5]},
-                { "Liftdec2min", ShareValues.AxisDecMin[6]},
-                { "Liftdec2max", ShareValues.AxisDecMax[6]},
-                { "GantryXdec2min", ShareValues.AxisDecMin[7]},
-                { "GantryXdec2max", ShareValues.AxisDecMax[7]},
-                { "GantryYdec2min", ShareValues.AxisDecMin[8]},
-                { "GantryYdec2max", ShareValues.AxisDecMax[8]},
-                { "GantryZdec2min", ShareValues.AxisDecMin[9]},
-                { "GantryZdec2max", ShareValues.AxisDecMax[9]},
-                { "PickerZdecmin", ShareValues.AxisDecMin[10]},
-                { "PickerZdecmax", ShareValues.AxisDecMax[10]},
-                { "PickerRdecmin", ShareValues.AxisDecMin[11]},
-                { "PickerRdecmax", ShareValues.AxisDecMax[11]},
-
-                { "Beltspeed3min", ShareValues.AxisSpeedMin[12]},
-                { "Beltspeed3max", ShareValues.AxisSpeedMax[12]},
-                { "Liftspeed3min", ShareValues.AxisSpeedMin[13]},
-                { "Liftspeed3max", ShareValues.AxisSpeedMax[13]},
-                { "GantryXspeed3min", ShareValues.AxisSpeedMin[14]},
-                { "GantryXspeed3max", ShareValues.AxisSpeedMax[14]},
-                { "GantryYspeed3min", ShareValues.AxisSpeedMin[15]},
-                { "GantryYspeed3max", ShareValues.AxisSpeedMax[15]},
-                { "GantryZspeed3min", ShareValues.AxisSpeedMin[16]},
-                { "GantryZspeed3max", ShareValues.AxisSpeedMax[16]},
-                { "Beltacc3min", ShareValues.AxisAccMin[12]},
-                { "Beltacc3max", ShareValues.AxisAccMax[12]},
-                { "Liftacc3min", ShareValues.AxisAccMin[13]},
-                { "Liftacc3max", ShareValues.AxisAccMax[13]},
-                { "GantryXacc3min", ShareValues.AxisAccMin[14]},
-                { "GantryXacc3max", ShareValues.AxisAccMax[14]},
-                { "GantryYacc3min", ShareValues.AxisAccMin[15]},
-                { "GantryYacc3max", ShareValues.AxisAccMax[15]},
-                { "GantryZacc3min", ShareValues.AxisAccMin[16]},
-                { "GantryZacc3max", ShareValues.AxisAccMax[16]},
-                { "Beltdec3min", ShareValues.AxisDecMin[12]},
-                { "Beltdec3max", ShareValues.AxisDecMax[12]},
-                { "Liftdec3min", ShareValues.AxisDecMin[13]},
-                { "Liftdec3max", ShareValues.AxisDecMax[13]},
-                { "GantryXdec3min", ShareValues.AxisDecMin[14]},
-                { "GantryXdec3max", ShareValues.AxisDecMax[14]},
-                { "GantryYdec3min", ShareValues.AxisDecMin[15]},
-                { "GantryYdec3max", ShareValues.AxisDecMax[15]},
-                { "GantryZdec3min", ShareValues.AxisDecMin[16]},
-                { "GantryZdec3max", ShareValues.AxisDecMax[16]}
-            };
-            init = true;
         }
+
+        private void AddTabIfHasData(string header, List<Point> pointList)
+        {
+            if (pointList == null || pointList.Count == 0)
+                return;
+
+            var tabItem = new TabItem
+            {
+                Header = header,
+                Content = GenerateContentForPoints(pointList)
+            };
+
+            PosTabControl.Items.Add(tabItem);
+        }
+
+        private void EnsureChildDataValid(ChildPoint child)
+        {
+            int maxCount = Math.Max(
+                child.childName?.Count ?? 0,
+                child.childPos?.Count ?? 0
+            );
+
+            if (child.childName == null)
+                child.childName = new List<string>();
+            while (child.childName.Count < maxCount)
+                child.childName.Add($"ChildPoint{child.childName.Count + 1}");
+
+            if (child.childPos == null)
+                child.childPos = new List<double>();
+            while (child.childPos.Count < maxCount)
+                child.childPos.Add(0);
+        }
+
+
+        private UIElement GenerateContentForPoints(List<Point> pointList)
+        {
+            var panel = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(5) };
+
+            foreach (var pt in pointList)
+            {
+                if (pt.type == 0)
+                {
+                    // 单独点，使用 pt 的 X/Y/Z/R
+                    var rowPanel = new StackPanel { Orientation = Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
+
+                    // 添加 ID 标签
+                    var tbID = new TextBlock
+                    {
+                        Text = "ID:",
+                        FontWeight = FontWeights.Bold,
+                        Margin = new Thickness(0, 0, 5, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    rowPanel.Children.Add(tbID);
+                    addTextBlockClicked(tbID, pt.axisMap, rowPanel);   //点击ID弹出示教
+
+
+                    // 添加可编辑的 ID 输入框
+                    var idTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        Width = 150,
+                        Margin = new Thickness(0, 0, 15, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+
+                    // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                    idTextBox.TextChanged += (s, edc) =>
+                    {
+                        pt.name = idTextBox.Text;
+                    };
+                    rowPanel.Children.Add(idTextBox);
+
+
+
+                    TextBox xBox, yBox, zBox, rBox;
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText =>
+                    {
+                        if (double.TryParse(newText, out double val)) pt.X = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText =>
+                    {
+                        if (double.TryParse(newText, out double val)) pt.Y = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText =>
+                    {
+                        if (double.TryParse(newText, out double val)) pt.Z = val;
+                    }));
+
+                    rowPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText =>
+                    {
+                        if (double.TryParse(newText, out double val)) pt.R = val;
+                    }));
+
+                    rowPanel.Children.Add(GreateButton(pt.axisMap, rowPanel));
+
+                    panel.Children.Add(rowPanel);
+
+                }
+                else if (pt.type == 1)
+                {
+                    // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
+                    int totalPoints = pt.row * pt.col;
+
+                    if (totalPoints > 200)
+                    {
+                        panel.Children.Add(new TextBlock
+                        {
+                            Text = $"{MatrixPointPrefix} {pt.name} 超过最大限制（200 个点），跳过。",
+                            Foreground = new SolidColorBrush(Colors.Red)
+                        });
+                        continue;
+                    }
+
+                    // 初始化并填满 childList
+                    if (pt.childList == null)
+                        pt.childList = new List<ChildPoint>();
+
+                    while (pt.childList.Count < totalPoints)
+                    {
+                        pt.childList.Add(new ChildPoint
+                        {
+                            childName = new List<string> { $"Point{pt.childList.Count + 1}" },
+                            childPos = new List<double> { 0, 0, 0, 0 }
+                        });
+                    }
+
+                    // 校验每个子点的内容
+                    foreach (var child in pt.childList)
+                    {
+                        EnsureChildDataValid(child);
+                    }
+
+                    // 绘制 UI
+                    //panel.Children.Add(new TextBlock
+                    //{
+                    //    Text = $"{MatrixPointPrefix}: {pt.name} ({pt.col}col × {pt.row}row)",
+                    //    FontWeight = FontWeights.Bold,
+                    //    Tag = pt.row, //把行数存进 Tag
+                    //    Margin = new Thickness(0, 8, 0, 4)
+                    //});
+
+                    var rowGrid = new Grid
+                    {
+                        Margin = new Thickness(0, 8, 0, 4),
+                        Tag = "MatrixHeader"  // 关键标记
+                    };
+
+                    // 定义三列：标签、输入框、说明文本
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+                    rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+
+                    // ID: 标签
+                    var idLabel = new TextBlock
+                    {
+                        Text = "ID:",
+                        FontWeight = FontWeights.Bold,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    };
+                    Grid.SetColumn(idLabel, 0);
+                    rowGrid.Children.Add(idLabel);
+
+                    // 可编辑的 ID 输入框
+                    var matrixIdTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    matrixIdTextBox.TextChanged += (s, e) => pt.name = matrixIdTextBox.Text;
+                    Grid.SetColumn(matrixIdTextBox, 1);
+                    rowGrid.Children.Add(matrixIdTextBox);
+
+                    // 显示 col × row 信息
+                    var matrixInfoText = new TextBlock
+                    {
+                        Text = $"({pt.col}col × {pt.row}row)",
+                        FontWeight = FontWeights.Bold,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(10, 0, 0, 0)
+                    };
+                    Grid.SetColumn(matrixInfoText, 2);
+                    rowGrid.Children.Add(matrixInfoText);
+
+                    var ButtonAutoData = new Button
+                    {
+                        Content = "FillData",
+                        ToolTip = "Add the top left, bottom left, bottom right points to fillData",
+                        Margin = new Thickness(8, 0, 0, 0),
+                        Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                    };
+                    Grid.SetColumn(ButtonAutoData, 3);
+                    rowGrid.Children.Add(ButtonAutoData);
+
+                    // 添加整行到主 panel
+                    panel.Children.Add(rowGrid);
+
+                    List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>(); // each point has 4 TextBoxes
+                    int childIndex = 0;
+                    for (int r = 0; r < pt.row; r++)
+                    {
+                        var rowPanel = new StackPanel
+                        {
+                            Tag = "MatrixRow",
+                            Orientation = Orientation.Horizontal,
+                            Margin = new Thickness(0, 4, 0, 4)
+                        };
+
+                        var inputRow = new List<TextBox[]>();
+
+                        for (int c = 0; c < pt.col; c++)
+                        {
+                            var child = pt.childList[childIndex++];
+                            string displayName = child.childName[0];
+                            var pos = child.childPos;
+
+                            // 默认背景颜色
+                            Brush background = new SolidColorBrush(Colors.LightGray);
+                            // 是否需要设置角点高亮（至少 2行2列）
+                            bool highlightCorners = pt.row >= 2 && pt.col >= 2;
+                            // 三个角点统一高亮为 #E0E0E0
+                            bool isCorner = highlightCorners && (
+                                (r == 0 && c == 0) ||                            // 左上角 C
+                                (r == pt.row - 1 && c == 0) ||                   // 左下角 A
+                                (r == pt.row - 1 && c == pt.col - 1)             // 右下角 B
+                            );
+
+                            if (isCorner)
+                            {
+                                background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B2828282"));
+                            }
+
+                            var pointPanel = new StackPanel
+                            {
+                                Tag = "MatrixRow",
+                                Orientation = Orientation.Vertical,
+                                Margin = new Thickness(4),
+                                Width = 120,
+                                Background = background,
+                            };
+
+                            var tbID = new TextBlock
+                            {
+                                Text = $"ID: {displayName}",
+                                Margin = new Thickness(0, 0, 0, 6)
+                            };
+                            pointPanel.Children.Add(tbID);
+                            addTextBlockClicked(tbID, pt.axisMap, pointPanel);
+
+                            TextBox xBox, yBox, zBox, rBox;
+
+                            //回写，用于保存文件
+                            //use to save file
+                            pointPanel.Children.Add(CreateLabeledTextBox("X", pos[0], out xBox, newText =>
+                            {
+                                if (double.TryParse(newText, out double val)) pos[0] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("Y", pos[1], out yBox, newText =>
+                            {
+                                if (double.TryParse(newText, out double val)) pos[1] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("Z", pos[2], out zBox, newText =>
+                            {
+                                if (double.TryParse(newText, out double val)) pos[2] = val;
+                            }));
+
+                            pointPanel.Children.Add(CreateLabeledTextBox("R", pos[3], out rBox, newText =>
+                            {
+                                if (double.TryParse(newText, out double val)) pos[3] = val;
+                            }));
+
+                            pointPanel.Children.Add(GreateButton(pt.axisMap, pointPanel));
+
+                            rowPanel.Children.Add(pointPanel);
+
+                            inputRow.Add(new[] { xBox, yBox, zBox, rBox });
+                        }
+
+
+                        matrixInputs.Add(inputRow);
+                        panel.Children.Add(rowPanel);
+
+
+                    }
+
+                    ButtonAutoData.Click += (s, e) =>
+                    {
+                        if (pt.childList.Count != pt.row * pt.col) return;
+
+                        // 三个角的坐标（行列）
+                        int ax = 0, ay = pt.row - 1;        // 左下角 A → (2, 0)
+                        int dx = pt.col - 1, dy = pt.row - 1; // 右下角 D → (2, 2)
+                        int cx = 0, cy = 0;                 // 左上角 C → (0, 0)
+
+                        var A = pt.childList[ay * pt.col + ax].childPos; // 左下
+                        var D = pt.childList[dy * pt.col + dx].childPos; // 右下
+                        var C = pt.childList[cy * pt.col + cx].childPos; // 左上
+
+                        // vecX: A -> D 水平方向向量
+                        // vecY: A -> C 垂直方向向量
+                        double[] vecX = new double[2];
+                        double[] vecY = new double[2];
+
+                        vecX[0] = (D[0] - A[0]) / (pt.col - 1); // X 水平方向单步增量
+                        vecX[1] = (D[1] - A[1]) / (pt.col - 1); // Y 水平方向单步增量
+
+                        vecY[0] = (C[0] - A[0]) / (pt.row - 1); // X 垂直方向单步增量
+                        vecY[1] = (C[1] - A[1]) / (pt.row - 1); // Y 垂直方向单步增量
+
+                        Console.WriteLine($"vecX: ({vecX[0]:0.####}, {vecX[1]:0.####})");
+                        Console.WriteLine($"vecY: ({vecY[0]:0.####}, {vecY[1]:0.####})");
+
+                        Console.WriteLine($"A (左下): {A[0]}, {A[1]}, {A[2]}, {A[3]}");
+                        Console.WriteLine($"D (右下): {D[0]}, {D[1]}, {D[2]}, {D[3]}");
+                        Console.WriteLine($"C (左上): {C[0]}, {C[1]}, {C[2]}, {C[3]}");
+
+                        for (int r = 0; r < pt.row; r++)
+                        {
+                            for (int c = 0; c < pt.col; c++)
+                            {
+                                int index = r * pt.col + c; // 保持顺序一致：从上到下、从左到右
+
+                                // 跳过已设置的三个角点
+                                if ((r == ay && c == ax) || (r == dy && c == dx) || (r == cy && c == cx))
+                                {
+                                    Console.WriteLine($"跳过基准点[{r},{c}]");
+                                    continue;
+                                }
+
+                                var pos = pt.childList[index].childPos;
+
+                                // 用 (pt.row - 1 - r) 来反转行，保证点[0,*]是左上角行
+                                pos[0] = A[0] + vecX[0] * c + vecY[0] * (pt.row - 1 - r); // X
+                                pos[1] = A[1] + vecX[1] * c + vecY[1] * (pt.row - 1 - r); // Y
+                                pos[2] = A[2]; // Z 保持不变
+                                pos[3] = A[3]; // R 保持不变
+
+                                var boxes = matrixInputs[r][c];
+                                boxes[0].Text = pos[0].ToString("F3");
+                                boxes[1].Text = pos[1].ToString("F3");
+                                boxes[2].Text = pos[2].ToString("F3");
+                                boxes[3].Text = pos[3].ToString("F3");
+
+                                Console.WriteLine($"点[{r},{c}]: X={pos[0]:0.###}, Y={pos[1]:0.###}, Z={pos[2]}, R={pos[3]}");
+                            }
+                        }
+                    };
+
+                    //if (pt.childList.Count != pt.row * pt.col) return;
+
+                    //var topLeft = pt.childList[0].childPos;
+                    //var topRight = pt.childList[pt.col - 1].childPos;
+                    //var bottomLeft = pt.childList[(pt.row - 1) * pt.col].childPos;
+
+                    //double[] vecX = new double[4];
+                    //double[] vecY = new double[4];
+                    //for (int i = 0; i < 4; i++)
+                    //{
+                    //    vecX[i] = (topRight[i] - topLeft[i]) / (pt.col - 1);
+                    //    vecY[i] = (bottomLeft[i] - topLeft[i]) / (pt.row - 1);
+                    //}
+
+                    //int idx = 0;
+                    //for (int r = 0; r < pt.row; r++)
+                    //{
+                    //    for (int c = 0; c < pt.col; c++)
+                    //    {
+                    //        var pos = pt.childList[idx++].childPos;
+
+                    //        pos[0] = topLeft[0] + vecX[0] * c + vecY[0] * r;
+                    //        pos[1] = topLeft[1] + vecX[1] * c + vecY[1] * r;
+                    //        pos[2] = topLeft[2];
+                    //        pos[3] = topLeft[3];
+
+                    //        var boxes = matrixInputs[r][c];
+                    //        boxes[0].Text = pos[0].ToString("0.###");
+                    //        boxes[1].Text = pos[1].ToString("0.###");
+                    //        boxes[2].Text = pos[2].ToString("0.###");
+                    //        boxes[3].Text = pos[3].ToString("0.###");
+                    //    }
+                    //}
+
+                }
+                else
+                {
+                    //var rowPanel = new StackPanel
+                    //{
+                    //    Tag = "SinglePoint",
+                    //    Orientation = Orientation.Horizontal,
+                    //    Margin = new Thickness(0, 4, 0, 4)
+                    //};
+
+                    //// general 输入框 + 回写
+                    //rowPanel.Children.Add(CreateLabeledTextBox(pt.name, pt.general, newText =>
+                    //{
+                    //    if (double.TryParse(newText, out double val)) pt.general = val;
+                    //}));
+
+                    //panel.Children.Add(rowPanel);
+
+
+                    var rowPanel = new StackPanel
+                    {
+                        Tag = "SinglePoint",
+                        Orientation = Orientation.Horizontal,
+                        Margin = new Thickness(0, 4, 10, 4)
+                    };
+
+                    //pt.name = "New";
+
+                    // 添加 ID 标签
+                    rowPanel.Children.Add(new TextBlock
+                    {
+                        Text = "ID:",
+                        FontWeight = FontWeights.Bold,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    });
+
+                    // 添加 ID 输入框（回写 pt.name）
+                    var idTextBox = new TextBox
+                    {
+                        Text = pt.name,
+                        Width = 150,
+                        Margin = new Thickness(0, 0, 15, 0),
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
+                    rowPanel.Children.Add(idTextBox);
+
+                    // 添加 General 标签
+                    rowPanel.Children.Add(new TextBlock
+                    {
+                        Text = "Data:",
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 5, 0)
+                    });
+
+                    // 添加 General 输入框（回写 pt.general）
+                    var genTextBox = new TextBox
+                    {
+                        Text = pt.general.ToString(),
+                        Width = 90,
+                        VerticalAlignment = VerticalAlignment.Center
+                    };
+                    genTextBox.TextChanged += (s, edc) =>
+                    {
+                        if (double.TryParse(genTextBox.Text, out double val))
+                            pt.general = val;
+                    };
+                    rowPanel.Children.Add(genTextBox);
+
+                    // 添加到主容器
+                    panel.Children.Add(rowPanel);
+                }
+            }
+
+            return new ScrollViewer
+            {
+                Content = panel,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+            };
+        }
+        private FrameworkElement CreateLabeledTextBox(string label, double initialValue, out TextBox tb, Action<string> onTextChanged = null)
+        {
+            var panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 2, 10, 2),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = label + ":",
+                //Width = 25,
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            var tba = new TextBox
+            {
+                Width = 90,
+                Text = initialValue.ToString()
+            };
+
+            tba.PreviewTextInput += FloatTextBox_PreviewTextInput;
+            tba.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+            DataObject.AddPastingHandler(tba, FloatTextBox_Pasting);
+
+            // 禁用输入法
+            //limit input
+            InputMethod.SetIsInputMethodEnabled(tba, false);
+
+            tb = tba;
+
+            if (onTextChanged != null)
+            {
+                tba.TextChanged += (s, e) =>
+                {
+                    onTextChanged(tba.Text);
+                };
+            }
+
+            panel.Children.Add(tba);
+
+            return panel;
+        }
+
+        private Button GreateButton(List<int> axisIndex, StackPanel backSP)
+        {
+            // 添加 Teaching Point 按钮
+            var teachBtn = new Button
+            {
+                Visibility = Visibility.Collapsed,
+                ToolTip = "Teaching point",
+                Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
+                Width = 30,
+                Height = 30,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(5, 0, 0, 5),
+                Content = new PackIcon { Kind = PackIconKind.DebugStepInto, Width = 18, Height = 18 }
+            };
+
+            teachBtn.Click += (s, e) =>
+            {
+                //将X,Y,Z,R轴的对应映射下标传入
+                //List<int> ints= new List<int>();
+                // 如果已有弹窗存在并还在显示，就关闭它
+                if (teachingWindow != null && teachingWindow.IsLoaded)
+                {
+                    teachingWindow.Close();
+                }
+
+                // 创建新的窗口
+                teachingWindow = new TeachingWindow(axisIndex);
+                teachingWindow.TeachingDataReady += (x, y, z, r) =>
+                {
+                    Console.WriteLine($"X={x}, Y={y}, Z={z}, R={r}");
+                    // 遍历 backSP 中的 TextBox，按顺序赋值 X/Y/Z/R
+                    var textBoxes = FindTextBoxes(backSP);
+                    if (backSP.Tag.ToString() == "SinglePoint")
+                    {
+                        if (textBoxes.Count >= 5)
+                        {
+                            textBoxes[1].Text = x.ToString("F3");
+                            textBoxes[2].Text = y.ToString("F3");
+                            textBoxes[3].Text = z.ToString("F3");
+                            textBoxes[4].Text = r.ToString("F3");
+                        }
+                    }
+                    else
+                    {
+                        if (textBoxes.Count >= 4)
+                        {
+                            textBoxes[0].Text = x.ToString("F3");
+                            textBoxes[1].Text = y.ToString("F3");
+                            textBoxes[2].Text = z.ToString("F3");
+                            textBoxes[3].Text = r.ToString("F3");
+                        }
+                    }
+                };
+
+                teachingWindow.Show();
+            };
+            return teachBtn;
+        }
+
+        private void addTextBlockClicked(TextBlock textBlock, List<int> axisIndex, StackPanel backSP)
+        {
+            textBlock.MouseLeftButtonDown += (s, e) =>
+            {
+                //将X,Y,Z,R轴的对应映射下标传入
+                //List<int> ints= new List<int>();
+                // 如果已有弹窗存在并还在显示，就关闭它
+                if (teachingWindow != null && teachingWindow.IsLoaded)
+                {
+                    teachingWindow.Close();
+                }
+
+                // 创建新的窗口
+                teachingWindow = new TeachingWindow(axisIndex);
+                teachingWindow.TeachingDataReady += (x, y, z, r) =>
+                {
+                    Console.WriteLine($"X={x}, Y={y}, Z={z}, R={r}");
+                    // 遍历 backSP 中的 TextBox，按顺序赋值 X/Y/Z/R
+                    var textBoxes = FindTextBoxes(backSP);
+
+                    if (backSP.Tag.ToString() == "SinglePoint")
+                    {
+                        if (textBoxes.Count >= 5)
+                        {
+                            textBoxes[1].Text = x.ToString("F3");
+                            textBoxes[2].Text = y.ToString("F3");
+                            textBoxes[3].Text = z.ToString("F3");
+                            textBoxes[4].Text = r.ToString("F3");
+                        }
+                    }
+                    else
+                    {
+                        if (textBoxes.Count >= 4)
+                        {
+                            textBoxes[0].Text = x.ToString("F3");
+                            textBoxes[1].Text = y.ToString("F3");
+                            textBoxes[2].Text = z.ToString("F3");
+                            textBoxes[3].Text = r.ToString("F3");
+                        }
+                    }
+                };
+
+                teachingWindow.Show();
+            };
+        }
+
+        private List<TextBox> FindTextBoxes(DependencyObject parent)
+        {
+            var result = new List<TextBox>();
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is TextBox tb)
+                {
+                    result.Add(tb);
+                }
+                else
+                {
+                    result.AddRange(FindTextBoxes(child));
+                }
+            }
+            return result;
+        }
+
+        private bool SaveAllTabsData(string jsonFilePath)
+        {
+
+            return FileHelper.SaveToJson(jsonFilePath, stationPoints);
+        }
+
+        private void SavePosParam_Click(object sender, RoutedEventArgs e)
+        {
+            int selectedIndex = CboxNowType.SelectedIndex;
+            string jsonFile = posFileName[selectedIndex];
+            if (SaveAllTabsData(jsonFile))
+            {
+                GlobalManager.Current.laserPoints.Clear();
+                GlobalManager.Current.feedar1Points.Clear();
+                GlobalManager.Current.feedar2Points.Clear();
+                GlobalManager.Current.pickFoam1Points.Clear();
+                GlobalManager.Current.pickFoam2Points.Clear();
+                GlobalManager.Current.lowerCCDPoints.Clear();
+                GlobalManager.Current.dropBadFoamPoints.Clear();
+                GlobalManager.Current.snapPalletePoints.Clear();
+                GlobalManager.Current.placeFoamPoints.Clear();
+                GlobalManager.Current.recheckPoints.Clear();
+                GlobalManager.Current.tearingPoints.Clear();
+                ParameterConfig.LoadPoints();
+
+                MessageBox.Show("保存点位成功" + posFilePre[selectedIndex]);
+            }
+            else
+                MessageBox.Show("保存点位失败" + posFilePre[selectedIndex]);
+        }
+
+
+        //添加double输入限制-------------------------------------------------------------
+        private void RegisterFloatInputHandlers()
+        {
+            //foreach (var tabObj in AxisGrid)
+            //{
+            //    if (tabObj is TabItem tabItem)
+            //    {
+            RegisterHandlersInContainer(AxisGrid);
+            //    }
+            //}
+        }
+
+        private void RegisterHandlersInContainer(object container)
+        {
+            if (container is DependencyObject depObj)
+            {
+                foreach (var child in FindVisualChildren<TextBox>(depObj))
+                {
+                    child.PreviewTextInput += FloatTextBox_PreviewTextInput;
+                    child.PreviewKeyDown += FloatTextBox_PreviewKeyDown;
+                    DataObject.AddPastingHandler(child, FloatTextBox_Pasting);
+
+                    // 禁用输入法
+                    InputMethod.SetIsInputMethodEnabled(child, false);
+                }
+            }
+        }
+
+        private IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                    if (child is T t)
+                        yield return t;
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                        yield return childOfChild;
+                }
+            }
+        }
+
+        private void FloatTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (sender is System.Windows.Controls.TextBox tb)
+            {
+                string newText = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
+                                       .Insert(tb.SelectionStart, e.Text);
+
+                e.Handled = !IsValidFloatInput(newText);
+            }
+        }
+
+        private void FloatTextBox_Pasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (e.DataObject.GetDataPresent(typeof(string)))
+            {
+                string text = (string)e.DataObject.GetData(typeof(string));
+                if (!IsValidFloatInput(text))
+                {
+                    e.CancelCommand();
+                }
+            }
+            else
+            {
+                e.CancelCommand();
+            }
+        }
+
+        private void FloatTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // 禁用中文输入法（保险起见）
+            InputMethod.Current.ImeState = InputMethodState.Off;
+        }
+
+        private bool IsValidFloatInput(string input)
+        {
+            // 支持合法浮点数格式：123、0.5、.5、123.
+            return Regex.IsMatch(input, @"^-?(\d+(\.\d*)?|\.\d+)?$");
+        }
+
+        //END ADD-------------------------------------------------------------
+
 
         private void DoubleText_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
@@ -466,2683 +1368,701 @@ namespace AkribisFAM.Windows
             e.Handled = regex.IsMatch(e.Text);
         }
 
-        private void Axis_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
 
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                AxisLimitList[textbox.Name] = result;
-            }
-        }
-        private void AxisParam_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// 从指定json文件加载配置信息字典
+        /// </summary>
+        /// <param name="_config"></param>
+        /// <returns></returns>
+        public int LoadConfig(string jsonfile)
         {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
+            if (string.IsNullOrEmpty(jsonfile))
             {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
+                return 1;
+            }
+            try
+            {
+                string content = File.ReadAllText(jsonfile);
+                GlobalManager.Current.axisparams = JsonConvert.DeserializeObject<AxisParams>(content);
+                if (GlobalManager.Current.axisparams == null)
                 {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
+                    return 1;
                 }
             }
-            if (textbox.Text == "")
+            catch (Exception ex)
             {
-                textbox.Text = "0";
+                return 1;
             }
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
+            return 0;
         }
 
-        private void PickerSpeed_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// 将配置信息字典保存至指定json文件
+        /// </summary>
+        /// <param name="_config"></param>
+        /// <returns></returns>
+        public bool SaveToJson(string _config)
         {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
+            try
             {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
+                JsonSerializerSettings settings = new JsonSerializerSettings()
                 {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
+                    NullValueHandling = NullValueHandling.Ignore
+                };
+                string content = JsonConvert.SerializeObject(GlobalManager.Current.axisparams, settings);
+                File.WriteAllText(_config, content);
             }
-            if (textbox.Text == "")
+            catch (Exception ex)
             {
-                textbox.Text = "0";
+                return false;
             }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void PickerRSpeed_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void ACC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void PickerACC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void PickerRACC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void DEC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void PickerDEC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void PickerRDEC_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textbox = (TextBox)sender;
-            TextChange[] change = new TextChange[e.Changes.Count];
-            e.Changes.CopyTo(change, 0);
-
-            int offset = change[0].Offset;
-            if (change[0].AddedLength > 0)
-            {
-                double num = 0;
-                if (!Double.TryParse(textbox.Text, out num))
-                {
-                    textbox.Text = textbox.Text.Remove(offset, change[0].AddedLength);
-                    textbox.Select(offset, 0);
-                }
-            }
-            if (textbox.Text == "")
-            {
-                textbox.Text = "0";
-            }
-            if (textbox.Name.Substring(textbox.Name.Length - 3, 3) == "min" || textbox.Name.Substring(textbox.Name.Length - 3, 3) == "max")
-                return;
-            double result;
-            bool success = double.TryParse(textbox.Text, out result);
-            if (success && init)
-            {
-                if (result < AxisLimitList[textbox.Name + "min"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "min"].ToString();
-                }
-                else if (result > AxisLimitList[textbox.Name + "max"])
-                {
-                    textbox.Text = AxisLimitList[textbox.Name + "max"].ToString();
-                }
-            }
-        }
-
-        private void LaserpointsFiledialog_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-            // 创建 OpenFileDialog 实例
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            // 设置过滤器
-            openFileDialog.Filter = "Text files (*.json)|*.json";
-            // 设置默认的文件名或扩展名
-            openFileDialog.DefaultExt = ".json";
-            // 设置初始目录
-            openFileDialog.InitialDirectory = @"D:\";
-            // 设置对话框标题
-            openFileDialog.Title = "Select a json file";
-            // 显示打开文件对话框，并检查用户是否点击了“打开”按钮
-            if (openFileDialog.ShowDialog() == true)
-            {
-                // 获取用户选择的文件路径
-                string filePath = openFileDialog.FileName;
-                string jsonString = File.ReadAllText(filePath);
-                palletpointswindow = new PalletPointsWindow();
-                var json = JObject.Parse(jsonString);
-
-                try
-                {
-                    StreamReader file = File.OpenText(filePath);
-                    JsonTextReader reader = new JsonTextReader(file);
-                    JObject jsonObject = (JObject)JToken.ReadFrom(reader);
-                    if (button != null)
-                    {
-                        if (button.Name == "LaserpointsFiledialog")
-                        {
-                            
-                            Laserpointsconfig.Text = filePath;
-                            palletpointswindow.jsontype = PointsType.Laser;
-                            scanningareaparams.PalletID = int.Parse(jsonObject["PalletID"].ToString());
-                            scanningareaparams.PalletW = int.Parse(jsonObject["PalletW"].ToString());
-                            scanningareaparams.PalletH = int.Parse(jsonObject["PalletH"].ToString());
-                        }
-                        else if (button.Name == "ModulepointsFiledialog")
-                        {
-                            Modulepointsconfig.Text = filePath;
-                            palletpointswindow.jsontype = PointsType.Laser;
-                            assemblyareaparams.PalletID = int.Parse(jsonObject["PalletID"].ToString());
-                            assemblyareaparams.PalletW = int.Parse(jsonObject["PalletW"].ToString());
-                            assemblyareaparams.PalletH = int.Parse(jsonObject["PalletH"].ToString());
-                        }
-                        else if (button.Name == "CheckpointsFiledialog")
-                        {
-                            Checkpointsconfig.Text = filePath;
-                            palletpointswindow.jsontype = PointsType.Feeder;
-                            assemblyareaparams.PalletID = int.Parse(jsonObject["PalletID"].ToString());
-                            assemblyareaparams.PalletW = int.Parse(jsonObject["PalletW"].ToString());
-                            assemblyareaparams.PalletH = int.Parse(jsonObject["PalletH"].ToString());
-                        }
-                        else if (button.Name == "FeederpointsFiledialog")
-                        {
-                            Feederpointsconfig.Text = filePath;
-                            palletpointswindow.jsontype = PointsType.Feeder;
-                            assemblyareaparams.PalletID = int.Parse(jsonObject["PalletID"].ToString());
-                            assemblyareaparams.PalletW = int.Parse(jsonObject["PalletW"].ToString());
-                            assemblyareaparams.PalletH = int.Parse(jsonObject["PalletH"].ToString());
-                        }
-                    }
-
-                    palletpointswindow.jsonObject = jsonObject;
-                    palletpointswindow.jsonpath = filePath;
-                    palletpointswindow.modulenumX = int.Parse(jsonObject["PalletW"].ToString());
-                    palletpointswindow.modulenumY = int.Parse(jsonObject["PalletH"].ToString());
-                    palletpointswindow.pointsnum = int.Parse(jsonObject["PointsNum"].ToString());
-                    palletpointswindow.setWindow();
-                    if (file != null)
-                    {
-                        file.Dispose();
-                    }
-                    palletpointswindow.ShowDialog();
-                }
-                catch (Exception ex)
-                {
-                    //读取json失败
-                }
-            }
-        }
-
-        private void Genratescanjson_Click(object sender, RoutedEventArgs e)
-        {
-            GenrateJson genratescanjson = new GenrateJson();
-            Button button = (Button)sender;
-            string name = button.Name.Substring(7, button.Name.Length - 11);
-            genratescanjson.jsonname = name + "points";
-            if (name == "Feeder" || name == "Check")
-            {
-                genratescanjson.jsontype = PointsType.Feeder;
-                genratescanjson.ZR1.Content = "R1";
-                genratescanjson.ZRW.Content = "RW";
-                genratescanjson.ZRH.Content = "RH";
-            }
-            else
-            {
-                genratescanjson.jsontype = PointsType.Laser;
-            }
-            genratescanjson.ShowDialog();
+            return true;
         }
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
-            JObject jsObj = new JObject();
-            JObject jsScanningArea = new JObject();
-            JObject jsAssemblyArea = new JObject();
-            JObject jsRecheckArea = new JObject();
-
-            double result; bool success;
-            JObject jsAxisInfo1 = new JObject();
-            success = double.TryParse(Beltspeed1.Text, out result);
-            jsAxisInfo1.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Beltacc1.Text, out result);
-            jsAxisInfo1.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Beltdec1.Text, out result);
-            jsAxisInfo1.Add("Dec", Math.Round(result, 4));
-            jsScanningArea.Add("Belt", jsAxisInfo1);
-
-            JObject jsAxisInfo2 = new JObject();
-            success = double.TryParse(Liftspeed1.Text, out result);
-            jsAxisInfo2.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Liftacc1.Text, out result);
-            jsAxisInfo2.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Liftdec1.Text, out result);
-            jsAxisInfo2.Add("Dec", Math.Round(result, 4));
-            jsScanningArea.Add("Lift", jsAxisInfo2);
-
-            JObject jsAxisInfo3 = new JObject();
-            success = double.TryParse(GantryXspeed1.Text, out result);
-            jsAxisInfo3.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryXacc1.Text, out result);
-            jsAxisInfo3.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryXdec1.Text, out result);
-            jsAxisInfo3.Add("Dec", Math.Round(result, 4));
-            jsScanningArea.Add("GantryX", jsAxisInfo3);
-
-            JObject jsAxisInfo4 = new JObject();
-            success = double.TryParse(GantryYspeed1.Text, out result);
-            jsAxisInfo4.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryYacc1.Text, out result);
-            jsAxisInfo4.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryYdec1.Text, out result);
-            jsAxisInfo4.Add("Dec", Math.Round(result, 4));
-            jsScanningArea.Add("GantryY", jsAxisInfo4);
-
-            JObject jsAxisInfo5 = new JObject();
-            success = double.TryParse(GantryZspeed1.Text, out result);
-            jsAxisInfo5.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryZacc1.Text, out result);
-            jsAxisInfo5.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryZdec1.Text, out result);
-            jsAxisInfo5.Add("Dec", Math.Round(result, 4));
-            jsScanningArea.Add("GantryZ", jsAxisInfo5);
-
-            JObject jsAxisInfo6 = new JObject();
-            success = double.TryParse(Beltspeed2.Text, out result);
-            jsAxisInfo6.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Beltacc2.Text, out result);
-            jsAxisInfo6.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Beltdec2.Text, out result);
-            jsAxisInfo6.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("Belt", jsAxisInfo6);
-
-            JObject jsAxisInfo7 = new JObject();
-            success = double.TryParse(Liftspeed2.Text, out result);
-            jsAxisInfo7.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Liftacc2.Text, out result);
-            jsAxisInfo7.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Liftdec2.Text, out result);
-            jsAxisInfo7.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("Lift", jsAxisInfo7);
-
-            JObject jsAxisInfo8 = new JObject();
-            success = double.TryParse(GantryXspeed2.Text, out result);
-            jsAxisInfo8.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryXacc2.Text, out result);
-            jsAxisInfo8.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryXdec2.Text, out result);
-            jsAxisInfo8.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("GantryX", jsAxisInfo8);
-
-            JObject jsAxisInfo9 = new JObject();
-            success = double.TryParse(GantryYspeed2.Text, out result);
-            jsAxisInfo9.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryYacc2.Text, out result);
-            jsAxisInfo9.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryYdec2.Text, out result);
-            jsAxisInfo9.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("GantryY", jsAxisInfo9);
-
-            JObject jsAxisInfo10 = new JObject();
-            success = double.TryParse(GantryZspeed2.Text, out result);
-            jsAxisInfo10.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryZacc2.Text, out result);
-            jsAxisInfo10.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryZdec2.Text, out result);
-            jsAxisInfo10.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("GantryZ", jsAxisInfo10);
-
-            JObject jsAxisInfo11 = new JObject();
-            success = double.TryParse(PickerZspeed.Text, out result);
-            jsAxisInfo11.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(PickerZacc.Text, out result);
-            jsAxisInfo11.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(PickerZdec.Text, out result);
-            jsAxisInfo11.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("PickerZ", jsAxisInfo11);
-
-            JObject jsAxisInfo12 = new JObject();
-            success = double.TryParse(PickerRspeed.Text, out result);
-            jsAxisInfo12.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(PickerRacc.Text, out result);
-            jsAxisInfo12.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(PickerRdec.Text, out result);
-            jsAxisInfo12.Add("Dec", Math.Round(result, 4));
-            jsAssemblyArea.Add("PickerR", jsAxisInfo12);
-
-            JObject jsAxisInfo13 = new JObject();
-            success = double.TryParse(Beltspeed3.Text, out result);
-            jsAxisInfo13.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Beltacc3.Text, out result);
-            jsAxisInfo13.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Beltdec3.Text, out result);
-            jsAxisInfo13.Add("Dec", Math.Round(result, 4));
-            jsRecheckArea.Add("Belt", jsAxisInfo13);
-
-            JObject jsAxisInfo14 = new JObject();
-            success = double.TryParse(Liftspeed3.Text, out result);
-            jsAxisInfo14.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(Liftacc3.Text, out result);
-            jsAxisInfo14.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(Liftdec3.Text, out result);
-            jsAxisInfo14.Add("Dec", Math.Round(result, 4));
-            jsRecheckArea.Add("Lift", jsAxisInfo14);
-
-            JObject jsAxisInfo15 = new JObject();
-            success = double.TryParse(GantryXspeed3.Text, out result);
-            jsAxisInfo15.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryXacc3.Text, out result);
-            jsAxisInfo15.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryXdec3.Text, out result);
-            jsAxisInfo15.Add("Dec", Math.Round(result, 4));
-            jsRecheckArea.Add("GantryX", jsAxisInfo15);
-
-            JObject jsAxisInfo16 = new JObject();
-            success = double.TryParse(GantryYspeed3.Text, out result);
-            jsAxisInfo16.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryYacc3.Text, out result);
-            jsAxisInfo16.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryYdec3.Text, out result);
-            jsAxisInfo16.Add("Dec", Math.Round(result, 4));
-            jsRecheckArea.Add("GantryY", jsAxisInfo16);
-
-            JObject jsAxisInfo17 = new JObject();
-            success = double.TryParse(GantryZspeed3.Text, out result);
-            jsAxisInfo17.Add("Speed", Math.Round(result, 4));
-            success = double.TryParse(GantryZacc3.Text, out result);
-            jsAxisInfo17.Add("Acc", Math.Round(result, 4));
-            success = double.TryParse(GantryZdec3.Text, out result);
-            jsAxisInfo17.Add("Dec", Math.Round(result, 4));
-            jsRecheckArea.Add("GantryZ", jsAxisInfo17);
-
-            jsObj.Add("ScanningArea", jsScanningArea);
-            jsObj.Add("AssemblyArea", jsAssemblyArea);
-            jsObj.Add("RecheckArea", jsRecheckArea);
-            string strSrc = Convert.ToString(jsObj);//将json装换为string
-            File.WriteAllText(Directory.GetCurrentDirectory() + "\\Params.json", strSrc, System.Text.Encoding.UTF8);
-        }
-
-        private void ApplyLimit_Click(object sender, RoutedEventArgs e)
-        {
-            LimitJsonObject["ScanningArea"]["Belt"]["Speed"][0] = double.Parse(Beltspeed1min.Text);
-            LimitJsonObject["ScanningArea"]["Belt"]["Speed"][1] = double.Parse(Beltspeed1max.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Speed"][0] = double.Parse(Liftspeed1min.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Speed"][1] = double.Parse(Liftspeed1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][0] = double.Parse(GantryXspeed1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Speed"][1] = double.Parse(GantryXspeed1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][0] = double.Parse(GantryYspeed1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Speed"][1] = double.Parse(GantryYspeed1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][0] = double.Parse(GantryZspeed1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Speed"][1] = double.Parse(GantryZspeed1max.Text);
-            ShareValues.AxisSpeedMin[0] = double.Parse(Beltspeed1min.Text);
-            ShareValues.AxisSpeedMax[0] = double.Parse(Beltspeed1max.Text);
-            ShareValues.AxisSpeedMin[1] = double.Parse(Liftspeed1min.Text);
-            ShareValues.AxisSpeedMax[1] = double.Parse(Liftspeed1max.Text);
-            ShareValues.AxisSpeedMin[2] = double.Parse(GantryXspeed1min.Text);
-            ShareValues.AxisSpeedMax[2] = double.Parse(GantryXspeed1max.Text);
-            ShareValues.AxisSpeedMin[3] = double.Parse(GantryYspeed1min.Text);
-            ShareValues.AxisSpeedMax[3] = double.Parse(GantryYspeed1max.Text);
-            ShareValues.AxisSpeedMin[4] = double.Parse(GantryZspeed1min.Text);
-            ShareValues.AxisSpeedMax[4] = double.Parse(GantryZspeed1max.Text);
-
-            LimitJsonObject["ScanningArea"]["Belt"]["Acc"][0] = double.Parse(Beltacc1min.Text);
-            LimitJsonObject["ScanningArea"]["Belt"]["Acc"][1] = double.Parse(Beltacc1max.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Acc"][0] = double.Parse(Liftacc1min.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Acc"][1] = double.Parse(Liftacc1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][0] = double.Parse(GantryXacc1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Acc"][1] = double.Parse(GantryXacc1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][0] = double.Parse(GantryYacc1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Acc"][1] = double.Parse(GantryYacc1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][0] = double.Parse(GantryZacc1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Acc"][1] = double.Parse(GantryZacc1max.Text);
-            ShareValues.AxisAccMin[0] = double.Parse(Beltacc1min.Text);
-            ShareValues.AxisAccMax[0] = double.Parse(Beltacc1max.Text);
-            ShareValues.AxisAccMin[1] = double.Parse(Liftacc1min.Text);
-            ShareValues.AxisAccMax[1] = double.Parse(Liftacc1max.Text);
-            ShareValues.AxisAccMin[2] = double.Parse(GantryXacc1min.Text);
-            ShareValues.AxisAccMax[2] = double.Parse(GantryXacc1max.Text);
-            ShareValues.AxisAccMin[3] = double.Parse(GantryYacc1min.Text);
-            ShareValues.AxisAccMax[3] = double.Parse(GantryYacc1max.Text);
-            ShareValues.AxisAccMin[4] = double.Parse(GantryZacc1min.Text);
-            ShareValues.AxisAccMax[4] = double.Parse(GantryZacc1max.Text);
-
-            LimitJsonObject["ScanningArea"]["Belt"]["Dec"][0] = double.Parse(Beltdec1min.Text);
-            LimitJsonObject["ScanningArea"]["Belt"]["Dec"][1] = double.Parse(Beltdec1max.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Dec"][0] = double.Parse(Liftdec1min.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Dec"][1] = double.Parse(Liftdec1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][0] = double.Parse(GantryXdec1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Dec"][1] = double.Parse(GantryXdec1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][0] = double.Parse(GantryYdec1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Dec"][1] = double.Parse(GantryYdec1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][0] = double.Parse(GantryZdec1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Dec"][1] = double.Parse(GantryZdec1max.Text);
-            ShareValues.AxisDecMin[0] = double.Parse(Beltdec1min.Text);
-            ShareValues.AxisDecMax[0] = double.Parse(Beltdec1max.Text);
-            ShareValues.AxisDecMin[1] = double.Parse(Liftdec1min.Text);
-            ShareValues.AxisDecMax[1] = double.Parse(Liftdec1max.Text);
-            ShareValues.AxisDecMin[2] = double.Parse(GantryXdec1min.Text);
-            ShareValues.AxisDecMax[2] = double.Parse(GantryXdec1max.Text);
-            ShareValues.AxisDecMin[3] = double.Parse(GantryYdec1min.Text);
-            ShareValues.AxisDecMax[3] = double.Parse(GantryYdec1max.Text);
-            ShareValues.AxisDecMin[4] = double.Parse(GantryZdec1min.Text);
-            ShareValues.AxisDecMax[4] = double.Parse(GantryZdec1max.Text);
-
-            LimitJsonObject["ScanningArea"]["Belt"]["Axis"][0] = double.Parse(Beltaxis1min.Text);
-            LimitJsonObject["ScanningArea"]["Belt"]["Axis"][1] = double.Parse(Beltaxis1max.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Axis"][0] = double.Parse(Liftaxis1min.Text);
-            LimitJsonObject["ScanningArea"]["Lift"]["Axis"][1] = double.Parse(Liftaxis1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][0] = double.Parse(GantryXaxis1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryX"]["Axis"][1] = double.Parse(GantryXaxis1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][0] = double.Parse(GantryYaxis1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryY"]["Axis"][1] = double.Parse(GantryYaxis1max.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][0] = double.Parse(GantryZaxis1min.Text);
-            LimitJsonObject["ScanningArea"]["GantryZ"]["Axis"][1] = double.Parse(GantryZaxis1max.Text);
-            ShareValues.AxisMin[0] = double.Parse(Beltaxis1min.Text);
-            ShareValues.AxisMax[0] = double.Parse(Beltaxis1max.Text);
-            ShareValues.AxisMin[1] = double.Parse(Liftaxis1min.Text);
-            ShareValues.AxisMax[1] = double.Parse(Liftaxis1max.Text);
-            ShareValues.AxisMin[2] = double.Parse(GantryXaxis1min.Text);
-            ShareValues.AxisMax[2] = double.Parse(GantryXaxis1max.Text);
-            ShareValues.AxisMin[3] = double.Parse(GantryYaxis1min.Text);
-            ShareValues.AxisMax[3] = double.Parse(GantryYaxis1max.Text);
-            ShareValues.AxisMin[4] = double.Parse(GantryZaxis1min.Text);
-            ShareValues.AxisMax[4] = double.Parse(GantryZaxis1max.Text);
-
-            LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][0] = double.Parse(Beltspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["Belt"]["Speed"][1] = double.Parse(Beltspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][0] = double.Parse(Liftspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Speed"][1] = double.Parse(Liftspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][0] = double.Parse(GantryXspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Speed"][1] = double.Parse(GantryXspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][0] = double.Parse(GantryYspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Speed"][1] = double.Parse(GantryYspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][0] = double.Parse(GantryZspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Speed"][1] = double.Parse(GantryZspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][0] = double.Parse(PickerZspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Speed"][1] = double.Parse(PickerZspeed2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][0] = double.Parse(PickerRspeed2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Speed"][1] = double.Parse(PickerRspeed2max.Text);
-            ShareValues.AxisSpeedMin[5] = double.Parse(Beltspeed2min.Text);
-            ShareValues.AxisSpeedMax[5] = double.Parse(Beltspeed2max.Text);
-            ShareValues.AxisSpeedMin[6] = double.Parse(Liftspeed2min.Text);
-            ShareValues.AxisSpeedMax[6] = double.Parse(Liftspeed2max.Text);
-            ShareValues.AxisSpeedMin[7] = double.Parse(GantryXspeed2min.Text);
-            ShareValues.AxisSpeedMax[7] = double.Parse(GantryXspeed2max.Text);
-            ShareValues.AxisSpeedMin[8] = double.Parse(GantryYspeed2min.Text);
-            ShareValues.AxisSpeedMax[8] = double.Parse(GantryYspeed2max.Text);
-            ShareValues.AxisSpeedMin[9] = double.Parse(GantryZspeed2min.Text);
-            ShareValues.AxisSpeedMax[9] = double.Parse(GantryZspeed2max.Text);
-            ShareValues.AxisSpeedMin[10] = double.Parse(PickerZspeed2min.Text);
-            ShareValues.AxisSpeedMax[10] = double.Parse(PickerZspeed2max.Text);
-            ShareValues.AxisSpeedMin[11] = double.Parse(PickerRspeed2min.Text);
-            ShareValues.AxisSpeedMax[11] = double.Parse(PickerRspeed2max.Text);
-
-            LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][0] = double.Parse(Beltacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["Belt"]["Acc"][1] = double.Parse(Beltacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][0] = double.Parse(Liftacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Acc"][1] = double.Parse(Liftacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][0] = double.Parse(GantryXacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Acc"][1] = double.Parse(GantryXacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][0] = double.Parse(GantryYacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Acc"][1] = double.Parse(GantryYacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][0] = double.Parse(GantryZacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Acc"][1] = double.Parse(GantryZacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][0] = double.Parse(PickerZacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Acc"][1] = double.Parse(PickerZacc2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][0] = double.Parse(PickerRacc2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Acc"][1] = double.Parse(PickerRacc2max.Text);
-            ShareValues.AxisAccMin[5] = double.Parse(Beltacc2min.Text);
-            ShareValues.AxisAccMax[5] = double.Parse(Beltacc2max.Text);
-            ShareValues.AxisAccMin[6] = double.Parse(Liftacc2min.Text);
-            ShareValues.AxisAccMax[6] = double.Parse(Liftacc2max.Text);
-            ShareValues.AxisAccMin[7] = double.Parse(GantryXacc2min.Text);
-            ShareValues.AxisAccMax[7] = double.Parse(GantryXacc2max.Text);
-            ShareValues.AxisAccMin[8] = double.Parse(GantryYacc2min.Text);
-            ShareValues.AxisAccMax[8] = double.Parse(GantryYacc2max.Text);
-            ShareValues.AxisAccMin[9] = double.Parse(GantryZacc2min.Text);
-            ShareValues.AxisAccMax[9] = double.Parse(GantryZacc2max.Text);
-            ShareValues.AxisAccMin[10] = double.Parse(PickerZacc2min.Text);
-            ShareValues.AxisAccMax[10] = double.Parse(PickerZacc2max.Text);
-            ShareValues.AxisAccMin[11] = double.Parse(PickerRacc2min.Text);
-            ShareValues.AxisAccMax[11] = double.Parse(PickerRacc2max.Text);
-
-            LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][0] = double.Parse(Beltdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["Belt"]["Dec"][1] = double.Parse(Beltdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][0] = double.Parse(Liftdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Dec"][1] = double.Parse(Liftdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][0] = double.Parse(GantryXdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Dec"][1] = double.Parse(GantryXdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][0] = double.Parse(GantryYdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Dec"][1] = double.Parse(GantryYdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][0] = double.Parse(GantryZdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Dec"][1] = double.Parse(GantryZdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][0] = double.Parse(PickerZdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Dec"][1] = double.Parse(PickerZdec2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][0] = double.Parse(PickerRdec2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Dec"][1] = double.Parse(PickerRdec2max.Text);
-            ShareValues.AxisDecMin[5] = double.Parse(Beltdec2min.Text);
-            ShareValues.AxisDecMax[5] = double.Parse(Beltdec2max.Text);
-            ShareValues.AxisDecMin[6] = double.Parse(Liftdec2min.Text);
-            ShareValues.AxisDecMax[6] = double.Parse(Liftdec2max.Text);
-            ShareValues.AxisDecMin[7] = double.Parse(GantryXdec2min.Text);
-            ShareValues.AxisDecMax[7] = double.Parse(GantryXdec2max.Text);
-            ShareValues.AxisDecMin[8] = double.Parse(GantryYdec2min.Text);
-            ShareValues.AxisDecMax[8] = double.Parse(GantryYdec2max.Text);
-            ShareValues.AxisDecMin[9] = double.Parse(GantryZdec2min.Text);
-            ShareValues.AxisDecMax[9] = double.Parse(GantryZdec2max.Text);
-            ShareValues.AxisDecMin[10] = double.Parse(PickerZdec2min.Text);
-            ShareValues.AxisDecMax[10] = double.Parse(PickerZdec2max.Text);
-            ShareValues.AxisDecMin[11] = double.Parse(PickerRdec2min.Text);
-            ShareValues.AxisDecMax[11] = double.Parse(PickerRdec2max.Text);
-
-            LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][0] = double.Parse(Beltaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["Belt"]["Axis"][1] = double.Parse(Beltaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][0] = double.Parse(Liftaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["Lift"]["Axis"][1] = double.Parse(Liftaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][0] = double.Parse(GantryXaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryX"]["Axis"][1] = double.Parse(GantryXaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][0] = double.Parse(GantryYaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryY"]["Axis"][1] = double.Parse(GantryYaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][0] = double.Parse(GantryZaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["GantryZ"]["Axis"][1] = double.Parse(GantryZaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][0] = double.Parse(PickerZaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerZ"]["Axis"][1] = double.Parse(PickerZaxis2max.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][0] = double.Parse(PickerRaxis2min.Text);
-            LimitJsonObject["AssemblyArea"]["PickerR"]["Axis"][1] = double.Parse(PickerRaxis2max.Text);
-            ShareValues.AxisMin[5] = double.Parse(Beltaxis2min.Text);
-            ShareValues.AxisMax[5] = double.Parse(Beltaxis2max.Text);
-            ShareValues.AxisMin[6] = double.Parse(Liftaxis2min.Text);
-            ShareValues.AxisMax[6] = double.Parse(Liftaxis2max.Text);
-            ShareValues.AxisMin[7] = double.Parse(GantryXaxis2min.Text);
-            ShareValues.AxisMax[7] = double.Parse(GantryXaxis2max.Text);
-            ShareValues.AxisMin[8] = double.Parse(GantryYaxis2min.Text);
-            ShareValues.AxisMax[8] = double.Parse(GantryYaxis2max.Text);
-            ShareValues.AxisMin[9] = double.Parse(GantryZaxis2min.Text);
-            ShareValues.AxisMax[9] = double.Parse(GantryZaxis2max.Text);
-            ShareValues.AxisMin[10] = double.Parse(PickerZaxis2min.Text);
-            ShareValues.AxisMax[10] = double.Parse(PickerZaxis2max.Text);
-            ShareValues.AxisMin[11] = double.Parse(PickerRaxis2min.Text);
-            ShareValues.AxisMax[11] = double.Parse(PickerRaxis2max.Text);
-
-            LimitJsonObject["RecheckArea"]["Belt"]["Speed"][0] = double.Parse(Beltspeed3min.Text);
-            LimitJsonObject["RecheckArea"]["Belt"]["Speed"][1] = double.Parse(Beltspeed3max.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Speed"][0] = double.Parse(Liftspeed3min.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Speed"][1] = double.Parse(Liftspeed3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][0] = double.Parse(GantryXspeed3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Speed"][1] = double.Parse(GantryXspeed3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][0] = double.Parse(GantryYspeed3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Speed"][1] = double.Parse(GantryYspeed3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][0] = double.Parse(GantryZspeed3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Speed"][1] = double.Parse(GantryZspeed3max.Text);
-            ShareValues.AxisSpeedMin[12] = double.Parse(Beltspeed3min.Text);
-            ShareValues.AxisSpeedMax[12] = double.Parse(Beltspeed3max.Text);
-            ShareValues.AxisSpeedMin[13] = double.Parse(Liftspeed3min.Text);
-            ShareValues.AxisSpeedMax[13] = double.Parse(Liftspeed3max.Text);
-            ShareValues.AxisSpeedMin[14] = double.Parse(GantryXspeed3min.Text);
-            ShareValues.AxisSpeedMax[14] = double.Parse(GantryXspeed3max.Text);
-            ShareValues.AxisSpeedMin[15] = double.Parse(GantryYspeed3min.Text);
-            ShareValues.AxisSpeedMax[15] = double.Parse(GantryYspeed3max.Text);
-            ShareValues.AxisSpeedMin[16] = double.Parse(GantryZspeed3min.Text);
-            ShareValues.AxisSpeedMax[16] = double.Parse(GantryZspeed3max.Text);
-
-            LimitJsonObject["RecheckArea"]["Belt"]["Acc"][0] = double.Parse(Beltacc3min.Text);
-            LimitJsonObject["RecheckArea"]["Belt"]["Acc"][1] = double.Parse(Beltacc3max.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Acc"][0] = double.Parse(Liftacc3min.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Acc"][1] = double.Parse(Liftacc3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][0] = double.Parse(GantryXacc3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Acc"][1] = double.Parse(GantryXacc3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][0] = double.Parse(GantryYacc3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Acc"][1] = double.Parse(GantryYacc3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][0] = double.Parse(GantryZacc3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Acc"][1] = double.Parse(GantryZacc3max.Text);
-            ShareValues.AxisAccMin[12] = double.Parse(Beltacc3min.Text);
-            ShareValues.AxisAccMax[12] = double.Parse(Beltacc3max.Text);
-            ShareValues.AxisAccMin[13] = double.Parse(Liftacc3min.Text);
-            ShareValues.AxisAccMax[13] = double.Parse(Liftacc3max.Text);
-            ShareValues.AxisAccMin[14] = double.Parse(GantryXacc3min.Text);
-            ShareValues.AxisAccMax[14] = double.Parse(GantryXacc3max.Text);
-            ShareValues.AxisAccMin[15] = double.Parse(GantryYacc3min.Text);
-            ShareValues.AxisAccMax[15] = double.Parse(GantryYacc3max.Text);
-            ShareValues.AxisAccMin[16] = double.Parse(GantryZacc3min.Text);
-            ShareValues.AxisAccMax[16] = double.Parse(GantryZacc3max.Text);
-
-            LimitJsonObject["RecheckArea"]["Belt"]["Dec"][0] = double.Parse(Beltdec3min.Text);
-            LimitJsonObject["RecheckArea"]["Belt"]["Dec"][1] = double.Parse(Beltdec3max.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Dec"][0] = double.Parse(Liftdec3min.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Dec"][1] = double.Parse(Liftdec3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][0] = double.Parse(GantryXdec3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Dec"][1] = double.Parse(GantryXdec3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][0] = double.Parse(GantryYdec3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Dec"][1] = double.Parse(GantryYdec3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][0] = double.Parse(GantryZdec3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Dec"][1] = double.Parse(GantryZdec3max.Text);
-            ShareValues.AxisDecMin[12] = double.Parse(Beltdec3min.Text);
-            ShareValues.AxisDecMax[12] = double.Parse(Beltdec3max.Text);
-            ShareValues.AxisDecMin[13] = double.Parse(Liftdec3min.Text);
-            ShareValues.AxisDecMax[13] = double.Parse(Liftdec3max.Text);
-            ShareValues.AxisDecMin[14] = double.Parse(GantryXdec3min.Text);
-            ShareValues.AxisDecMax[14] = double.Parse(GantryXdec3max.Text);
-            ShareValues.AxisDecMin[15] = double.Parse(GantryYdec3min.Text);
-            ShareValues.AxisDecMax[15] = double.Parse(GantryYdec3max.Text);
-            ShareValues.AxisDecMin[16] = double.Parse(GantryZdec3min.Text);
-            ShareValues.AxisDecMax[16] = double.Parse(GantryZdec3max.Text);
-
-            LimitJsonObject["RecheckArea"]["Belt"]["Axis"][0] = double.Parse(Beltaxis3min.Text);
-            LimitJsonObject["RecheckArea"]["Belt"]["Axis"][1] = double.Parse(Beltaxis3max.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Axis"][0] = double.Parse(Liftaxis3min.Text);
-            LimitJsonObject["RecheckArea"]["Lift"]["Axis"][1] = double.Parse(Liftaxis3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][0] = double.Parse(GantryXaxis3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryX"]["Axis"][1] = double.Parse(GantryXaxis3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][0] = double.Parse(GantryYaxis3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryY"]["Axis"][1] = double.Parse(GantryYaxis3max.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][0] = double.Parse(GantryZaxis3min.Text);
-            LimitJsonObject["RecheckArea"]["GantryZ"]["Axis"][1] = double.Parse(GantryZaxis3max.Text);
-            ShareValues.AxisMin[12] = double.Parse(Beltaxis3min.Text);
-            ShareValues.AxisMax[12] = double.Parse(Beltaxis3max.Text);
-            ShareValues.AxisMin[13] = double.Parse(Liftaxis3min.Text);
-            ShareValues.AxisMax[13] = double.Parse(Liftaxis3max.Text);
-            ShareValues.AxisMin[14] = double.Parse(GantryXaxis3min.Text);
-            ShareValues.AxisMax[14] = double.Parse(GantryXaxis3max.Text);
-            ShareValues.AxisMin[15] = double.Parse(GantryYaxis3min.Text);
-            ShareValues.AxisMax[15] = double.Parse(GantryYaxis3max.Text);
-            ShareValues.AxisMin[16] = double.Parse(GantryZaxis3min.Text);
-            ShareValues.AxisMax[16] = double.Parse(GantryZaxis3max.Text);
-
-            string strSrc = Convert.ToString(LimitJsonObject);//将json装换为string
-            File.WriteAllText(Directory.GetCurrentDirectory() + "\\Limit.json", strSrc, System.Text.Encoding.UTF8);
-        }
-
-        private int first = 1;
-        private int station1Init = 0;
-        private int station2Init = 0;
-        private int station3Init = 0;
-        private int station4Init = 0;
-        private int station1Finished = 1;
-        private int station2Finished = 1;
-        private int station3Finished = 1;
-        private int station4Finished = 1;
-
-        private void moveforward(Rectangle rect, int startpos, int endpos, int interval)
-        {
-            int mleft = startpos;
-            while (true)
+            foreach (var key in GlobalManager.Current.axisparams.AxisSpeedDict.Keys.ToList())
             {
-                mleft += 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Margin = new Thickness(mleft, rect.Margin.Top, rect.Margin.Right, rect.Margin.Bottom);
-                }));
-                Thread.Sleep(interval);
-                if (mleft > endpos)
-                    break;
+                string speedname = key + "_Speed";
+                TextBox tbspeed = (TextBox)FindObject(speedname);
+                GlobalManager.Current.axisparams.AxisSpeedDict[key] = (int)(double.Parse(tbspeed.Text));
             }
-        }
-
-        private void move2forward(Rectangle rect, Rectangle rect1, int startpos, int endpos, int interval)
-        {
-            int mleft = startpos;
-            while (true)
+            foreach (var key in GlobalManager.Current.axisparams.AxisAccDict.Keys.ToList())
             {
-                mleft += 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Margin = new Thickness(mleft, rect.Margin.Top, rect.Margin.Right, rect.Margin.Bottom);
-                    rect1.Margin = new Thickness(mleft, rect1.Margin.Top, rect1.Margin.Right, rect1.Margin.Bottom);
-                }));
-                Thread.Sleep(interval);
-                if (mleft > endpos)
-                    break;
+                string accname = key + "_Acc";
+                TextBox tbacc = (TextBox)FindObject(accname);
+                GlobalManager.Current.axisparams.AxisAccDict[key] = (int)(double.Parse(tbacc.Text));
             }
-        }
-
-        private void movebackward(Rectangle rect, int startpos, int endpos, int interval)
-        {
-            int mleft = startpos;
-            while (true)
+            foreach (var key in GlobalManager.Current.axisparams.AxisDecDict.Keys.ToList())
             {
-                mleft -= 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Margin = new Thickness(mleft, rect.Margin.Top, rect.Margin.Right, rect.Margin.Bottom);
-                }));
-                Thread.Sleep(interval);
-                if (mleft < endpos)
-                    break;
+                string decname = key + "_Dec";
+                TextBox tbdec = (TextBox)FindObject(decname);
+                GlobalManager.Current.axisparams.AxisDecDict[key] = (int)(double.Parse(tbdec.Text));
             }
+            string path = Directory.GetCurrentDirectory() + "\\AxisParams.json";
+            SaveToJson(path);
         }
 
-        private void movedown(Rectangle rect, int startpos, int endpos, int interval)
+        private Object FindObject(string name)
         {
-            int mtop = startpos;
-            while (true)
-            {
-                mtop += 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Margin = new Thickness(rect.Margin.Left, mtop, rect.Margin.Right, rect.Margin.Bottom);
-                }));
-                Thread.Sleep(interval);
-                if (mtop > endpos)
-                    break;
-            }
+            Object obj = this.GetType().GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.IgnoreCase).GetValue(this);
+            return obj;
         }
 
-        private void moveup(Rectangle rect, int startpos, int endpos, int interval)
+        private void ReadAxisParamJson()
         {
-            int mtop = startpos;
-            while (true)
+            try
             {
-                mtop -= 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Margin = new Thickness(rect.Margin.Left, mtop, rect.Margin.Right, rect.Margin.Bottom);
-                }));
-                Thread.Sleep(interval);
-                if (mtop < endpos)
-                    break;
-            }
-        }
+                string folder = Directory.GetCurrentDirectory();
+                string path = folder + "\\AxisParams.json";
 
-        private void moveCanvasV(Canvas group, int startpos, int endpos, int interval)
-        {
-            int mtop = startpos;
-            if (startpos - endpos >= 0)
-            {
-                while (true)
+                int ret = LoadConfig(path);
+                if (ret != 0)
                 {
-                    mtop -= 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    GlobalManager.Current.axisparams.AxisSpeedDict = new Dictionary<string, double>();
+                    GlobalManager.Current.axisparams.AxisAccDict = new Dictionary<string, double>();
+                    GlobalManager.Current.axisparams.AxisDecDict = new Dictionary<string, double>();
+                    for (int i = 0; i < 25; ++i)
                     {
-                        group.Margin = new Thickness(group.Margin.Left, mtop, group.Margin.Right, group.Margin.Bottom);
-                    }));
-                    Thread.Sleep(interval);
-                    if (mtop < endpos)
-                        break;
+                        GlobalManager.Current.axisparams.AxisSpeedDict.Add(axisarray[i], 100);
+                        GlobalManager.Current.axisparams.AxisAccDict.Add(axisarray[i], 100);
+                        GlobalManager.Current.axisparams.AxisDecDict.Add(axisarray[i], 100);
+                    }
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisSpeedDict)
+                {
+                    string speedname = item.Key + "_Speed";
+                    TextBox tbspeed = (TextBox)FindObject(speedname);
+                    tbspeed.Text = ((double)item.Value).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisAccDict)
+                {
+                    string accname = item.Key + "_Acc";
+                    TextBox tbacc = (TextBox)FindObject(accname);
+                    tbacc.Text = ((double)item.Value).ToString();
+                }
+                foreach (var item in GlobalManager.Current.axisparams.AxisDecDict)
+                {
+                    string decname = item.Key + "_Dec";
+                    TextBox tbdec = (TextBox)FindObject(decname);
+                    tbdec.Text = ((double)item.Value).ToString();
                 }
             }
-            else {
-                while (true)
+            catch
+            {
+
+            }
+        }
+
+        private void CboxNowType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = sender as ComboBox;
+            if (comboBox != null)
+            {
+                int selectedIndex = comboBox.SelectedIndex;
+                FileHelper.LoadConfig(posFileName[selectedIndex], out stationPoints);   //默认加载第一套参数
+                InitTabs(stationPoints);
+            }
+        }
+
+        private void deletePosParam_Click(object sender, RoutedEventArgs e)
+        {
+            int listIndex = PosTabControl.SelectedIndex;
+            if (PosTabControl.SelectedItem is TabItem selectedTab)
+            {
+                if (selectedTab.Content is ScrollViewer scrollViewer &&
+                    scrollViewer.Content is StackPanel mainPanel &&
+                    mainPanel.Children.Count > 0)
                 {
-                    mtop += 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    int lastIndex = mainPanel.Children.Count - 1;
+
+                    if (lastIndex < 0)
                     {
-                        group.Margin = new Thickness(group.Margin.Left, mtop, group.Margin.Right, group.Margin.Bottom);
-                    }));
-                    Thread.Sleep(interval);
-                    if (mtop > endpos)
-                        break;
-                }
-            }
-        }
+                        MessageBox.Show("No deletable points", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
 
-        private void moveCanvasH(Canvas group, int startpos, int endpos, int interval)
-        {
-            int mtop = startpos;
-            if (startpos - endpos >= 0)
-            {
-                while (true)
-                {
-                    mtop -= 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    if (mainPanel.Children[lastIndex] is StackPanel lastPanel &&
+                        lastPanel.Tag as string == "SinglePoint")
                     {
-                        group.Margin = new Thickness(mtop, group.Margin.Top, group.Margin.Right, group.Margin.Bottom);
-                    }));
-                    Thread.Sleep(interval);
-                    if (mtop < endpos)
-                        break;
-                }
-            }
-            else
-            {
-                while (true)
-                {
-                    mtop += 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        group.Margin = new Thickness(mtop, group.Margin.Top, group.Margin.Right, group.Margin.Bottom);
-                    }));
-                    Thread.Sleep(interval);
-                    if (mtop > endpos)
-                        break;
-                }
-            }
-        }
-
-        private int flag = 1;
-
-        private void returnOK(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-                rect1.Fill = null;
-            }));
-        }
-
-        private int flag1 = 1;
-
-        private void returnOK1(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Red);
-                rect1.Fill = new SolidColorBrush(Colors.Red);
-            }));
-            while (flag1 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-        }
-
-        private int flag2 = 1;
-
-        private void returnOK2(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag2 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag3 = 1;
-
-        private void returnOK3(Rectangle rect)
-        {
-            if (flag3 == 1)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Fill = new SolidColorBrush(Colors.Yellow);
-                }));
-            }
-            else if (flag3 == 2)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Fill = new SolidColorBrush(Colors.Green);
-                }));
-            }
-            else if (flag3 == 3)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect.Fill = new SolidColorBrush(Colors.Red);
-                }));
-            }
-            while (flag3 > 0)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-        }
-
-        private int flag4 = 1;
-
-        private void returnOK4(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag4 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag5 = 1;
-
-        private void returnOK5(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag5 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-                rect1.Fill = null;
-            }));
-        }
-
-        private int flag6 = 1;
-
-        private void returnOK6(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Red);
-                rect1.Fill = new SolidColorBrush(Colors.Red);
-            }));
-            while (flag6 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-        }
-
-        private int flag7 = 1;
-
-        private void returnOK7(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag7 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-        }
-
-        private int flag8 = 1;
-
-        private void returnOK8(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag8 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag9 = 1;
-
-        private void returnOK9(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag9 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-                rect1.Fill = null;
-            }));
-        }
-
-        private int flag10 = 1;
-
-        private void returnOK10(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Red);
-                rect1.Fill = new SolidColorBrush(Colors.Red);
-            }));
-            while (flag10 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-        }
-
-        private int flag11 = 1;
-
-        private void returnOK11(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag11 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-        }
-
-        private int flag12 = 1;
-
-        private void returnOK12(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag12 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag13 = 1;
-
-        private void returnOK13(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag13 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-                rect1.Fill = null;
-            }));
-        }
-
-        private int flag14 = 1;
-
-        private void returnOK14(Rectangle rect, Rectangle rect1)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Red);
-                rect1.Fill = new SolidColorBrush(Colors.Red);
-            }));
-            while (flag14 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-                rect1.Fill = new SolidColorBrush(Colors.Green);
-            }));
-        }
-
-        private int flag15 = 1;
-
-        private void returnOK15(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag15 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-        }
-
-        private int flag17 = 1;
-
-        private void returnOK17(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag17 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag18 = 1;
-
-        private void returnOK18(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag18 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag19 = 1;
-
-        private void returnOK19(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag19 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private int flag20 = 1;
-
-        private void returnOK20(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            while (flag20 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-        private void returnNG(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Red);
-            }));
-            Thread.Sleep(100);
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private void start_Click(object sender, RoutedEventArgs e)
-        {
-            //station1Init = 1;
-            //Task task1 = new Task(Station1Act);
-            //task1.Start();
-            //Task task2 = new Task(Station2Act);
-            //task2.Start();
-            //Task task3 = new Task(Station3Act);
-            //task3.Start();
-        }
-
-        int deltatime = 0;
-        private void wait()
-        {
-            DateTime startTime = DateTime.Now;
-
-            if (GlobalManager.Current.IsPause)
-            {
-                Console.WriteLine("执行暂停");
-                deltatime = 999999;
-            }
-
-            while (true)
-            {
-                TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = deltatime - elapsed.TotalMilliseconds;
-
-                if (remaining <= 0)
-                {
-                    break;
-                }
-
-                int sleepTime = (int)Math.Min(remaining, 50);
-                Thread.Sleep(sleepTime);
-            }
-        }
-
-
-
-        private int module_Num = 12;
-        const int numberofstation = 4;
-        private int[] By_pass = new int[numberofstation] { 0, 0, 0, 0 };
-        private int[] By_pass_index = new int[numberofstation] { 0, 0, 0, 0 };
-        private int current_index = 0;
-        private void LailiaoAct(Rectangle rect, Rectangle rect1)
-        {
-            Task task9, task4;
-            current_index++;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Yellow);
-            }));
-            //pallet in
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet in";
-            }));
-            beltmoveflag[0] = 1;
-            move2forward(rect, rect1, 10, 69, 20);
-            beltmoveflag[0] = 0;
-            wait();
-            //trigger jiansu IO
-            flag = 1;
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] = true;
-            Task task1 = new Task(() => returnOK(rect20, rect51));
-            task1.Start();
-            wait();
-            //send dingqi IO
-            task9 = new Task(() => moveup(rect52, 355, 345, 20));
-            task9.Start();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO on";
-            }));
-            flag1 = 1;
-            Task task2 = new Task(() => returnOK1(rect21, rect52));
-            task2.Start();
-            wait();
-            beltmoveflag[0] = 1;
-            move2forward(rect, rect1, 69, 101, 20);
-            beltmoveflag[0] = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet in place";
-            }));
-            wait();
-        step2:
-            //scan扫码
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "start scan pallet";
-            }));
-            flag2 = 1;
-            Task task3 = new Task(() => returnOK2(rect22));
-            task3.Start();
-            Thread.Sleep(3000);
-            wait();
-            flag2 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "get scan result";
-            }));
-            Thread.Sleep(1000);
-            By_pass_index[0] = current_index;
-            By_pass[0] = GenerateRandomNumber(0, 2);
-            if (By_pass[0] == 1)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "pallet ByPass";
-                }));
-                flag3 = 3;
-                task4 = new Task(() => returnOK3(rect));
-                task4.Start();
-                Thread.Sleep(1000);
-                goto step5;
-            }
-        step3:
-            //pallet lift up
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift up";
-            }));
-            flag3 = 1;
-            task4 = new Task(() => returnOK3(rect));
-            task4.Start();
-            Thread.Sleep(1000);
-            wait();
-        step4:
-            //laser measure激光
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "start laser measure";
-            }));
-            for (int i = 0; i < module_Num; ++i)
-            {
-                for (int j = 0; j < 4; ++j)
-                {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        action5.Content = $"laser go to module{i + 1} position{j + 1} and trigger laser";
-                    }));
-                    flag4 = 1;
-                    task3 = new Task(() => returnOK4(rect25));
-                    task3.Start();
-                    Thread.Sleep(200);
-                    wait();
-                    flag4 = 0;
-                }
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action5.Content = "";
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "laser measure finished";
-            }));
-            Thread.Sleep(1000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift down";
-            }));
-            Thread.Sleep(1000);
-            wait();
-        step5:
-            task9 = new Task(() => movedown(rect52, 345, 355, 20));
-            task9.Start();
-            flag1 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO off";
-            }));
-            Thread.Sleep(1000);
-            wait();
-
-        }
-
-        public int GenerateRandomNumber(int min, int max)
-        {
-            Random random = new Random();
-            return random.Next(min, max);
-        }
-
-        private int current_Assembled = 0;
-        private int Picker_FOAM_Count = 0;
-        private int Picker_OK_FOAM_Count = 0;
-        private int BadFoamCount = 0;
-        private int has_XueWeiXinXi = 0;
-        private int NG_Foam_Count = 0;
-
-        private void ZuzhuangAct(Rectangle rect, Rectangle rect1)
-        {
-            By_pass_index[1] = By_pass_index[0];
-            By_pass[1] = By_pass[0];
-            Task task1, task2, task3, task4, task5, task6, task8, task9;
-            double xpos, ypos;
-            //move to assembly
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet go to next station";
-            }));
-            flag17 = 1;
-            task8 = new Task(() => returnOK17(rect59));
-            task8.Start();
-            beltmoveflag[1] = 1;
-            move2forward(rect, rect1, 101, 143, 20);
-            flag = 0;
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.LaiLiao_JianSu] = false;
-            move2forward(rect, rect1, 143, 174, 20);
-            flag17 = 0;
-            move2forward(rect, rect1, 174, 253, 20);
-            beltmoveflag[1] = 0;
-            wait();
-            //trigger jiansu IO
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] = true;
-            flag5 = 1;
-            task1 = new Task(() => returnOK5(rect23, rect53));
-            task1.Start();
-            if (By_pass[1] == 1)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "pallet ByPass";
-                }));
-                beltmoveflag[1] = 1;
-                move2forward(rect, rect1, 253, 290, 20);
-                beltmoveflag[1] = 0;
-                Thread.Sleep(100);
-                wait();
-                return;
-            }
-            //send dingqi IO
-            task9 = new Task(() => moveup(rect54, 355, 345, 20));
-            task9.Start();
-            flag6 = 1;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO on";
-            }));
-            task2 = new Task(() => returnOK6(rect24, rect54));
-            task2.Start();
-            wait();
-            beltmoveflag[1] = 1;
-            move2forward(rect, rect1, 253, 290, 20);
-            beltmoveflag[1] = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet in place";
-            }));
-            wait();
-            //pallet lift up
-            flag7 = 1;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift up";
-            }));
-            task4 = new Task(() => returnOK7(rect));
-            task4.Start();
-            wait();
-            current_Assembled = 0;
-            //如果吸嘴上有料，直接跳去CCD2精定位
-            if (Picker_FOAM_Count > 0)
-            {
-                goto step4;
-            }
-        step2:
-            //飞达上拍料
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "robot move to feeder";
-            }));
-            xpos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Left));
-            ypos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Top));
-            task3 = new Task(() => moveCanvasV(CCD1picker, (int)ypos, 54, 20));
-            task3.Start();
-            task5 = new Task(() => moveCanvasH(CCD1picker, (int)xpos, 217, 20));
-            task5.Start();
-            Task.WaitAll(task3, task5);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "flying photography";
-            }));
-            Thread.Sleep(3000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "get result of flying photography";
-            }));
-            Thread.Sleep(1000);
-            wait();
-        step3:
-            //吸嘴取料
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action5.Content = "pick foams";
-                picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length - 1) + "X";
-            }));
-            flag8 = 1;
-            task3 = new Task(() => returnOK8(rect26));
-            task3.Start();
-            Thread.Sleep(1000);
-            wait();
-        step4:
-            //CCD2 精定位
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "robot move to CCD2";
-            }));
-            xpos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Left));
-            ypos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Top));
-            task6 = new Task(() => moveCanvasV(CCD1picker, (int)ypos, 117, 20));
-            task5 = new Task(() => moveCanvasH(CCD1picker, (int)xpos, 248, 20));
-            task5.Start();
-            task6.Start();
-            Task.WaitAll(task6, task5);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "flying photography";
-            }));
-            Thread.Sleep(3000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "get result of flying photography";
-            }));
-            Thread.Sleep(1000);
-            wait();
-            if (Picker_FOAM_Count == 0)
-            {
-                BadFoamCount = GenerateRandomNumber(0, 2);
-                Picker_FOAM_Count = GenerateRandomNumber(2, 5);
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length-1) + $"{Picker_FOAM_Count}";
-                }));
-                if (BadFoamCount > 0)
-                {
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        action4.Content = $"{BadFoamCount} foam(s) is NG";
-                    }));
-                    goto step5;
-                }
-                else
-                {
-                    goto step6;
-                }
-            }
-            else
-            {
-                goto step6;
-            }
-        step5:
-            //如果有坏料，放到坏料盒里
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "robot move to CCD2";
-            }));
-            xpos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Left));
-            ypos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Top));
-            task6 = new Task(() => moveCanvasV(CCD1picker, (int)ypos, 117, 20));
-            task5 = new Task(() => moveCanvasH(CCD1picker, (int)xpos, 184, 20));
-            task5.Start();
-            task6.Start();
-            Task.WaitAll(task6, task5);
-            wait();
-            for (int i = 0; i < BadFoamCount; ++i)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action4.Content = $"throw NG faom {i + 1}";
-                    Picker_FOAM_Count = Picker_FOAM_Count - 1;
-                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length - 1) + $"{Picker_FOAM_Count}";
-                }));
-                Thread.Sleep(1000);
-                wait();
-                NG_Foam_Count++;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    NGnum.Content = $"{NG_Foam_Count}";
-                }));
-            }
-        step6:
-            //拍料盘
-            if (has_XueWeiXinXi == 1)
-            {
-                goto step7;
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "robot move to pallet";
-            }));
-            xpos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Left));
-            ypos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Top));
-            task6 = new Task(() => moveCanvasV(CCD1picker, (int)ypos, 199, 20));
-            task5 = new Task(() => moveCanvasH(CCD1picker, (int)xpos, 277, 20));
-            task5.Start();
-            task6.Start();
-            Task.WaitAll(task6, task5);
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "flying photography";
-            }));
-            Thread.Sleep(3000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "get result of flying photography";
-            }));
-            has_XueWeiXinXi = 1;
-            Thread.Sleep(1000);
-            wait();
-        step7:
-            //放料
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "robot move to pallet";
-            }));
-            xpos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Left));
-            ypos = (double)CCD1picker.Dispatcher.Invoke(new Func<double>(() => CCD1picker.Margin.Top));
-            task6 = new Task(() => moveCanvasV(CCD1picker, (int)ypos, 199, 20));
-            task5 = new Task(() => moveCanvasH(CCD1picker, (int)xpos, 277, 20));
-            task5.Start();
-            task6.Start();
-            Task.WaitAll(task6, task5);
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "place faoms";
-            }));
-            int cnt = 0;
-            while (Picker_FOAM_Count > 0)
-            {
-                Thread.Sleep(1000);
-                wait();
-                cnt++;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action4.Content = $"place faom {cnt}";
-                }));
-                Picker_FOAM_Count--;
-                current_Assembled++;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    palletfaomnum.Content = $"{current_Assembled} ";
-                    picker.Content = picker.Content.ToString().Substring(0, picker.Content.ToString().Length - 1) + $"{Picker_FOAM_Count}";
-                }));
-                if (current_Assembled >= module_Num)
-                {
-                    break;
-                }
-            }
-            if (current_Assembled < module_Num)
-            {
-                flag8 = 0;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action5.Content = "picker has no foams ";
-                }));
-                Thread.Sleep(1000);
-                wait();
-                goto step2;
-            }
-            if (Picker_FOAM_Count == 0)
-            {
-                flag8 = 0;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action5.Content = "picker has no foams ";
-                }));
-                Thread.Sleep(1000);
-                wait();
-            }
-            current_Assembled = 0;
-            has_XueWeiXinXi = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                palletfaomnum.Content = " ";
-            }));
-            flag7 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift down";
-            }));
-            Thread.Sleep(1000);
-            wait();
-            task9 = new Task(() => movedown(rect54, 345, 355, 20));
-            task9.Start();
-            flag6 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO off";
-            }));
-            Thread.Sleep(1000);
-            wait();
-        }
-
-        private int Left_Foam_Count = 0;
-        private int Fujian_OK = 0;
-        private void FujianAct(Rectangle rect, Rectangle rect1)
-        {
-            By_pass_index[2] = By_pass_index[1];
-            By_pass[2] = By_pass[1];
-            Task task1, task2, task3, task4, task8, task9;
-            //move to next
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet go to next station";
-            }));
-            flag18 = 1;
-            task8 = new Task(() => returnOK18(rect60));
-            task8.Start();
-            beltmoveflag[2] = 1;
-            move2forward(rect, rect1, 290, 326, 20);
-            flag5 = 0;
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.ZuZhuang_JianSu] = false;
-            move2forward(rect, rect1, 326, 363, 20);
-            flag18 = 0;
-            move2forward(rect, rect1, 363, 428, 20);
-            beltmoveflag[2] = 0;
-            wait();
-            //trigger jiansu IO
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] = true;
-            flag9 = 1;
-            task1 = new Task(() => returnOK9(rect28, rect55));
-            task1.Start();
-            if (By_pass[2] == 1)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "pallet ByPass";
-                }));
-                beltmoveflag[2] = 1;
-                move2forward(rect, rect1, 428, 467, 20);
-                beltmoveflag[2] = 0;
-                Thread.Sleep(100);
-                wait();
-                return;
-            }
-            //send dingqi IO
-            task9 = new Task(() => moveup(rect56, 355, 345, 20));
-            task9.Start();
-            flag10 = 1;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO on";
-            }));
-            task2 = new Task(() => returnOK10(rect27, rect56));
-            task2.Start();
-            wait();
-            beltmoveflag[2] = 1;
-            move2forward(rect, rect1, 428, 467, 20);
-            beltmoveflag[2] = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet in place";
-            }));
-            wait();
-            //pallet lift up
-            flag11 = 1;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift up";
-            }));
-            task4 = new Task(() => returnOK11(rect));
-            task4.Start();
-            wait();
-            Left_Foam_Count = module_Num;
-        step2:
-            //撕膜
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "start to tear film";
-            }));
-            for (int i = 0; i < module_Num; ++i)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action5.Content = $"robot go to module{i + 1} and tear film";
-                }));
-                flag12 = 1;
-                task3 = new Task(() => returnOK12(rect29));
-                task3.Start();
-                Thread.Sleep(1000);
-                wait();
-                Left_Foam_Count--;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    Leftfoam.Content = $"{Left_Foam_Count}";
-                }));
-                flag12 = 0;
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action5.Content = "";
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "tear film finished";
-            }));
-            Thread.Sleep(1000);
-            wait();
-        step3:
-            //CCD3复检
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "flying photography";
-            }));
-            Thread.Sleep(3000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = "get result of flying photography";
-            }));
-            Fujian_OK = GenerateRandomNumber(0, 2);
-            //flag11 = 1;
-            //task4 = new Task(() => returnOK11(rect));
-            //task4.Start();
-            Thread.Sleep(1000);
-            wait();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                Leftfoam.Content = " ";
-            }));
-            flag11 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet lift down";
-            }));
-            Thread.Sleep(1000);
-            wait();
-            task9 = new Task(() => movedown(rect56, 345, 355, 20));
-            task9.Start();
-            flag10 = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO off";
-            }));
-            Thread.Sleep(1000);
-            wait();
-        }
-
-        private void RejectAct(Rectangle rect, Rectangle rect1)
-        {
-            By_pass_index[3] = By_pass_index[2];
-            By_pass[3] = By_pass[2];
-            Task task1, task2, task3, task4, task8, task9;
-            //move to next
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet go to next station";
-            }));
-            flag19 = 1;
-            task8 = new Task(() => returnOK19(rect61));
-            task8.Start();
-            beltmoveflag[3] = 1;
-            move2forward(rect, rect1, 467, 500, 20);
-            flag9 = 0;
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.FuJian_JianSu] = false;
-            move2forward(rect, rect1, 500, 541, 20);
-            flag19 = 0;
-            move2forward(rect, rect1, 541, 612, 20);
-            beltmoveflag[3] = 0;
-            wait();
-            //trigger jiansu IO
-            GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = true;
-            flag13 = 1;
-            task1 = new Task(() => returnOK13(rect31, rect57));
-            task1.Start();
-            if (By_pass[3] == 1)
-            {
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "pallet ByPass";
-                }));
-                beltmoveflag[3] = 1;
-                move2forward(rect, rect1, 612, 646, 20);
-                flag20 = 1;
-                task8 = new Task(() => returnOK20(rect62));
-                task8.Start();
-                move2forward(rect, rect1, 646, 685, 20);
-                GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
-                flag13 = 0;
-                move2forward(rect, rect1, 685, 719, 20);
-                flag20 = 0;
-                move2forward(rect, rect1, 719, 740, 20);
-                beltmoveflag[3] = 0;
-                Thread.Sleep(1000);
-                wait();
-                return;
-            }
-            //send dingqi IO
-            task9 = new Task(() => moveup(rect58, 355, 345, 20));
-            task9.Start();
-            flag14 = 1;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = "send cylinder IO on";
-            }));
-            task2 = new Task(() => returnOK14(rect30, rect58));
-            task2.Start();
-            wait();
-            beltmoveflag[3] = 1;
-            move2forward(rect, rect1, 612, 646, 20);
-            beltmoveflag[3] = 0;
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = "pallet in place";
-            }));
-            wait();
-        step2:
-            if (Fujian_OK == 0)
-            {
-                //NG顶升
-                flag15 = 1;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "NG pallet lift up";
-                }));
-                task4 = new Task(() => returnOK15(rect));
-                task4.Start();
-                Thread.Sleep(1000);
-                wait();
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "NG pallet remove";
-                }));
-                Thread.Sleep(3000);
-                task9 = new Task(() => movedown(rect58, 345, 355, 20));
-                task9.Start();
-                flag14 = 0;
-                GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
-                flag13 = 0;
-            }
-            else
-            {
-                task9 = new Task(() => movedown(rect58, 345, 355, 20));
-                task9.Start();
-                flag14 = 0;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action2.Content = "send cylinder IO off";
-                }));
-                Thread.Sleep(1000);
-                wait();
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    action1.Content = "pallet go out";
-                }));
-                flag20 = 1;
-                task8 = new Task(() => returnOK20(rect62));
-                task8.Start();
-                beltmoveflag[3] = 1;
-                move2forward(rect, rect1, 646, 685, 20);
-                GlobalManager.Current.IOTable[(int)GlobalManager.IO.Reject_JianSu] = false;
-                flag13 = 0;
-                move2forward(rect, rect1, 685, 719, 20);
-                flag20 = 0;
-                move2forward(rect, rect1, 719, 740, 20);
-                beltmoveflag[3] = 0;
-                wait();
-            }
-            flag15 = 0;
-
-        }
-
-        private int[] beltmoveflag = new int[4];
-        private int beltdelta = 0;
-        private void beltmove()
-        {
-            int flag = 1;
-            while (true)
-            {
-                int run = 0;
-                for (int i = 0; i < 4; i++)
-                {
-                    run += beltmoveflag[i];
-                }
-                if (run == 0)
-                {
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    if (flag == 1)
-                    {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
-                        {
-                            arrow1.Visibility = Visibility.Visible;
-                            arrow2.Visibility = Visibility.Visible;
-                            arrow3.Visibility = Visibility.Visible;
-                            arrow4.Visibility = Visibility.Visible;
-                            arrow5.Visibility = Visibility.Visible;
-                            arrow6.Visibility = Visibility.Visible;
-                            arrow7.Visibility = Visibility.Visible;
-                            arrow8.Visibility = Visibility.Visible;
-                            arrow11.Visibility = Visibility.Hidden;
-                            arrow12.Visibility = Visibility.Hidden;
-                            arrow13.Visibility = Visibility.Hidden;
-                            arrow14.Visibility = Visibility.Hidden;
-                            arrow15.Visibility = Visibility.Hidden;
-                            arrow16.Visibility = Visibility.Hidden;
-                            arrow17.Visibility = Visibility.Hidden;
-                            arrow18.Visibility = Visibility.Hidden;
-                        }));
-                        flag = 0;
+                        mainPanel.Children.RemoveAt(lastIndex);
+                        ReMoveStationData(listIndex);
+                        MessageBox.Show("Single point deleted", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else
                     {
-                        this.Dispatcher.BeginInvoke(new Action(() =>
+                        // 查找最后一个矩阵头的位置（Tag == "MatrixHeader"）
+                        int matrixHeaderIndex = -1;
+                        for (int i = lastIndex; i >= 0; i--)
                         {
-                            arrow1.Visibility = Visibility.Hidden;
-                            arrow2.Visibility = Visibility.Hidden;
-                            arrow3.Visibility = Visibility.Hidden;
-                            arrow4.Visibility = Visibility.Hidden;
-                            arrow5.Visibility = Visibility.Hidden;
-                            arrow6.Visibility = Visibility.Hidden;
-                            arrow7.Visibility = Visibility.Hidden;
-                            arrow8.Visibility = Visibility.Hidden;
-                            arrow11.Visibility = Visibility.Visible;
-                            arrow12.Visibility = Visibility.Visible;
-                            arrow13.Visibility = Visibility.Visible;
-                            arrow14.Visibility = Visibility.Visible;
-                            arrow15.Visibility = Visibility.Visible;
-                            arrow16.Visibility = Visibility.Visible;
-                            arrow17.Visibility = Visibility.Visible;
-                            arrow18.Visibility = Visibility.Visible;
-                        }));
-                        flag = 1;
+                            if (mainPanel.Children[i] is FrameworkElement fe &&
+                                fe.Tag as string == "MatrixHeader")
+                            {
+                                matrixHeaderIndex = i;
+                                break;
+                            }
+                        }
+
+                        if (matrixHeaderIndex >= 0)
+                        {
+                            // 从矩阵头开始，删除它和后面所有 "MatrixRow"
+                            int removeCount = 0;
+                            int currentIndex = matrixHeaderIndex;
+
+                            while (currentIndex < mainPanel.Children.Count)
+                            {
+                                var child = mainPanel.Children[currentIndex] as FrameworkElement;
+                                string tag = child?.Tag as string;
+
+                                if (tag == "MatrixHeader" || tag == "MatrixRow")
+                                {
+                                    mainPanel.Children.RemoveAt(currentIndex);
+                                    removeCount++;
+                                    // 删除后元素会自动往前移，不要 ++ currentIndex
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (removeCount > 0)
+                            {
+                                ReMoveStationData(listIndex);
+                                MessageBox.Show("Matrix point deleted", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("No matrix rows found to delete", "Tip", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unidentified point elements cannot be deleted", "Err", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
                     }
-                    Thread.Sleep(200);
+                }
+                else
+                {
+                    MessageBox.Show("No deletable points", "Tip", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a point page first", "Tip", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private List<Point> GetPointListByTab(string header)
+        {
+            if (stationPoints == null)
+                return null;
+
+            switch (header)
+            {
+                case "Materials":
+                    return stationPoints.LaiLiaoPointList;
+                case "Assembly":
+                    return stationPoints.ZuZhuangPointList;
+                case "ReCheck":
+                    return stationPoints.FuJianPointList;
+                default:
+                    return null;
+            }
+        }
+
+        private void ReMoveStationData(int listIndex)
+        {
+            if (listIndex == 0)
+            {
+                if (stationPoints.LaiLiaoPointList.Count > 0)
+                {
+                    stationPoints.LaiLiaoPointList.RemoveAt(stationPoints.LaiLiaoPointList.Count - 1);
+                }
+            }
+            else if (listIndex == 1)
+            {
+                if (stationPoints.ZuZhuangPointList.Count > 0)
+                {
+                    stationPoints.ZuZhuangPointList.RemoveAt(stationPoints.ZuZhuangPointList.Count - 1);
+                }
+            }
+            else if (listIndex == 2)
+            {
+                if (stationPoints.FuJianPointList.Count > 0)
+                {
+                    stationPoints.FuJianPointList.RemoveAt(stationPoints.FuJianPointList.Count - 1);
                 }
             }
         }
 
-        public static void CopyProperties(object source, object destination)
+        private void AddStationData(int listIndex, Point point)
         {
-            var sourceProps = source.GetType().GetProperties();
-            foreach (var prop in sourceProps)
+            if (listIndex == 0)
             {
-                if (prop.CanRead && prop.CanWrite)
+                stationPoints.LaiLiaoPointList.Add(point);
+            }
+            else if (listIndex == 1)
+            {
+                stationPoints.ZuZhuangPointList.Add(point);
+            }
+            else if (listIndex == 2)
+            {
+                stationPoints.FuJianPointList.Add(point);
+            }
+        }
+
+        private void AddPosParam_Click(object sender, RoutedEventArgs e)
+        {
+            ///TODO 1.选中类型   1.5（设置行列）   2.添加UI     3.维护缓存
+            var dlg = new SelectPointType();
+            dlg.ShowDialog();
+            var data = dlg.SelectedType;
+            var row = dlg.SelectedRow;
+            var col = dlg.SelectedCol;
+            //依次单点，矩阵点，通用点
+
+            int selectIndex = PosTabControl.SelectedIndex;
+
+            if (!(PosTabControl.SelectedItem is TabItem selectedTab &&
+                  selectedTab.Content is ScrollViewer scrollViewer &&
+                  scrollViewer.Content is StackPanel mainPanel))
+            {
+                System.Windows.MessageBox.Show("请先选择一个页面", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // 获取对应缓存列表
+            var pointList = GetPointListByTab(selectedTab.Header.ToString());
+            if (pointList == null) return;
+
+            //var pt = pointList[pointList.Count-1];
+            Point pt = new Point();
+            pt.type = data;
+            pt.row = row;
+            pt.col = col;
+            pt.axisMap = dlg.AxexIndexList;   //将轴映射保存
+            //点分类
+            if (data == 0)
+            {
+                // 单独点，使用 pt 的 X/Y/Z/R
+                var rowPanel = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Tag = "SinglePoint", Margin = new Thickness(0, 2, 0, 2) };
+
+
+
+                // 添加 ID 标签
+                var tbID = new TextBlock
                 {
-                    prop.SetValue(destination, prop.GetValue(source));
-                }
-            }
-        }
-        private void Station1Act()
-        {
-            while (true)
-            {
-                if (station1Init == 1)
+                    Text = "ID:",
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(0, 0, 5, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                rowPanel.Children.Add(tbID);
+                addTextBlockClicked(tbID, pt.axisMap, rowPanel);   //点击ID弹出示教
+
+                // 添加可编辑的 ID 输入框
+                var idTextBox = new TextBox
                 {
-                    Thread.Sleep(500);
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        this.rect10.Visibility = Visibility.Visible;
-                        this.rect50.Visibility = Visibility.Visible;
-                    }));
-                    station1Finished = 0;
-                    LailiaoAct(this.rect10, this.rect50);
-                    while (station2Finished == 0)
-                    {
-                        station1Init = 0;
-                        Thread.Sleep(10);
-                    }
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        CopyProperties(rect10, rect32);
-                        CopyProperties(rect50, rect63);
-                        this.rect10.Visibility = Visibility.Hidden;
-                        this.rect50.Visibility = Visibility.Hidden;
-                    }));
-                    station1Finished = 1;
-                    station2Init = 1;
-                    Thread.Sleep(10);
-                    //if (station2Finished != 0)
-                    //{
-                    //    this.Dispatcher.BeginInvoke(new Action(() =>
-                    //    {
-                    //        //this.rect10.Visibility = Visibility.Hidden;
-                    //        CopyProperties(rect10, rect32);
-                    //    }));
-                    //    station2Init = 1;
-                    //    Thread.Sleep(10);
-                    //}
-                    //else
-                    //{
-                    //    station2Init = 0;
-                    //    station1Init = 0;
-                    //}
-                }
-            }
-        }
+                    Text = pt.name,
+                    Width = 150,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
 
-        private void Station2Act()
-        {
-            while (true)
-            {
-                if (station2Init == 1)
+                // 注册 TextChanged 事件，将用户输入回写到 pt.name
+                idTextBox.TextChanged += (s, edc) =>
                 {
-                    station1Init = 1;
-                    station2Init = 0;
-                    station2Finished = 0;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        this.rect32.Visibility = Visibility.Visible;
-                        this.rect63.Visibility = Visibility.Visible;
-                    }));
-                    ZuzhuangAct(this.rect32, this.rect63);
-                    while (station3Finished == 0)
-                    {
-                        station2Init = 0;
-                        Thread.Sleep(10);
-                    }
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        CopyProperties(rect32, rect33);
-                        CopyProperties(rect63, rect64);
-                        this.rect32.Visibility = Visibility.Hidden;
-                        this.rect63.Visibility = Visibility.Hidden;
-                    }));
-                    station2Finished = 1;
-                    station3Init = 1;
-                    Thread.Sleep(10);
-                    //if (station3Finished != 0)
-                    //{
-                    //    this.Dispatcher.BeginInvoke(new Action(() =>
-                    //    {
-                    //        //this.rect32.Visibility = Visibility.Hidden;
-                    //        CopyProperties(rect32, rect33);
-                    //    }));
-                    //    station3Init = 1;
-                    //    Thread.Sleep(10);
-                    //}
-                    //else
-                    //{
-                    //    station3Init = 0;
-                    //    station2Init = 0;
-                    //}
-                }
-            }
-        }
+                    pt.name = idTextBox.Text;
+                };
+                rowPanel.Children.Add(idTextBox);
 
-        private void Station3Act()
-        {
-            while (true)
-            {
-                if (station3Init == 1)
+
+                TextBox xBox, yBox, zBox, rBox;
+
+                rowPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText =>
                 {
-                    //station2Init = 1;
-                    //this.Dispatcher.BeginInvoke(new Action(() =>
-                    //{
-                    //    this.rect33.Visibility = Visibility.Visible;
-                    //}));
-                    station3Init = 0;
-                    station3Finished = 0;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        this.rect33.Visibility = Visibility.Visible;
-                        this.rect64.Visibility = Visibility.Visible;
-                    }));
-                    FujianAct(this.rect33, this.rect64);
-                    while (station4Finished == 0)
-                    {
-                        station3Init = 0;
-                        Thread.Sleep(10);
-                    }
-                    station3Finished = 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        CopyProperties(rect33, rect34);
-                        CopyProperties(rect64, rect65);
-                        this.rect33.Visibility = Visibility.Hidden;
-                        this.rect64.Visibility = Visibility.Hidden;
-                    }));
-                    station4Init = 1;
-                    Thread.Sleep(10);
-                    //if (station4Finished != 0)
-                    //{
-                    //    this.Dispatcher.BeginInvoke(new Action(() =>
-                    //    {
-                    //        if (station2Finished == 0)
-                    //        {
-                    //            CopyProperties(rect33, rect34);
-                    //            this.rect33.Visibility = Visibility.Hidden;
-                    //        }
-                    //        else {
-                    //            this.rect33.Visibility = Visibility.Visible;
-                    //            CopyProperties(rect33, rect34);
-                    //        }
-                    //    }));
-                    //    station4Init = 1;
-                    //    Thread.Sleep(10);
-                    //}
-                    //else
-                    //{
-                    //    station4Init = 0;
-                    //    station3Init = 0;
-                    //}
-                }
-            }
-        }
-
-        private void Station4Act()
-        {
-            while (true)
-            {
-                if (station4Init == 1)
-                {
-                    //station3Init = 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        this.rect34.Visibility = Visibility.Visible;
-                        this.rect65.Visibility = Visibility.Visible;
-                    }));
-                    station4Init = 0;
-                    station4Finished = 0;
-                    RejectAct(this.rect34, this.rect65);
-                    station4Finished = 1;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        this.rect34.Visibility = Visibility.Hidden;
-                        this.rect65.Visibility = Visibility.Hidden;
-                    }));
-                }
-            }
-        }
-
-        private void wholeprocess()
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                this.rect10.Visibility = Visibility.Visible;
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action1.Content = " ";
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action2.Content = " ";
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action4.Content = " ";
-            }));
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                action5.Content = " ";
-            }));
-            while (true)
-            {
-                //LailiaoAct(this.rect10);
-                //ZuzhuangAct(this.rect10);
-                //FujianAct(this.rect10);
-                //RejectAct(this.rect10);
-
-            }
-        }
-
-        private void start1_Click(object sender, RoutedEventArgs e)
-        {
-            //while (!GlobalManager.Current.isRun) {
-            //    Thread.Sleep(100);
-            //}
-            flag = 0;
-            flag1 = 0;
-            flag2 = 0;
-            flag3 = 0;
-            flag4 = 0;
-            NG_Foam_Count = 0;
-            station1Init = 1;
-            current_index = 0;
-            beltmoveflag[0] = 0;
-            beltmoveflag[1] = 0;
-            beltmoveflag[2] = 0;
-            beltmoveflag[3] = 0;
-            rect21.Fill = new SolidColorBrush(Colors.Green);
-            rect24.Fill = new SolidColorBrush(Colors.Green);
-            rect27.Fill = new SolidColorBrush(Colors.Green);
-            rect30.Fill = new SolidColorBrush(Colors.Green);
-
-            rect52.Fill = new SolidColorBrush(Colors.Green);
-            rect54.Fill = new SolidColorBrush(Colors.Green);
-            rect56.Fill = new SolidColorBrush(Colors.Green);
-            rect58.Fill = new SolidColorBrush(Colors.Green);
-
-            Task task1 = new Task(Station1Act);
-            task1.Start();
-            Task task2 = new Task(Station2Act);
-            task2.Start();
-            Task task3 = new Task(Station3Act);
-            task3.Start();
-            Task task4 = new Task(Station4Act);
-            task4.Start();
-            Task task5 = new Task(beltmove);
-            task5.Start();
-
-            //Task task1 = new Task(wholeprocess);
-            //task1.Start();
-        }
-
-        private void pause_Click(object sender, RoutedEventArgs e)
-        {
-            deltatime = 999999;
-        }
-
-        private void resume_Click(object sender, RoutedEventArgs e)
-        {
-            deltatime = 0;
-        }
-
-        private int flag16 = 1;
-        private void returnOK16(Rectangle rect)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            while (flag16 == 1)
-            {
-                Thread.Sleep(100);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect.Fill = null;
-            }));
-        }
-
-        private void machinetest()
-        {
-            Thread.Sleep(100);
-            moveforward(rect40, 86, 246, 10);
-            Task task1 = new Task(() => returnOK16(rect41));
-            task1.Start();
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect42.Fill = null;
-            }));
-            Task task2 = new Task(() => moveup(rect40, 188, 173, 20));
-            Task task3 = new Task(() => moveup(rect42, 202, 187, 20));
-            task2.Start();
-            task3.Start();
-            Task.WaitAll(task2, task3);
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect42.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            //飞拍
-            int pointnum = 4;
-            int startpos = 265;
-            int endpos = 365;
-            int step = 0;
-            if (pointnum > 0)
-            {
-                step = (endpos - startpos) / (pointnum - 1);
-            }
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect43.Fill = new SolidColorBrush(Colors.Green);
-            }));
-            Thread.Sleep(50);
-            this.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                rect43.Fill = null;
-            }));
-            for (int i = 0; i < pointnum - 1; i++)
-            {
-                moveforward(rect43, startpos + i * step, startpos + (i + 1) * step, 20);
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect43.Fill = new SolidColorBrush(Colors.Green);
+                    if (double.TryParse(newText, out double val)) pt.X = val;
                 }));
-                Thread.Sleep(50);
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    rect43.Fill = null;
-                }));
-            }
-        }
 
-        private void teststart_Click(object sender, RoutedEventArgs e)
-        {
-            this.Dispatcher.BeginInvoke(new Action(() =>
+                rowPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText =>
+                {
+                    if (double.TryParse(newText, out double val)) pt.Y = val;
+                }));
+
+                rowPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText =>
+                {
+                    if (double.TryParse(newText, out double val)) pt.Z = val;
+                }));
+
+                rowPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText =>
+                {
+                    if (double.TryParse(newText, out double val)) pt.R = val;
+                }));
+
+                rowPanel.Children.Add(GreateButton(pt.axisMap, rowPanel));
+
+                mainPanel.Children.Add(rowPanel);
+
+                AddStationData(selectIndex, pt);
+
+            }
+            else if (data == 1)
             {
-                rect40.Fill = new SolidColorBrush(Colors.Yellow);
-                rect41.Fill = null;
-                rect42.Fill = new SolidColorBrush(Colors.Red);
-                rect40.Margin = new Thickness(86, 188, 0, 0);
-                rect42.Margin = new Thickness(320, 202, 0, 0);
-                rect43.Margin = new Thickness(265, 98, 0, 0);
-            }));
-            Task task1 = new Task(machinetest);
-            task1.Start();
+                // 矩阵点，使用 pt.childList 里的每一个 ChildPoint
+                int totalPoints = row * col;
+
+                if (totalPoints > 200)
+                {
+                    mainPanel.Children.Add(new TextBlock
+                    {
+                        Text = $"{MatrixPointPrefix} New 超过最大限制（200 个点），跳过。",
+                        Foreground = new SolidColorBrush(Colors.Red)
+                    });
+                    return;
+                }
+
+                // 初始化并填满 NewchildList   
+                if (pt.childList == null)
+                    pt.childList = new List<ChildPoint>();
+
+                while (pt.childList.Count < totalPoints)
+                {
+                    pt.childList.Add(new ChildPoint
+                    {
+                        childName = new List<string> { $"NewPoint{pt.childList.Count + 1}" },
+                        childPos = new List<double> { 0, 0, 0, 0 }
+                    });
+                }
+
+                // 校验每个子点的内容
+                //foreach (var child in pt.childList)
+                //{
+                //    EnsureChildDataValid(child);
+                //}
+
+                // 绘制 UI
+                //mainPanel.Children.Add(new TextBlock
+                //{
+                //    Text = $"{MatrixPointPrefix}: NewMatrix ({col}col × {row}row)",
+                //    FontWeight = FontWeights.Bold,
+                //    Tag = row, //把行数存进 Tag
+                //    Margin = new Thickness(0, 8, 0, 4)
+                //});
+
+
+                var rowGrid = new Grid
+                {
+                    Margin = new Thickness(0, 8, 0, 4),
+                    Tag = "MatrixHeader"  // 关键标记
+                };
+
+                // 定义三列：标签、输入框、说明文本
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // "ID:"
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) }); // 输入框宽度
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+                rowGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // col×row
+
+                // ID: 标签
+                var idLabel = new TextBlock
+                {
+                    Text = "ID:",
+                    FontWeight = FontWeights.Bold,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                };
+                Grid.SetColumn(idLabel, 0);
+                rowGrid.Children.Add(idLabel);
+
+                // 可编辑的 ID 输入框
+                var matrixIdTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                matrixIdTextBox.TextChanged += (s, ede) => pt.name = matrixIdTextBox.Text;
+                Grid.SetColumn(matrixIdTextBox, 1);
+                rowGrid.Children.Add(matrixIdTextBox);
+
+                // 显示 col × row 信息
+                var matrixInfoText = new TextBlock
+                {
+                    Text = $"({col}col × {row}row)",
+                    FontWeight = FontWeights.Bold,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+                Grid.SetColumn(matrixInfoText, 2);
+                rowGrid.Children.Add(matrixInfoText);
+
+                mainPanel.Children.Add(rowGrid);
+
+
+                var ButtonAutoData = new Button
+                {
+                    Content = "FillData",
+                    ToolTip = "Add top left, bottom left, bottom right points to fillData",
+                    Margin = new Thickness(8, 0, 0, 0),
+                    Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton"),
+                };
+                Grid.SetColumn(ButtonAutoData, 3);
+                rowGrid.Children.Add(ButtonAutoData);
+
+                List<List<TextBox[]>> matrixInputs = new List<List<TextBox[]>>();
+                int childIndex = 0;
+                for (int r = 0; r < row; r++)
+                {
+                    var rowPanel = new StackPanel
+                    {
+                        Tag = "MatrixRow",
+                        Orientation = System.Windows.Controls.Orientation.Horizontal,
+                        Margin = new Thickness(0, 4, 0, 4)
+                    };
+
+                    var inputRow = new List<TextBox[]>();
+
+                    for (int c = 0; c < col; c++)
+                    {
+                        var child = pt.childList[childIndex++];
+                        string displayName = child.childName[0];
+                        var pos = child.childPos;
+
+
+                        // 默认背景颜色
+                        Brush background = new SolidColorBrush(Colors.LightGray);
+                        // 是否需要设置角点高亮（至少 2行2列）
+                        bool highlightCorners = pt.row >= 2 && pt.col >= 2;
+                        // 三个角点统一高亮为 #E0E0E0
+                        bool isCorner = highlightCorners && (
+                            (r == 0 && c == 0) ||                            // 左上角 C
+                            (r == pt.row - 1 && c == 0) ||                   // 左下角 A
+                            (r == pt.row - 1 && c == pt.col - 1)             // 右下角 B
+                        );
+
+                        if (isCorner)
+                        {
+                            background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B2828282"));
+                        }
+
+
+
+                        var pointPanel = new StackPanel
+                        {
+                            Tag = "MatrixRow",
+                            Orientation = System.Windows.Controls.Orientation.Vertical,
+                            Margin = new Thickness(4),
+                            Width = 120,
+                            Background = background,
+                        };
+
+                        var tbID = new TextBlock
+                        {
+                            Text = $"ID: {displayName}",
+                            Margin = new Thickness(0, 0, 0, 6)
+                        };
+                        pointPanel.Children.Add(tbID);
+                        addTextBlockClicked(tbID, pt.axisMap, pointPanel);   //点击ID弹出示教
+
+                        //回写，用于保存文件
+                        TextBox xBox, yBox, zBox, rBox;
+
+                        pointPanel.Children.Add(CreateLabeledTextBox("X", 0, out xBox, newText => { if (double.TryParse(newText, out double val)) pos[0] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Y", 0, out yBox, newText => { if (double.TryParse(newText, out double val)) pos[1] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("Z", 0, out zBox, newText => { if (double.TryParse(newText, out double val)) pos[2] = val; }));
+                        pointPanel.Children.Add(CreateLabeledTextBox("R", 0, out rBox, newText => { if (double.TryParse(newText, out double val)) pos[3] = val; }));
+
+                        pointPanel.Children.Add(GreateButton(pt.axisMap, pointPanel));
+
+                        rowPanel.Children.Add(pointPanel);
+
+                        inputRow.Add(new[] { xBox, yBox, zBox, rBox });
+                    }
+
+                    matrixInputs.Add(inputRow);
+
+                    mainPanel.Children.Add(rowPanel);
+                }
+
+                ButtonAutoData.Click += (s, ebtn) =>
+                {
+                    if (pt.childList.Count != pt.row * pt.col) return;
+
+                    // 三个角的坐标（行列）
+                    int ax = 0, ay = pt.row - 1;        // 左下角 A → (2, 0)
+                    int dx = pt.col - 1, dy = pt.row - 1; // 右下角 D → (2, 2)
+                    int cx = 0, cy = 0;                 // 左上角 C → (0, 0)
+
+                    var A = pt.childList[ay * pt.col + ax].childPos; // 左下
+                    var D = pt.childList[dy * pt.col + dx].childPos; // 右下
+                    var C = pt.childList[cy * pt.col + cx].childPos; // 左上
+
+                    // vecX: A -> D 水平方向向量
+                    // vecY: A -> C 垂直方向向量
+                    double[] vecX = new double[2];
+                    double[] vecY = new double[2];
+
+                    vecX[0] = (D[0] - A[0]) / (pt.col - 1); // X 水平方向单步增量
+                    vecX[1] = (D[1] - A[1]) / (pt.col - 1); // Y 水平方向单步增量
+
+                    vecY[0] = (C[0] - A[0]) / (pt.row - 1); // X 垂直方向单步增量
+                    vecY[1] = (C[1] - A[1]) / (pt.row - 1); // Y 垂直方向单步增量
+
+                    Console.WriteLine($"vecX: ({vecX[0]:0.####}, {vecX[1]:0.####})");
+                    Console.WriteLine($"vecY: ({vecY[0]:0.####}, {vecY[1]:0.####})");
+
+                    Console.WriteLine($"A (左下): {A[0]}, {A[1]}, {A[2]}, {A[3]}");
+                    Console.WriteLine($"D (右下): {D[0]}, {D[1]}, {D[2]}, {D[3]}");
+                    Console.WriteLine($"C (左上): {C[0]}, {C[1]}, {C[2]}, {C[3]}");
+
+                    for (int r = 0; r < pt.row; r++)
+                    {
+                        for (int c = 0; c < pt.col; c++)
+                        {
+                            int index = r * pt.col + c; // 保持顺序一致：从上到下、从左到右
+
+                            // 跳过已设置的三个角点
+                            if ((r == ay && c == ax) || (r == dy && c == dx) || (r == cy && c == cx))
+                            {
+                                Console.WriteLine($"跳过基准点[{r},{c}]");
+                                continue;
+                            }
+
+                            var pos = pt.childList[index].childPos;
+
+                            // 用 (pt.row - 1 - r) 来反转行，保证点[0,*]是左上角行
+                            pos[0] = A[0] + vecX[0] * c + vecY[0] * (pt.row - 1 - r); // X
+                            pos[1] = A[1] + vecX[1] * c + vecY[1] * (pt.row - 1 - r); // Y
+                            pos[2] = A[2]; // Z 保持不变
+                            pos[3] = A[3]; // R 保持不变
+
+                            var boxes = matrixInputs[r][c];
+                            boxes[0].Text = pos[0].ToString("F3");
+                            boxes[1].Text = pos[1].ToString("F3");
+                            boxes[2].Text = pos[2].ToString("F3");
+                            boxes[3].Text = pos[3].ToString("F3");
+
+                            Console.WriteLine($"点[{r},{c}]: X={pos[0]:0.###}, Y={pos[1]:0.###}, Z={pos[2]}, R={pos[3]}");
+                        }
+                    }
+                };
+
+                AddStationData(selectIndex, pt);
+            }
+            else if (data == 2)
+            {
+                //var rowPanel = new StackPanel
+                //{
+                //    Tag = "SinglePoint",
+                //    Orientation = Orientation.Horizontal,
+                //    Margin = new Thickness(0, 4, 10, 4)
+                //};
+                //pt.name = $"New General";
+
+                //// general 输入框 + 回写
+                //rowPanel.Children.Add(CreateLabeledTextBox(pt.name, 0, newText =>
+                //{
+                //    if (double.TryParse(newText, out double val)) pt.general = val;
+                //}));
+
+                //mainPanel.Children.Add(rowPanel);
+                //AddStationData(selectIndex, pt);
+
+                var rowPanel = new StackPanel
+                {
+                    Tag = "SinglePoint",
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(0, 4, 10, 4)
+                };
+
+                //pt.name = "New";
+
+                // 添加 ID 标签
+                rowPanel.Children.Add(new TextBlock
+                {
+                    Text = "ID:",
+                    FontWeight = FontWeights.Bold,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                });
+
+                // 添加 ID 输入框（回写 pt.name）
+                var idTextBox = new TextBox
+                {
+                    Text = pt.name,
+                    Width = 150,
+                    Margin = new Thickness(0, 0, 15, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                idTextBox.TextChanged += (s, ede) => pt.name = idTextBox.Text;
+                rowPanel.Children.Add(idTextBox);
+
+                // 添加 General 标签
+                rowPanel.Children.Add(new TextBlock
+                {
+                    Text = "Data:",
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 5, 0)
+                });
+
+                // 添加 General 输入框（回写 pt.general）
+                var genTextBox = new TextBox
+                {
+                    Width = 90,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                genTextBox.TextChanged += (s, edc) =>
+                {
+                    if (double.TryParse(genTextBox.Text, out double val))
+                        pt.general = val;
+                };
+                rowPanel.Children.Add(genTextBox);
+
+                // 添加到主容器
+                mainPanel.Children.Add(rowPanel);
+                AddStationData(selectIndex, pt);
+            }
+
+
         }
     }
 }

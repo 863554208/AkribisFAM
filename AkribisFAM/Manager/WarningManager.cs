@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using static AkribisFAM.GlobalManager;
 
@@ -31,67 +32,67 @@ namespace AkribisFAM.Manager
 
         public void WaitZuZhuang()
         {
-            DateTime startTime = DateTime.Now;
+            //DateTime startTime = DateTime.Now;
 
-            if (GlobalManager.Current.IsPause) 
-            {
-                Console.WriteLine("执行暂停");
-                GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 999999;
-            }
+            //if (GlobalManager.Current.IsPause) 
+            //{
+            //    Console.WriteLine("执行暂停");
+            //    GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] = 999999;
+            //}
 
-            while (true)
-            {              
-                TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] - elapsed.TotalMilliseconds;
+            //while (true)
+            //{              
+            //    TimeSpan elapsed = DateTime.Now - startTime;
+            //    double remaining = GlobalManager.Current.Zuzhuang_delta[GlobalManager.Current.current_Zuzhuang_step] - elapsed.TotalMilliseconds;
 
-                if (remaining <= 0)
-                {
-                    break;
-                }
+            //    if (remaining <= 0)
+            //    {
+            //        break;
+            //    }
 
-                int sleepTime = (int)Math.Min(remaining, 50);
-                Thread.Sleep(sleepTime);
+            //    int sleepTime = (int)Math.Min(remaining, 50);
+            //    Thread.Sleep(sleepTime);
 
 
-            }
-
+            //}
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaitLaiLiao()
         {
             DateTime startTime = DateTime.Now;
 
-            if (GlobalManager.Current.IsPause)
-            {
-                Console.WriteLine("执行暂停");
-                GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = 999999;
-            }
+            //if (GlobalManager.Current.IsPause)
+            //{
+            //    Logger.WriteLog("来料部分执行暂停");
+            //    GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] = int.MaxValue;
+            //}
 
-            while (true)
-            {
-                TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] - elapsed.TotalMilliseconds;
+            //while (true)
+            //{
+            //    TimeSpan elapsed = DateTime.Now - startTime;
+            //    double remaining = GlobalManager.Current.Lailiao_delta[GlobalManager.Current.current_Lailiao_step] - elapsed.TotalMilliseconds;
 
-                if (remaining <= 0)
-                {
-                    break;
-                }
+            //    if (remaining <= 0)
+            //    {
+            //        break;
+            //    }
 
-                int sleepTime = (int)Math.Min(remaining, 50);
-                Thread.Sleep(sleepTime);
-            }
-
+            //    int sleepTime = (int)Math.Min(remaining, 50);
+            //    Thread.Sleep(sleepTime);
+            //}
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaiFuJian()
         {
             DateTime startTime = DateTime.Now;
 
-            if (GlobalManager.Current.IsPause)
-            {
-                Console.WriteLine("执行暂停");
-                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
-            }
+            //if (GlobalManager.Current.IsPause)
+            //{
+            //    Console.WriteLine("执行暂停");
+            //    GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
+            //}
 
             while (true)
             {
@@ -106,33 +107,33 @@ namespace AkribisFAM.Manager
                 int sleepTime = (int)Math.Min(remaining, 50);
                 Thread.Sleep(sleepTime);
             }
-
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
         public void WaiReject()
         {
             DateTime startTime = DateTime.Now;
 
-            if (GlobalManager.Current.IsPause)
-            {
-                Console.WriteLine("执行暂停");
-                GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
-            }
+            //if (GlobalManager.Current.IsPause)
+            //{
+            //    Console.WriteLine("执行暂停");
+            //    GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] = 999999;
+            //}
 
-            while (true)
-            {
-                TimeSpan elapsed = DateTime.Now - startTime;
-                double remaining = GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] - elapsed.TotalMilliseconds;
+            //while (true)
+            //{
+            //    TimeSpan elapsed = DateTime.Now - startTime;
+            //    double remaining = GlobalManager.Current.FuJian_delta[GlobalManager.Current.current_FuJian_step] - elapsed.TotalMilliseconds;
 
-                if (remaining <= 0)
-                {
-                    break;
-                }
+            //    if (remaining <= 0)
+            //    {
+            //        break;
+            //    }
 
-                int sleepTime = (int)Math.Min(remaining, 50);
-                Thread.Sleep(sleepTime);
-            }
-
+            //    int sleepTime = (int)Math.Min(remaining, 50);
+            //    Thread.Sleep(sleepTime);
+            //}
+            ErrorManager.Current.Insert(ErrorCode.TimeOut);
         }
 
     }
