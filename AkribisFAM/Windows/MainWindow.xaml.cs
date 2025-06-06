@@ -528,15 +528,11 @@ namespace AkribisFAM
         private void TestFeiPai_Click(object sender, RoutedEventArgs e)
         {
 
-            int moveToPointX = MoveView.MovePTP(arr1, arr2);
-            Thread.Sleep(300);
-            var arr3 = new object[] { AxisName.LSX };
-            var arr4 = new object[] { AxisName.LSY };
-            int b = MoveView.WaitAxisArrived(arr3, arr4);
-
-
-
-
+            //int moveToPointX = MoveView.MovePTP(arr1, arr2);
+            //Thread.Sleep(300);
+            //var arr3 = new object[] { AxisName.LSX };
+            //var arr4 = new object[] { AxisName.LSY };
+            //int b = MoveView.WaitAxisArrived(arr3, arr4);
 
 
 
@@ -959,14 +955,14 @@ namespace AkribisFAM
 
         private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
         {
-            var a = GlobalManager.Current.stationPoints;
-            GlobalManager.Current.IO_test1 = true;
-            TestBoardIn.IsEnabled = false;
+            //var a = GlobalManager.Current.stationPoints;
+            //GlobalManager.Current.IO_test1 = true;
+            //TestBoardIn.IsEnabled = false;
 
-            // 等待 1 秒而不阻塞 UI 线程
-            await Task.Delay(1000);
+            //// 等待 1 秒而不阻塞 UI 线程
+            //await Task.Delay(1000);
 
-            TestBoardIn.IsEnabled = true;
+            //TestBoardIn.IsEnabled = true;
         }
 
         //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
