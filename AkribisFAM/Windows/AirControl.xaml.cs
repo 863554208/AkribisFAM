@@ -90,17 +90,17 @@ namespace AkribisFAM.Windows
             };
             OutputNozzleBlowPairs = new Dictionary<string, IO_OutFunction_Table>
             {
-                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_8solenoid_valve1_A },
-                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_10solenoid_valve2_A },
-                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_12solenoid_valve3_A },
-                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_14solenoid_valve4_A }
+                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_8Reserve },
+                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_10Reserve },
+                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_12Reserve },
+                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_14Reserve }
             };
             OutputNozzleNoBlowPairs = new Dictionary<string, IO_OutFunction_Table>
             {
-                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_9solenoid_valve1_B },
-                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_11solenoid_valve2_B },
-                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_13solenoid_valve3_B },
-                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_15solenoid_valve4_B }
+                { "Suctionnozzle11", IO_OutFunction_Table.OUT3_9Reserve },
+                { "Suctionnozzle21", IO_OutFunction_Table.OUT3_11Reserve },
+                { "Suctionnozzle31", IO_OutFunction_Table.OUT3_13Reserve },
+                { "Suctionnozzle41", IO_OutFunction_Table.OUT3_15Reserve }
             };
             InputCylinderPairs = new Dictionary<Ellipse, IO_INFunction_Table>
             {

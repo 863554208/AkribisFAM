@@ -1,13 +1,5 @@
 ﻿using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
-using LiveCharts.Wpf;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using YamlDotNet.Core.Tokens;
-using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.DeviceClass
 {
@@ -112,13 +104,11 @@ namespace AkribisFAM.DeviceClass
         public bool VacOn()
         {
 
-            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1) &&
-                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0));
+            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1));
         }
         public bool VacOff()
         {
-            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0) &&
-                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0));
+            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0));
         }
         public bool RemoveFilm(double teachpointX, double teachpointY)
         {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json.Linq;
@@ -13,19 +14,19 @@ namespace AkribisFAM.CommunicationProtocol
 {
     public enum ClientNames
     {
-        
+
         camera1_Feed,
-        
+
         camera1_Runner,
-        
+
         camera2,
-        
+
         camera3,
-        
+
         lazer,
-        
+
         scanner,
-        
+
         mes,
 
         ModbusTCP,
@@ -39,7 +40,15 @@ namespace AkribisFAM.CommunicationProtocol
         public static ConcurrentDictionary<ClientNames, (string ip, int port)> clientNameToEndpoint = new ConcurrentDictionary<ClientNames, (string, int)>();
         // 用来存储每个客户端的连接，字典的键是ClientNames，值是 TcpClientWorker 实例
         public static ConcurrentDictionary<ClientNames, TcpClientWorker> namedClients = new ConcurrentDictionary<ClientNames, TcpClientWorker>();
+        public static bool IsAllConnected => namedClients.Where(x => x.Key != ClientNames.mes && x.Key != ClientNames.Pressure_sensor).All(x => x.Value.isConnected);
+        //public static bool IsAllConnected => namedClients.All(x => x.Value.isConnected);
 
+        public static List<KeyValuePair<ClientNames, TcpClientWorker>> GetDisconnectedClients()
+        {
+            return namedClients
+                .Where(kvp => !kvp.Value.IsConnected())
+                .ToList();
+        }
         /// <summary>
         /// 程序初始化加载IP地址配置文件,并连接所有客户端
         /// </summary>
@@ -124,7 +133,7 @@ namespace AkribisFAM.CommunicationProtocol
 
                 // 所有客户端连接完成后，输出成功信息
                 //Console.WriteLine("All clients connected!");
-               
+
             }
             ));
         }
@@ -148,7 +157,8 @@ namespace AkribisFAM.CommunicationProtocol
                                                  // 当前客户端连接完成后，输出成功信息
                                                  //  Console.WriteLine("All clients connected!");
                 }
-                else {
+                else
+                {
                     var (ip, port) = clientNameToEndpoint[clientName];
                     namedClients[clientName].host = ip;
                     namedClients[clientName].port = port;
@@ -171,7 +181,7 @@ namespace AkribisFAM.CommunicationProtocol
                     var clientname = client.Key;
                     var clientworker = client.Value;
                     clientworker.Stop();  // 停止每个客户端的连接
-                   // Logger.WriteLog($"Stop {clientname.ToString()}connection");
+                                          // Logger.WriteLog($"Stop {clientname.ToString()}connection");
                 }
                 //namedClients.Clear();
             }
@@ -210,9 +220,9 @@ namespace AkribisFAM.CommunicationProtocol
                     //Logger.WriteLog("Client not found for given IP and port.");
                 }
             }
-            catch (Exception e) 
-            { 
-                Debug.WriteLine("tcp服务器发送数据出错 : {0}",e.ToString());
+            catch (Exception e)
+            {
+                Debug.WriteLine("tcp服务器发送数据出错 : {0}", e.ToString());
             }
 
         }
@@ -223,7 +233,7 @@ namespace AkribisFAM.CommunicationProtocol
             if (namedClients.TryGetValue(clientName, out var worker))
             {
                 worker.StrClear();
-            }  
+            }
         }
 
         // 获取指定客户端的最近一条消息
@@ -255,7 +265,7 @@ namespace AkribisFAM.CommunicationProtocol
                 {
                     var clientname = client.Key;
                     var clientworker = client.Value;
-                    clientworker.CheckServerStatus();  
+                    clientworker.CheckServerStatus();
                 }
             }
         }

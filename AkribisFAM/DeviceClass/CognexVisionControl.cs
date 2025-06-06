@@ -121,6 +121,7 @@ namespace AkribisFAM.DeviceClass
 
             ////接受Cognex的信息
             List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+
             msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
 
 
@@ -217,8 +218,8 @@ namespace AkribisFAM.DeviceClass
             Logger.WriteLog("结束CCD2运动1");
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
             //接受Cognex信息
-            //List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
-            //AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
+            List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> AcceptTLNDownPosition = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
+            AcceptTLNDownPosition = Task_PrecisionDownCamreaFunction.TriggDownCamreaTLNAcceptData(PrecisionDownCamreaProcessCommand.TLN);
 
             return App.assemblyGantryControl.ZUpAll();
         }
@@ -383,7 +384,16 @@ namespace AkribisFAM.DeviceClass
                 palletePath.Add(sendTLTCameraposition);
             }
         }
+        public bool TurnOffTheFlyPEG()
+        {
 
+            return AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response3);
+        }
+        public bool TurnOnTheFlyPEG()
+        {
+
+            return AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response3);
+        }
         private bool VisionTriggerMove()
         {
             bool reverse = true;
@@ -525,7 +535,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool Trigger()
         {
-            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+            return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0) && IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1);
         }
 
         public bool CheckFilm(int index, int totalRow, int totalColumn)

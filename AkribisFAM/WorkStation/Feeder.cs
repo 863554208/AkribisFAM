@@ -3,16 +3,13 @@ using AkribisFAM.DeviceClass;
 using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace AkribisFAM.WorkStation
 {
     internal class Feeder : WorkStationBase
     {
+        private static DateTime startTime = DateTime.Now;
         private static Feeder _instance;
         public static Feeder Current
         {
@@ -65,7 +62,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
-                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
                 return false;
             }
         }
@@ -91,13 +88,12 @@ namespace AkribisFAM.WorkStation
         {
             return _canPick;
         }
-
         public bool IsFeederReady()
         {
             return IsFeederReady(_feeder, out _);
         }
 
-        public override void AutoRun(CancellationToken token)
+        public override bool AutoRun()
         {
         
             switch (currentStep)
@@ -146,7 +142,7 @@ namespace AkribisFAM.WorkStation
                     }
                     else if ((DateTime.Now - SeqStartTime).TotalMilliseconds > 3000) // Timeout after 3 seconds
                     {
-                        if (_feeder.hasAlarm) // Feeder empty or has alarm
+                        if (_feeder.IsAlarm) // Feeder empty or has alarm
                         {
                             Logger.WriteLog($"Feeder {_feeder.FeederNumber} is empty or has an alarm condition. Switching feeder now.");
                             currentStep = FeederSequenceStep.SwitchFeeder;
@@ -178,7 +174,7 @@ namespace AkribisFAM.WorkStation
                     else
                     {
                         // Continue waiting for all parts to be picked while checking for errors
-                        if (_feeder.hasAlarm) // Feeder has alarm
+                        if (_feeder.IsAlarm) // Feeder has alarm
                         {
                             Logger.WriteLog($"Feeder {_feeder.FeederNumber} has alarm condition.");
                             currentStep = FeederSequenceStep.SwitchFeeder;
@@ -213,8 +209,11 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.ErrorDetected:
                     // Log error, alert operator, etc.
+                    {
+
                     currentStep = FeederSequenceStep.ErrorHandling;
-                    break;
+                    return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"Feeder {_feeder.FeederNumber} switch failed");
+                    }
 
                 case FeederSequenceStep.ErrorHandling:
                     // Perform recovery or wait for manual reset
@@ -223,15 +222,16 @@ namespace AkribisFAM.WorkStation
                         currentStep = FeederSequenceStep.Initialize;
                     }
                     break;
-
                 case FeederSequenceStep.ReturnToPreviousStep:
                     currentStep = previousStep;
                     break;
 
                 case FeederSequenceStep.Idle:
                 default:
-                    break;
+                    return ErrorManager.Current.Insert(ErrorCode.LogicErr, $"Feeder AutoRun({currentStep})");
+
             }
+            return true;
         }
         private bool IsInitialized(FeederControl feeder)
         {
@@ -249,18 +249,11 @@ namespace AkribisFAM.WorkStation
         }
         public override void Initialize()
         {
-            throw new NotImplementedException();
+            App.feeder1.ClearError();
+            App.feeder2.ClearError();
+            startTime = DateTime.Now;
         }
 
-        public override bool Ready()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ReturnZero()
-        {
-            throw new NotImplementedException();
-        }
 
         private bool IsFeederReady(FeederControl feeder, out string ErrMsg)
         {
@@ -302,6 +295,16 @@ namespace AkribisFAM.WorkStation
             }
 
             return true; // Feeder is ready
+        }
+
+        public override void Paused()
+        {
+            return;
+        }
+
+        public override void ResetAfterPause()
+        {
+            startTime = DateTime.Now;
         }
     }
 }
