@@ -331,6 +331,10 @@ namespace AkribisFAM.CommunicationProtocol
             //    //OutIO_status[(int)IOnamekey] = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value);
             //}
             ErrorManager.Current.ModbusErrCnt = 0;
+
+
+
+
             //循环读取输出IO
             Task.Run(new Action(() =>
             {

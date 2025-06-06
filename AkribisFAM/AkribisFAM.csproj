@@ -181,6 +181,8 @@
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="NewStation\newStation1.cs" />
+    <Compile Include="NewStation\newStation2.cs" />
     <Compile Include="ShareValues.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />

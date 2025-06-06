@@ -21,6 +21,21 @@ namespace AkribisFAM
 {
     public class GlobalManager
     {
+        //全局标志位
+        public int flag_RangeFindingTrayArrived;  //测距位料盘到位
+        public int flag_assembleTrayArrived;      //贴装位料盘到位
+        public int flag_RecheckTrayArrived;       //复检位料盘到位
+
+        public int flag_TrayProcessCompletedNumber;
+        public int flag_NGStationAllowTrayEnter;
+        public int flag_Bypass;
+        public int flag_RecheckStationHaveTray;
+        public int flag_RecheckStationRequestOutflowTray;
+
+        public int flag_TrayArrivedNumber; 
+
+
+
         public int i = 1;
 
         // 单例模式，确保全局只有一个实例

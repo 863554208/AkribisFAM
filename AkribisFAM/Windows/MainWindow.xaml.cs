@@ -344,6 +344,7 @@ namespace AkribisFAM
 
         private async void IdleButton_Click(object sender, RoutedEventArgs e)
         {
+
             if (StateManager.Current.State == StateCode.RUNNING)
             {
                 //要板信号置0

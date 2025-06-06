@@ -54,20 +54,5 @@ namespace AkribisFAM.NewStation
         {
             return true;
         }
-
-        public override void AutoRun()
-        {
-            while (true)
-            {
-            step1:
-                int a = 1;
-
-            step2:
-
-            step3:
-                int b = 1;
-
-            }
-        }
     }
 }

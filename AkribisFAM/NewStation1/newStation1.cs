@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,17 +16,17 @@ using static AkribisFAM.GlobalManager;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using System.CodeDom;
 using AkribisFAM.WorkStation;
-using System;
 
-namespace AkribisFAM.NewStation
+namespace AkribisFAM.NewStation 
 {
-    public class newStation2 :WorkStation.WorkStationBase
+    public class newStation1 : WorkStation.WorkStationBase
     {
-        private static newStation2 _instance;
 
-        public override string Name => nameof(newStation2);
+        private static newStation1 _instance;
 
-        public static newStation2 Current
+        public override string Name => nameof(LaiLiao);
+
+        public static newStation1 Current
         {
             get
             {
@@ -32,13 +34,12 @@ namespace AkribisFAM.NewStation
                 {
                     if (_instance == null)
                     {
-                        _instance = new newStation2();
+                        _instance = new newStation1();
                     }
                 }
                 return _instance;
             }
         }
-
 
         public override void ReturnZero()
         {
@@ -55,17 +56,18 @@ namespace AkribisFAM.NewStation
             return true;
         }
 
+
         public override void AutoRun()
         {
             while (true)
             {
-            step1:
-                int a = 1;
+                step1:
+                    int a = 1;
 
-            step2:
+                step2:
 
-            step3:
-                int b = 1;
+                step3:
+                    int b = 1;
 
             }
         }
