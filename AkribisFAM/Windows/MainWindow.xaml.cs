@@ -527,18 +527,12 @@ namespace AkribisFAM
         }
         private void TestFeiPai_Click(object sender, RoutedEventArgs e)
         {
-            var arr1 = new object[] { AxisName.LSX, 150, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-            var arr2 = new object[] { AxisName.LSY, 150, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-            int moveToPointX = MoveView.MovePTP(arr1, arr2);
-            Thread.Sleep(300);
-            var arr3 = new object[] { AxisName.LSX };
-            var arr4 = new object[] { AxisName.LSY };
-            int b = MoveView.WaitAxisArrived(arr3, arr4);
-
-
-
-
+            //int moveToPointX = MoveView.MovePTP(arr1, arr2);
+            //Thread.Sleep(300);
+            //var arr3 = new object[] { AxisName.LSX };
+            //var arr4 = new object[] { AxisName.LSY };
+            //int b = MoveView.WaitAxisArrived(arr3, arr4);
 
 
 
@@ -961,14 +955,14 @@ namespace AkribisFAM
 
         private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
         {
-            var a = GlobalManager.Current.stationPoints;
-            GlobalManager.Current.IO_test1 = true;
-            TestBoardIn.IsEnabled = false;
+            //var a = GlobalManager.Current.stationPoints;
+            //GlobalManager.Current.IO_test1 = true;
+            //TestBoardIn.IsEnabled = false;
 
-            // 等待 1 秒而不阻塞 UI 线程
-            await Task.Delay(1000);
+            //// 等待 1 秒而不阻塞 UI 线程
+            //await Task.Delay(1000);
 
-            TestBoardIn.IsEnabled = true;
+            //TestBoardIn.IsEnabled = true;
         }
 
         //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
@@ -1038,11 +1032,21 @@ namespace AkribisFAM
             CultureInfo cultureInfo = new CultureInfo(culture);
             Thread.CurrentThread.CurrentUICulture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.Language = XmlLanguage.GetLanguage(cultureInfo.Name);
+            }
         }
 
         private void RefreshUI()
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.InvalidateVisual();
+            }
         }
 
         private async void ExecuteReset()
