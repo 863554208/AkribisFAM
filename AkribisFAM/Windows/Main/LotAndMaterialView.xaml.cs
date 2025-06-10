@@ -27,17 +27,21 @@ namespace AkribisFAM.Windows
 
         private void UserControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            UpdateButtons();
+            //UpdateButtons();
         }
         private void UpdateButtons()
         {
-            btnStartLot.IsEnabled = App.lotManager.IsCurrLotNull ? true : false;
-            btnEndLot.IsEnabled = App.lotManager.IsCurrLotNull ? false : true;
-            txtCreator.Content = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.CreatedBy;
-            txtStartDate.Content = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.StartDateTime.ToString();
-            txtLotID.Text = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.LotNumber;
-            txtLotID.IsEnabled = App.lotManager.IsCurrLotNull;
-            cbxRecipe.IsEnabled = App.lotManager.IsCurrLotNull;
+            if (App.lotManager != null)
+            {
+
+                btnStartLot.IsEnabled = App.lotManager.IsCurrLotNull ? true : false;
+                btnEndLot.IsEnabled = App.lotManager.IsCurrLotNull ? false : true;
+                txtCreator.Content = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.CreatedBy;
+                txtStartDate.Content = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.StartDateTime.ToString();
+                txtLotID.Text = App.lotManager.IsCurrLotNull ? "" : App.lotManager.CurrLot.LotNumber;
+                txtLotID.IsEnabled = App.lotManager.IsCurrLotNull;
+                cbxRecipe.IsEnabled = App.lotManager.IsCurrLotNull;
+            }
         }
         private void btnStartLot_Click(object sender, System.Windows.RoutedEventArgs e)
         {
@@ -65,7 +69,7 @@ namespace AkribisFAM.Windows
                 LotID = txtLotID.Text,
                 StartDateTime = DateTime.Now,
                 EndDateTime = DateTime.Now,
-            }) ;
+            });
             UpdateButtons();
         }
 
@@ -83,6 +87,13 @@ namespace AkribisFAM.Windows
             };
             App.DbManager.UpdateLotRecord(lotrecord);
             App.lotManager.EndLot();
+            UpdateButtons();
+        }
+
+        private void UserControl_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (!IsVisible) return;
+
             UpdateButtons();
         }
     }
