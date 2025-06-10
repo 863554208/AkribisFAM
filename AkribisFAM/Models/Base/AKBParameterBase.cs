@@ -123,6 +123,7 @@ namespace AkribisFAM.Models.Base
 
                 cacheParamBase = paramset;
                 //retVal = emgr.normal();
+                retVal = true;
             }
             catch (Exception ex)
             {

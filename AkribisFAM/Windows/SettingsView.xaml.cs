@@ -15,8 +15,14 @@ namespace AkribisFAM.Windows
         {
             InitializeComponent();
             DataContext = settingVM;
+            App.Current.Exit += Current_Exit;
         }
-  
+
+        private void Current_Exit(object sender, System.Windows.ExitEventArgs e)
+        {
+            Close();
+        }
+
         public void Close()
         {
             settingVM.PauseUpdateThread();

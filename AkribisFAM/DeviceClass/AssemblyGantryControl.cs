@@ -193,7 +193,7 @@ namespace AkribisFAM.DeviceClass
             }
 
             SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
-            sp.Z = GlobalManager.Current.CurrentMode == RunMode.DryrunMode ? sp.Z / 2 : sp.Z;
+            sp.Z = GlobalManager.Current.CurrentMode == ProcessMode.Dryrun ? sp.Z / 2 : sp.Z;
             switch (picker)
             {
                 case Picker.Picker1:
@@ -1001,7 +1001,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePickAll()
         {
-            return (GlobalManager.Current.CurrentMode == RunMode.DryrunMode ||
+            return (GlobalManager.Current.CurrentMode == ProcessMode.Dryrun ||
                 (TCompensatePick(Picker.Picker1) && TCompensatePick(Picker.Picker2) &&
                 TCompensatePick(Picker.Picker3) && TCompensatePick(Picker.Picker4)));
         }

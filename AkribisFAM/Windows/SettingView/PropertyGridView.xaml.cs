@@ -132,20 +132,20 @@ namespace AkribisFAM.Windows
 
             //if (AKBMessageBox.ShowDialog("Are you sure you want to save the setting?", msgBtn: MessageBoxButton.YesNo, msgIcon: AKBMessageBox.MessageBoxIcon.Question))
             //{
-            //    if (DataContext.GetType() == typeof(AKBLocalParam))
-            //    {
-            //        lprm.Save();
+                if (DataContext.GetType() == typeof(AKBLocalParam))
+                {
+                    lprm.Save();
 
-            //        Log(MessageType.Info, $"'{App.userManager.CurrentUser.DisplayName}' saved {changesString}");
-            //    }
-            //    else if (DataContext.GetType() == typeof(RecipeSetting))
-            //    {
-            //        rPrm.Save();
-            //        RecipeSetting setting = (RecipeSetting)DataContext;
-            //        Log(MessageType.Info, $"'{App.userManager.CurrentUser.DisplayName}' saved recipe '{setting.RecipeName}' {changesString}");
-            //    }
-            //    UpdateAllPropertyItem();
-            //    propGrid.Update();
+                    //Log(MessageType.Info, $"'{App.userManager.CurrentUser.DisplayName}' saved {changesString}");
+                }
+                //else if (DataContext.GetType() == typeof(RecipeSetting))
+                //{
+                //    rPrm.Save();
+                //    RecipeSetting setting = (RecipeSetting)DataContext;
+                //    Log(MessageType.Info, $"'{App.userManager.CurrentUser.DisplayName}' saved recipe '{setting.RecipeName}' {changesString}");
+                //}
+                UpdateAllPropertyItem();
+                propGrid.Update();
 
             //}
         }

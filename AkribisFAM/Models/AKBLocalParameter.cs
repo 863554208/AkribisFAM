@@ -104,8 +104,38 @@ namespace AkribisFAM.Models
                 set { _rejectY.Value = value; OnPropertyChanged(); }
             }
 
+            private AKBbool _enablePicker1 = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 1")]
+            public bool EnablePicker1
+            {
+                get { return _enablePicker1.Value; }
+                set { _enablePicker1.Value = value; OnPropertyChanged(); }
+            }
 
-      
+            private AKBbool _enablePicker2 = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 2")]
+            public bool EnablePicker2
+            {
+                get { return _enablePicker2.Value; }
+                set { _enablePicker2.Value = value; OnPropertyChanged(); }
+            }
+
+            private AKBbool _enablePicker3 = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 3")]
+            public bool EnablePicker3
+            {
+                get { return _enablePicker3.Value; }
+                set { _enablePicker3.Value = value; OnPropertyChanged(); }
+            }
+
+            private AKBbool _enablePicker4 = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 4")]
+            public bool EnablePicker4
+            {
+                get { return _enablePicker4.Value; }
+                set { _enablePicker4.Value = value; OnPropertyChanged(); }
+            }
+
             private AKBbool _enableTraceLog = new AKBbool();
             [Browsable(true), ReadOnly(false), Category("Logging"), Description("Enable/disable logging of individual process time")]
             public bool EnableTraceLog
@@ -128,6 +158,28 @@ namespace AkribisFAM.Models
             {
                 get { return _alarmAge.Value; }
                 set { _alarmAge.Value = value; OnPropertyChanged(); }
+            }
+            private AKBdouble _foamXOffset = new AKBdouble(16, 0, 200);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("X pitch between pickers")]
+            public double FoamXOffset
+            {
+                get { return _foamXOffset.Value; }
+                set { _foamXOffset.Value = value; OnPropertyChanged(); }
+            }
+            private AKBdouble _recheckXOffset = new AKBdouble(25.4, 0, 200);
+            [Browsable(true), ReadOnly(false), Category("Recheck Station"), Description("X Offset from film remover to Vision camera")]
+            public double RecheckXOffset
+            {
+                get { return _recheckXOffset.Value; }
+                set { _recheckXOffset.Value = value; OnPropertyChanged(); }
+            }
+
+            private AKBdouble _recheckYOffset = new AKBdouble(56.3, 0, 200);
+            [Browsable(true), ReadOnly(false), Category("Recheck Station"), Description("Y Offset from film remover to Vision camera")]
+            public double RecheckYOffset
+            {
+                get { return _recheckYOffset.Value; }
+                set { _recheckYOffset.Value = value; OnPropertyChanged(); }
             }
 
 
