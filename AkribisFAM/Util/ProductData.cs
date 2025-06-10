@@ -30,20 +30,24 @@ namespace AkribisFAM.Util
 
     public class ProductTracker
     {
-        public string name { get; set; } = string.Empty;
-        public TrackerType trackerType = TrackerType.None;
+        public string Name { get; set; } = string.Empty;
+        public TrackerType TrackerType = TrackerType.None;
         public ProductData[] _partArray { get; set; } = null;
+        public int Row { get; set; }
+        public int Column { get; set; }
         public int TotalSize = -1;
 
         public ProductTracker(string trackerName, TrackerType type, int row, int col)
         {
-            trackerType = type;
-            name = trackerName;
+            TrackerType = type;
+            Name = trackerName;
             TotalSize = row * col;
+            Row = row;
+            Column = col;
             _partArray = new ProductData[TotalSize];
             for (var i = 0; i < TotalSize; i++)
             {
-                _partArray[i] = new ProductData(i);
+                _partArray[i] = new ProductData(i + 1);
             }
         }
 
@@ -77,7 +81,7 @@ namespace AkribisFAM.Util
         #region Set
         public bool SetHeightMeasurement(int TrayIndex, double height, double x, double y)
         {
-            if (trackerType != TrackerType.Tray || _partArray.Length < TrayIndex)
+            if (TrackerType != TrackerType.Tray || _partArray.Length < TrayIndex)
             {
                 _partArray[TrayIndex].Index = TrayIndex;
                 _partArray[TrayIndex].heightMeasurements.Add(new LaserMeasurement()
@@ -92,7 +96,7 @@ namespace AkribisFAM.Util
         }
         public bool SetTrayId(string trayId)
         {
-            if (trackerType != TrackerType.Tray)
+            if (TrackerType != TrackerType.Tray)
             {
                 foreach (var part in _partArray)
                 {
@@ -176,10 +180,10 @@ namespace AkribisFAM.Util
         /// <param name="tn">The name of the turret using this</param>
         public ProductData(int index)
         {
+            //Reset();
             Index = index;
             uuid = Guid.NewGuid().ToString().ToUpper();
             station = StationType.Laser;
-            Reset();
         }
 
         public string FormatProductData()

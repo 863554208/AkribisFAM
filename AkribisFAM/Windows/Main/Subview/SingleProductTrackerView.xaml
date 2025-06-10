@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.SingleProductTrackerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Border BorderBrush="Black" BorderThickness="1">
+        <StackPanel Orientation="Vertical">
+            <Label Content="{Binding Name}" HorizontalAlignment="Stretch"/>
+            <ScrollViewer>
+                <ItemsControl x:Name="itemControlStation" ItemsSource="{Binding _partArray}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="{Binding Column}" Rows="{Binding Row}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <materialDesign:Card>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding Index}"/>
+                                </StackPanel>
+                            </materialDesign:Card>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -31,6 +31,7 @@ namespace AkribisFAM
         public static LotManager lotManager;
 
         public static RecipeManager recipeManager;
+        public static AllProductTracker productTracker;
         public static KeyenceLaserControl laser;
         public static CognexVisionControl vision1;
         public static AssemblyGantryControl assemblyGantryControl;
@@ -81,6 +82,7 @@ namespace AkribisFAM
             calib = new LoadCellCalibration();
             door = new DoorControl();
             reject = new RejectControl();
+            productTracker = new AllProductTracker();
             AkrAction.Current.SetSpeedMultiplier(10);
 
             paramLocal.ChangesSaved += ParamLocal_ChangesSaved;
