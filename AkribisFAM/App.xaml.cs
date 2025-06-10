@@ -13,6 +13,7 @@ using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.DeviceClass;
 using AkribisFAM.WorkStation;
+using AkribisFAM.Models;
 
 namespace AkribisFAM
 {
@@ -37,6 +38,8 @@ namespace AkribisFAM
         public static RejectControl reject;
         public static BuzzerControl buzzer;
         public static DoorControl door;
+
+        public static AKBLocalParam paramLocal { get; set; } = new AKBLocalParam();
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -79,6 +82,11 @@ namespace AkribisFAM
             AkrAction.Current.SetSpeedMultiplier(10);
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
+
+
+            paramLocal.ChangesSaved += ParamLocal_ChangesSaved; 
+            paramLocal.SetInitParam(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Settings)));
+            paramLocal.Initialize();
             //TODO
             //try
             //{
@@ -101,6 +109,11 @@ namespace AkribisFAM
             CloseAACommServer();
             //关闭主进程
             Application.Current.Shutdown();
+        }
+
+        private void ParamLocal_ChangesSaved(object sender, AKBLocalParam.PropertyEventArgs e)
+        {
+            //    throw new NotImplementedException();
         }
 
         private static void SetLanguage(string culture)

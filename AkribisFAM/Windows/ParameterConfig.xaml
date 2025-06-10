@@ -6,80 +6,15 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              mc:Ignorable="d" 
-               VerticalAlignment="Stretch" d:DesignHeight="550" d:DesignWidth="1000" HorizontalAlignment="Stretch" FontSize="16">
-
-    <UserControl.Resources>
-
-        <!-- 自定义 TabItem 样式 -->
-        <Style TargetType="TabItem">
-            <Setter Property="Foreground" Value="Black" />
-            <Setter Property="Background" Value="Transparent" />
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="Border"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="5"
-                            Padding="{TemplateBinding Padding}"
-                                        BorderBrush="Black"
-                            BorderThickness="1">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          ContentSource="Header"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#E0E0E0"/>
-                            </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#a7c0ec"/>
-                                <Setter Property="Foreground" Value="Black"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- TabControl 圆角设置 -->
-        <Style TargetType="TabControl">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabControl">
-                        <Grid ClipToBounds="True" SnapsToDevicePixels="True">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <TabPanel x:Name="HeaderPanel"
-                                  Grid.Row="0"
-                                  IsItemsHost="True"
-                                  Margin="2"
-                                  Panel.ZIndex="1"
-                                  Background="WhiteSmoke" />
-                            <Border Grid.Row="1"
-                                Background="White"
-                                BorderBrush="Gray"
-                                BorderThickness="1"
-                                CornerRadius="10"
-                                Padding="10">
-                                <ContentPresenter x:Name="PART_SelectedContentHost"
-                                              Margin="0"
-                                              ContentSource="SelectedContent"/>
-                            </Border>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-    </UserControl.Resources>
+             VerticalAlignment="Stretch" d:DesignHeight="550" d:DesignWidth="1000" HorizontalAlignment="Stretch" FontSize="16">
 
     <Grid >
-
-        <TabControl Margin="5,5,5,5" Grid.ColumnSpan="2">
-            <TabItem Header="Params1" HorizontalAlignment="Left"  >
+        <TabControl Margin="5,5,5,5" Grid.ColumnSpan="2" 
+                materialDesign:ColorZoneAssist.Background="#181777"
+                materialDesign:ColorZoneAssist.Foreground="White"
+                materialDesign:ColorZoneAssist.Mode="Custom"
+                Style="{StaticResource MaterialDesignFilledTabControl}">
+            <TabItem Header="Axis Motion Profile"  >
                 <Grid Background="#FFE5E5E5">
                     <GroupBox Header="Axis">
                         <Grid x:Name="AxisGrid" ShowGridLines="False">
@@ -477,7 +412,7 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Params2">
+            <TabItem Header="Teachpoints">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -528,6 +463,9 @@
                     </Grid>
                 </Grid>
 
+            </TabItem>
+            <TabItem Header="Setting" Foreground="Black" >
+                <local:SettingsView/>
             </TabItem>
         </TabControl>
 
