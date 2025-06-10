@@ -11,9 +11,11 @@ namespace AkribisFAM.Interfaces
     {
         bool AddAlarm(AlarmRecord alarm);
         bool AddOeeRecord(OeeRecord oee);
+        bool AddLotRecord(LotRecord lot);
 
         List<AlarmRecord> GetAlarms(/*DateTime from, DateTime to*/); // TODO: search with filter
         List<OeeRecord> GetOeeRecords(/*DateTime from, DateTime to*/); // TODO: search with filter
+        List<LotRecord> GetLotRecords(); 
 
     }
 }

@@ -16,6 +16,7 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.Models;
 using static AkribisFAM.GlobalManager;
 using System.Linq;
+using AkribisFAM.Helper;
 
 namespace AkribisFAM
 {
@@ -24,9 +25,10 @@ namespace AkribisFAM
     /// </summary>
     public partial class App : Application
     {
-        public static IDatabaseManager DbManager { get; private set; }
+        public static DatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
         public static CriticalIOManager CioManager;
+        public static LotManager lotManager;
 
         public static RecipeManager recipeManager;
         public static KeyenceLaserControl laser;
@@ -64,8 +66,9 @@ namespace AkribisFAM
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
             DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite"));
-
             recipeManager = new RecipeManager();
+            lotManager = new LotManager();
+            lotManager.Initialize();
             laser = new KeyenceLaserControl();
             vision1 = new CognexVisionControl();
             feeder1 = new FeederControl(1);
@@ -267,6 +270,7 @@ namespace AkribisFAM
 
         protected override void OnExit(ExitEventArgs e)
         {
+            ProcessManager.TerminateBackgroundProcess("AACommServer");
             TCPNetworkManage.StopAllClients();
             // Dispose of resources
             DbManager?.Dispose();

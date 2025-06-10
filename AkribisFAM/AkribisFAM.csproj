@@ -193,6 +193,7 @@
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\ProcessManager.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
     <Compile Include="Helper\ViewModelBase.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\LoadCellCalibration.cs" />
+    <Compile Include="Manager\LotManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\RecipeManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
@@ -221,6 +223,7 @@
     <Compile Include="Models\AKBVariable.cs" />
     <Compile Include="Models\AlarmRecord.cs" />
     <Compile Include="Models\Base\AKBParameterBase.cs" />
+    <Compile Include="Models\LotRecord.cs" />
     <Compile Include="Models\OeeRecord.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
@@ -315,6 +318,9 @@
     </Compile>
     <Compile Include="Windows\HardwareControl.xaml.cs">
       <DependentUpon>HardwareControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\LotAndMaterialView.xaml.cs">
+      <DependentUpon>LotAndMaterialView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
@@ -477,6 +483,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HardwareControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\LotAndMaterialView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

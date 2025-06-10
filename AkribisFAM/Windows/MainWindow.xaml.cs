@@ -676,6 +676,12 @@ namespace AkribisFAM
 
             var res1 = App.CioManager.IsSSR1Ok;
             var res2 = App.CioManager.IsEmergencyStopOk;
+            if (App.lotManager.IsCurrLotNull)
+            {
+                MessageBox.Show("Please start a new lot first");
+                return false;
+            }      
+            
             if (!App.CioManager.IsEmergencyStopOk)
             {
                 MessageBox.Show("E-Stop triggered!");
