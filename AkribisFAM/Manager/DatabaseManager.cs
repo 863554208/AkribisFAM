@@ -54,6 +54,27 @@ namespace AkribisFAM.Manager
         }
 
         /// <summary>
+        /// Adds an lot record via the helper class.
+        /// </summary>
+        /// <param name="record">The lot record to add.</param>
+        public bool AddLotRecord(LotRecord lot)
+        {
+            return _sqliteHelper.AddLot(lot);
+        }
+
+        public bool UpdateLotRecord(LotRecord lot)
+        {
+            return _sqliteHelper.UpdateLotHistory(lot);
+        }
+        public LotRecord GetCurrentLot()
+        {
+            return _sqliteHelper.GetCurrentLotRecord();
+        }
+        public List<LotRecord> GetLotRecords()
+        {
+            return _sqliteHelper.GetLots(); 
+        }
+        /// <summary>
         /// Get alarms between two dates.
         /// </summary>
         /// <param name="from"></param>
@@ -113,22 +134,35 @@ namespace AkribisFAM.Manager
             UserID TEXT NOT NULL
         );";
 
-        //    // Create Errors table
-        //    string createErrorsTable = @"
-        //CREATE TABLE IF NOT EXISTS Errors (
-        //    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-        //    ErrorCode TEXT NOT NULL,
-        //    ErrorMessage TEXT NOT NULL,
-        //    LotID TEXT NOT NULL,
-        //    TimeOccurred TEXT NOT NULL,
-        //    TimeResolved TEXT,
-        //    UserID TEXT NOT NULL
-        //);";
+            // Create Lots table
+            string createLotsTable = @"
+        CREATE TABLE IF NOT EXISTS Lot_History (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            LotId TEXT NOT NULL,
+            Creator TEXT NOT NULL,
+            StartDateTime DATETIME  NOT NULL,
+            EndDateTime DATETIME  NOT NULL,
+            LotState INTEGER NOT NULL,
+            Recipe TEXT NOT NULL
+        );";
+
+            //    // Create Errors table
+            //    string createErrorsTable = @"
+            //CREATE TABLE IF NOT EXISTS Errors (
+            //    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            //    ErrorCode TEXT NOT NULL,
+            //    ErrorMessage TEXT NOT NULL,
+            //    LotID TEXT NOT NULL,
+            //    TimeOccurred TEXT NOT NULL,
+            //    TimeResolved TEXT,
+            //    UserID TEXT NOT NULL
+            //);";
 
             // Create OEE Records table
             string createOeeTable = @"
         CREATE TABLE IF NOT EXISTS Oee_History (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            LotId TEXT NOT NULL,
             StartDateTime TEXT NOT NULL,
             EndDateTime TEXT NOT NULL,
             GoodProducts INTEGER,
@@ -156,7 +190,11 @@ namespace AkribisFAM.Manager
 
             _sqliteHelper.ExecuteNonQuery(createAlarmsTable);
             _sqliteHelper.ExecuteNonQuery(createOeeTable);
+            _sqliteHelper.ExecuteNonQuery(createLotsTable);
         }
+
+
+
         #endregion
     }
 }
