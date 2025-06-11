@@ -3,15 +3,8 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.ConstrainedExecution;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using AkribisFAM.Util;
-using AkribisFAM.ViewModel;
-using AkribisFAM.WorkStation;
-using System.Windows; 
+using System.Security.Claims;
+using AkribisFAM.Models;
 
 namespace AkribisFAM.Manager
 {
@@ -61,15 +54,17 @@ namespace AkribisFAM.Manager
         //Modify By YXW
         public string DateTime { get; set; }
         public string User { get; set; }
+        public string Lot { get; set; }
         public string ErrorCode { get; set; }
         public int Level { get; set; }
 
         public string Info { get; set; }
 
-        public ErrorInfo(DateTime dT, string usr, ErrorCode eC)
+        public ErrorInfo(DateTime dT, string lot, string usr, ErrorCode eC)
         {
             DateTime = dT.ToString();
             User = usr;
+            Lot = lot;
             ErrorCode = "0x" + Convert.ToString((int)eC, 16);
             if ((int)eC > 0x0FFF)
             {
@@ -108,13 +103,20 @@ namespace AkribisFAM.Manager
         }
 
         private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
-        //public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+        private ConcurrentStack<ErrorCode> ErrorHistory = new ConcurrentStack<ErrorCode>();
 
         //Modify By YXW
         public ObservableCollection<ErrorInfo> ErrorInfos { get; set; } = new ObservableCollection<ErrorInfo>();
-
+        public ObservableCollection<ErrorInfo> ErrorHistoryInfos { get; set; } = new ObservableCollection<ErrorInfo>();
         //End Modify
 
+        private Dictionary<int, string> ErrorLevel = new Dictionary<int, string>
+        {
+            { 1, "Critical" },
+            { 2, "High" },
+            { 3, "Low" },
+        };
+        private AlarmRecord alarm = new AlarmRecord();
         public int ErrorCnt = 0;
         public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
@@ -123,13 +125,24 @@ namespace AkribisFAM.Manager
         public void Insert(ErrorCode err)
         {
             ErrorStack.Push(err);
+            ErrorHistory.Push(err);
             ErrorCnt = ErrorStack.Count;
 
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                 ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err));
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err));
+                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err));
             });
+
+            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count-1].Level];
+            alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;
+            alarm.AlarmCode = ErrorInfos[ErrorInfos.Count - 1].ErrorCode;
+            alarm.UserID = ErrorInfos[ErrorInfos.Count - 1].User;
+            alarm.LotID = ErrorInfos[ErrorInfos.Count - 1].Lot;
+            alarm.TimeOccurred = DateTime.Now;
+            bool ret = App.DbManager.AddAlarm(alarm);
+
             //END 
             //20250519 测试用 【史彦洋】 修改 Start
             if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
@@ -145,7 +158,17 @@ namespace AkribisFAM.Manager
 
         public void Pop()
         {
+            if (ErrorInfos.Count == 0) { 
+                return;
+            }
             ErrorCode result;
+            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count - 1].Level];
+            alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;
+            alarm.AlarmCode = ErrorInfos[ErrorInfos.Count - 1].ErrorCode;
+            alarm.UserID = ErrorInfos[ErrorInfos.Count - 1].User;
+            alarm.LotID = ErrorInfos[ErrorInfos.Count - 1].Lot;
+            alarm.TimeResolved = DateTime.Now;
+            bool ret = App.DbManager.AddAlarm(alarm);
             if (ErrorStack.TryPop(out result))
             {
                 Console.WriteLine("Removed element: " + result);

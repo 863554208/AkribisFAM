@@ -20,6 +20,7 @@ using static AkribisFAM.Manager.StateManager;
 using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.GlobalManager;
 using System.Reflection;
+using System.Linq;
 
 namespace AkribisFAM
 {
@@ -82,6 +83,7 @@ namespace AkribisFAM
             _timer.Start();
             lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
+            //ChangeLanguage("zh_CN");
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -113,7 +115,7 @@ namespace AkribisFAM
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                StateManager.Current.RunningTime = StateManager.Current.totalRunningTime + (DateTime.Now - StateManager.Current.RunningStart);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
 
@@ -126,7 +128,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.STOPPED)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
-                StateManager.Current.StoppedTime = DateTime.Now - StateManager.Current.StoppedStart;
+                StateManager.Current.StoppedTime = StateManager.Current.totalStoppedTime + (DateTime.Now - StateManager.Current.StoppedStart);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     performance.StoppedTimeLB.Content = StateManager.Current.StoppedTime.ToString(@"hh\:mm\:ss");
@@ -134,7 +136,7 @@ namespace AkribisFAM
             }
             if (StateManager.Current.State == StateCode.MAINTENANCE)
             {
-                StateManager.Current.MaintenanceTime = DateTime.Now - StateManager.Current.MaintenanceStart;
+                StateManager.Current.MaintenanceTime = StateManager.Current.totalMaintenanceTime + (DateTime.Now - StateManager.Current.MaintenanceStart);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     performance.MaintenanceTimeLB.Content = StateManager.Current.MaintenanceTime.ToString(@"hh\:mm\:ss");
@@ -143,7 +145,7 @@ namespace AkribisFAM
             if (StateManager.Current.State == StateCode.IDLE)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
-                StateManager.Current.IdleTime = DateTime.Now - StateManager.Current.IdleStart;
+                StateManager.Current.IdleTime = StateManager.Current.totalIdleTime + (DateTime.Now - StateManager.Current.IdleStart);
                 this.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     performance.IdleTimeLB.Content = StateManager.Current.IdleTime.ToString(@"hh\:mm\:ss");
@@ -155,50 +157,49 @@ namespace AkribisFAM
                 performance.OUTPUT_OKLB.Content = StateManager.Current.TotalOutputOK.ToString();
                 performance.OUTPUT_NGLB.Content = StateManager.Current.TotalOutputNG.ToString();
                 //performance.LOADINGLB.Content = 
-                double availability = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
-                performance.AVAILABILITYLB.Content = availability.ToString("0.000");
+                StateManager.Current.availability = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
+                performance.AVAILABILITYLB.Content = StateManager.Current.availability.ToString("0.000");
                 if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
-                    double perform = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
-                    performance.PERFORMANCELB.Content = perform.ToString("0.000");
+                    StateManager.Current.perform = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
+                    performance.PERFORMANCELB.Content = StateManager.Current.perform.ToString("0.000");
                 }
                 if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
-                    double quality = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
-                    performance.QUALITYLB.Content = quality.ToString("0.000");
+                    StateManager.Current.quality = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
+                    performance.QUALITYLB.Content = StateManager.Current.quality.ToString("0.000");
                 }
                 if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600) {
                     StateManager.Current.RunningHourCnt++;
-                    int UPH = StateManager.Current.TotalOutputOK - StateManager.Current.currentUPH;
+                    StateManager.Current.UPH = StateManager.Current.TotalOutputOK - StateManager.Current.currentUPH;
                     StateManager.Current.currentUPH = StateManager.Current.TotalOutputOK;
                     if (performance.UPHvalues.Count >= 24)
                     {
                         performance.UPHvalues.RemoveAt(0);
-                        performance.UPHvalues.Add(UPH);
+                        performance.UPHvalues.Add(StateManager.Current.UPH);
                         string head = performance.UPHLabels[0];
                         performance.UPHLabels.RemoveAt(0);
                         performance.UPHLabels.Add(head);
                     }
                     else
                     {
-                        performance.UPHvalues.Add(UPH);
+                        performance.UPHvalues.Add(StateManager.Current.UPH);
                     }
                     int NG = StateManager.Current.TotalOutputNG - StateManager.Current.currentNG;
-                    int Yield = 0;
-                    if (UPH + NG > 0)
+                    if (StateManager.Current.UPH + NG > 0)
                     {
-                        Yield = (int)UPH*100 / (UPH + NG);
+                        StateManager.Current.Yield = (int)StateManager.Current.UPH *100 / (StateManager.Current.UPH + NG);
                     }
                     StateManager.Current.currentNG = StateManager.Current.TotalOutputNG;
                     if (performance.Yieldvalues.Count >= 24)
                     {
                         performance.Yieldvalues.RemoveAt(0);
-                        performance.Yieldvalues.Add(Yield);
+                        performance.Yieldvalues.Add(StateManager.Current.Yield);
                         string head = performance.YieldLabels[0];
                         performance.YieldLabels.RemoveAt(0);
                         performance.YieldLabels.Add(head);
                     }
                     else
                     {
-                        performance.Yieldvalues.Add(Yield);
+                        performance.Yieldvalues.Add(StateManager.Current.Yield);
                     }
                 }
                 ConnectState();
@@ -748,6 +749,21 @@ namespace AkribisFAM
         private void RefreshUI()
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+        }
+
+        public void ChangeLanguage(string cultureCode)
+        {
+            string dictPath = $"/Dict/AppResource_{cultureCode}.xaml";
+            var dict = new ResourceDictionary { Source = new Uri(dictPath, UriKind.Relative) };
+
+            var oldDict = Application.Current.Resources.MergedDictionaries
+                .FirstOrDefault(d => d.Source != null && d.Source.OriginalString.StartsWith("/Dict/AppResource_"));
+            if (oldDict != null)
+            {
+                Application.Current.Resources.MergedDictionaries.Remove(oldDict);
+            }
+
+            Application.Current.Resources.MergedDictionaries.Add(dict);
         }
 
         private async void ExecuteReset()

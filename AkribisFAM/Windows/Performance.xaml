@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              d:DesignWidth="1200" Height="660">
-    <Grid Margin="0,0,0,10">
+    <Grid Margin="0,0,0,10" Background="#FFAFE9EF">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
@@ -15,6 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="38*"/>
             <RowDefinition Height="203*"/>
+            <RowDefinition Height="30*"/>
             <RowDefinition Height="30*"/>
             <RowDefinition Height="30*"/>
             <RowDefinition Height="30*"/>
@@ -61,7 +62,7 @@
             </lvc:CartesianChart.Series>
         </lvc:CartesianChart>
         <Label Content="Yield" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Height="25" Width="46"/>
-        <Grid Grid.Row="4">
+        <Grid Grid.Row="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -73,7 +74,7 @@
             <Label Grid.Column="2" Content="StoppedTime:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label x:Name="StoppedTimeLB" Grid.Column="3" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="4">
+        <Grid Grid.Column="1" Grid.Row="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -86,7 +87,7 @@
             <Label x:Name="IdleTimeLB" Grid.Column="3" Content="00:00:00" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
         <Label Content="Performance" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="36" Height="56" />
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -98,7 +99,7 @@
             <Label Grid.Column="2" Content="TOSSING:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label x:Name="TOSSINGLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="3">
+        <Grid Grid.Column="1" Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -110,7 +111,7 @@
             <Label Grid.Column="2" Content="OUTPUT NG:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label x:Name="OUTPUT_NGLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -122,7 +123,7 @@
             <Label Grid.Column="2" Content="AVAILABILITY:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label x:Name="AVAILABILITYLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="2">
+        <Grid Grid.Column="1" Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -133,6 +134,29 @@
             <Label x:Name="PERFORMANCELB" Grid.Column="1" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label Grid.Column="2" Content="QUALITY:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Label x:Name="QUALITYLB" Grid.Column="3" Content="0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30*"/>
+                <ColumnDefinition Width="30*"/>
+                <ColumnDefinition Width="40*"/>
+                <ColumnDefinition Width="30*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="planneduph" Content="Planned UPH:" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox x:Name="PlannedUPHtext" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="1200" VerticalAlignment="Center" Width="120" PreviewTextInput="IntegerOnly_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="IntegerOnly_Pasting"/>
+            <Label Grid.Column="2" Content="Planned ProductionTime(h):" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox x:Name="PlannedProductionTimetext" Grid.Column="3" HorizontalAlignment="Center" TextWrapping="Wrap" Text="0" VerticalAlignment="Center" Width="120" PreviewTextInput="FloatTextBox_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="FloatTextBox_Pasting"/>
+        </Grid>
+        <Grid Grid.Column="1" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Planned Yield(%):" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox x:Name="PlannedYieldtext" Grid.Column="1" HorizontalAlignment="Center" TextWrapping="Wrap" Text="98" VerticalAlignment="Center" Width="120" PreviewTextInput="IntegerOnly_PreviewTextInput" PreviewKeyDown="FloatTextBox_PreviewKeyDown" DataObject.Pasting="IntegerOnly_Pasting"/>
+            <Button x:Name="Applybtn" Grid.Column="3" Content="Apply" HorizontalAlignment="Center" VerticalAlignment="Center" Click="Applybtn_Click"/>
         </Grid>
     </Grid>
 </UserControl>

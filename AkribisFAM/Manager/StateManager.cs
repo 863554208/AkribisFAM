@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Helper;
+using AkribisFAM.Models;
 using AkribisFAM.WorkStation;
 using YamlDotNet.Core.Tokens;
 
@@ -69,9 +71,22 @@ namespace AkribisFAM.Manager
         public TimeSpan MaintenanceTime;
         public TimeSpan IdleTime;
 
+        public TimeSpan totalRunningTime = TimeSpan.FromSeconds(0);
+        public TimeSpan totalStoppedTime = TimeSpan.FromSeconds(0);
+        public TimeSpan totalMaintenanceTime = TimeSpan.FromSeconds(0);
+        public TimeSpan totalIdleTime = TimeSpan.FromSeconds(0);
+
         public int TotalInput;
         public int TotalOutputOK;
         public int TotalOutputNG;
+
+        public double availability;
+        public double perform;
+        public double quality;
+        public int UPH;
+        public int Yield;
+        public int PlannedUPH = 1200;
+        public double PlannedProductionTime = 0;
 
         public void DetectRemainBoard() {
             while (true)
@@ -113,24 +128,32 @@ namespace AkribisFAM.Manager
                             {
                                 //log or database
                                 TimeSpan delta1 = RunningEnd - RunningStart;
+                                totalRunningTime = totalRunningTime + delta1;
+                                InsertOEEDataBase();
                                 tRunningEnd = RunningEnd;
                             }
                             if (StoppedEnd > StoppedStart && tStoppedEnd != StoppedEnd)
                             {
                                 //log or database
                                 TimeSpan delta2 = StoppedEnd - StoppedStart;
+                                totalStoppedTime = totalStoppedTime + delta2;
+                                InsertOEEDataBase();
                                 tStoppedEnd = StoppedEnd;
                             }
                             if (MaintenanceEnd > MaintenanceStart && tMaintenanceEnd != MaintenanceEnd)
                             {
                                 //log or database
                                 TimeSpan delta3 = MaintenanceEnd - MaintenanceStart;
+                                totalMaintenanceTime = totalMaintenanceTime + delta3;
+                                InsertOEEDataBase();
                                 tMaintenanceEnd = MaintenanceEnd;
                             }
                             if (IdleEnd > IdleStart && tIdleEnd != IdleEnd)
                             {
                                 //log or database
                                 TimeSpan delta4 = IdleEnd - IdleStart;
+                                totalIdleTime = totalIdleTime + delta4;
+                                InsertOEEDataBase();
                                 tIdleEnd = IdleEnd;
 
                             }
@@ -190,6 +213,21 @@ namespace AkribisFAM.Manager
                 }
             }
             ));
+        }
+
+        public void InsertOEEDataBase() {
+            OeeRecord oee = new OeeRecord();
+            oee.AlarmsCount = ErrorManager.Current.ErrorCnt;
+            oee.Availability = availability;
+            oee.DownTimeHr = StoppedTime.TotalHours + MaintenanceTime.TotalHours;
+            oee.UpTimeHr = RunningTime.TotalHours + IdleTime.TotalHours;
+            oee.ProductiveTimeHr = RunningTime.TotalHours;
+            oee.Performance = perform;
+            oee.TotalTimeHr = StoppedTime.TotalHours + IdleTime.TotalHours + MaintenanceTime.TotalHours + RunningTime.TotalHours;
+            oee.Quality = quality;
+            oee.PlannedUPH = PlannedUPH;
+            oee.PlannedProductionTime = PlannedProductionTime;
+            App.DbManager.AddOeeRecord(oee);
         }
     }
 }
