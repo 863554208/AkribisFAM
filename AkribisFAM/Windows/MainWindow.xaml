@@ -98,7 +98,7 @@
         </Grid>
 
         <!-- 第二行，水平 StackPanel -->
-        <Grid Grid.Row="1" Background="#ebe8e8"
+        <Grid Grid.Row="1" Background="White"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -188,7 +188,8 @@
                     <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
                     </Viewbox>
                 </Button>
-
+                <Button x:Name="btnDebug" Content="Debug1" Click="btnDebug_Click"/>
+                <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>

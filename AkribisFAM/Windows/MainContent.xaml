@@ -64,6 +64,12 @@
             <TabItem Header="Product Status">
                 <local:ProductTrackerView/>
             </TabItem>
+            <TabItem Header="Laser View">
+                <local:LaserMeasurementView/>
+            </TabItem>
+            <TabItem Header="Recheck View">
+                <local:RecheckMeasurementView/>
+            </TabItem>
             <TabItem Header="Lot control">
                 <local:LotAndMaterialView/>
             </TabItem>

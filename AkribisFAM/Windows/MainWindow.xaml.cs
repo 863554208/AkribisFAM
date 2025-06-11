@@ -86,7 +86,7 @@ namespace AkribisFAM
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
             _timer.Start();
-            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
+            lblVersion.Content = $"{App.paramLocal.LiveParam.MachineName} - Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
         }
 
@@ -116,21 +116,21 @@ namespace AkribisFAM
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (AutorunManager.Current.IsRunning)
-            if (StateManager.Current.State == StateCode.RUNNING)
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
-                this.Dispatcher.BeginInvoke(new Action(() =>
+                if (StateManager.Current.State == StateCode.RUNNING)
                 {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
+                    StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
 
-                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
-                }));
-            }
-            else
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
-            }
+                        performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                    }));
+                }
+                else
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+                }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
@@ -638,7 +638,7 @@ namespace AkribisFAM
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
- 
+
 
             //isResetButtonTriggered = false;
             //resetPressStopwatch.Restart();
@@ -680,8 +680,8 @@ namespace AkribisFAM
             {
                 MessageBox.Show("Please start a new lot first");
                 return false;
-            }      
-            
+            }
+
             if (!App.CioManager.IsEmergencyStopOk)
             {
                 MessageBox.Show("E-Stop triggered!");
@@ -816,7 +816,7 @@ namespace AkribisFAM
             //    return false;
             //}
 
-         
+
             #region Feeder
             if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
             {
@@ -861,7 +861,7 @@ namespace AkribisFAM
                 MessageBox.Show("Please at least lock one feeder and feed in material");
                 return false;
             }
-  
+
             #endregion
             return true;
         }
@@ -1269,8 +1269,90 @@ namespace AkribisFAM
                 }
             }
         }
+        public int counter = 0;
+        Random random = new Random();
+        private async void btnDebug_Click(object sender, RoutedEventArgs e)
+        {
+            //await Task.Run(() =>
+            //{
+            //Thread.Sleep(500);
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    var targetPart = Conveyor.ConveyorTrays[0].PartArray[i];
+                    targetPart.SerialNumber = $"{i} _ 123";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(98, 102),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                    {
+                        targetPart.failed = true;
+                        targetPart.failreason = FailReason.HeightFail;
+                        targetPart.failStation = StationType.Laser;
+                    }
 
+                }
+            }
 
+            bool passCondition = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.ConveyorTrays[0].Barcode = $"new{counter++}";
+            //foreach (var item in App.productTracker.LaserStationTray.PartArray)
+            //{
+            //    await Task.Run(() =>
+            //    {
+
+            //        item.failed = true;
+            //        Thread.Sleep(200);
+            //    });
+            //}
+            await Task.Run(() =>
+            {
+                Thread.Sleep(1000);
+            });
+            Conveyor.ConveyorTrays[3].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[2]);
+            Conveyor.ConveyorTrays[2].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[1]);
+            Conveyor.ConveyorTrays[1].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[0]);
+            Conveyor.ConveyorTrays[0].Reset();
+
+            if (Conveyor.ConveyorTrays[3].IsFail)
+            {
+                App.productTracker.RejectOutGoingStationTray.Copy(Conveyor.ConveyorTrays[3]);
+                Conveyor.ConveyorTrays[3].Reset();
+            }
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //App.productTracker.LaserStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //var re = App.productTracker.FoamAssemblyStationTray;
+            //App.productTracker.LaserStationTray.Reset();
+            //var re2 = App.productTracker.LaserStationTray;
+            //App.productTracker.LaserStationTray = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser];
+            //App.productTracker.FoamAssemblyStationTray = Conveyor.ConveyorTrays[(int)ConveyorStation.Foam];
+        }
+
+        private void btnDebug2_Click(object sender, RoutedEventArgs e)
+        {
+
+            Conveyor.ConveyorTrays[0].Reset() ;
+        }
     }
 
     internal class PromptableButton : Button

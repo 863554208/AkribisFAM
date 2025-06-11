@@ -4,58 +4,81 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
+             Loaded="UserControl_Loaded"
+             IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="4*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <ItemsControl ItemsSource="{Binding TrayTrackers}" Grid.ColumnSpan="4" Margin="10">
-            <ItemsControl.ItemsPanel>
+        <Grid Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="4"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
 
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:SingleProductTrackerView />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-        
-        <ItemsControl ItemsSource="{Binding FoamTrackers}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="1" Margin="10">
-            <ItemsControl.ItemsPanel>
+            <local:SingleProductTrackerView x:Name="laser" DataContext="{Binding LaserStationTray}" Grid.Column="0" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="foam" DataContext="{Binding FoamAssemblyStationTray}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="recheck" DataContext="{Binding RecheckStationTray}" Grid.Column="3" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="good" DataContext="{Binding GoodOutGoingStationTray}" Grid.Column="5" Grid.Row="1"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="reject" DataContext="{Binding RejectOutGoingStationTray}" Grid.Column="4"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="2"/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
+            <local:SingleProductTrackerView x:Name="gantry" DataContext="{Binding GantryPickerFoams}" Grid.Column="2" Grid.Row="2" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:SingleProductTrackerView />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            <local:SingleProductTrackerView x:Name="feeder1" DataContext="{Binding Feeder1Foams}" Grid.Column="1" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="feeder2" DataContext="{Binding Feeder2Foams}" Grid.Column="2" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
-        <ItemsControl ItemsSource="{Binding PickerTrackers}" Grid.Row="2" Grid.Column="1"  Margin="10">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:SingleProductTrackerView />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        </Grid>
+        <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="LightGray">
+            <ListView x:Name="listviewSelectedProduct" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Key}" Width="120" />
+                            <TextBlock Text="{Binding Value}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
 
+            <!--<ListView x:Name="listviewSelectedProduct" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="5">
+                            <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                            <ContentControl Content="{Binding Value}">
+                                <ContentControl.ContentTemplate>
+                                    <DataTemplate>
+                                        <ItemsControl ItemsSource="{Binding}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        --><!-- Use reflection again or template objects --><!--
+                                                        <TextBlock Text="{Binding}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </DataTemplate>
+                                </ContentControl.ContentTemplate>
+                            </ContentControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>-->
+
+        </Border>
     </Grid>
 </UserControl>

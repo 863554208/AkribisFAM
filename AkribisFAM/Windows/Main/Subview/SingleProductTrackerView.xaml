@@ -5,13 +5,29 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
               xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:AkribisFAM.Windows"
+             xmlns:con="clr-namespace:AkribisFAM.Windows.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border BorderBrush="Black" BorderThickness="1">
-        <StackPanel Orientation="Vertical">
-            <Label Content="{Binding Name}" HorizontalAlignment="Stretch"/>
-            <ScrollViewer>
-                <ItemsControl x:Name="itemControlStation" ItemsSource="{Binding _partArray}">
+    <UserControl.Resources>
+        <con:BrushColorInvertConverter x:Key="BrushColorInvertConverter" />
+    </UserControl.Resources>
+    <!--<Border BorderBrush="Black" BorderThickness="1" Width="250" Height="Auto">-->
+    <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp5" Width="250" Height="Auto"
+                         BorderThickness="2"
+                         BorderBrush="{Binding IsFail, Converter={StaticResource BrushColorInvertConverter}}">
+        <Button Style="{Binding}" Background="Transparent">
+
+            <StackPanel Orientation="Vertical" Width="250" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <Border BorderBrush="Black" BorderThickness="0 0 0 1" Opacity=".8" Margin="10">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{Binding Name}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="Black"/>
+
+                        <Label Content="{Binding Barcode}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="Blue"/>
+                    </StackPanel>
+                </Border>
+                <!--<Label Content="{Binding Name}" HorizontalAlignment="Stretch"/>-->
+                <!--<ScrollViewer>-->
+                <ItemsControl x:Name="itemControlStation" ItemsSource="{Binding PartArray}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Columns="{Binding Column}" Rows="{Binding Row}"/>
@@ -20,15 +36,19 @@
 
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <materialDesign:Card>
-                                <StackPanel Orientation="Horizontal">
-                                    <Label Content="{Binding Index}"/>
-                                </StackPanel>
+                            <materialDesign:Card Background="Transparent">
+                                <!--<StackPanel Orientation="Horizontal">-->
+                                <Button Content="{Binding Index}" Margin="4" Background="{Binding failed, Converter={StaticResource BrushColorInvertConverter}}"
+                                    Opacity="0.99"
+                                    Foreground="White" Click="Button_Click"/>
+                                <!--</StackPanel>-->
                             </materialDesign:Card>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </ScrollViewer>
-        </StackPanel>
-    </Border>
+                <!--</ScrollViewer>-->
+            </StackPanel>
+        </Button>
+    </materialDesign:Card>
+    <!--</Border>-->
 </UserControl>

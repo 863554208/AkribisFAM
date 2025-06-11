@@ -104,6 +104,20 @@ namespace AkribisFAM.Models
                 set { _rejectY.Value = value; OnPropertyChanged(); }
             }
 
+            private AKBdouble _nominalHeight = new AKBdouble(100, 0, 100000);
+            [Browsable(true), ReadOnly(false), Category("Laser Station"), Description("Nominal height for laser measurement")]
+            public double NominalHeight
+            {
+                get { return _nominalHeight.Value; }
+                set { _nominalHeight.Value = value; OnPropertyChanged(); }
+            }
+            private AKBdouble _toleranceHeight = new AKBdouble(1, 0, 100000);
+            [Browsable(true), ReadOnly(false), Category("Laser Station"), Description("Tolerance height for laser measurement")]
+            public double ToleranceHeight
+            {
+                get { return _toleranceHeight.Value; }
+                set { _toleranceHeight.Value = value; OnPropertyChanged(); }
+            }
             private AKBbool _enablePicker1 = new AKBbool(true);
             [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 1")]
             public bool EnablePicker1

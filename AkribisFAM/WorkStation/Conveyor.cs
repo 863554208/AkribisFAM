@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Data.Entity.ModelConfiguration.Configuration;
+using System.Linq;
 using System.Threading;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
+using AkribisFAM.Util;
 
 namespace AkribisFAM.WorkStation
 {
-    internal class Conveyor : WorkStationBase
+    public class Conveyor : WorkStationBase
     {
         private static DateTime startTime = DateTime.Now;
         private static Conveyor _instance;
@@ -709,7 +711,7 @@ namespace AkribisFAM.WorkStation
                                 case 1: //move end stopper up when clear
                                     if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= 3000)
                                     {
-                                        if (TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].hasTray) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
+                                        if (TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].HasTray) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
                                         {
                                             if (counters[(int)currentstation] > 2)  //use counter to delay
                                             {
@@ -840,18 +842,26 @@ namespace AkribisFAM.WorkStation
                                             switch (currentstation)
                                             {
                                                 case ConveyorStation.Laser:
-                                                    ConveyorTrays[(int)ConveyorStation.Laser] =
-                                                        new TrayData { hasTray = true };
+                                                    //ConveyorTrays[(int)ConveyorStation.Laser] =
+                                                    //    new TrayData("LaserStationTray", TrackerType.Tray, 3, 4)
+                                                    //    {
+                                                    //        hasTray = true,
+                                                    //    };
+                                                    ConveyorTrays[(int)ConveyorStation.Laser].Reset();
+                                                    ConveyorTrays[(int)ConveyorStation.Laser].HasTray = true;
+
                                                     steps[(int)currentstation] = 9;
                                                     break;
                                                 case ConveyorStation.Foam:
-                                                    ConveyorTrays[(int)ConveyorStation.Foam] =
-                                                        ConveyorTraysSending[(int)ConveyorStation.Laser];
+                                                    ConveyorTrays[(int)ConveyorStation.Foam].Copy(
+                                                        (TrayData)ConveyorTraysSending[(int)ConveyorStation.Laser]);
+                                                    ConveyorTraysSending[(int)ConveyorStation.Laser].Reset();
                                                     steps[(int)currentstation] = 9;
                                                     break;
                                                 case ConveyorStation.Recheck:
-                                                    ConveyorTrays[(int)ConveyorStation.Recheck] =
-                                                        ConveyorTraysSending[(int)ConveyorStation.Foam];
+                                                    ConveyorTrays[(int)ConveyorStation.Recheck].Copy(
+                                                        (TrayData)ConveyorTraysSending[(int)ConveyorStation.Foam]);
+                                                    ConveyorTraysSending[(int)ConveyorStation.Foam].Reset();
                                                     steps[(int)currentstation] = 9;
                                                     break;
                                                 case ConveyorStation.Reject:
@@ -1029,7 +1039,7 @@ namespace AkribisFAM.WorkStation
 
                                         if (!StationReadyStatus[(int)currentstation])
                                         {
-                                            ConveyorTrays[(int)currentstation].isFail =
+                                            ConveyorTrays[(int)currentstation].IsFail =
                                                 !StationTrayStatus[(int)currentstation];
                                             steps[(int)currentstation] = 5;
                                         }
@@ -1061,7 +1071,7 @@ namespace AkribisFAM.WorkStation
 
                                     break;
                                 case 5: //wait next station empty, or reject empty
-                                    if (ConveyorTrays[(int)currentstation].isFail)
+                                    if (ConveyorTrays[(int)currentstation].IsFail)
                                     {
                                         if (rejectstation != StationState.Empty)
                                             return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"ConveyorTrays[(int){currentstation}].isFail");
@@ -1126,7 +1136,7 @@ namespace AkribisFAM.WorkStation
                                     //}
                                     //else //check bypass tray moving. if moving then block
                                     //{
-                                    var currenttrayfailed = ConveyorTrays[(int)currentstation].isFail; //if current tray is fail, reject
+                                    var currenttrayfailed = ConveyorTrays[(int)currentstation].IsFail; //if current tray is fail, reject
                                     if (/*!bypasstraymoving && */!rejectraymoving || currenttrayfailed)
                                         steps[(int)currentstation] = 1;
                                     //}
@@ -1171,8 +1181,28 @@ namespace AkribisFAM.WorkStation
                                     {
                                         if (TrayLeaveAndClearCheck(currentstation))
                                         {
-                                            ConveyorTraysSending[(int)currentstation] = ConveyorTrays[(int)currentstation]; //transfer data to sending object
-                                            ConveyorTrays[(int)currentstation] = new TrayData(); //clear data
+                                            ConveyorTraysSending[(int)currentstation].Copy((TrayData)ConveyorTrays[(int)currentstation]); //transfer data to sending object
+                                            //var trackerName = "";
+                                            //switch (currentstation)
+                                            //{
+                                            //    case ConveyorStation.Laser:
+                                            //        trackerName = "LaserStationTray";
+                                            //        break;
+                                            //    case ConveyorStation.Foam:
+                                            //        trackerName = "FoamAssemblyStationTray";
+                                            //        break;
+                                            //    case ConveyorStation.Recheck:
+                                            //        trackerName = "RecheckStationTray";
+                                            //        break;
+                                            //    case ConveyorStation.Reject:
+                                            //        trackerName = "GoodOutGoingStationTray";
+                                            //        break;
+                                            //    default:
+                                            //        trackerName = "";
+                                            //        break;
+                                            //}
+                                            //ConveyorTrays[(int)currentstation] = new TrayData(trackerName, TrackerType.Tray, 3, 4); //clear data
+                                            ConveyorTrays[(int)currentstation].Reset(); //clear data
                                             steps[(int)currentstation] = 9;
                                         }
                                     }
@@ -1348,15 +1378,81 @@ namespace AkribisFAM.WorkStation
         private bool[] TraySendingNextStation = new bool[4];
         private bool canReceiveTray, canSendGoodTray, canSendBypassTray;
 
-        public static TrayData[] ConveyorTrays = { new TrayData(), new TrayData(), new TrayData(), new TrayData() };
-        private TrayData[] ConveyorTraysSending = { new TrayData(), new TrayData(), new TrayData(), new TrayData() };
+        public static TrayData[] ConveyorTrays = new TrayData[4];
+        //{
+        //    new TrayData("LaserStationTray",TrackerType.Tray,3,4),
+        //    new TrayData("FoamAssemblyStationTray",TrackerType.Tray,3,4),
+        //    new TrayData("RecheckStationTray",TrackerType.Tray,3,4),
+        //    new TrayData("RejectOutGoingStationTray",TrackerType.Tray,3,4)
+        //};
+        private TrayData[] ConveyorTraysSending = new TrayData[4];
+        //{
+        //    new TrayData(),
+        //    new TrayData(),
+        //    new TrayData(),
+        //    new TrayData()
+        //};
 
-        public struct TrayData
+        public class TrayData : ProductTracker
         {
-            public bool isFail;
-            public bool isBypass;
-            public ConveyorStation currentstation;
-            public bool hasTray;
+            public TrayData() { }
+            public TrayData(string trackerName, TrackerType type, int row, int col) : base(trackerName, type, row, col)
+            {
+            }
+            public void Copy(TrayData trayData)
+            {
+                IsFail = trayData.IsFail;
+                IsBypass = trayData.IsBypass;
+                //CurrentStation = trayData.CurrentStation;
+                HasTray = trayData.HasTray;
+                Barcode = trayData.Barcode;
+                //Name = this.Name,
+                TrackerType = trayData.TrackerType;
+                PartArray = trayData.PartArray.Select(x => new ProductData(x)).ToArray();
+                Row = trayData.Row;
+                Column = trayData.Column;
+                TotalSize = trayData.TotalSize;
+
+            }
+            private bool _isFail = false;
+            public bool IsFail
+            {
+                get { return _isFail; }
+                set { _isFail = value; OnPropertyChanged(); }
+            }
+            private bool _isBypass = false;
+            public bool IsBypass
+            {
+                get { return _isBypass; }
+                set { _isBypass = value; OnPropertyChanged(); }
+            }
+            private string _barcode = "";
+            public string Barcode
+            {
+                get { return _barcode; }
+                set { _barcode = value; OnPropertyChanged(); }
+            }
+            //private ConveyorStation _currentStation ;
+            //public ConveyorStation CurrentStation
+            //{
+            //    get { return _currentStation; }
+            //    set { _currentStation = value; OnPropertyChanged(); }
+            //}
+
+            private bool _hasTray = false;
+            public bool HasTray
+            {
+                get { return _hasTray; }
+                set { _hasTray = value; OnPropertyChanged(); }
+            }
+            public override bool Reset()
+            {
+                IsFail = false;
+                IsBypass = false;
+                HasTray = false;
+                Barcode = string.Empty;
+                return base.Reset();
+            }
         }
         #region Old Code
         //public override void AutoRun(CancellationToken token) //org CN team

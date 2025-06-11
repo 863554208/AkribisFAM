@@ -213,9 +213,29 @@ namespace AkribisFAM.Windows.Converters
         {
             if ((bool)value)
             {
-                return Brushes.Green;
+                //return Brushes.LimeGreen;
+                return new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 0, 255, 0));
             }
-            return Brushes.Red;
+            return new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 255, 0, 0));
+            //return Brushes.OrangeRed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class BrushColorInvertConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if ((bool)value)
+            {
+                //return Brushes.Red;
+                return new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 255, 0, 0));
+            }
+            //return Brushes.LimeGreen; 
+            return new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 0, 255, 0));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -224,7 +244,6 @@ namespace AkribisFAM.Windows.Converters
         }
     }
 
- 
     //public class IntToColorConverter : IValueConverter
     //{
     //    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

@@ -255,6 +255,9 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Converters\Converters.cs" />
+    <Compile Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml.cs">
+      <DependentUpon>PointXYVisionMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
       <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
     </Compile>
@@ -266,6 +269,9 @@
     </Compile>
     <Compile Include="Windows\Conveyor\ConveyorControlView.xaml.cs">
       <DependentUpon>ConveyorControlView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml.cs">
+      <DependentUpon>PointXYHeightMeasurementView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Laser\SubView\ProductXYPointsView.xaml.cs">
       <DependentUpon>ProductXYPointsView.xaml</DependentUpon>
@@ -321,6 +327,12 @@
     <Compile Include="Windows\HardwareControl.xaml.cs">
       <DependentUpon>HardwareControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Main\RecheckMeasurementView.xaml.cs">
+      <DependentUpon>RecheckMeasurementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\LaserMeasurementView.xaml.cs">
+      <DependentUpon>LaserMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Main\LotAndMaterialView.xaml.cs">
       <DependentUpon>LotAndMaterialView.xaml</DependentUpon>
     </Compile>
@@ -370,6 +382,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -385,6 +401,10 @@
     <Page Include="Windows\Conveyor\ConveyorControlView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Laser\SubView\ProductXYPointsView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -491,6 +511,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\HardwareControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\RecheckMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Main\LaserMeasurementView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

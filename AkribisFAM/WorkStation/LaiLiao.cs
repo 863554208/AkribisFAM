@@ -9,6 +9,7 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Sockets;
+using static AkribisFAM.WorkStation.Conveyor;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
@@ -778,6 +779,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (App.scanner.ScanBarcode(out string result) == 0)
                 {
+                    Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].Barcode = result;
                     _movestep = 2;
                 }
                 else
@@ -867,7 +869,8 @@ namespace AkribisFAM.WorkStation
                 ProcessingDone();
 
                 // Temporary, should be conveyor checking the stations status
-                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, true);
+                bool passCondition = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, passCondition);
 
                 _movestep = 0; // Reset for next tray
             }
@@ -923,6 +926,7 @@ namespace AkribisFAM.WorkStation
             // DO LASER MEASURE
             if (_laserMoveStep == 2)
             {
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
                 if (!App.laser.Measure(out double res))
                 {
                     ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double {res})");
@@ -930,6 +934,24 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
+                    var targetPart = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray[_currentLaserPointIndex];
+                    var measurement = new LaserMeasurement()
+                    {
+                        MeasurementCount = _currentLaserPointIndex,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = movePt.X,
+                        YMeasurePosition = movePt.Y,
+                        HeightMeasurement = res,
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    };
+                    targetPart.HeightMeasurements.Add(measurement);
+                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                    {
+                        targetPart.failed = true;
+                        targetPart.failreason = FailReason.HeightFail;
+                        targetPart.failStation = StationType.Laser;
+                    }
                     _laserMoveStep = 0;
                 }
             }
