@@ -30,6 +30,8 @@ namespace AkribisFAM.DeviceClass
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
         List<SinglePoint> feedar1pointList = new List<SinglePoint>();
+        private List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> _feederVisionResult = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+        private List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> _trayVisionResult = new List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition>();
         public enum FeederNum
         {
             Feeder1 = 1,
@@ -120,14 +122,23 @@ namespace AkribisFAM.DeviceClass
             AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
 
             ////接受Cognex的信息
-            List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+            //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+            _feederVisionResult = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
 
-            msg_received = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
-
-
-
-            Logger.WriteLog("feedar飞拍接收到的消息为:" + msg_received[0].Errcode1);
+            Logger.WriteLog("feedar飞拍接收到的消息为:" + _feederVisionResult[0].Errcode1);
             return true;
+        }
+
+        public bool IsAllFeederVisionOK()
+        {
+            var isAllFeederVisionOK = _feederVisionResult.All(x => x.Errcode1 == "1");
+            return isAllFeederVisionOK;
+        }
+
+        public bool IsAllTrayVisionOK()
+        {
+            var isAllTrayVisionOK = _trayVisionResult.All(x => x.Errcode == "1");
+            return isAllTrayVisionOK;
         }
 
         public bool Vision2OnTheFlyTrigger()
@@ -399,6 +410,7 @@ namespace AkribisFAM.DeviceClass
             bool reverse = true;
             int count = 0;
             bool has_sent = false;
+            int retryCount = 0;
             while (count < snapPalleteList.Count)
             {
                 if (!reverse)
@@ -418,9 +430,16 @@ namespace AkribisFAM.DeviceClass
                         Task_AssUpCameraFunction.TriggAssUpCamreaTLTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT, palletePath);
                         //Thread.Sleep(300);
                         //GetPlacePosition(1, 1);
+                        while (Task_AssUpCameraFunction.TriggAssUpCamreaready() != "OK")
+                        {
+                            Thread.Sleep(300);
+                            retryCount++;
+
+                            if (retryCount > 10) return false;
+                        }
                         has_sent = true;
                     }
-
+                    //TLT,1,OK
                     AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, snapPalleteList[count + 1].X, GlobalManager.Current.PalleteGap_X, snapPalleteList[count].X, 1);
                     Thread.Sleep(300);
                     AkrAction.Current.EventEnable(AxisName.FSX);
@@ -457,6 +476,13 @@ namespace AkribisFAM.DeviceClass
                         Task_AssUpCameraFunction.TriggAssUpCamreaTLTSendData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT, palletePath);
                         //Thread.Sleep(300);
                         //GetPlacePosition(1, 1);
+                        while (Task_AssUpCameraFunction.TriggAssUpCamreaready() != "OK")
+                        {
+                            Thread.Sleep(300);
+                            retryCount++;
+
+                            if (retryCount > 10) return false;
+                        }
                         has_sent = true;
                     }
 
@@ -479,6 +505,10 @@ namespace AkribisFAM.DeviceClass
 
             }
 
+            //List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> msg_received = new List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition>();
+
+            _trayVisionResult = Task_AssUpCameraFunction.TriggAssUpCamreaTLTAcceptData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT);
+          
             return true;
         }
         public bool MoveFoamStandbyPos(FeederNum feeder, bool bypassZcheck = false, bool waitMotionDone = true)

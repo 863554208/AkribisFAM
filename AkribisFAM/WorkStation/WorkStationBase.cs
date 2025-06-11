@@ -24,6 +24,10 @@ namespace AkribisFAM.WorkStation
             Running,
             Stop,
         }
+        public static int _movestep = 0;
+        public static int _subMovestep = 0;
+        public static int _recoveryMovestep = 0;
+        public static int _subRecoveryMovestep = 0;
 
     }
 }

@@ -10,6 +10,7 @@ using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Http.Headers;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace AkribisFAM.WorkStation
 {
@@ -20,7 +21,7 @@ namespace AkribisFAM.WorkStation
         public SinglePoint[] PlacePositions = new SinglePoint[4];
         private static DateTime startTime = DateTime.Now;
         private static ZuZhuang _instance;
-        private static int _movestep = 0;
+        
         private static int _pickCaptureMovestep = 0;
         private static int _pickPartMovestep = 0;
         private static int _placeInspectMovestep = 0;
@@ -28,19 +29,35 @@ namespace AkribisFAM.WorkStation
         private static int _trayPlaceMovestep = 0;
         private static int _currentTrayPlaceIndex = 0;
         private static int _currentPickerIndex = 0;
+        private static int _currentFeederIndex = 0;
         private bool _isProcessOngoing = false;
         private bool _trayInspectDone = false;
         private int _rowCount = 3;
         private int _colCount = 4;
+        private int _vision1FeederRetryCount = 0;
+        private int _vision1FeederMaxRetry = 2;
+        private int _vision1TrayRetryCount = 0;
+        private int _vision1TrayMaxRetry = 2;
+        private int _vision2FeederRetryCount = 0;
+        private int _vision2FeederMaxRetry = 2;
         private List<TraySlot> _traySlots = new List<TraySlot>();
         private Recipe _currentRecipe = App.recipeManager.GetRecipe(TrayType.PAM_230_144_3X4);
         private static int _selectedPicker;
+        private static int _selectedFeederIndex;
+        private static bool[] _feederHasPartIndex = new bool[4];
         private List<Picker> _pickers = new List<Picker>()
         {
-            new Picker() { PickerIndex = 1, IsDisabled = false },
-            new Picker() { PickerIndex = 2, IsDisabled = false },
-            new Picker() { PickerIndex = 3, IsDisabled = true },
-            new Picker() { PickerIndex = 4, IsDisabled = true },
+            new Picker() { PickerIndex = 1, IsEnabled = true },
+            new Picker() { PickerIndex = 2, IsEnabled = true },
+            new Picker() { PickerIndex = 3, IsEnabled = false },
+            new Picker() { PickerIndex = 4, IsEnabled = false },
+        };
+        private List<FeederIndex> _feederIndex = new List<FeederIndex>()
+        {
+            new FeederIndex() { PartIndex = 1, hasPart = false },
+            new FeederIndex() { PartIndex = 2, hasPart = false },
+            new FeederIndex() { PartIndex = 3, hasPart = false },
+            new FeederIndex() { PartIndex = 4, hasPart = false },
         };
         public override string Name => nameof(ZuZhuang);
 
@@ -70,7 +87,6 @@ namespace AkribisFAM.WorkStation
                 return _instance;
             }
         }
-
 
         public override void Initialize()
         {
@@ -1503,18 +1519,26 @@ namespace AkribisFAM.WorkStation
             _isProcessingDone = false;
             _isProcessOngoing = true;
         }
-
+        private void SetFeederIndex()
+        {
+            foreach (var index in _feederIndex)
+            {
+                index.hasPart = true;
+            }
+        }
+        private bool IsActiveFeederChanged()
+        {
+            // Check if the active feeder has changed
+            var currentActiveFeeder = Feeder.Current.GetActiveFeederNumber();
+            if ((DeviceClass.CognexVisionControl.FeederNum)currentActiveFeeder != _activeFeederNum)
+            {
+                Logger.WriteLog($"Active feeder changed from {_activeFeederNum} to {currentActiveFeeder}");
+                return true;
+            }
+            return false;
+        }
         public override bool AutoRun() // threadbody
         {
-
-            //App.vision1.MoveFoamStandbyPos();
-            //App.vision1.Vision1OnTheFlyFoamTrigger();
-            //App.assemblyGantryControl.PickFoam() // which picker to which foam
-            //App.assemblyGantryControl.PickAllFoam() // which picker to which foam
-            //App.vision1.MoveVision2StandbyPos();
-            //App.vision1.Vision2OnTheFlyTrigger();
-            //App.vision1.Vision1OnTheFlyPalletTrigger();
-            //App.assemblyGantryControl.PlaceFoam() // which picker to which foam
 
             // MOVE TO PICK POSITION AT CURRENT ACTIVE FEEDER
             if (_movestep == 0)
@@ -1524,10 +1548,10 @@ namespace AkribisFAM.WorkStation
                     DeviceClass.CognexVisionControl.FeederNum.Feeder1 :
                     DeviceClass.CognexVisionControl.FeederNum.Feeder2;
 
-                //if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
-                //{
-                App.vision1.MoveFoamStandbyPos(_activeFeederNum);
-                //}
+                if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
+                {
+                    App.vision1.MoveFoamStandbyPos(_activeFeederNum);
+                }
                 // timeout if no feeder is ready at certain duration
 
                 _movestep = 1;
@@ -1552,58 +1576,115 @@ namespace AkribisFAM.WorkStation
             // ON THE FLY CAPTURE PICK POSITION
             if (_movestep == 2)
             {
-                if (App.vision1.Vision1OnTheFlyFoamTrigger(_activeFeederNum))
+                if (!IsActiveFeederChanged()) // Check if active feeder has changed
                 {
+                    App.vision1.Vision1OnTheFlyFoamTrigger(_activeFeederNum);
                     _movestep = 3;
                 }
                 else
                 {
-                    // Handle error or retry logic here
-                    return false; // ON THE FLY CAPTURE FAILED   
+                    _movestep = 0; // Move to the new active feeder position
                 }
-
-                //var PickSeqResult = PickCaptureSequence();
-                //if (PickSeqResult == 1)
-                //{
-                //    _movestep = 3;
-                //} else if (PickSeqResult == -1)
-                //{
-
-                //    return; // PICK CAPTURE FAILED
-                //}
             }
-
-            // PICK PART SEQUENCE
+            
+            // READY ON THE FLY CAPTURE
             if (_movestep == 3)
             {
-                if (App.assemblyGantryControl.PickAllFoam())
+                if (App.vision1.Vision1OnTheFlyFoamTrigger(_activeFeederNum))
                 {
-                    _movestep = 4;
+                    if (App.vision1.IsAllFeederVisionOK())
+                    {
+                        _currentPickerIndex = 0;
+                        _movestep = 7; // Proceed to pick part sequence
+                    }
+                    else
+                    {
+                        // Handle error or retry logic here
+                        // Data failed, retry capture
+                        if (_vision1FeederRetryCount < _vision1FeederMaxRetry)
+                        {
+                            _vision1FeederRetryCount++;
+                            _movestep = 2; // Retry OTF capture
+                        }
+                        else
+                        {
+                            // Max retry reached, vision unable to locate all parts
+
+                            return false; // VISION CAPTURE FAILED
+                        }
+                    }
+                    
+                }
+                else // VISION NOT READY
+                {
+                    // Handle error or retry logic here
+                    return false; // VISION NOT READY
+                }
+
+            }
+
+            // SKIP
+            if (_movestep == 4)
+            {
+                // MOVE XY TO END POSITION OF ON THE FLY CAPTURE
+                if (true)
+                {
+                    _movestep = 5; // skip 5 checking motor position temporarily
                 }
                 else
                 {
-                    // Handle error or retry logic here
-                    _movestep = 4;
-                    return false; // PICK FAILED
+                    return false; // MOVE FAILED
                 }
-                //var PickResult = PickPartSequence();
-                //if (PickResult == 1)
-                //{
-                //    _movestep = 4;
-                //}
-                //else if (PickResult == -1)
-                //{
-                //    _movestep = 2; // RETRY PICK CAPTURE SEQUENCE
-                //    return; // PICK FAILED
-                //}
+            }
+
+            // SKIP
+            if (_movestep == 5)
+            {
+                if (true/*AkrAction.Current.IsMoveFoamXYDone(points[0].X - 16, points[0].Y)*/) // Replace with actual motor position check
+                {
+                    _movestep = 6; // Proceed to move to OTF capture position
+                }
+                else
+                {
+                    return false; // MOTOR FAILED TO REACH POSITION
+                }
+            }
+
+            // SKIP
+            if (_movestep == 6)
+            {
+                if (true) // Process the data
+                {
+                    // Set the feeder index to indicate parts are available
+                    _movestep = 7; 
+                }
+                else
+                {
+                   
+                }
+            }
+
+            // PICK SEQUENCE
+            if (_movestep == 7)
+            {
+                var pickResult = PickPartSequence(); // Perform pick parts sequence
+                if (pickResult == 1) // ALL PICKERS HAVE BEEN PROCESSED
+                {
+                    _movestep = 8;
+                }
+                else if (pickResult < 0)
+                {
+                    // Handle error in picking process
+                    return false; // PICKING FAILED
+                }
             }
 
             // MOVE TO ON THE FLY CAPTURE POSITION
-            if (_movestep == 4)
+            if (_movestep == 8)
             {
                 if (App.vision1.MoveVision2StandbyPos()) // MOVE TO OTF CAPTURE POSITION
                 {
-                    _movestep = 6; // skip 5 checking motor position temporarily
+                    _movestep = 10; // skip 5 checking motor position temporarily
                 }
                 else
                 {
@@ -1612,13 +1693,13 @@ namespace AkribisFAM.WorkStation
             }
 
             // (SKIP TEMPORARILY)
-            if (_movestep == 5)
+            if (_movestep == 9)
             {
                 if (true)
                 {
                     if (true)
                     {
-                        _movestep = 6;
+                        _movestep = 10;
                     }
                     else
                     {
@@ -1629,11 +1710,11 @@ namespace AkribisFAM.WorkStation
             }
 
             // START ON THE FLY CAPTURE SEQUENCE
-            if (_movestep == 6)
+            if (_movestep == 10)
             {
                 if (App.vision1.Vision2OnTheFlyTrigger()) // CALL OTF CAPTURE SEQUENCE
                 {
-                    _movestep = 7;
+                    _movestep = 11;
                 }
                 else
                 {
@@ -1642,20 +1723,20 @@ namespace AkribisFAM.WorkStation
             }
 
             // CHECK IF TRAY AVAILABILITY
-            if (_movestep == 7)
+            if (_movestep == 11)
             {
                 if (IsProcessOngoing())
                 {
-                    _movestep = 9; // SKIP TRAY WAITING
+                    _movestep = 13; // SKIP TRAY WAITING
                 }
                 else
                 {
-                    _movestep = 8; // WAIT FOR TRAY IN POSITION
+                    _movestep = 12; // WAIT FOR TRAY IN POSITION
                 }
             }
 
             // WAIT FOR TRAY IN POSITION
-            if (_movestep == 8)
+            if (_movestep == 12)
             {
                 if (_isTrayReadyToProcess)
                 {
@@ -1672,7 +1753,7 @@ namespace AkribisFAM.WorkStation
             }
 
             // ON THE FLY PALLET TRIGGER
-            if (_movestep == 9)
+            if (_movestep == 13)
             {
                 if (!_trayInspectDone) // If not yet inspected, trigger on the fly vision first
                 {
@@ -1699,7 +1780,7 @@ namespace AkribisFAM.WorkStation
             }
 
             // TRAY PLACE SEQUENCE
-            if (_movestep == 10)
+            if (_movestep == 14)
             {
                 var placeResult = TrayPlaceSequence();
                 if (placeResult == 1) // ALL PICKERS HAVE BEEN PROCESSED
@@ -1734,6 +1815,113 @@ namespace AkribisFAM.WorkStation
 
         private int PickPartSequence()
         {
+            // SELECT PICKER AND FEEDER INDEX THEN MOVE TO POSITION
+            if (_subMovestep == 0)
+            {
+                // CHECK IF PICKER INDEX HAS REACHED MAXIMUM
+                if (_currentPickerIndex >= _pickers.Count(x => x.IsEnabled))
+                {
+                    return 1; // ALL PICKERS HAVE BEEN PROCESSED
+                }
+
+                if (_currentFeederIndex >= _feederIndex.Count)
+                {
+                    // temporary assume all parts placed
+                    SetFeederIndex(); // Set all feeder index to true
+                    return 1; // ALL FEEDERS HAVE BEEN PROCESSED
+                }
+
+                if (_pickers[_currentPickerIndex].IsEnabled)
+                {
+                    if (_feederIndex[_currentFeederIndex].hasPart)
+                    {
+                        _selectedPicker = _pickers[_currentPickerIndex].PickerIndex;
+                        _selectedFeederIndex = _feederIndex[_currentFeederIndex].PartIndex;
+                        // MOVE TO PICK POSITION
+                        _subMovestep = 1;
+                    }
+                    else
+                    {
+                        // Feeder index does not have part, skip to next picker
+                        _currentFeederIndex++;
+                    }
+                }
+                else
+                {
+                    _currentPickerIndex++;
+                }
+            }
+
+            // WAIT MOTOR TO REACH POSITION
+            if (_subMovestep == 1)
+            {
+                //App.assemblyGantryControl.PickFoam(
+                if (App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)_selectedPicker, _selectedFeederIndex))
+                {
+                    _currentPickerIndex++;
+                    _feederIndex[_currentFeederIndex].hasPart = false; // Mark the feeder index as processed
+                    _currentFeederIndex++;
+                    _subMovestep = 0;
+                }
+                else
+                {
+                    // Handle error
+                    return -1; // MOVE FAILED
+                }
+            }
+
+            // ZDOWN TO PICK POSITION
+            if (_subMovestep == 2)
+            {
+                if (true)
+                {
+                    _subMovestep = 3;
+                }
+                else
+                {
+                    return -1; // MOVE FAILED
+                }
+            }
+
+            // CHECK IF MOTOR REACHED POSITION
+            if (_subMovestep == 3)
+            {
+                if (true) // Replace with actual motor position check
+                {
+                    _subMovestep = 4; // Proceed to pick part sequence
+                }
+                else
+                {
+                    return -1; // MOTOR FAILED TO REACH POSITION
+                }
+            }
+
+            // VACUUM ON AND WAIT FOR AWHILE
+            if (_subMovestep == 4)
+            {
+                if (true) // Replace with actual vacuum on command
+                {
+                    Thread.Sleep(500);// wait for vacuum to stabalize. (TEMP) Proper way is to loop
+                    _subMovestep = 5; // Proceed to check if part is picked
+                }
+                else
+                {
+                    return -1; // VACUUM ON FAILED
+                }
+            }
+
+            // ZUP TO SAFE POSITION
+            if (_subMovestep == 5)
+            {
+                if (true) // Replace with actual Z up command
+                {
+                    _subMovestep = 0; // Proceed to check if part is picked
+                }
+                else
+                {
+                    return -1; // Z UP FAILED
+                }
+            }
 
             return 0;
         }
@@ -1752,7 +1940,7 @@ namespace AkribisFAM.WorkStation
                 {
                     return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
                 }
-                if (_pickers[_currentPickerIndex].IsDisabled == false)
+                if (_pickers[_currentPickerIndex].IsEnabled)
                 {
                     _selectedPicker = _pickers[_currentPickerIndex].PickerIndex;
                     _trayPlaceMovestep = 1;
@@ -1779,15 +1967,6 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    //// TODO REMOVE AFTER DRY RUN
-                    //_traySlots[_currentTrayPlaceIndex].IsOccupied = true; // Mark the tray slot as occupied
-                    //_currentTrayPlaceIndex++;
-                    //_currentPickerIndex++;
-                    //_trayPlaceMovestep = 0;
-                    //if (_currentTrayPlaceIndex >= _traySlots.Count)
-                    //{
-                    //    return 2; // ALL TRAY SLOTS HAVE BEEN PROCESSED
-                    //}
 
                     return -1; // PLACE FAILED
                 }
@@ -1805,7 +1984,13 @@ namespace AkribisFAM.WorkStation
         private class Picker
         {
             public int PickerIndex { get; set; }
-            public bool IsDisabled { get; set; } = false;
+            public bool IsEnabled { get; set; } = true;
+        }
+
+        private class FeederIndex
+        {
+            public int PartIndex { get; set; }
+            public bool hasPart { get; set; } = false;
         }
 
         public override void Paused()

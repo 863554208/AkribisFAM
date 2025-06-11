@@ -655,9 +655,9 @@ namespace AkribisFAM.WorkStation
         #endregion
         public override bool AutoRun() //rayner version 2
         {
-            var byPassLaserProcess = false;
-            var byPassFoamProcess = true;
-            var byPassRecheckProcess = false;
+            var byPassLaserProcess = true;
+            var byPassFoamProcess = false;
+            var byPassRecheckProcess = true;
             //if (MoveConveyorAll() != 0) return false;
             try
             {
