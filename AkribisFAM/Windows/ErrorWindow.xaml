@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AkribisFAM.Windows"
         mc:Ignorable="d"
-        Title="ErrorWindow" Height="450" Width="800">
+        Title="ErrorWindow" Height="450" Width="1000">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10*"/>
@@ -15,6 +15,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="DateTime" Binding="{Binding DateTime}"/>
                 <DataGridTextColumn Header="User"  Binding="{Binding User}"/>
+                <DataGridTextColumn Header="Lot"  Binding="{Binding Lot}"/>
                 <DataGridTextColumn Header="ErrorCode" Binding="{Binding ErrorCode}" />
                 <DataGridTextColumn Header="Level" Binding="{Binding Level}" />
                 <DataGridTextColumn Header="Info" Binding="{Binding Info}" />
@@ -23,14 +24,23 @@
         </DataGrid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3.6*"/>
+                <ColumnDefinition Width="1.6*"/>
+                <ColumnDefinition Width="1.8*"/>
+                <ColumnDefinition Width="1.8*"/>
+                <ColumnDefinition Width="1.4*"/>
+                <ColumnDefinition Width="1.6*"/>
+                <ColumnDefinition Width="1.7*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnMute" Grid.Column="1" Content="Mute" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,4" Click="MuteBtn_Click"/>
-            <Button x:Name="ClearBtn" Grid.Column="2" Content="Clear" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,4" Click="ClearBtn_Click"/>
-            <Button x:Name="ExportBtn" Grid.Column="3" Content="Export" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ExportBtn_Click"/>
+            <Button x:Name="PopBtn" Grid.Column="5" Content="Pop" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="PopBtn_Click" Margin="0,0,0,4"/>
+            <Button x:Name="ClearBtn" Grid.Column="6" Content="Clear" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ClearBtn_Click"/>
+            <Button x:Name="ExportBtn" Grid.Column="7" Content="Export" HorizontalAlignment="Center" VerticalAlignment="Center" Click="ExportBtn_Click"/>
+            <Button x:Name="HistoryBtn" Grid.Column="4" Content="History" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HistoryBtn_Click"/>
+            <Button x:Name="CurrentBtn" Grid.Column="3" Content="Current" HorizontalAlignment="Center" VerticalAlignment="Center" Click="CurrentBtn_Click"/>
+            <ComboBox x:Name="Namebox" HorizontalAlignment="Center" VerticalAlignment="Center" Width="80" SelectionChanged="Namebox_SelectionChanged"/>
+            <ComboBox x:Name="Databox" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200"/>
+            <Button x:Name="QueryBtn" Grid.Column="2" Content="Query" HorizontalAlignment="Center" VerticalAlignment="Center" Click="QueryBtn_Click"/>
         </Grid>
     </Grid>
 </Window>
