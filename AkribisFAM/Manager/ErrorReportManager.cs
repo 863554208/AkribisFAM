@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Security.Claims;
 using AkribisFAM.Models;
 
 namespace AkribisFAM.Manager
 {
-    public enum ErrorCode { 
+    public enum ErrorCode
+    {
         NoError = 0x0000,
         //hardware
         AGM800Disconnect = 0x1000,
@@ -44,12 +43,34 @@ namespace AkribisFAM.Manager
         OUT3_1_PNP_Gantry_vacuum1_Release_Error = 0x000B,
         OUT3_2_PNP_Gantry_vacuum2_Release_Error = 0x000C,
         WaitMotion = 0x000D,
-        WaitIO =0x000E,
-        CognexErr=0x000F,
+        WaitIO = 0x000E,
+        CognexErr = 0x000F,
         Nozzle1_feedback = 0x0010,
+        TeachpointErr = 0x0011,
+        LogicErr = 0x0012,
+        motionErr = 0x0013,
+        motionTimeoutErr = 0x0014,
+        PneumaticErr = 0x0015,
+
+
+        //Conveyor Error
+        TrayLeaveSensorErr = 0x0016,
+        GateReedSwitchTimeOut = 0x0017,
+        LifterReedSwitchTimeOut = 0x0018,
+        TrayPresentSensorTimeOut = 0x0019,
+        IncomingTrayTimeOut = 0x0020,
+
+
+
+        RejectCoverOpened = 0x0021,
+        NGOccupied = 0x0022,
+        MissingNGTray = 0x0023,
+
+        ClawReedSwitchTimeOut = 0x0024,
+
     }
 
-    public struct ErrorInfo
+    public class ErrorInfo
     {
         //Modify By YXW
         public string DateTime { get; set; }
@@ -59,8 +80,9 @@ namespace AkribisFAM.Manager
         public int Level { get; set; }
 
         public string Info { get; set; }
+        public string Description { get; set; }
 
-        public ErrorInfo(DateTime dT, string lot, string usr, ErrorCode eC)
+        public ErrorInfo(DateTime dT, string lot, string usr, ErrorCode eC, string description = "")
         {
             DateTime = dT.ToString();
             User = usr;
@@ -78,6 +100,7 @@ namespace AkribisFAM.Manager
             {
                 Level = 3;
             }
+            Description = description;
             Info = eC.ToString();
         }
         //End Modify
@@ -102,6 +125,8 @@ namespace AkribisFAM.Manager
             }
         }
 
+        public bool IsAlarm => ErrorStack.Count > 0 || ErrorInfos.Count > 0;
+
         private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
         private ConcurrentStack<ErrorCode> ErrorHistory = new ConcurrentStack<ErrorCode>();
 
@@ -117,45 +142,32 @@ namespace AkribisFAM.Manager
             { 3, "Low" },
         };
         private AlarmRecord alarm = new AlarmRecord();
-        public int ErrorCnt = 0;
+        public int ErrorCnt => ErrorStack.Count;
         public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
         public static int ModbusErrCntLimit = 10;
 
-        public void Insert(ErrorCode err)
+        public bool Insert(ErrorCode err, string descriptions = "")
         {
             ErrorStack.Push(err);
             ErrorHistory.Push(err);
-            ErrorCnt = ErrorStack.Count;
 
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err));
-                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err));
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err, descriptions));
+                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err, descriptions));
             });
-
-            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count-1].Level];
+            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count - 1].Level];
             alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;
             alarm.AlarmCode = ErrorInfos[ErrorInfos.Count - 1].ErrorCode;
             alarm.UserID = ErrorInfos[ErrorInfos.Count - 1].User;
             alarm.LotID = ErrorInfos[ErrorInfos.Count - 1].Lot;
             alarm.TimeOccurred = DateTime.Now;
             bool ret = App.DbManager.AddAlarm(alarm);
-
-            //END 
-            //20250519 测试用 【史彦洋】 修改 Start
-            if ((int)err > 0x00FF && StateManager.Current.State == StateManager.StateCode.RUNNING)
-            {
-                StateManager.Current.State = StateManager.StateCode.STOPPED;
-                GlobalManager.Current.Lailiao_exit = true;
-                GlobalManager.Current.Zuzhuang_exit = true;
-                GlobalManager.Current.FuJian_exit = true;
-                GlobalManager.Current.Reject_exit = true;
-            }
             UpdateErrorCnt?.Invoke();
+            return false;
         }
-
         public void Pop()
         {
             if (ErrorInfos.Count == 0) { 
@@ -172,7 +184,6 @@ namespace AkribisFAM.Manager
             if (ErrorStack.TryPop(out result))
             {
                 Console.WriteLine("Removed element: " + result);
-                ErrorCnt = ErrorStack.Count;
                 UpdateErrorCnt?.Invoke();
             }
         }
@@ -180,7 +191,6 @@ namespace AkribisFAM.Manager
         public void Clear()
         {
             ErrorStack.Clear();
-            ErrorCnt = ErrorStack.Count;
             UpdateErrorCnt?.Invoke();
         }
     }

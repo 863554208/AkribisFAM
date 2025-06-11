@@ -39,6 +39,10 @@ namespace AkribisFAM.Windows
         {
             ErrorManager.Current.Clear();
             ErrorManager.Current.ErrorInfos.Clear();
+            App.buzzer.BeepOff();
+            App.buzzer.EnableBeep = true ;
+            System.Windows.MessageBox.Show("Alarm cleared!", "Tip", MessageBoxButton.OK, MessageBoxImage.Information);
+            this.Close();
         }
 
         public static void ExportDataGridToCsv<T>(System.Windows.Controls.DataGrid dataGrid, IEnumerable<T> items)
@@ -177,6 +181,11 @@ namespace AkribisFAM.Windows
                 _collectionView.Refresh();
             }
 
+        }
+
+        private void MuteBtn_Click(object sender, RoutedEventArgs e)
+        {
+            App.buzzer.Off();
         }
     }
 }

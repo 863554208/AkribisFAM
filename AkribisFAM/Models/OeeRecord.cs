@@ -8,6 +8,7 @@ namespace AkribisFAM.Models
 {
     public class OeeRecord
     {
+        public string LotID { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
         public int GoodProducts { get; set; }
