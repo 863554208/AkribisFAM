@@ -16,10 +16,11 @@
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -34,14 +35,14 @@
             <local:SingleProductTrackerView x:Name="laser" DataContext="{Binding ProductTracker.LaserStationTray}" Grid.Column="0" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
             <local:SingleProductTrackerView x:Name="foam" DataContext="{Binding ProductTracker.FoamAssemblyStationTray}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
             <local:SingleProductTrackerView x:Name="recheck" DataContext="{Binding ProductTracker.RecheckStationTray}" Grid.Column="3" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="good" DataContext="{Binding ProductTracker.GoodOutGoingStationTray}" Grid.Column="5" Grid.Row="1"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="good" DataContext="{Binding ProductTracker.GoodOutGoingStationTray}" Grid.Column="4" Grid.Row="1"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
             <local:SingleProductTrackerView x:Name="reject" DataContext="{Binding ProductTracker.RejectOutGoingStationTray}" Grid.Column="4"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
             <local:SingleProductTrackerView x:Name="gantry" DataContext="{Binding ProductTracker.GantryPickerFoams}" Grid.Column="2" Grid.Row="2" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
             <local:SingleProductTrackerView x:Name="feeder1" DataContext="{Binding ProductTracker.Feeder1Foams}" Grid.Column="1" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
             <local:SingleProductTrackerView x:Name="feeder2" DataContext="{Binding ProductTracker.Feeder2Foams}" Grid.Column="2" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <ScrollViewer  Grid.Row="4" Grid.ColumnSpan="5">
+            <ScrollViewer  Grid.Row="4" Grid.ColumnSpan="4" Grid.Column="2">
                 <ItemsControl x:Name="itemControlStation" ItemsSource="{Binding ProductTracker.ConveyorTraysSending}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

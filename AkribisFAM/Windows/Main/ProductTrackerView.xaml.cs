@@ -126,7 +126,15 @@ namespace AkribisFAM.Windows
                 state = 3;
             }
             var step = Int32.Parse(txtStep.Text);
-            Conveyor.Current.Go[station, state, step] = btnTrue.IsChecked == true;
+            try
+            {
+                Conveyor.Current.Go[station, state, step] = btnTrue.IsChecked == true;
+
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         private void btnSet2_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -139,7 +147,7 @@ namespace AkribisFAM.Windows
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    for (int k = 0; k < 9; k++)
+                    for (int k = 0; k < 20; k++)
                     {
                         Conveyor.Current.Go[i, j, k] = false;
                     }

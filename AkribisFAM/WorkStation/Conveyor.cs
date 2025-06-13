@@ -2,6 +2,7 @@
 using System.Data.Entity.ModelConfiguration.Configuration;
 using System.Linq;
 using System.Threading;
+using AAComm.Shared;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.Util;
@@ -655,13 +656,20 @@ namespace AkribisFAM.WorkStation
         #endregion
         public int count = 0;
         public bool removed;
-        public override bool AutoRun() //rayner version 2
+        public bool canSend;
+        private bool IsTimeOut()
         {
-            var timeout = App.paramLocal.LiveParam.ProcessTimeout;
+            return (DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds >= App.paramLocal.LiveParam.ProcessTimeout;
+        }
+        private void ResetTimeout(ConveyorStation currentstation)
+        {
+            starttime[(int)currentstation] = DateTime.Now;
+        }
+        public override bool AutoRun() //version 3 (Updated by Raymond)
+        {
             var byPassLaserProcess = true;
             var byPassFoamProcess = true;
             var byPassRecheckProcess = true;
-            //if (MoveConveyorAll() != 0) return false;
             try
             {
                 //while (!token.IsCancellationRequested)
@@ -692,10 +700,12 @@ namespace AkribisFAM.WorkStation
 
                     switch (station[(int)currentstation]) //process 4 station
                     {
+                        //StationState.Empty : 
                         case StationState.Empty:
                             switch (steps[(int)currentstation])
                             {
-                                case 0: //if station is empty, can allow tray from previous machine
+                                //case 0 : if station is empty, can allow tray from previous machine
+                                case 0:
 
                                     //process SMEMA input tray/////////////////////////
                                     if (isGoodTrayAvailable && currentstation == ConveyorStation.Laser && count == 0)
@@ -717,220 +727,116 @@ namespace AkribisFAM.WorkStation
                                         }
                                         ///////////////////////////////
                                         steps[(int)currentstation] = 1;
-                                        starttime[(int)currentstation] = DateTime.Now;
+                                        ResetTimeout(currentstation);
                                     }
 
                                     break;
-                                case 1: //move end stopper up when clear
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
-                                    {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-
-                                                status[(int)currentstation] = true;
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 2;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                            }
-                                            counters[(int)currentstation]++;
-                                        }
-                                        //if (TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].HasTray) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
-                                        //{
-                                        //    if (counters[(int)currentstation] > 2)  //use counter to delay
-                                        //    {
-
-                                        //        status[(int)currentstation] = GateUp(currentstation, false);
-                                        //        if (!status[(int)currentstation])
-                                        //        {
-                                        //            return ErrorManager.Current.Insert(ErrorCode.IOErr, $"TrayLeaveAndClearCheck({currentstation},false)");
-                                        //            //throw new Exception("Output trigger failed");
-                                        //        }
-                                        //        counters[(int)currentstation] = 0;
-                                        //        steps[(int)currentstation] = 2;
-                                        //        starttime[(int)currentstation] = DateTime.Now;
-                                        //    }
-                                        //    counters[(int)currentstation]++;
-                                        //}
-                                    }
-                                    else
+                                //case 1 : move end stopper up when clear
+                                case 1:
+                                    if (IsTimeOut())
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.TrayLeaveSensorErr, $"(TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].hasTray)");
-
                                     }
-                                    break;
-                                case 2: //wait stopper up
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                    //if (TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].HasTray) /*&& GateDownSensorCheck(currentstation)*/ //tbc if need gatedowncheck
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
                                     {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 9;
-                                            }
+
+                                            status[(int)currentstation] = true;
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 2;
+                                            ResetTimeout(currentstation);
                                         }
-                                        //if (GateUpSensorCheck(currentstation))
-                                        //{
-                                        //    if (counters[(int)currentstation] > 2)  //use counter to delay
-                                        //    {
-                                        //        counters[(int)currentstation] = 0;
-                                        //        steps[(int)currentstation] = 9;
-                                        //    }
-                                        //}
                                         counters[(int)currentstation]++;
                                     }
-                                    else
+                                    break;
+                                //case 2 : wait stopper up
+                                case 2:
+                                    if (IsTimeOut())
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.GateReedSwitchTimeOut, $"GateUpSensorCheck{currentstation}");
                                     }
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (GateUpSensorCheck(currentstation))
+                                    {
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 9;
+                                        }
+                                    }
+                                    counters[(int)currentstation]++;
                                     break;
-                                case 9: //goto next station state
+                                //case 9 : goto next station state
+                                case 9:
                                     steps[(int)currentstation] = 0;
                                     TraySendingNextStation[(int)currentstation] = false;
                                     station[(int)currentstation] = StationState.TrayIncoming;
-                                    starttime[(int)currentstation] = DateTime.Now;
+                                    ResetTimeout(currentstation);
                                     break;
                             }
 
                             break;
-                        case StationState.TrayIncoming: // to wait for tray reach sensor and lift tray for process
-                            switch (steps[(int)currentstation]) //(laserstep)(laserstep)
+                        //StationState.TrayIncoming : to wait for tray reach sensor and lift tray for process
+                        case StationState.TrayIncoming:
+                            switch (steps[(int)currentstation])
                             {
-                                case 0: //wait tray reach end stopper
+                                //case 0 : wait tray reach end stopper
+                                case 0:
 
-                                    //slowdown sensor sequence - not in use
-                                    //if (ReadIO(IO_INFunction_Table.IN1_0Slowdown_Sign1))
-                                    //{
-                                    //}
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                    if (IsTimeOut())
                                     {
-                                        //if detect tray
-                                        //if (TrayPresenceCheck(currentstation))
-                                        //{
-                                        //    if (counters[(int)currentstation] > 2)
-                                        //    {
-                                        //        counters[(int)currentstation] = 0;
+                                        return ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"TrayPresenceCheck({currentstation})");
+                                    }
 
-
-                                        //        if (currentstation == ConveyorStation.Reject) //disable interlock if tray detected
-                                        //        {
-                                        //            // Transfer the data to reject station
-                                        //            ConveyorTrays[(int)ConveyorStation.Reject].Copy(
-                                        //             (TrayData)ConveyorTraysSending[(int)ConveyorStation.Recheck]);
-                                        //            ConveyorTraysSending[(int)ConveyorStation.Recheck].Reset();
-
-                                        //            rejectraymoving = false;
-                                        //        }
-
-                                        //        if (!ConveyorTrays[(int)currentstation].IsFail && currentstation != ConveyorStation.Reject)  //If pass, proceed to lift up 
-                                        //        {
-                                        //            steps[(int)currentstation] = 1;
-                                        //        }
-                                        //        else if (ConveyorTrays[(int)currentstation].IsFail &&  //### BREAK INTO STEP INSTEAD, TO DO (RAYMOND)
-                                        //            currentstation == ConveyorStation.Reject)  //If pass, proceed to lift up
-                                        //        {
-                                        //            if (!TrayAtRejectStation() && RejectCoverClose())   //if no tray and cover close
-                                        //            {
-                                        //                steps[(int)currentstation] = 1;
-                                        //            }
-                                        //        }
-                                        //        else // if failed, blocked and gate down to continue transfer to next station
-                                        //        {
-                                        //            steps[(int)currentstation] = 10; // Directly proceed to outgoing
-                                        //            TraySendingNextStation[(int)currentstation] = true;
-                                        //        }
-
-                                        //    }
-                                        //}
-
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (TrayPresenceCheck(currentstation))
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    {
+                                        if (counters[(int)currentstation] > 2)
                                         {
-                                            if (counters[(int)currentstation] > 2)
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 1;
+                                            ResetTimeout(currentstation);
+                                            if (currentstation == ConveyorStation.Reject) //disable interlock if tray detected
                                             {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 1;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                                if (currentstation == ConveyorStation.Reject) //disable interlock if tray detected
+                                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
                                                 {
-                                                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                                    {
+                                                    ConveyorTrays[(int)ConveyorStation.Reject].Copy(ConveyorTraysSending[(int)ConveyorStation.Recheck]);
+                                                    ConveyorTraysSending[(int)ConveyorStation.Recheck].Reset();
+                                                });
+                                                // Transfer the data to reject station
 
-                                                        ConveyorTrays[(int)ConveyorStation.Reject].Copy(ConveyorTraysSending[(int)rejectTray]);
-                                                        ConveyorTraysSending[(int)rejectTray].Reset();
-                                                    });
-                                                    // Transfer the data to reject station
-
-                                                    rejectraymoving = false;
-
-                                                }
-                                                //else
-                                                //{
-                                                //    if (!TrayAtRejectStation() && RejectCoverClose())   //if no tray and cover close
-                                                //    {
-                                                //        steps[(int)currentstation] = 1;
-                                                //    }
-                                                //}
-
-                                                //if (!ConveyorTrays[(int)currentstation].IsFail && currentstation != ConveyorStation.Reject)  //If pass, proceed to lift up 
-                                                //{
-                                                //    steps[(int)currentstation] = 1;
-                                                //}
-                                                //else if (ConveyorTrays[(int)currentstation].IsFail &&  //### BREAK INTO STEP INSTEAD, TO DO (RAYMOND)
-                                                //    currentstation == ConveyorStation.Reject)  //If pass, proceed to lift up
-                                                //{
-                                                //    if (!TrayAtRejectStation() && RejectCoverClose())   //if no tray and cover close
-                                                //    {
-                                                //        steps[(int)currentstation] = 1;
-                                                //    }
-                                                //}
-                                                //else // if failed, blocked and gate down to continue transfer to next station
-                                                //{
-                                                //    steps[(int)currentstation] = 10; // Directly proceed to outgoing
-                                                //    TraySendingNextStation[(int)currentstation] = true;
-                                                //}
-
+                                                rejectraymoving = false;
                                             }
                                         }
-
-
-                                        counters[(int)currentstation]++;
-
                                     }
-                                    else
-                                    {
-                                        counters[(int)currentstation] = 0;
-                                        return ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"TrayPresenceCheck({currentstation})");
-
-                                    }
+                                    counters[(int)currentstation]++;
                                     break;
+                                //case 1 : Decide next move
                                 case 1:
                                     if (currentstation == ConveyorStation.Reject) //disable interlock if tray detected
                                     {
                                         if (ConveyorTrays[(int)currentstation].IsFail && ConveyorTrays[(int)currentstation].HasTray)
                                         {
-                                            if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                            if (IsTimeOut())
                                             {
-                                                if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]] && !App.productTracker.RejectOutGoingStationTray.HasTray)
-                                                //if (!TrayAtRejectStation() && RejectCoverClose())   //if no tray and cover close
-                                                {
-
-                                                    steps[(int)currentstation] = 2;
-                                                }
-                                            }
-                                            else
-                                            {
-
                                                 return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"if (!TrayAtRejectStation() && RejectCoverClose())");
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (canSendTrayOut)
+
+                                            if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]] && !App.productTracker.RejectOutGoingStationTray.HasTray)
+                                            //if (!TrayAtRejectStation() && RejectCoverClose())   //if no tray and cover close
                                             {
+                                                steps[(int)currentstation] = 2;
+                                            }
+                                        }
+                                        else //Tray pass
+                                        {
+                                            if (canSendTrayOut && canSend)
+                                            {
+                                                canSend = false;
                                                 steps[(int)currentstation] = 10; // Directly proceed to outgoing
-                                                TraySendingNextStation[(int)currentstation] = true;
                                             }
                                         }
                                     }
@@ -938,16 +844,33 @@ namespace AkribisFAM.WorkStation
                                     {
                                         if (ConveyorTrays[(int)currentstation].IsFail)
                                         {
-                                            steps[(int)currentstation] = 10; // Directly proceed to outgoing
-                                            TraySendingNextStation[(int)currentstation] = true;
+                                            if (station[(int)currentstation + 1] == StationState.Empty)  // Check next station is occupied
+                                            {
+                                                steps[(int)currentstation] = 10; // Directly proceed to outgoing
+                                                TraySendingNextStation[(int)currentstation] = true;
+                                            }
+                                            else if (station[(int)ConveyorStation.Reject] == StationState.Empty && !TraySendingNextStation[(int)ConveyorStation.Reject] && !rejectraymoving)
+                                            {
+                                                //Check if there is any transfer ongoing, only allowed to transfer when all is clear
+                                                var stationInfront = TraySendingNextStation.Where((x, index) => index > (int)currentstation).ToList();
+                                                bool _noOngoingSending = stationInfront.Count > 0 ? stationInfront.All(x => !x) : true;
+                                                if (_noOngoingSending)
+                                                {
+                                                    rejectraymoving = true; //lock others from lift down
+                                                    rejectTray = currentstation;
+                                                    steps[(int)currentstation] = 10; // Directly proceed to outgoing
+                                                    TraySendingNextStation[(int)ConveyorStation.Reject] = true;
+                                                }
+                                            }
                                         }
                                         else
                                         {
-                                            steps[(int)currentstation] = 2;
+                                            steps[(int)currentstation] = 2; //Continue to lift up
                                         }
                                     }
                                     break;
-                                case 2: //lift tray
+                                //case 2 : lift tray
+                                case 2:
                                     status[(int)currentstation] = LiftUpRelatedTray(currentstation, false);
                                     if (!status[(int)currentstation])
                                     {
@@ -955,175 +878,121 @@ namespace AkribisFAM.WorkStation
                                     }
 
                                     steps[(int)currentstation] = 3;
-                                    starttime[(int)currentstation] = DateTime.Now;
+                                    ResetTimeout(currentstation);
                                     break;
-                                case 3: //wait tray lifted
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                //case 3 : wait tray lifted
+                                case 3:
+                                    if (IsTimeOut())
                                     {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 4;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                            }
-                                        }
-                                        //if (LiftUpRelatedTraySensorCheck(currentstation))
-                                        //{
-                                        //    if (counters[(int)currentstation] > 2)  //use counter to delay
-                                        //    {
-                                        //        counters[(int)currentstation] = 0;
-                                        //        steps[(int)currentstation] = 3;
-                                        //        starttime[(int)currentstation] = DateTime.Now;
-                                        //    }
-                                        //}
-                                        counters[(int)currentstation]++;
-                                    }
-                                    else
-                                    {
+
                                         counters[(int)currentstation] = 0;
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftUpRelatedTraySensorCheck({currentstation})");
-
                                     }
-                                    break;
-                                case 4: //confirm tray seat properly
-                                        //if (ReadIO(IO_INFunction_Table
-                                        //        .IN1_12bord_lift_in_position1)) //todo:function to check station IO
-                                        //{
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                    //if (LiftUpRelatedTraySensorCheck(currentstation))
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
                                     {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (TraySeatProperly(currentstation))
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
-                                            //// REMOVE
-                                            //steps[(int)currentstation] = 4;
-                                            //break;
-                                            ////
-                                            switch (currentstation)
-                                            {
-                                                case ConveyorStation.Laser:
-                                                    //ConveyorTrays[(int)ConveyorStation.Laser] =
-                                                    //    new TrayData("LaserStationTray", TrackerType.Tray, 3, 4)
-                                                    //    {
-                                                    //        hasTray = true,
-                                                    //    };
-                                                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                                    {
-                                                        ConveyorTrays[(int)ConveyorStation.Laser].Reset();
-                                                        ConveyorTrays[(int)ConveyorStation.Laser].HasTray = true;
-                                                    });
-
-                                                    steps[(int)currentstation] = 9;
-                                                    break;
-                                                case ConveyorStation.Foam:
-                                                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                                    {
-
-                                                        ConveyorTrays[(int)ConveyorStation.Foam].Copy(ConveyorTraysSending[(int)ConveyorStation.Laser]);
-                                                        ConveyorTraysSending[(int)ConveyorStation.Laser].Reset();
-                                                    });
-                                                    steps[(int)currentstation] = 9;
-                                                    break;
-                                                case ConveyorStation.Recheck:
-                                                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                                    {
-                                                        ConveyorTrays[(int)ConveyorStation.Recheck].Copy(ConveyorTraysSending[(int)ConveyorStation.Foam]);
-                                                        ConveyorTraysSending[(int)ConveyorStation.Foam].Reset();
-                                                    });
-                                                    steps[(int)currentstation] = 9;
-                                                    break;
-                                                case ConveyorStation.Reject:
-                                                    //todo: track reject tray
-                                                    System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                                    {
-                                                        App.productTracker.RejectOutGoingStationTray.Copy(ConveyorTrays[(int)ConveyorStation.Reject]);
-                                                        ConveyorTrays[(int)ConveyorStation.Reject].Reset();
-                                                    });
-                                                    steps[(int)currentstation] = 5;
-                                                    break;
-                                            }
                                             counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 4;
+                                            ResetTimeout(currentstation);
                                         }
-                                        counters[(int)currentstation]++;
-
                                     }
-                                    else
+                                    counters[(int)currentstation]++;
+                                    break;
+                                //case 4 : confirm tray seat properly, transfer tracker to station
+                                case 4:
+                                    if (IsTimeOut())
                                     {
-                                        counters[(int)currentstation] = 0;
                                         return ErrorManager.Current.Insert(ErrorCode.TrayPresentSensorTimeOut, $"TraySeatProperly({currentstation})");
                                     }
-                                    break;
-                                case 5: //reject only - lifter down
-                                    status[(int)currentstation] = LiftDownRelatedTray(currentstation, false);
-                                    if (!status[(int)currentstation])
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (TraySeatProperly(currentstation))
                                     {
-                                        return ErrorManager.Current.Insert(ErrorCode.IOErr, $"LiftDownRelatedTray({currentstation},false)");
-                                        //throw new Exception("Output trigger failed");
-                                    }
-                                    steps[(int)currentstation] = 6;
-                                    starttime[(int)currentstation] = DateTime.Now;
-                                    break; ;
-                                case 6: //reject only - check lifter down sensor
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
-                                    {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (LiftDownRelatedTraySensorCheck(currentstation))
+                                        switch (currentstation)
                                         {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 7;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                            }
+                                            case ConveyorStation.Laser:
+                                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                                {
+                                                    ConveyorTrays[(int)ConveyorStation.Laser].Reset();
+                                                    ConveyorTrays[(int)ConveyorStation.Laser].HasTray = true;
+                                                });
+
+                                                steps[(int)currentstation] = 9;
+                                                break;
+                                            case ConveyorStation.Foam:
+                                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                                {
+
+                                                    ConveyorTrays[(int)ConveyorStation.Foam].Copy(ConveyorTraysSending[(int)ConveyorStation.Laser]);
+                                                    ConveyorTraysSending[(int)ConveyorStation.Laser].Reset();
+                                                });
+                                                steps[(int)currentstation] = 9;
+                                                break;
+                                            case ConveyorStation.Recheck:
+                                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                                {
+                                                    ConveyorTrays[(int)ConveyorStation.Recheck].Copy(ConveyorTraysSending[(int)ConveyorStation.Foam]);
+                                                    ConveyorTraysSending[(int)ConveyorStation.Foam].Reset();
+                                                });
+                                                steps[(int)currentstation] = 9;
+                                                break;
+                                            case ConveyorStation.Reject:
+                                                //todo: track reject tray
+                                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                                {
+                                                    App.productTracker.RejectOutGoingStationTray.Copy(ConveyorTrays[(int)ConveyorStation.Reject]);
+                                                    ConveyorTrays[(int)ConveyorStation.Reject].Reset();
+                                                });
+                                                steps[(int)currentstation] = 9;
+                                                break;
                                         }
-                                        counters[(int)currentstation]++;
-                                    }
-                                    else
-                                    {
                                         counters[(int)currentstation] = 0;
-                                        return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftDownRelatedTraySensorCheck({currentstation})");
                                     }
+                                    counters[(int)currentstation]++;
+
                                     break;
-                                case 7: // reject only - check tray at reject top station
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
-                                    {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (TrayAtRejectStation())
-                                        {
-                                            if (counters[(int)currentstation] > 10)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                //steps[(int)currentstation] = 9;
-                                                steps[(int)currentstation] = 0;
-                                                station[(int)currentstation] = StationState.Empty;
-                                            }
-                                        }
-                                        counters[(int)currentstation]++;
-                                    }
-                                    else
+                                // case 7 : REJECT ONLY - check tray at reject top station
+                                case 7:
+                                    if (IsTimeOut())
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.MissingNGTray, $"TrayAtRejectStation({currentstation})");
                                     }
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (TrayAtRejectStation())
+                                    {
+                                        if (counters[(int)currentstation] > 10)  //use counter to delay
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 0;
+                                            station[(int)currentstation] = StationState.Empty;
+                                        }
+                                    }
+                                    counters[(int)currentstation]++;
+
                                     break;
-                                case 9: //goto next station state
+                                //case 9 : goto next station state
+                                case 9:
                                     steps[(int)currentstation] = 0;
                                     station[(int)currentstation] = StationState.InProcess;
                                     break;
-                                case 10: //goto outgoing station state, only for failed tray
+                                //case 10 : goto outgoing station state, only for failed tray
+                                case 10:
                                     steps[(int)currentstation] = 0;
                                     station[(int)currentstation] = StationState.TrayOutgoing;
                                     break;
                             }
 
                             break;
-                        case StationState.InProcess: //process station interlock vs conveyor + stop gate lower
+                        //StationState.InProcess : process station interlock vs conveyor + stop gate lower
+                        case StationState.InProcess:
                             switch (steps[(int)currentstation])
                             {
-                                case 0: //set station ready to process
+                                //case 0 : set station ready to process
+                                case 0:
                                     StationReadyStatus[(int)currentstation] = true;
-                                    //if (!ConveyorTrays[(int)currentstation].isBypass)
-                                    //{
                                     switch (currentstation)
                                     {
                                         case ConveyorStation.Laser:
@@ -1131,6 +1000,7 @@ namespace AkribisFAM.WorkStation
                                             {
                                                 LaiLiao.Current.SetTrayReadyToProcess();
                                             }
+                                            steps[(int)currentstation] = 1;
                                             break;
 
                                         case ConveyorStation.Foam:
@@ -1138,6 +1008,7 @@ namespace AkribisFAM.WorkStation
                                             {
                                                 ZuZhuang.Current.SetTrayReadyToProcess();
                                             }
+                                            steps[(int)currentstation] = 1;
                                             break;
 
                                         case ConveyorStation.Recheck:
@@ -1145,23 +1016,71 @@ namespace AkribisFAM.WorkStation
                                             {
                                                 FuJian.Current.SetTrayReadyToProcess();
                                             }
+                                            steps[(int)currentstation] = 1;
+                                            break;
+                                        case ConveyorStation.Reject:
+                                            {
+                                                steps[(int)currentstation] = 11;
+                                            }
                                             break;
                                     }
-                                    //}
-                                    steps[(int)currentstation] = 1;
                                     break;
-                                case 1: // Processing ongoing, wait till station says done
-                                        //switch (currentstation)
-                                        //{
-                                        //    case ConveyorStation.Laser:
-                                        //        if (!LaiLiao.Current.IsProcessOngoing())
-                                        //        {
+
+                                //case 11 : REJECT ONLY - Lifter down
+                                case 11:
+                                    status[(int)currentstation] = LiftDownRelatedTray(currentstation, false);
+                                    if (!status[(int)currentstation])
+                                    {
+                                        return ErrorManager.Current.Insert(ErrorCode.IOErr, $"LiftDownRelatedTray({currentstation},false)");
+                                    }
+                                    steps[(int)currentstation] = 12;
+                                    ResetTimeout(currentstation);
+                                    break;
+                                //case 12 : REJECT ONLY - check lifter down sensor
+                                case 12:
+                                    if (IsTimeOut())
+                                    {
+                                        return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftDownRelatedTraySensorCheck({currentstation})");
+                                    }
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (LiftDownRelatedTraySensorCheck(currentstation))
+                                    {
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 13;
+                                            ResetTimeout(currentstation);
+                                        }
+                                    }
+                                    counters[(int)currentstation]++;
+
+                                    break;
+                                //case 13 : REJECT ONLY - check tray present on top
+                                case 13:
+                                    if (IsTimeOut())
+                                    {
+                                        return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"(!TrayAtRejectStation() && RejectCoverClose())");
+                                    }
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (TrayAtRejectStation() && RejectCoverClose()) //if tray detected and cover is closed
+                                    {
+                                        steps[(int)currentstation] = 2;
+                                    }
+                                    break;
+                                //case 1 : Processing ongoing, wait till station says done
+                                case 1:
+                                    //switch (currentstation)
+                                    //{
+                                    //    case ConveyorStation.Laser:
+                                    //        if (!LaiLiao.Current.IsProcessOngoing())
+                                    //        {
                                     steps[(int)currentstation] = 2;
                                     //        }
                                     //        break;
                                     //}
                                     break;
-                                case 2: //lower stopper
+                                //case 2 : lower stopper
+                                case 2:
                                     status[(int)currentstation] = GateDown(currentstation, false);
                                     if (!status[(int)currentstation])
                                     {
@@ -1169,38 +1088,32 @@ namespace AkribisFAM.WorkStation
                                         //throw new Exception("Output trigger failed");
                                     }
                                     steps[(int)currentstation] = 3;
-                                    starttime[(int)currentstation] = DateTime.Now;
+                                    ResetTimeout(currentstation);
                                     break;
-                                case 3: // check gate down sensor
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                //case 3 : check gate down sensor
+                                case 3:
+                                    if (IsTimeOut())
                                     {
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (GateDownSensorCheck(currentstation))
-                                        {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 4;
-                                            }
-                                            counters[(int)currentstation]++;
-                                        }
-                                    }
-                                    else
-                                    {
-
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"GateDownSensorCheck({currentstation})");
                                     }
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (GateDownSensorCheck(currentstation))
+                                    {
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 4;
+                                            ResetTimeout(currentstation);
+                                        }
+                                        counters[(int)currentstation]++;
+                                    }
+
                                     break;
-                                case 4: //wait station complete signal from main process - decide pass or fail
+                                //case 4 : wait station complete signal from main process - decide pass or fail
+                                case 4:
                                     if (currentstation != ConveyorStation.Reject)
                                     {
-                                        ////// BYPASS PROCESSING
-                                        //StationReadyStatus[(int)currentstation] = false;
-                                        //StationTrayStatus[(int)currentstation] = false;
-                                        //////
-                                        //if (!ConveyorTrays[(int)currentstation].isBypass)
-                                        //{
-
                                         if (currentstation == ConveyorStation.Laser && byPassLaserProcess)
                                         {
                                             ProcessingDone(currentstation, true); //bypass tray, set as pass
@@ -1222,48 +1135,34 @@ namespace AkribisFAM.WorkStation
 
                                         if (!StationReadyStatus[(int)currentstation])
                                         {
-                                            ConveyorTrays[(int)currentstation].IsFail =
-                                                !StationTrayStatus[(int)currentstation];
+                                            ConveyorTrays[(int)currentstation].IsFail = !StationTrayStatus[(int)currentstation];
                                             ConveyorTrays[(int)currentstation].IsFail = ConveyorTrays[(int)currentstation].PartArray.Any(x => x.failed);
                                             steps[(int)currentstation] = 5;
                                         }
-                                        //}
-                                        //else
-                                        //{
-                                        //    ProcessingDone(currentstation, true); //bypass tray, set as pass
-                                        //    steps[(int)currentstation] = 5;
-                                        //}
-
-
                                     }
                                     else //reject handle
                                     {
-                                        ProcessingDone(currentstation, true); //bypass tray, set as pass
-                                        if (!StationReadyStatus[(int)currentstation]) //if receive ready signal
+                                        if (IsTimeOut())
                                         {
-
-                                            if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                            //if (!TrayAtRejectStation() && RejectCoverClose()) //if no tray and cover close
-                                            {
-                                                steps[(int)currentstation] = 9;
-                                            }
-                                            else
-                                            {
-                                                //StationReadyStatus[(int)currentstation] = true;
-                                                return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"(!TrayAtRejectStation() && RejectCoverClose())");
-                                                //throw new Exception("Reject not cleared");
-                                            }
+                                            return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"(!TrayAtRejectStation() && RejectCoverClose())");
                                         }
+
+                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                        //if (TrayAtRejectStation() && RejectCoverClose()) //if tray detected and cover is closed
+                                        {
+                                            steps[(int)currentstation] = 10;
+                                        }
+
                                     }
 
                                     break;
-                                case 5: //wait next station empty, or reject empty
+                                //case 5 : wait next station empty, or reject empty
+                                case 5:
                                     if (!rejectraymoving)
                                     {
-
                                         if (ConveyorTrays[(int)currentstation].IsFail)
                                         {
-                                            if (!TraySendingNextStation[(int)ConveyorStation.Reject]) //wait for others to release interlock
+                                            if (!TraySendingNextStation[(int)ConveyorStation.Reject] && !rejectraymoving) //wait for others to release interlock
                                             {
 
                                                 if (rejectstation != StationState.Empty)
@@ -1271,7 +1170,8 @@ namespace AkribisFAM.WorkStation
                                                 //throw new Exception("Reject station not available");
                                                 //error if tray still on reject station
                                                 if (currentstation == ConveyorStation.Laser ||
-                                                    currentstation == ConveyorStation.Foam)
+                                                    currentstation == ConveyorStation.Foam ||
+                                                    currentstation == ConveyorStation.Recheck)
                                                 {
                                                     rejectraymoving = true; //move to reject station, need to bypass
                                                     rejectTray = currentstation;
@@ -1322,20 +1222,28 @@ namespace AkribisFAM.WorkStation
 
                                     }
                                     break;
-                                case 9: //goto next station state
+                                //case 9 : goto next station state
+                                case 9:
                                     steps[(int)currentstation] = 0;
                                     station[(int)currentstation] = StationState.TrayOutgoing;
+                                    break;
+                                //case 10 : REJECT ONLY - Return to Empty state
+                                case 10:
+                                    steps[(int)currentstation] = 0;
+                                    station[(int)currentstation] = StationState.Empty;
                                     break;
                             }
 
                             break;
-                        case StationState.TrayOutgoing: //lifter down and clear tray
-                            switch (steps[(int)currentstation]) //(laserstep)
+                        //StationState.TrayOutgoing : lifter down and clear tray
+                        case StationState.TrayOutgoing:
+                            switch (steps[(int)currentstation])
                             {
-                                case 0://Blocking until tray can send out
-                                       //if (currentstation == ConveyorStation.Recheck ) //SMEMA request tray
-                                       //{
-                                       //    steps[(int)currentstation] = 1;
+                                //case 0 : Blocking until tray can send out
+                                case 0:
+                                    //if (currentstation == ConveyorStation.Recheck ) //SMEMA request tray
+                                    //{
+                                    //    steps[(int)currentstation] = 1;
 
                                     //}
                                     //else //check bypass tray moving. if moving then block
@@ -1346,7 +1254,8 @@ namespace AkribisFAM.WorkStation
                                     //}
 
                                     break;
-                                case 1: //Lifter down
+                                //case 1 : Lifter down
+                                case 1:
                                     if (currentstation != ConveyorStation.Reject)
                                     {
                                         status[(int)currentstation] = LiftDownRelatedTray(currentstation, false);
@@ -1358,31 +1267,29 @@ namespace AkribisFAM.WorkStation
                                     }
 
                                     steps[(int)currentstation] = 2;
-                                    starttime[(int)currentstation] = DateTime.Now;
+                                    ResetTimeout(currentstation);
                                     break;
-                                case 2://check lifter down sensor
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
-                                    {
-
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (LiftDownRelatedTraySensorCheck(currentstation))
-                                        {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 3;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                            }
-                                        }
-                                        counters[(int)currentstation]++;
-                                    }
-                                    else
+                                //case 2 : check lifter down sensor
+                                case 2:
+                                    if (IsTimeOut())
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftDownRelatedTraySensorCheck({currentstation})");
-
                                     }
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (LiftDownRelatedTraySensorCheck(currentstation))
+                                    {
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
+                                        {
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 3;
+                                            ResetTimeout(currentstation);
+                                        }
+                                    }
+                                    counters[(int)currentstation]++;
                                     break;
-                                case 3: //lower stopper
+                                //case 3 : lower stopper
+                                case 3:
                                     status[(int)currentstation] = GateDown(currentstation, false);
                                     if (!status[(int)currentstation])
                                     {
@@ -1390,63 +1297,66 @@ namespace AkribisFAM.WorkStation
                                         //throw new Exception("Output trigger failed");
                                     }
                                     steps[(int)currentstation] = 4;
-                                    starttime[(int)currentstation] = DateTime.Now;
+                                    ResetTimeout(currentstation);
                                     break;
-                                case 4: // check gate down sensor
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                //case 3 : check gate down sensor
+                                case 4:
+                                    if (IsTimeOut())
                                     {
-
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (GateDownSensorCheck(currentstation))
-                                        {
-                                            if (counters[(int)currentstation] > 2)  //use counter to delay
-                                            {
-                                                counters[(int)currentstation] = 0;
-                                                steps[(int)currentstation] = 5;
-                                                starttime[(int)currentstation] = DateTime.Now;
-                                            }
-                                        }
-                                        counters[(int)currentstation]++;
-                                    }
-                                    else
-                                    {
-
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"GateDownSensorCheck({currentstation})");
                                     }
-                                    break;
 
-                                case 5: //wait tray leave zone sensor & side slow sensor 
-                                    if ((DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds <= timeout)
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (GateDownSensorCheck(currentstation))
                                     {
-
-                                        if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
-                                        //if (TrayLeaveAndClearCheck(currentstation))
+                                        if (counters[(int)currentstation] > 2)  //use counter to delay
                                         {
-                                            System.Windows.Application.Current.Dispatcher.Invoke(() =>
-                                            {
-
-                                                ConveyorTraysSending[(int)currentstation].Transfer(ConveyorTrays[(int)currentstation]); //transfer data to sending object
-                                                ConveyorTrays[(int)currentstation].Reset(); //clear data
-                                            });
-                                            steps[(int)currentstation] = 9;
+                                            counters[(int)currentstation] = 0;
+                                            steps[(int)currentstation] = 5;
+                                            ResetTimeout(currentstation);
                                         }
                                     }
-                                    else
+                                    counters[(int)currentstation]++;
+                                    break;
+                                //case 5 : wait tray leave zone sensor & side slow sensor 
+                                case 5:
+                                    if (IsTimeOut())
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"TrayLeaveAndClearCheck({currentstation})");
                                     }
+
+                                    if (Go[(int)currentstation, (int)station[(int)currentstation], steps[(int)currentstation]])
+                                    //if (TrayLeaveAndClearCheck(currentstation))
+                                    {
+                                        TrayData targetTraySending = ConveyorTraysSending[(int)currentstation];
+                                        if (rejectraymoving && ConveyorTrays[(int)currentstation].IsFail)
+                                        {
+                                            targetTraySending = ConveyorTraysSending[(int)ConveyorStation.Recheck];
+                                        }
+                                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                        {
+
+                                            targetTraySending.Transfer(ConveyorTrays[(int)currentstation]); //transfer data to sending object
+                                            ConveyorTrays[(int)currentstation].Reset(); //clear data
+
+                                            //TO DO : if it's reject station, saved a copy of data to csv.
+
+                                        });
+                                        steps[(int)currentstation] = 9;
+                                    }
+
                                     break;
-                                case 9: //goto next station state
+                                //case 9 : goto next station state
+                                case 9:
                                     steps[(int)currentstation] = 0;
                                     station[(int)currentstation] = StationState.Empty;
-                                    //TraySendingNextStation[(int)ConveyorStation.Laser] = false;
                                     break;
                             }
 
                             break;
                     }
-                    currentstation = currentstation <= ConveyorStation.Laser ? currentstation = ConveyorStation.Reject : currentstation--;
-                    
+                    currentstation = currentstation <= ConveyorStation.Laser ? ConveyorStation.Reject : currentstation - 1;
+
 
                     Thread.Sleep(0);
                 }
@@ -1584,7 +1494,7 @@ namespace AkribisFAM.WorkStation
 
         public StationState[] station { get; set; } = new StationState[4]; //temp change to public for debug
                                                                            //private bool[] actionstate = new bool[4];
-        public bool[,,] Go = new bool[4, 4, 9];
+        public bool[,,] Go = new bool[4, 4, 20];
         public bool[] status { get; set; } = new bool[4];
         public int[] steps { get; set; } = new int[4];
         public int[] counters { get; set; } = new int[4];

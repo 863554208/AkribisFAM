@@ -1367,6 +1367,7 @@ namespace AkribisFAM
         private void btnDebug3_Click(object sender, RoutedEventArgs e)
         {
 
+            Conveyor.Current.canSend = true;
         }
 
         private void btnDebug4_Click(object sender, RoutedEventArgs e)

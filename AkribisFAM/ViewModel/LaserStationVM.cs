@@ -149,7 +149,7 @@ namespace AkribisFAM.ViewModel
             set { steps = value; OnPropertyChanged(); }
         }
 
-        private bool[,,] go = new bool[4, 4, 9];
+        private bool[,,] go = new bool[4, 4, 20];
         public bool[,,] Go
         {
             get { return go; }

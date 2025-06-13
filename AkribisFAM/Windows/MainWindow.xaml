@@ -190,7 +190,7 @@
                 </Button>
                 <Button x:Name="btnDebug" Content="Fail" Click="btnDebug_Click"/>
                 <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
-                <Button x:Name="btnDebug3" Content="Debug3" Click="btnDebug3_Click"/>
+                <Button x:Name="btnDebug3" Content="Can send" Click="btnDebug3_Click"/>
                 <Button x:Name="btnDebug4" Content="Removed" Click="btnDebug4_Click"/>
                 <Button x:Name="btnDebug5" Content="Pass" Click="btnDebug5_Click"/>
             </StackPanel>
