@@ -110,7 +110,7 @@ namespace AkribisFAM
             SetLanguage("en-US");
 
 
-            if (new LoginViewModel().ShowDialog() == true)
+            //if (new LoginViewModel().ShowDialog() == true)
             {
                 new MainWindow().ShowDialog();
             }

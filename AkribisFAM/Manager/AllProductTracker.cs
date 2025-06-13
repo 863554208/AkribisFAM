@@ -82,10 +82,10 @@ namespace AkribisFAM.Manager
             GoodOutGoingStationTray = new Conveyor.TrayData("GoodOutGoingStationTray", TrackerType.Tray, 3, 4);
             RejectOutGoingStationTray = new Conveyor.TrayData("RejectOutGoingStationTray", TrackerType.Tray, 3, 4);
 
-            Conveyor.ConveyorTrays[0] = LaserStationTray;
-            Conveyor.ConveyorTrays[1] = FoamAssemblyStationTray;
-            Conveyor.ConveyorTrays[2] = RecheckStationTray;
-            Conveyor.ConveyorTrays[3] = GoodOutGoingStationTray;
+            Conveyor.Current.ConveyorTrays[0] = LaserStationTray;
+            Conveyor.Current.ConveyorTrays[1] = FoamAssemblyStationTray;
+            Conveyor.Current.ConveyorTrays[2] = RecheckStationTray;
+            Conveyor.Current.ConveyorTrays[3] = GoodOutGoingStationTray;
 
             NGTrayTrackers.Add(RejectOutGoingStationTray);
 

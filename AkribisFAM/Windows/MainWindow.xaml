@@ -188,8 +188,11 @@
                     <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
                     </Viewbox>
                 </Button>
-                <Button x:Name="btnDebug" Content="Debug1" Click="btnDebug_Click"/>
+                <Button x:Name="btnDebug" Content="Fail" Click="btnDebug_Click"/>
                 <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
+                <Button x:Name="btnDebug3" Content="Debug3" Click="btnDebug3_Click"/>
+                <Button x:Name="btnDebug4" Content="Removed" Click="btnDebug4_Click"/>
+                <Button x:Name="btnDebug5" Content="Pass" Click="btnDebug5_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>

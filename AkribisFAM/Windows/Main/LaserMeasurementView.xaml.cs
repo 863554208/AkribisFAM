@@ -12,7 +12,7 @@ namespace AkribisFAM.Windows
         public LaserMeasurementView()
         {
             InitializeComponent();
-            DataContext = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser];
+            DataContext = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser];
         }
     }
 }

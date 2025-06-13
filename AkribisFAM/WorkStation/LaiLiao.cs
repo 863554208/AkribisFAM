@@ -778,7 +778,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (App.scanner.ScanBarcode(out string result) == 0)
                 {
-                    Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].Barcode = result;
+                    Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].Barcode = result;
                     _movestep = 2;
                 }
                 else
@@ -868,7 +868,7 @@ namespace AkribisFAM.WorkStation
                 ProcessingDone();
 
                 // Temporary, should be conveyor checking the stations status
-                bool passCondition = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+                bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
                 Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, passCondition);
 
                 _movestep = 0; // Reset for next tray
@@ -933,7 +933,7 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
-                    var targetPart = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray[_currentLaserPointIndex];
+                    var targetPart = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray[_currentLaserPointIndex];
                     var measurement = new LaserMeasurement()
                     {
                         MeasurementCount = _currentLaserPointIndex,

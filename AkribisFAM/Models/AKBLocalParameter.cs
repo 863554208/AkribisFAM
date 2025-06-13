@@ -38,7 +38,7 @@ namespace AkribisFAM.Models
             }
 
 
-            private AKBint _processTimeout = new AKBint(3000, 0, 5000);
+            private AKBint _processTimeout = new AKBint(3000, 0, 20000);
             [Browsable(true), ReadOnly(false), Category("Process"), Description("The wait time for the motion to reach position before raising timeout, in milliseconds")]
             public int ProcessTimeout
             {
@@ -77,7 +77,7 @@ namespace AkribisFAM.Models
             }
 
             private AKBint _speedPercentage = new AKBint(30, 5, 100);
-            [Browsable(true), ReadOnly(false), Category("Process"), Description("Percentage of full speed in percentage %")]
+            [Browsable(true), ReadOnly(false), Category("Process"), Description("Speed percentage % of the full speed")]
             public int SpeedPercentage
             {
                 get { return _speedPercentage.Value; }
@@ -159,7 +159,7 @@ namespace AkribisFAM.Models
             }
 
             private AKBint _logFileAge = new AKBint(180, 30, 10000);
-            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days system will keep the log file")]
+            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days that system keep the log file")]
             public int LogFileAge
             {
                 get { return _logFileAge.Value; }
@@ -167,7 +167,7 @@ namespace AkribisFAM.Models
             }
 
             private AKBint _alarmAge = new AKBint(720, 180, 10000);
-            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days system will keep the alarm in database")]
+            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days that system keep the alarm in database")]
             public int AlarmAge
             {
                 get { return _alarmAge.Value; }
@@ -196,7 +196,13 @@ namespace AkribisFAM.Models
                 set { _recheckYOffset.Value = value; OnPropertyChanged(); }
             }
 
-
+            private AKBint _foamPerReel = new AKBint(720, 180, 10000);
+            [Browsable(true), ReadOnly(false), Category("Feeder"), Description("Number of foam in one reel")]
+            public int FoamPerReel
+            {
+                get { return _foamPerReel.Value; }
+                set { _foamPerReel.Value = value; OnPropertyChanged(); }
+            }
             #endregion Public Properties
 
             #region Public Methods

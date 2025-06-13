@@ -12,7 +12,7 @@ namespace AkribisFAM.Windows
         public RecheckMeasurementView()
         {
             InitializeComponent();
-            DataContext = Conveyor.ConveyorTrays[(int)ConveyorStation.Recheck];
+            DataContext = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Recheck];
         }
     }
 }

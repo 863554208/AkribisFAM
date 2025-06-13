@@ -5,12 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AkribisFAM.Windows"
              Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded"
              IsVisibleChanged="UserControl_IsVisibleChanged"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
@@ -26,34 +27,56 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
 
-            <local:SingleProductTrackerView x:Name="laser" DataContext="{Binding LaserStationTray}" Grid.Column="0" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="foam" DataContext="{Binding FoamAssemblyStationTray}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="recheck" DataContext="{Binding RecheckStationTray}" Grid.Column="3" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="good" DataContext="{Binding GoodOutGoingStationTray}" Grid.Column="5" Grid.Row="1"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="reject" DataContext="{Binding RejectOutGoingStationTray}" Grid.Column="4"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="laser" DataContext="{Binding ProductTracker.LaserStationTray}" Grid.Column="0" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="foam" DataContext="{Binding ProductTracker.FoamAssemblyStationTray}" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Center" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="recheck" DataContext="{Binding ProductTracker.RecheckStationTray}" Grid.Column="3" Grid.Row="1" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="good" DataContext="{Binding ProductTracker.GoodOutGoingStationTray}" Grid.Column="5" Grid.Row="1"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="reject" DataContext="{Binding ProductTracker.RejectOutGoingStationTray}" Grid.Column="4"  Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
-            <local:SingleProductTrackerView x:Name="gantry" DataContext="{Binding GantryPickerFoams}" Grid.Column="2" Grid.Row="2" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="gantry" DataContext="{Binding ProductTracker.GantryPickerFoams}" Grid.Column="2" Grid.Row="2" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
 
-            <local:SingleProductTrackerView x:Name="feeder1" DataContext="{Binding Feeder1Foams}" Grid.Column="1" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
-            <local:SingleProductTrackerView x:Name="feeder2" DataContext="{Binding Feeder2Foams}" Grid.Column="2" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="feeder1" DataContext="{Binding ProductTracker.Feeder1Foams}" Grid.Column="1" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <local:SingleProductTrackerView x:Name="feeder2" DataContext="{Binding ProductTracker.Feeder2Foams}" Grid.Column="2" Grid.Row="3" Margin="10" ButtonPressed="SingleProductTrackerView_ButtonPressed"/>
+            <ScrollViewer  Grid.Row="4" Grid.ColumnSpan="5">
+                <ItemsControl x:Name="itemControlStation" ItemsSource="{Binding ProductTracker.ConveyorTraysSending}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:SingleProductTrackerView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
         </Grid>
-        <Border Grid.Column="1" BorderBrush="Black" BorderThickness="1" Background="LightGray">
-            <ListView x:Name="listviewSelectedProduct" >
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Key}" Width="120" />
-                            <TextBlock Text="{Binding Value}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border  BorderBrush="Black" BorderThickness="1" Background="LightGray">
+                <ListView x:Name="listviewSelectedProduct" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Key}" Width="120" />
+                                <TextBlock Text="{Binding Value}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
-            <!--<ListView x:Name="listviewSelectedProduct" >
+                <!--<ListView x:Name="listviewSelectedProduct" >
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="5">
@@ -65,7 +88,9 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal">
-                                                        --><!-- Use reflection again or template objects --><!--
+                                                        -->
+                <!-- Use reflection again or template objects -->
+                <!--
                                                         <TextBlock Text="{Binding}" />
                                                     </StackPanel>
                                                 </DataTemplate>
@@ -79,6 +104,94 @@
                 </ListView.ItemTemplate>
             </ListView>-->
 
-        </Border>
+            </Border>
+            <ScrollViewer Grid.Row="1" >
+                <!--<ListView ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                    <ListViewItem>
+                        <DataGridTextColumn Header="Station" Binding="{Binding Station}" />
+                        <DataGridCheckBoxColumn Header="Status" Binding="{Binding Status}" />
+                        <DataGridTextColumn Header="Step" Binding="{Binding Steps}" />
+                        <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" />
+                        <DataGridCheckBoxColumn Header="Ready" Binding="{Binding StationReadyStatus}" />
+                        <DataGridCheckBoxColumn Header="Tray Present" Binding="{Binding StationTrayStatus}" />
+                        <DataGridCheckBoxColumn Header="Send Next" Binding="{Binding TraySendingNextStation}" />
+                        -->
+                <!--<DataGridTextColumn Header="Tray ID" Binding="{Binding TrayData.Id}" />-->
+                <!--
+                    </ListViewItem>
+                </ListView>-->
+                <ListView ItemsSource="{Binding Items}" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Station}" Margin="10 0"/>
+                                <TextBlock Text="{Binding Status}" Margin="10 0"/>
+                                <TextBlock Text="{Binding Steps}" Margin="10 0"/>
+                                <TextBlock Text="{Binding StartTime}" Margin="10 0"/>
+                                <TextBlock Text="{Binding StationReadyStatus}" Margin="10 0"/>
+                                <TextBlock Text="{Binding StationTrayStatus}" Margin="10 0"/>
+                                <TextBlock Text="{Binding TraySendingNextStation}" Margin="10 0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
+            <ScrollViewer Grid.Row="2">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="station :"/>
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="Laser" x:Name="btnLaser" IsChecked="True"/>
+                            <RadioButton Content="Foam" x:Name="btnFoam"/>
+                            <RadioButton Content="Recheck" x:Name="btnRecheck"/>
+                            <RadioButton Content="Reject" x:Name="btnReject"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="state :"/>
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="Empty" x:Name="btnEmpty" IsChecked="True"/>
+                            <RadioButton Content="TrayIncoming" x:Name="btnTrayIncoming"/>
+                            <RadioButton Content="InProgress" x:Name="btnInProgress"/>
+                            <RadioButton Content="TrayOutgoing" x:Name="btnTrayOutgoing"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="step :"/>
+                        <TextBox x:Name="txtStep" Width="100" Text="0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Content="True" x:Name="btnTrue" IsChecked="True"/>
+                        <RadioButton Content="False" x:Name="btnFalse"/>
+                    </StackPanel>
+                    <Button x:Name="btnSet" Click="btnSet_Click" Content="Set"/>
+                    <Button x:Name="btnReset" Click="btnSet2_Click" Content="Reset"/>
+                    <Button x:Name="btnAddIncoming" Click="btnSet3_Click" Content="Add incoming tray"/>
+                </StackPanel>
+                <!--<ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding GoView}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <ItemsControl ItemsSource="{Binding}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="9"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding Value}" Margin="2"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>-->
+            
+            </ScrollViewer>
+        </Grid>
+
+
     </Grid>
 </UserControl>

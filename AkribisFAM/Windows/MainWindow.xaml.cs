@@ -889,19 +889,19 @@ namespace AkribisFAM
 
 
 
-            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
+            //if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
             {
                 Logger.WriteLog("Change from idle to running.");
 
 
-                if (!PreRunCheck())
-                {
-                    return;
-                }
-                if (!PreruncheckComplete())
-                {
-                    return;
-                }
+                //if (!PreRunCheck())
+                //{
+                //    return;
+                //}
+                //if (!PreruncheckComplete())
+                //{
+                //    return;
+                //}
 
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
@@ -1286,7 +1286,7 @@ namespace AkribisFAM
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    var targetPart = Conveyor.ConveyorTrays[0].PartArray[i];
+                    var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
                     targetPart.SerialNumber = $"{i} _ 123";
                     targetPart.HeightMeasurements.Add(new LaserMeasurement()
                     {
@@ -1294,7 +1294,7 @@ namespace AkribisFAM
                         DateTimeMeasure = DateTime.Now,
                         XMeasurePosition = 123,
                         YMeasurePosition = 321,
-                        HeightMeasurement = random.Next(98, 102),
+                        HeightMeasurement = random.Next(100, 103),
                         Nominal = App.paramLocal.LiveParam.NominalHeight,
                         Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
                     });
@@ -1308,8 +1308,8 @@ namespace AkribisFAM
                 }
             }
 
-            bool passCondition = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
-            Conveyor.ConveyorTrays[0].IsFail = !passCondition;
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
             //Thread.Sleep(500);
             //}); 
             //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
@@ -1319,7 +1319,7 @@ namespace AkribisFAM
             //    HeightMeasurement = 9988,
             //});
             var red = App.productTracker.LaserStationTray;
-            Conveyor.ConveyorTrays[0].Barcode = $"new{counter++}";
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
             //foreach (var item in App.productTracker.LaserStationTray.PartArray)
             //{
             //    await Task.Run(() =>
@@ -1329,19 +1329,23 @@ namespace AkribisFAM
             //        Thread.Sleep(200);
             //    });
             //}
-            await Task.Run(() =>
+            if (false)
             {
-                Thread.Sleep(1000);
-            });
-            Conveyor.ConveyorTrays[3].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[2]);
-            Conveyor.ConveyorTrays[2].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[1]);
-            Conveyor.ConveyorTrays[1].Copy((Conveyor.TrayData)Conveyor.ConveyorTrays[0]);
-            Conveyor.ConveyorTrays[0].Reset();
 
-            if (Conveyor.ConveyorTrays[3].IsFail)
-            {
-                App.productTracker.RejectOutGoingStationTray.Copy(Conveyor.ConveyorTrays[3]);
-                Conveyor.ConveyorTrays[3].Reset();
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                });
+                Conveyor.Current.ConveyorTrays[3].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[2]);
+                Conveyor.Current.ConveyorTrays[2].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[1]);
+                Conveyor.Current.ConveyorTrays[1].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[0]);
+                Conveyor.Current.ConveyorTrays[0].Reset();
+
+                if (Conveyor.Current.ConveyorTrays[3].IsFail)
+                {
+                    App.productTracker.RejectOutGoingStationTray.Copy(Conveyor.Current.ConveyorTrays[3]);
+                    Conveyor.Current.ConveyorTrays[3].Reset();
+                }
             }
             //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
             //App.productTracker.LaserStationTray.Reset();
@@ -1350,14 +1354,66 @@ namespace AkribisFAM
             //var re = App.productTracker.FoamAssemblyStationTray;
             //App.productTracker.LaserStationTray.Reset();
             //var re2 = App.productTracker.LaserStationTray;
-            //App.productTracker.LaserStationTray = Conveyor.ConveyorTrays[(int)ConveyorStation.Laser];
-            //App.productTracker.FoamAssemblyStationTray = Conveyor.ConveyorTrays[(int)ConveyorStation.Foam];
+            //App.productTracker.LaserStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser];
+            //App.productTracker.FoamAssemblyStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Foam];
         }
 
         private void btnDebug2_Click(object sender, RoutedEventArgs e)
         {
 
-            Conveyor.ConveyorTrays[0].Reset() ;
+            Conveyor.Current.ConveyorTrays[0].Reset();
+        }
+
+        private void btnDebug3_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btnDebug4_Click(object sender, RoutedEventArgs e)
+        {
+            Conveyor.Current.removed = true;
+        }
+
+        private void btnDebug5_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                    targetPart.SerialNumber = $"{i} _ 123";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(100, 100),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                    {
+                        targetPart.failed = true;
+                        targetPart.failreason = FailReason.HeightFail;
+                        targetPart.failStation = StationType.Laser;
+                    }
+
+                }
+            }
+
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
         }
     }
 
