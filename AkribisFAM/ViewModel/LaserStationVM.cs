@@ -44,7 +44,7 @@ namespace AkribisFAM.ViewModel
 
             Steps = Conveyor.Current.steps;
             //Counters = Conveyor.Current.counters;
-            StartTime = Conveyor.Current.starttime;
+            StartTime = Conveyor.Current.startTime;
 
             stationReadyStatus = Conveyor.Current.StationReadyStatus;
             stationTrayStatus = Conveyor.Current.StationTrayStatus;

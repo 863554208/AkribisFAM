@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.CommunicationProtocol.Task_TTNCamreaFunction;
 using static AkribisFAM.GlobalManager;
-using static AkribisFAM.WorkStation.Reject;
 
 namespace AkribisFAM.CommunicationProtocol.CamerCalibProcess
 {

@@ -43,8 +43,6 @@ namespace AkribisFAM.WorkStation
         FeederSequenceStep currentStep = FeederSequenceStep.Initialize;
         FeederSequenceStep previousStep = FeederSequenceStep.Idle;
 
-        DateTime SeqStartTime = DateTime.Now;
-
         private bool _canPick = false;
 
         public override string Name => throw new NotImplementedException();
@@ -121,7 +119,7 @@ namespace AkribisFAM.WorkStation
                         else
                         {
                             _feeder.Index(); // Start the indexing process
-                            SeqStartTime = DateTime.Now;
+                            ResetTimeout();
                             currentStep = FeederSequenceStep.VerifyPartInPosition;
                         }
                             
@@ -140,7 +138,7 @@ namespace AkribisFAM.WorkStation
                         currentStep = FeederSequenceStep.WaitTillAllPartsPicked;
                         break;
                     }
-                    else if ((DateTime.Now - SeqStartTime).TotalMilliseconds > 3000) // Timeout after 3 seconds
+                    else if (IsTimeOut()) // Timeout after 3 seconds
                     {
                         if (_feeder.IsAlarm) // Feeder empty or has alarm
                         {
@@ -189,7 +187,7 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.SwitchFeeder:
                     SwitchFeeder();
-                    SeqStartTime = DateTime.Now; // Reset the sequence start time
+                    ResetTimeout();
                     currentStep = FeederSequenceStep.VerifySwitchSuccessful;
                     break;
 

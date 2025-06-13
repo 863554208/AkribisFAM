@@ -806,23 +806,10 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-
-
-            //// GET THE TEACH POINTS
-            //if (_movestep == 0)
-            //{
-            //    if (!GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
-            //    {
-            //        ShowErrorMessage((int)ErrorCode.Laser_Failed);
-            //        return -1; // Failed to get teach points
-            //    }
-            //    _laserMoveStep = 1;
-            //}
-
             // GET LASER TEACH POINTS
             if (_movestep == 3)
             {
-                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _laserPoints))
                 {
                     _laserPointData.Clear(); // Clear previous laser point data
                     foreach (var pointList in _laserPoints)
@@ -875,7 +862,14 @@ namespace AkribisFAM.WorkStation
             }
             return true;
         }
-
+        private bool IsTimeOut()
+        {
+            return (DateTime.Now - startTime).TotalMilliseconds >= App.paramLocal.LiveParam.ProcessTimeout;
+        }
+        private void ResetTimeout()
+        {
+            startTime = DateTime.Now;
+        }
         /// <summary>
         /// Laser measurement sequence logic.
         /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
@@ -899,26 +893,23 @@ namespace AkribisFAM.WorkStation
                     return -1;
                 }
                 _laserMoveStep = 1; // Move to next step
-                startTime = DateTime.Now;
+                ResetTimeout();
             }
 
             // WAIT FOR POSITION ARRIVAL
             if (_laserMoveStep == 1)
             {
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
-                if ((startTime - DateTime.Now).TotalMilliseconds < 3000)
-                {
-                    if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
-                    {
-                        _currentLaserPointIndex++;
-                        _laserMoveStep = 2;
-                    }
-                }
-                else
+                if (IsTimeOut())
                 {
                     ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveLaserXYDone({movePt.X},{movePt.Y})");
                     return -1;
+                }
 
+                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                {
+                    _currentLaserPointIndex++;
+                    _laserMoveStep = 2;
                 }
             }
 
@@ -964,7 +955,7 @@ namespace AkribisFAM.WorkStation
 
         public override void ResetAfterPause()
         {
-            startTime = DateTime.Now;
+            ResetTimeout();
             _BarcodeScanRetryCount = 0;
         }
 

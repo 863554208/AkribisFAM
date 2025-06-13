@@ -1,15 +1,12 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Helper;
-using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Core.Mapping;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
@@ -21,15 +18,12 @@ namespace AkribisFAM.DeviceClass
 
     public class CognexVisionControl
     {
-        List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> snapFeederPath = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
         List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition> ccd2SnapPath = new List<PrecisionDownCamrea.Pushcommand.SendTLNCamreaposition>();
         List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> palletePath = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition>();
-        List<AssUpCamrea.Pushcommand.SendGTCommandAppend> fetchMatrial = new List<AssUpCamrea.Pushcommand.SendGTCommandAppend>();
         public List<string> msg = new List<string>();
 
         List<SinglePoint> snapPalleteList = new List<SinglePoint>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
-        List<SinglePoint> feedar1pointList = new List<SinglePoint>();
         private List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> _feederVisionResult = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
         private List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> _trayVisionResult = new List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition>();
         public enum FeederNum
@@ -37,80 +31,141 @@ namespace AkribisFAM.DeviceClass
             Feeder1 = 1,
             Feeder2 = 2,
         }
-        public CognexVisionControl() { }
-
-        public bool Vision1OnTheFlyFoamTrigger(FeederNum feeder)
+        public enum TeachPointLocation
         {
-            List<SinglePoint> points = new List<SinglePoint>();
+            StartingPoint,
+            EndingPoint,
+        }
+        public CognexVisionControl() { }
+        private bool GetFoamXYPoints(FeederNum feeder, out List<SinglePoint> points)
+        {
+            points = new List<SinglePoint>();
+            List<SinglePoint> teachpoint;
             switch (feeder)
             {
                 case FeederNum.Feeder1:
-                    points = GlobalManager.Current.feedar1Points;
+                    teachpoint = GlobalManager.Current.feedar1Points;
                     break;
                 case FeederNum.Feeder2:
-                    points = GlobalManager.Current.feedar2Points;
+                    teachpoint = GlobalManager.Current.feedar2Points;
                     break;
                 default:
                     return false;
             }
+
+            int numberOfFoam = 4;
+            for (int i = 0; i < numberOfFoam; i++)
+            {
+                points.Add(new SinglePoint()
+                {
+                    X = teachpoint[(int)TeachPointLocation.StartingPoint].X + App.paramLocal.LiveParam.FoamXOffset * i,
+                    Y = teachpoint[(int)TeachPointLocation.StartingPoint].Y,
+                });
+            }
+
+            return true;
+        }
+        public bool XYPointToTLMCommand(List<SinglePoint> points, out List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> TLMCommands)
+        {
+            TLMCommands = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
+
+            if (points.Count < 1)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < points.Count(); i++)
+            {
+                FeedUpCamrea.Pushcommand.SendTLMCamreaposition TLMCommand = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition()
+                {
+                    SN1 = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    RawMaterialName1 = "Foam",
+                    FOV = (i + 1).ToString(),
+                    Photo_X1 = points[i].X.ToString(),
+                    Photo_Y1 = points[i].Y.ToString(),
+                    Photo_R1 = "0"
+                };
+                TLMCommands.Add(TLMCommand);
+            }
+            return true;
+
+        }
+        public bool SendTLMCommands(List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> TLMCommands)
+        {
+            //给Cognex发拍照信息
+            if (!Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, TLMCommands))
+            {
+                Logger.WriteLog("Failed to send TLM");
+                return false;
+            }
+
+            DateTime startTime = DateTime.Now;
+
+            while ((DateTime.Now - startTime).TotalMilliseconds <= App.paramLocal.LiveParam.ProcessTimeout)
+            {
+                if (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+                {
+                    Logger.WriteLog("TLM return is not 'OK'");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool SetAgitoXOnTheFlyModeOn(double startingPoint, double pitch, int numOfFoam)
+        {
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, startingPoint, pitch, startingPoint + pitch * (numOfFoam - 1), 1);
+
+            AkrAction.Current.EventEnable(AxisName.FSX);
+
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
+
+            Thread.Sleep(100);
+            return true;
+        }
+
+        public bool SetAgitoXOnTheFlyModeOff()
+        {
+            AkrAction.Current.EventDisable(AxisName.FSX);
+            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
+
+            return true;
+        }
+        public bool GetTLMResult(out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> TLM_returns)
+        {
+            ////接受Cognex的信息
+            TLM_returns = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+            TLM_returns = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+
+            if (TLM_returns==null || TLM_returns.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        public bool Vision1OnTheFlyFoamTrigger(FeederNum feeder)
+        {
 
             if (!MoveFoamStandbyPos(feeder))
             {
                 return false;
             }
 
-            snapFeederPath.Clear();
-            feedar1pointList.Clear();
-            int index = 0;
-            int count = 0;
-            double start_pos_X = points[0].X;
-            double start_pos_Y = points[0].Y;
-            double end_pos_X = points[1].X;
-            double end_pos_Y = points[1].Y;
-            for (int i = 0; i < 4; i++)
+            //Config setting
+            if (!GetFoamXYPoints(feeder, out List<SinglePoint> points))
             {
-                feedar1pointList.Add(new SinglePoint()
-                {
-                    X = start_pos_X + 16 * i,
-                    Y = start_pos_Y,
-                    Z = 0,
-                    R = 0,
-                });
-            }
-            foreach (var Point in feedar1pointList)
-            {
-                FeedUpCamrea.Pushcommand.SendTLMCamreaposition sendTLMCamreaposition1 = new FeedUpCamrea.Pushcommand.SendTLMCamreaposition()
-                {
-                    SN1 = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                    RawMaterialName1 = "Foam",
-                    FOV = (count + 1).ToString(),
-                    Photo_X1 = Point.X.ToString(),
-                    Photo_Y1 = Point.Y.ToString(),
-                    Photo_R1 = "0"
-                };
-                count++;
-                snapFeederPath.Add(sendTLMCamreaposition1);
-            }
-
-            //给Cognex发拍照信息
-            if (!Task_FeedupCameraFunction.TriggFeedUpCamreaTLMSendData(FeedupCameraProcessCommand.TLM, snapFeederPath))
-            {
-                Logger.WriteLog("Failed to send TLM");
                 return false;
             }
-            int retryCount = 0;
-            while (Task_FeedupCameraFunction.TriggFeedUpCamreaready() != "OK")
+            if (!XYPointToTLMCommand(points, out List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> commands))
             {
-                Thread.Sleep(300);
-                retryCount++;
-
-                if (retryCount > 10) return false;
+                return false;
             }
-            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, points[0].X, 16, points[0].X + 16 * 3, 1);
-            //AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, 105, 16, 105 + 16 * 3, 1);
-            Thread.Sleep(300);
-            //AkrAction.Current.EventEnable(AxisName.FSX);
-            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=1", out string response);
+            if (!SendTLMCommands(commands))
+            {
+                return false;
+            }
+            SetAgitoXOnTheFlyModeOn(points[(int)TeachPointLocation.StartingPoint].X, App.paramLocal.LiveParam.FoamXOffset, 4);
 
             //移动到拍照结束点
             if (!MoveFoamEndingPos(feeder))
@@ -118,12 +173,12 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            AkrAction.Current.EventDisable(AxisName.FSX);
-            AAmotionFAM.AGM800.Current.controller[0].SendCommandString("CeventOn=0", out string response2);
-
-            ////接受Cognex的信息
-            //List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> msg_received = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
-            _feederVisionResult = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
+            SetAgitoXOnTheFlyModeOff();
+            if (!GetTLMResult(out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
+            {
+                return false;
+            }
+            _feederVisionResult = messages;
 
             Logger.WriteLog("feedar飞拍接收到的消息为:" + _feederVisionResult[0].Errcode1);
             return true;
@@ -508,7 +563,7 @@ namespace AkribisFAM.DeviceClass
             //List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> msg_received = new List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition>();
 
             _trayVisionResult = Task_AssUpCameraFunction.TriggAssUpCamreaTLTAcceptData(Task_AssUpCameraFunction.AssUpCameraProcessCommand.TLT);
-          
+
             return true;
         }
         public bool MoveFoamStandbyPos(FeederNum feeder, bool bypassZcheck = false, bool waitMotionDone = true)

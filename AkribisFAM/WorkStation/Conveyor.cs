@@ -11,7 +11,6 @@ namespace AkribisFAM.WorkStation
 {
     public class Conveyor : WorkStationBase
     {
-        private static DateTime startTime = DateTime.Now;
         private static Conveyor _instance;
         public override string Name => nameof(Conveyor);
 
@@ -35,7 +34,7 @@ namespace AkribisFAM.WorkStation
 
         public override void Initialize()
         {
-            startTime = DateTime.Now;
+            ResetTimeout();
             MoveConveyorAll();
         }
 
@@ -657,13 +656,25 @@ namespace AkribisFAM.WorkStation
         public int count = 0;
         public bool removed;
         public bool canSend;
-        private bool IsTimeOut()
+        protected bool IsTimeOut(ConveyorStation currentstation)
         {
-            return (DateTime.Now - starttime[(int)currentstation]).TotalMilliseconds >= App.paramLocal.LiveParam.ProcessTimeout;
+            return (DateTime.Now - startTime[(int)currentstation]).TotalMilliseconds >= _timeOut;
+        }
+        protected override void ResetTimeout()
+        {
+            for (int i = 0; i < startTime.Count(); i++)
+            {
+                startTime[i] = DateTime.MinValue;
+            }
+        }
+        protected override bool IsTimeOut()
+        {
+            //Not using this in conveyor thread
+            return true;
         }
         private void ResetTimeout(ConveyorStation currentstation)
         {
-            starttime[(int)currentstation] = DateTime.Now;
+            startTime[(int)currentstation] = DateTime.Now;
         }
         public override bool AutoRun() //version 3 (Updated by Raymond)
         {
@@ -1439,9 +1450,9 @@ namespace AkribisFAM.WorkStation
 
         public override void ResetAfterPause()
         {
-            for (int i = 0; i < starttime.Length; i++)
+            for (int i = 0; i < startTime.Length; i++)
             {
-                starttime[i] = DateTime.Now;
+                startTime[i] = DateTime.Now;
             }
             for (int i = 0; i < counters.Length; i++)
             {
@@ -1473,6 +1484,9 @@ namespace AkribisFAM.WorkStation
             return;
         }
 
+ 
+
+   
         public enum ConveyorStation
         {
             Laser,
@@ -1498,7 +1512,7 @@ namespace AkribisFAM.WorkStation
         public bool[] status { get; set; } = new bool[4];
         public int[] steps { get; set; } = new int[4];
         public int[] counters { get; set; } = new int[4];
-        public DateTime[] starttime = new DateTime[4];
+        public DateTime[] startTime = new DateTime[4];
         //private Thread[] threads = new Thread[4];
 
         private bool actionstate_laser, actionstate_foam, actionstate_recheck, actionstate_reject = false;

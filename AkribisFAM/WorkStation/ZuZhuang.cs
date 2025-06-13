@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Diagnostics;
 using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
 using System.Windows;
-using System.Net.Http.Headers;
-using System.Windows.Forms;
 using System.Linq;
 
 namespace AkribisFAM.WorkStation
@@ -21,7 +20,7 @@ namespace AkribisFAM.WorkStation
         public SinglePoint[] PlacePositions = new SinglePoint[4];
         private static DateTime startTime = DateTime.Now;
         private static ZuZhuang _instance;
-        
+
         private static int _pickCaptureMovestep = 0;
         private static int _pickPartMovestep = 0;
         private static int _placeInspectMovestep = 0;
@@ -1543,34 +1542,44 @@ namespace AkribisFAM.WorkStation
             // MOVE TO PICK POSITION AT CURRENT ACTIVE FEEDER
             if (_movestep == 0)
             {
+                if (IsTimeOut())
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.FeederEmpty, $"Feeder is out");
+                }
                 // Get active feeder number
                 _activeFeederNum = Feeder.Current.GetActiveFeederNumber() == 1 ?
-                    DeviceClass.CognexVisionControl.FeederNum.Feeder1 :
-                    DeviceClass.CognexVisionControl.FeederNum.Feeder2;
+                DeviceClass.CognexVisionControl.FeederNum.Feeder1 :
+                DeviceClass.CognexVisionControl.FeederNum.Feeder2;
 
                 if (Feeder.Current.CanPick() && Feeder.Current.IsFeederReady())
                 {
-                    App.vision1.MoveFoamStandbyPos(_activeFeederNum);
+                    _movestep = 11;
                 }
-                // timeout if no feeder is ready at certain duration
 
-                _movestep = 1;
+            }
+            if (_movestep == 11)
+            {
+                if (App.vision1.MoveFoamStandbyPos(_activeFeederNum, waitMotionDone: false))
+                {
+                    _movestep = 1;
+                    ResetTimeout();
+                }
             }
 
             // WAIT MOTOR TO REACH POSITION
             if (_movestep == 1)
             {
+                if (IsTimeOut())
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"GetFoamStandbyPos({_activeFeederNum})");
+                }
+
                 var points = App.vision1.GetFoamStandbyPos(_activeFeederNum);
                 if (AkrAction.Current.IsMoveFoamXYDone(points[0].X - 16, points[0].Y))
                 {
                     _movestep = 2;
                 }
-                else
-                {
-                    // Handle error or retry logic here
-                    return false; // MOVE FAILED
-                }
-                // additional check for timeout or error handling if needed
+
             }
 
             // ON THE FLY CAPTURE PICK POSITION
@@ -1586,7 +1595,7 @@ namespace AkribisFAM.WorkStation
                     _movestep = 0; // Move to the new active feeder position
                 }
             }
-            
+
             // READY ON THE FLY CAPTURE
             if (_movestep == 3)
             {
@@ -1613,7 +1622,7 @@ namespace AkribisFAM.WorkStation
                             return false; // VISION CAPTURE FAILED
                         }
                     }
-                    
+
                 }
                 else // VISION NOT READY
                 {
@@ -1656,11 +1665,11 @@ namespace AkribisFAM.WorkStation
                 if (true) // Process the data
                 {
                     // Set the feeder index to indicate parts are available
-                    _movestep = 7; 
+                    _movestep = 7;
                 }
                 else
                 {
-                   
+
                 }
             }
 

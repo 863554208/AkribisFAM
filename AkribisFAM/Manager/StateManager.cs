@@ -80,7 +80,6 @@ namespace AkribisFAM.Manager
                 cnt += LaiLiao.Current.board_count;
                 cnt += ZuZhuang.Current.board_count;
                 cnt += FuJian.Current.board_count;
-                cnt += Reject.Current.board_count;
                 if (cnt == 0)
                 {
                     break;

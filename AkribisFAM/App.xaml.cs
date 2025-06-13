@@ -142,6 +142,12 @@ namespace AkribisFAM
             assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
 
 
+            LaiLiao.Current.SetTimeOut(param.ProcessTimeout); 
+            ZuZhuang.Current.SetTimeOut(param.ProcessTimeout); 
+            FuJian.Current.SetTimeOut(param.ProcessTimeout); 
+            Feeder.Current.SetTimeOut(param.ProcessTimeout); 
+
+
         }
 
         private void ParamLocal_ChangesSaved(object sender, AKBLocalParam.PropertyEventArgs e)
@@ -184,6 +190,13 @@ namespace AkribisFAM
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker4"))
             {
                 assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
+            }   
+            if (e.propertyInfos.Any(x => x.Name == "ProcessTimeout"))
+            {
+                LaiLiao.Current.SetTimeOut(param.ProcessTimeout);
+                ZuZhuang.Current.SetTimeOut(param.ProcessTimeout);
+                FuJian.Current.SetTimeOut(param.ProcessTimeout);
+                Feeder.Current.SetTimeOut(param.ProcessTimeout);
             }
         }
 

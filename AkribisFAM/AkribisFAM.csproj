@@ -368,7 +368,6 @@
     <Compile Include="WorkStation\Conveyor.cs" />
     <Compile Include="WorkStation\Feeder.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
-    <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
