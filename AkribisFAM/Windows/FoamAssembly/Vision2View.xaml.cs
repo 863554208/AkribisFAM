@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using static AkribisFAM.DeviceClass.CognexVisionControl;
 
 namespace AkribisFAM.Windows
 {
@@ -42,7 +43,8 @@ namespace AkribisFAM.Windows
 
         private void btnMoveStandby_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (!App.vision1.MoveVision2StandbyPos())
+            OnTheFlyXDirection direction = OnTheFlyXDirection.Negative;
+            if (!App.visionControl.MoveToBottomVisionStandbyPos(direction))
             {
                 MessageBox.Show("Fail to move vision 2 standby position");
             }
@@ -50,7 +52,8 @@ namespace AkribisFAM.Windows
 
         private void btnMoveEnding_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (!App.vision1.MoveVision2EndingPos())
+            OnTheFlyXDirection direction = OnTheFlyXDirection.Negative;
+            if (!App.visionControl.MoveToBottomVisionEndingPos(direction))
             {
                 MessageBox.Show("Fail to move vision 2 ending position");
             }
@@ -65,7 +68,7 @@ namespace AkribisFAM.Windows
 
         private void btnVis2OTF_Click(object sender, RoutedEventArgs e)
         {
-            if (!App.vision1.Vision2OnTheFlyTrigger())
+            if (!App.visionControl.Vision2OnTheFlyTrigger())
             {
                 MessageBox.Show("Fail to move vision 2 ending position");
             }

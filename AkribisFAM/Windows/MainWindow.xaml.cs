@@ -1284,9 +1284,12 @@ namespace AkribisFAM
             //Thread.Sleep(500);
             for (int i = 0; i < 12; i++)
             {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
                 for (int j = 0; j < 4; j++)
                 {
-                    var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+
+                    targetPart.present = true;
                     targetPart.SerialNumber = $"{i} _ 123";
                     targetPart.HeightMeasurements.Add(new LaserMeasurement()
                     {
@@ -1298,13 +1301,13 @@ namespace AkribisFAM
                         Nominal = App.paramLocal.LiveParam.NominalHeight,
                         Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
                     });
-                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
-                    {
-                        targetPart.failed = true;
-                        targetPart.failreason = FailReason.HeightFail;
-                        targetPart.failStation = StationType.Laser;
-                    }
 
+                }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
                 }
             }
 
@@ -1379,9 +1382,11 @@ namespace AkribisFAM
         {
             for (int i = 0; i < 12; i++)
             {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
                 for (int j = 0; j < 4; j++)
                 {
-                    var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                    targetPart.present = true;
                     targetPart.SerialNumber = $"{i} _ 123";
                     targetPart.HeightMeasurements.Add(new LaserMeasurement()
                     {
@@ -1393,14 +1398,15 @@ namespace AkribisFAM
                         Nominal = App.paramLocal.LiveParam.NominalHeight,
                         Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
                     });
-                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
-                    {
-                        targetPart.failed = true;
-                        targetPart.failreason = FailReason.HeightFail;
-                        targetPart.failStation = StationType.Laser;
-                    }
 
                 }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
+                }
+
             }
 
             bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
@@ -1415,6 +1421,49 @@ namespace AkribisFAM
             //});
             var red = App.productTracker.LaserStationTray;
             Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
+        }
+
+        private void btnDebug6_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = true;
+            }
+        }
+
+        private void btnDebug7_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = false;
+            }
+        }
+
+        private void btnDebug8_Click(object sender, RoutedEventArgs e)
+        {
+            var target = App.productTracker.GantryPickerFoams;
+            var source = App.productTracker.Feeder1Foams;
+            for (int i = 0; i < 4; i++)
+            {
+                var sourcePart = source.PartArray[i];
+                var targetPart = target.PartArray[i];
+                targetPart.Transfer(sourcePart);
+
+                //targetPart = new ProductData(sourcePart);
+                //App.productTracker.GantryPickerFoams.PartArray[i].present = App.productTracker.Feeder1Foams.PartArray[i].present;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = true;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = App.productTracker.Feeder1Foams.PartArray[i].failed;
+                //App.productTracker.GantryPickerFoams.PartArray[i] = new ProductData(App.productTracker.Feeder1Foams.PartArray[i]);
+            }
+            source.Reset();
+            //targetPart.Reset();
+
         }
     }
 

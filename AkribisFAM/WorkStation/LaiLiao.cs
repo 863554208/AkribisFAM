@@ -939,8 +939,8 @@ namespace AkribisFAM.WorkStation
                     if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
                     {
                         targetPart.failed = true;
-                        targetPart.failreason = FailReason.HeightFail;
-                        targetPart.failStation = StationType.Laser;
+                        targetPart.FailReason = FailReason.HeightFail;
+                        targetPart.FailStation = StationType.Laser;
                     }
                     _laserMoveStep = 0;
                 }

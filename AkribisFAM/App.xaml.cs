@@ -5,16 +5,13 @@ using System.Threading;
 using System.Windows;
 using AAMotion;
 using AkribisFAM.Manager;
-using AkribisFAM.Windows;
 using AkribisFAM.CommunicationProtocol;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.Interfaces;
 using System.IO;
 using AkribisFAM.DeviceClass;
 using AkribisFAM.WorkStation;
 using AkribisFAM.Models;
-using static AkribisFAM.GlobalManager;
 using System.Linq;
 using AkribisFAM.Helper;
 
@@ -33,7 +30,7 @@ namespace AkribisFAM
         public static RecipeManager recipeManager;
         public static AllProductTracker productTracker;
         public static KeyenceLaserControl laser;
-        public static CognexVisionControl vision1;
+        public static CognexVisionControl visionControl;
         public static AssemblyGantryControl assemblyGantryControl;
         public static FilmRemoveGantryControl filmRemoveGantryControl;
         public static FeederControl feeder1;
@@ -71,7 +68,7 @@ namespace AkribisFAM
             lotManager = new LotManager();
             lotManager.Initialize();
             laser = new KeyenceLaserControl();
-            vision1 = new CognexVisionControl();
+            visionControl = new CognexVisionControl();
             feeder1 = new FeederControl(1);
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
@@ -141,11 +138,16 @@ namespace AkribisFAM
 
             assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
 
+            ZuZhuang.Current.SetPickerEnable(1, param.EnablePicker1);
+            ZuZhuang.Current.SetPickerEnable(2, param.EnablePicker2);
+            ZuZhuang.Current.SetPickerEnable(3, param.EnablePicker3);
+            ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
 
             LaiLiao.Current.SetTimeOut(param.ProcessTimeout); 
             ZuZhuang.Current.SetTimeOut(param.ProcessTimeout); 
             FuJian.Current.SetTimeOut(param.ProcessTimeout); 
             Feeder.Current.SetTimeOut(param.ProcessTimeout); 
+            Conveyor.Current.SetTimeOut(param.ProcessTimeout); 
 
 
         }
@@ -177,17 +179,21 @@ namespace AkribisFAM
 
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker1"))
             {
-                assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true;
+                assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true; 
+                ZuZhuang.Current.SetPickerEnable(1, param.EnablePicker1);
             }
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker2"))
             {
                 assemblyGantryControl.BypassPicker2 = param.EnablePicker2 ? false : true;
+                ZuZhuang.Current.SetPickerEnable(2, param.EnablePicker2);
             }
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker3"))
             {
                 assemblyGantryControl.BypassPicker3 = param.EnablePicker3 ? false : true;
+                ZuZhuang.Current.SetPickerEnable(3, param.EnablePicker3);
             }
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker4"))
+                ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
             {
                 assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
             }   
@@ -197,6 +203,7 @@ namespace AkribisFAM
                 ZuZhuang.Current.SetTimeOut(param.ProcessTimeout);
                 FuJian.Current.SetTimeOut(param.ProcessTimeout);
                 Feeder.Current.SetTimeOut(param.ProcessTimeout);
+                Conveyor.Current.SetTimeOut(param.ProcessTimeout);
             }
         }
 

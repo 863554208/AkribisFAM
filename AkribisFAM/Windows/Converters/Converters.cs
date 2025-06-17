@@ -43,12 +43,12 @@ namespace AkribisFAM.Windows.Converters
             if (value is IO_INFunction_Table enumVal)
             {
                 if (ModbusTCPWorker.GetInstance() == null) return new SolidColorBrush(Colors.Red);
-                { 
+                {
                     int index = (int)enumVal;
                     bool stat = false;
                     ModbusTCPWorker.GetInstance().Read_Coil(index, ref stat);
 
-                    return stat ? new SolidColorBrush(Colors.LimeGreen) :new SolidColorBrush(Colors.Red); ;
+                    return stat ? new SolidColorBrush(Colors.LimeGreen) : new SolidColorBrush(Colors.Red); ;
 
                 }
             }
@@ -225,6 +225,28 @@ namespace AkribisFAM.Windows.Converters
             throw new NotImplementedException();
         }
     }
+    public class PassPresentToBrushConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values.Length != 2 || !(values[0] is bool isPresent) || !(values[1] is bool isfailed))
+                return Brushes.Gray; // Fallback/default
+
+            if (!isPresent)
+            {
+                return Brushes.Gray; // Or transparent/neutral color
+            }
+
+            return isfailed ?
+                new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 255, 0, 0)) :
+                new SolidColorBrush(System.Windows.Media.Color.FromArgb(128, 0, 255, 0));
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class BrushColorInvertConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -333,4 +355,4 @@ namespace AkribisFAM.Windows.Converters
             throw new NotImplementedException();
         }
     }
- }
+}

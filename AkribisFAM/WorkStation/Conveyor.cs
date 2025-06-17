@@ -662,14 +662,15 @@ namespace AkribisFAM.WorkStation
         }
         protected override void ResetTimeout()
         {
-            for (int i = 0; i < startTime.Count(); i++)
+            for (int i = 0; i < 4; i++)
             {
-                startTime[i] = DateTime.MinValue;
+                ResetTimeout((ConveyorStation)i);
             }
         }
         protected override bool IsTimeOut()
         {
             //Not using this in conveyor thread
+            //return (DateTime.Now - _startTime).TotalMilliseconds >= _timeOut;
             return true;
         }
         private void ResetTimeout(ConveyorStation currentstation)
@@ -744,7 +745,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 1 : move end stopper up when clear
                                 case 1:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.TrayLeaveSensorErr, $"(TrayLeaveAndClearCheck(currentstation) && !ConveyorTrays[(int)currentstation].hasTray)");
                                     }
@@ -764,7 +765,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 2 : wait stopper up
                                 case 2:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.GateReedSwitchTimeOut, $"GateUpSensorCheck{currentstation}");
                                     }
@@ -797,7 +798,7 @@ namespace AkribisFAM.WorkStation
                                 //case 0 : wait tray reach end stopper
                                 case 0:
 
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"TrayPresenceCheck({currentstation})");
                                     }
@@ -893,7 +894,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 3 : wait tray lifted
                                 case 3:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
 
                                         counters[(int)currentstation] = 0;
@@ -913,7 +914,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 4 : confirm tray seat properly, transfer tracker to station
                                 case 4:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.TrayPresentSensorTimeOut, $"TraySeatProperly({currentstation})");
                                     }
@@ -966,7 +967,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 // case 7 : REJECT ONLY - check tray at reject top station
                                 case 7:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.MissingNGTray, $"TrayAtRejectStation({currentstation})");
                                     }
@@ -1049,7 +1050,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 12 : REJECT ONLY - check lifter down sensor
                                 case 12:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftDownRelatedTraySensorCheck({currentstation})");
                                     }
@@ -1068,7 +1069,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 13 : REJECT ONLY - check tray present on top
                                 case 13:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"(!TrayAtRejectStation() && RejectCoverClose())");
                                     }
@@ -1103,7 +1104,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 3 : check gate down sensor
                                 case 3:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"GateDownSensorCheck({currentstation})");
                                     }
@@ -1153,7 +1154,7 @@ namespace AkribisFAM.WorkStation
                                     }
                                     else //reject handle
                                     {
-                                        if (IsTimeOut())
+                                        if (IsTimeOut(currentstation))
                                         {
                                             return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"(!TrayAtRejectStation() && RejectCoverClose())");
                                         }
@@ -1282,7 +1283,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 2 : check lifter down sensor
                                 case 2:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"LiftDownRelatedTraySensorCheck({currentstation})");
                                     }
@@ -1312,7 +1313,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 3 : check gate down sensor
                                 case 4:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"GateDownSensorCheck({currentstation})");
                                     }
@@ -1331,7 +1332,7 @@ namespace AkribisFAM.WorkStation
                                     break;
                                 //case 5 : wait tray leave zone sensor & side slow sensor 
                                 case 5:
-                                    if (IsTimeOut())
+                                    if (IsTimeOut(currentstation))
                                     {
                                         return ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"TrayLeaveAndClearCheck({currentstation})");
                                     }
@@ -1458,7 +1459,7 @@ namespace AkribisFAM.WorkStation
             {
                 counters[i] = 0;
             }
-
+            ResetTimeout();
             return;
             //Restart if havent receive a tray
             if (station[(int)currentstation] == StationState.Empty || station[(int)currentstation] == StationState.TrayIncoming)

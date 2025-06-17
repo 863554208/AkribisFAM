@@ -69,6 +69,7 @@ namespace AkribisFAM.Windows
         {
             if (!IsVisible) { return; }
             itemControlStation.ItemsSource = vm.ConveyorTraysSending;
+            //DataContext = vm;
             //Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].Barcode = "TESTING";
             //vm.ProductTracker.FoamAssemblyStationTray.Copy((Conveyor.TrayData)vm.ProductTracker.LaserStationTray);
             //vm.ProductTracker.LaserStationTray.Reset();

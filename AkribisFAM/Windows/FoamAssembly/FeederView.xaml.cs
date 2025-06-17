@@ -133,7 +133,7 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
-            
+
             _timer = new System.Timers.Timer(200);
             _timer.Elapsed += (s, e) => TickTime();
             _timer.AutoReset = true;
@@ -248,7 +248,8 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.vision1.MoveFoamStandbyPos(num))
+            var direction = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Positive;
+            if (!App.visionControl.MoveToFoamVisionStandbyPos(num, direction))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move feeder {num} to standby position");
             }
@@ -260,7 +261,8 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.vision1.MoveFoamEndingPos(num))
+            var direction = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Positive;
+            if (!App.visionControl.MoveToFoamVisionEndingPos(num, direction))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move feeder {num} to ending position");
             }
@@ -274,11 +276,12 @@ namespace AkribisFAM.Windows
             await Task.Run(() =>
             {
 
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+                if (!App.visionControl.VisionOnTheFlyFoam((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber,
+                   out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
                     return;
                 }
-                
+
                 //if (!App.assemblyGantryControl.PickFoam(Picker.Picker1,1))
                 //{
                 //    return;
@@ -597,7 +600,7 @@ namespace AkribisFAM.Windows
             await Task.Run(() =>
             {
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                if (!App.visionControl.VisionOnTheFlyFoam(DeviceClass.CognexVisionControl.FeederNum.Feeder1, out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
 
                     return;
@@ -614,7 +617,7 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision2OnTheFlyTrigger())
+                if (!App.visionControl.Vision2OnTheFlyTrigger())
                 {
 
                     return;
@@ -623,7 +626,7 @@ namespace AkribisFAM.Windows
 
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                if (!App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
                 {
 
                     return;
@@ -657,7 +660,8 @@ namespace AkribisFAM.Windows
             {
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                if (!App.visionControl.VisionOnTheFlyFoam(DeviceClass.CognexVisionControl.FeederNum.Feeder1, 
+                    out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
 
                     return;
@@ -674,7 +678,7 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision2OnTheFlyTrigger())
+                if (!App.visionControl.Vision2OnTheFlyTrigger())
                 {
 
                     return;
@@ -683,7 +687,7 @@ namespace AkribisFAM.Windows
 
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                if (!App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
                 {
 
                     return;

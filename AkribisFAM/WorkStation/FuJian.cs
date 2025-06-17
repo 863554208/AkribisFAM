@@ -768,10 +768,10 @@ namespace AkribisFAM.WorkStation
             // ZUP FULLY
             if (_filmRemoveMovestep == 22)
             {
-                if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
+                if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
                 {
                     // Error moving to position
-                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)");
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
                     return -1;
                 }
                 _filmRemoveMovestep = 23; // Move to next step

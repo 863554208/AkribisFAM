@@ -1,7 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Linq;
+using static AkribisFAM.WorkStation.Conveyor;
+using System.Xml.Linq;
 
 namespace AkribisFAM.Util
 {
@@ -100,7 +103,7 @@ namespace AkribisFAM.Util
         #region Get
         public bool IsTrayIdSet()
         {
-            return PartArray.All(x => x.trayId != string.Empty);
+            return PartArray.All(x => x.TrayId != string.Empty);
         }
         public bool IsMeasurement(int TrayIndex)
         {
@@ -146,7 +149,7 @@ namespace AkribisFAM.Util
             {
                 foreach (var part in PartArray)
                 {
-                    part.trayId = trayId;
+                    part.TrayId = trayId;
                 }
             }
             return true;
@@ -155,7 +158,7 @@ namespace AkribisFAM.Util
 
 
     }
-    public class ProductData : ViewModelBase
+    public class ProductData : ViewModelBase, ICloneable
     {
         #region Public Members
 
@@ -203,30 +206,75 @@ namespace AkribisFAM.Util
         /// <summary>
         /// Reason for failed part/product
         /// </summary>
-        public FailReason failreason { get; set; } = FailReason.None;
+
+        private FailReason _failReason;
+        public FailReason FailReason
+        {
+            get { return _failReason; }
+            set { _failReason = value; OnPropertyChanged(); }
+        }
+
         /// <summary>
         /// Name of turret where the failed part/product state was set
         /// </summary>
-        public StationType failStation { get; set; } = StationType.Default;
+
+        private StationType _failStation = StationType.Default;
+        public StationType FailStation
+        {
+            get { return _failStation; }
+            set { _failStation = value; OnPropertyChanged(); }
+        }
         /// <summary>
         /// Name of station where product data instantiate
         /// </summary>
-        public StationType station { get; set; }
+        private StationType _station = StationType.Default;
+        public StationType Station
+        {
+            get { return _station; }
+            set { _station = value; OnPropertyChanged(); }
+        }
 
-        public PartData foam { get; set; }
+
+        private PartData _foam;
+        public PartData Foam
+        {
+            get { return _foam; }
+            set { _foam = value; OnPropertyChanged(); }
+        }
         /// <summary>
         /// Unique generated ID for this product (not used for partOnly)
         /// </summary>
-        public string uuid { get; set; } = string.Empty;
+        private string _uuid = string.Empty;
+        public string UUID
+        {
+            get { return _uuid; }
+            set { _uuid = value; OnPropertyChanged(); }
+        }
         /// <summary>
         /// Start time for product assembly process (not used for partOnly)
         /// </summary>
-        public DateTime timeIn { get; set; }
+        private DateTime _timeIn = DateTime.Now;
+        public DateTime TimeIn
+        {
+            get { return _timeIn; }
+            set { _timeIn = value; OnPropertyChanged(); }
+        }
         /// <summary>
         /// End time for product assembly process (not used for partOnly)
         /// </summary>
-        public DateTime timeOut { get; set; }
-        public string trayId { get; set; } = string.Empty;
+        private DateTime _timeOut = DateTime.Now;
+        public DateTime TimeOut
+        {
+            get { return _timeOut; }
+            set { _timeOut = value; OnPropertyChanged(); }
+        }
+
+        private string _trayId = string.Empty;
+        public string TrayId
+        {
+            get { return _trayId; }
+            set { _trayId = value; OnPropertyChanged(); }
+        }
         public ObservableCollection<LaserMeasurement> HeightMeasurements { get; set; } = new ObservableCollection<LaserMeasurement>();
         public ObservableCollection<RecheckVisionMeasurement> VisionMeasurements { get; set; } = new ObservableCollection<RecheckVisionMeasurement>();
 
@@ -242,8 +290,8 @@ namespace AkribisFAM.Util
         {
             Reset();
             Index = index;
-            uuid = Guid.NewGuid().ToString().ToUpper();
-            station = StationType.Laser;
+            UUID = Guid.NewGuid().ToString().ToUpper();
+            Station = StationType.Laser;
         }
         public ProductData(ProductData pd)
         {
@@ -251,16 +299,38 @@ namespace AkribisFAM.Util
             present = pd.present;
             failed = pd.failed;
             SerialNumber = pd.SerialNumber;
-            failreason = pd.failreason;
-            failStation = pd.failStation;
-            station = pd.station;
-            foam = pd.foam;
-            uuid = pd.uuid;
-            timeIn = pd.timeIn;
-            timeOut = pd.timeOut;
-            trayId  = pd.trayId;
+            FailReason = pd.FailReason;
+            FailStation = pd.FailStation;
+            Station = pd.Station;
+            Foam = pd.Foam;
+            UUID = pd.UUID;
+            TimeIn = pd.TimeIn;
+            TimeOut = pd.TimeOut;
+            TrayId  = pd.TrayId;
             HeightMeasurements = pd.HeightMeasurements;
             VisionMeasurements = pd.VisionMeasurements;
+        }
+        public void Transfer(ProductData pd)
+        {
+            Index = pd.Index;
+            present = pd.present;
+            failed = pd.failed;
+            SerialNumber = pd.SerialNumber;
+            FailReason = pd.FailReason;
+            FailStation = pd.FailStation;
+            Station = pd.Station;
+            Foam = pd.Foam;
+            UUID = pd.UUID;
+            TimeIn = pd.TimeIn;
+            TimeOut = pd.TimeOut;
+            TrayId = pd.TrayId;
+            HeightMeasurements = pd.HeightMeasurements;
+            VisionMeasurements = pd.VisionMeasurements;
+
+        }
+        public object Clone()
+        {
+            return new ProductData(this);
         }
         public string FormatProductData()
         {
@@ -271,15 +341,15 @@ namespace AkribisFAM.Util
                 if (present)
                 {
 
-                    formattedString += $"{trayId}";
-                    formattedString += $",{uuid}";
+                    formattedString += $"{TrayId}";
+                    formattedString += $",{UUID}";
                     formattedString += failed ? ",FAILED" : ",PASSED";
-                    formattedString += $",{(int)failreason:D3}";
-                    formattedString += $",{failStation}";
+                    formattedString += $",{(int)FailReason:D3}";
+                    formattedString += $",{FailStation}";
 
-                    var durationSec = (timeIn - timeOut).TotalSeconds;
-                    formattedString += $",{foam.partno}";
-                    formattedString += $",{foam.partid}";
+                    var durationSec = (TimeIn - TimeOut).TotalSeconds;
+                    formattedString += $",{Foam.partno}";
+                    formattedString += $",{Foam.partid}";
 
                     formattedString += $",";
                     foreach (var laserMeasurement in HeightMeasurements)
@@ -323,14 +393,14 @@ namespace AkribisFAM.Util
             SerialNumber = string.Empty;
             present = false;
             failed = false;
-            failreason = FailReason.None;
-            failStation = StationType.Default;
-            station = StationType.Default;
-            foam = new PartData();
-            timeIn = DateTime.Now;
-            timeOut = DateTime.Now;
-            trayId = string.Empty;
-            uuid = Guid.NewGuid().ToString().ToUpper();
+            FailReason = FailReason.None;
+            FailStation = StationType.Default;
+            Station = StationType.Default;
+            Foam = new PartData();
+            TimeIn = DateTime.Now;
+            TimeOut = DateTime.Now;
+            TrayId = string.Empty;
+            UUID = Guid.NewGuid().ToString().ToUpper();
             HeightMeasurements.Clear();
             VisionMeasurements.Clear();
             //heightMeasurements = new ObservableCollection<LaserMeasurement>();
@@ -364,7 +434,7 @@ namespace AkribisFAM.Util
         /// <returns></returns>
         public bool CanPickerPlaceFoam()
         {
-            return foam.present && !foam.failed;
+            return Foam.present && !Foam.failed;
         }
         /// <summary>
         /// Check if APC is not holding any part
@@ -372,12 +442,12 @@ namespace AkribisFAM.Util
         /// <returns></returns>
         public bool CanPickerPickFoam()
         {
-            return !foam.present;
+            return !Foam.present;
         }
         public bool CanTrayPlacePart()
         {
 
-            return present && !failed && trayId != string.Empty; ;
+            return present && !failed && TrayId != string.Empty; ;
         }
         //public bool CanIndex(StationType stationType)
         //{
@@ -625,6 +695,8 @@ namespace AkribisFAM.Util
             }
             return head;
         }
+
+      
         #endregion Public Methods
     }
     /// <summary>
@@ -639,7 +711,7 @@ namespace AkribisFAM.Util
         FailToPick,
         FailToPlace,
 
-        FoamOnTheFLyFail,
+        FoamOnTheFlyFail,
         BottomOnTheFLyFail,
         TrayOnTheFLyFail,
 

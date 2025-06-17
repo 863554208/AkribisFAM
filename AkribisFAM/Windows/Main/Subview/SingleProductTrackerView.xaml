@@ -9,12 +9,12 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <con:BrushColorInvertConverter x:Key="BrushColorInvertConverter" />
+        <con:PassPresentToBrushConverter x:Key="PassPresentToBrushConverter" />
     </UserControl.Resources>
     <!--<Border BorderBrush="Black" BorderThickness="1" Width="250" Height="Auto">-->
     <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp5" Width="250" Height="Auto"
                          BorderThickness="2"
-                         BorderBrush="{Binding IsFail, Converter={StaticResource BrushColorInvertConverter}}">
+                         BorderBrush="LightGray">
         <Button Style="{Binding}" Background="Transparent">
 
             <StackPanel Orientation="Vertical" Width="250" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" >
@@ -38,9 +38,17 @@
                         <DataTemplate>
                             <materialDesign:Card Background="Transparent">
                                 <!--<StackPanel Orientation="Horizontal">-->
-                                <Button Content="{Binding Index}" Margin="4" Background="{Binding failed, Converter={StaticResource BrushColorInvertConverter}}"
+                                <!--Background="{Binding failed, Converter={StaticResource BrushColorInvertConverter}}"-->
+                                <Button Content="{Binding Index}" Margin="4" 
                                     Opacity="0.99"
-                                    Foreground="White" Click="Button_Click"/>
+                                    Foreground="White" Click="Button_Click">
+                                    <Button.Background>
+                                        <MultiBinding Converter="{StaticResource PassPresentToBrushConverter}">
+                                            <Binding Path="present"/>
+                                            <Binding Path="failed"/>
+                                        </MultiBinding>
+                                    </Button.Background>
+                                </Button>
                                 <!--</StackPanel>-->
                             </materialDesign:Card>
                         </DataTemplate>

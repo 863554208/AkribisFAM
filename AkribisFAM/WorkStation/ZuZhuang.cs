@@ -10,6 +10,7 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Linq;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace AkribisFAM.WorkStation
 {
@@ -41,6 +42,7 @@ namespace AkribisFAM.WorkStation
         private int _vision2FeederMaxRetry = 2;
         private List<TraySlot> _traySlots = new List<TraySlot>();
         private Recipe _currentRecipe = App.recipeManager.GetRecipe(TrayType.PAM_230_144_3X4);
+
         private static int _selectedPicker;
         private static int _selectedFeederIndex;
         private static bool[] _feederHasPartIndex = new bool[4];
@@ -58,6 +60,20 @@ namespace AkribisFAM.WorkStation
             new FeederIndex() { PartIndex = 3, hasPart = false },
             new FeederIndex() { PartIndex = 4, hasPart = false },
         };
+        public bool SetPickerEnable(int pickerIndex, bool enable)
+        {
+            if (pickerIndex < 1 || pickerIndex > 4)
+            {
+                return false;
+            }
+            var picker = _pickers.First(x => x.PickerIndex == pickerIndex);
+            if (picker == null)
+            {
+                return false;
+            }
+            picker.IsEnabled = enable;
+            return true;
+        }
         public override string Name => nameof(ZuZhuang);
 
         int delta = 0;
@@ -1536,9 +1552,58 @@ namespace AkribisFAM.WorkStation
             }
             return false;
         }
+        private bool SetFoamTracker(DeviceClass.CognexVisionControl.FeederNum feeder, List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> results)
+        {
+            ProductTracker tracker;
+            foreach (var result in results)
+            {
+                var status = result.Errcode1 == "1";
+                var fovNum = Int32.TryParse(result.FOV1, out int foamNum);
+
+                switch (feeder)
+                {
+                    case DeviceClass.CognexVisionControl.FeederNum.Feeder1:
+                        tracker = App.productTracker.Feeder1Foams;
+                        break;
+                    case DeviceClass.CognexVisionControl.FeederNum.Feeder2:
+                        tracker = App.productTracker.Feeder2Foams;
+                        break;
+                    default:
+                        return false;
+                }
+                tracker.PartArray[foamNum].present = true;
+                tracker.PartArray[foamNum].failed = status ? false : true;
+                if (!status)
+                {
+                    tracker.PartArray[foamNum].FailReason = FailReason.FoamOnTheFlyFail;
+                }
+            }
+            return true;
+        }
+        private bool SetPickerTracker(DeviceClass.CognexVisionControl.FeederNum feeder, int foamNumber, int pickerNumber)
+        {
+            ProductTracker trackerSource;
+            ProductTracker trackerTarget = App.productTracker.GantryPickerFoams;
+
+            switch (feeder)
+            {
+                case DeviceClass.CognexVisionControl.FeederNum.Feeder1:
+                    trackerSource = App.productTracker.Feeder1Foams;
+                    break;
+                case DeviceClass.CognexVisionControl.FeederNum.Feeder2:
+                    trackerSource = App.productTracker.Feeder2Foams;
+                    break;
+                default:
+                    return false;
+            }
+
+            trackerTarget.PartArray[pickerNumber] = new ProductData(trackerSource.PartArray[foamNumber]);
+            return true;
+        }
         public override bool AutoRun() // threadbody
         {
-
+            var foamDirection = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Positive;
+            var bottomVisionDirection = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Negative;
             // MOVE TO PICK POSITION AT CURRENT ACTIVE FEEDER
             if (_movestep == 0)
             {
@@ -1559,7 +1624,7 @@ namespace AkribisFAM.WorkStation
             }
             if (_movestep == 11)
             {
-                if (App.vision1.MoveFoamStandbyPos(_activeFeederNum, waitMotionDone: false))
+                if (App.visionControl.MoveToFoamVisionStandbyPos(_activeFeederNum, foamDirection, waitMotionDone: false))
                 {
                     _movestep = 1;
                     ResetTimeout();
@@ -1574,8 +1639,8 @@ namespace AkribisFAM.WorkStation
                     return ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"GetFoamStandbyPos({_activeFeederNum})");
                 }
 
-                var points = App.vision1.GetFoamStandbyPos(_activeFeederNum);
-                if (AkrAction.Current.IsMoveFoamXYDone(points[0].X - 16, points[0].Y))
+                App.visionControl.GetFoamStandbyPos(_activeFeederNum, foamDirection, out SinglePoint point);
+                if (AkrAction.Current.IsMoveFoamXYDone(point.X, point.Y))
                 {
                     _movestep = 2;
                 }
@@ -1587,7 +1652,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (!IsActiveFeederChanged()) // Check if active feeder has changed
                 {
-                    App.vision1.Vision1OnTheFlyFoamTrigger(_activeFeederNum);
+                    //App.visionControl.VisionOnTheFlyFoam(_activeFeederNum);//Bypassed by Raymond
                     _movestep = 3;
                 }
                 else
@@ -1599,9 +1664,10 @@ namespace AkribisFAM.WorkStation
             // READY ON THE FLY CAPTURE
             if (_movestep == 3)
             {
-                if (App.vision1.Vision1OnTheFlyFoamTrigger(_activeFeederNum))
+                if (App.visionControl.VisionOnTheFlyFoam(_activeFeederNum, out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> results))
                 {
-                    if (App.vision1.IsAllFeederVisionOK())
+                    SetFoamTracker(_activeFeederNum, results);
+                    if (App.visionControl.IsAllFeederVisionOK())
                     {
                         _currentPickerIndex = 0;
                         _movestep = 7; // Proceed to pick part sequence
@@ -1618,7 +1684,8 @@ namespace AkribisFAM.WorkStation
                         else
                         {
                             // Max retry reached, vision unable to locate all parts
-
+                            App.visionControl.GetFailedFoamResult(out string failedFoam);
+                            ErrorManager.Current.Insert(ErrorCode.OnTheFlyFoamFailed, failedFoam);
                             return false; // VISION CAPTURE FAILED
                         }
                     }
@@ -1691,7 +1758,7 @@ namespace AkribisFAM.WorkStation
             // MOVE TO ON THE FLY CAPTURE POSITION
             if (_movestep == 8)
             {
-                if (App.vision1.MoveVision2StandbyPos()) // MOVE TO OTF CAPTURE POSITION
+                if (App.visionControl.MoveToBottomVisionStandbyPos(bottomVisionDirection, true)) // MOVE TO OTF CAPTURE POSITION
                 {
                     _movestep = 10; // skip 5 checking motor position temporarily
                 }
@@ -1721,7 +1788,7 @@ namespace AkribisFAM.WorkStation
             // START ON THE FLY CAPTURE SEQUENCE
             if (_movestep == 10)
             {
-                if (App.vision1.Vision2OnTheFlyTrigger()) // CALL OTF CAPTURE SEQUENCE
+                if (App.visionControl.Vision2OnTheFlyTrigger()) // CALL OTF CAPTURE SEQUENCE
                 {
                     _movestep = 11;
                 }
@@ -1751,7 +1818,7 @@ namespace AkribisFAM.WorkStation
                 {
                     StartProcessing();
                     _traySlots = new List<TraySlot>();
-                    for (int i = 0; i < _currentRecipe.PartRow * _currentRecipe.PartColumn; i++)
+                    for (int i = 0; i < _rowCount * _colCount; i++)
                     {
                         _traySlots.Add(new TraySlot());
                     }
@@ -1766,7 +1833,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (!_trayInspectDone) // If not yet inspected, trigger on the fly vision first
                 {
-                    if (App.vision1.Vision1OnTheFlyPalletTrigger(_currentRecipe.PartRow, _currentRecipe.PartColumn))
+                    if (App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
                     {
                         _currentPickerIndex = 0;
                         _trayPlaceMovestep = 0;
@@ -1775,6 +1842,7 @@ namespace AkribisFAM.WorkStation
                     }
                     else
                     {
+                        ErrorManager.Current.Insert(ErrorCode.OnTheFlyTrayFailed);
                         // todo error handling
                         return false;
                     }
@@ -1864,9 +1932,9 @@ namespace AkribisFAM.WorkStation
             // WAIT MOTOR TO REACH POSITION
             if (_subMovestep == 1)
             {
-                //App.assemblyGantryControl.PickFoam(
                 if (App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)_selectedPicker, _selectedFeederIndex))
                 {
+                    SetPickerTracker(_activeFeederNum, _selectedFeederIndex, _selectedPicker);
                     _currentPickerIndex++;
                     _feederIndex[_currentFeederIndex].hasPart = false; // Mark the feeder index as processed
                     _currentFeederIndex++;
