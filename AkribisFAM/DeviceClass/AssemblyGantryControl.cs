@@ -264,13 +264,13 @@ namespace AkribisFAM.DeviceClass
         }
 
 
-        public bool ZCamPosAll()
+        public bool ZCamPosAll(bool waitMotionDone = true)
         {
             SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)Picker.Picker1);
-            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
 
         }
-        public bool ZCamPos(Picker picker)
+        public bool ZCamPos(Picker picker, bool waitMotionDone = true)
         {
             if (IsBypass(picker))
             {
@@ -281,13 +281,13 @@ namespace AkribisFAM.DeviceClass
             switch (picker)
             {
                 case Picker.Picker1:
-                    return AkrAction.Current.MoveFoamZ1(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ1(sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-                    return AkrAction.Current.MoveFoamZ2(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ2(sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-                    return AkrAction.Current.MoveFoamZ3(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ3(sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-                    return AkrAction.Current.MoveFoamZ4(sp.Z) == (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamZ4(sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
@@ -331,7 +331,14 @@ namespace AkribisFAM.DeviceClass
         {
             return AkrAction.Current.MoveFoamZ1Z2Z3Z4(0, 0, 0, 0) == (int)AkrAction.ACTTION_ERR.NONE;
         }
-        public bool MovePickPos(Picker pickerNum, int fovNum)
+        /// <summary>
+        /// Use only after On the fly
+        /// </summary>
+        /// <param name="pickerNum"></param>
+        /// <param name="fovNum"></param>
+        /// <param name="waitMotionDone"></param>
+        /// <returns></returns>
+        public bool MovePickPos(Picker pickerNum, int fovNum, bool waitMotionDone = true)
         {
             if (!ZUpAll())
             {
@@ -343,13 +350,113 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (point.X == 0 && point.Y == 0 && point.Z == 0)
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
             {
                 return false;
             }
-            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
             {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// move to bin reject position
+        /// </summary>
+        /// <param name="pickerNum"></param>
+        /// <param name="fovNum"></param>
+        /// <param name="waitMotionDone"></param>
+        /// <returns></returns>
+        public bool MoveRejectPos(bool waitMotionDone = true)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
 
+            if (!ZuZhuang.Current.GetPickPosition((int)1, 1, out SinglePoint point)) // and a getrejectposition
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool WaitMovePickPosDone(Picker pickerNum, int fovNum)
+        {
+            if (!ZuZhuang.Current.GetPickPosition((int)pickerNum, fovNum, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.WaitFoamXYMotionDone(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool WaitPickerTDone(Picker picker, double angle)
+        {
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    return AkrAction.Current.WaitFoamT1MotionDone(angle) == (int)AkrAction.ACTTION_ERR.NONE;
+                case Picker.Picker2:
+                    return AkrAction.Current.WaitFoamT2MotionDone(angle) == (int)AkrAction.ACTTION_ERR.NONE;
+                case Picker.Picker3:
+                    return AkrAction.Current.WaitFoamT3MotionDone(angle) == (int)AkrAction.ACTTION_ERR.NONE;
+                case Picker.Picker4:
+                    return AkrAction.Current.WaitFoamT4MotionDone(angle) == (int)AkrAction.ACTTION_ERR.NONE;
+                default:
+                    return false;
+            }
+        }
+        public bool MoveStandbyPickPos(Picker pickerNum, int fovNum, int feederNum, bool waitMotionDone = true)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            if (!ZuZhuang.Current.GetStandbyPickPosition((int)pickerNum, fovNum, feederNum, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool IsMoveStandbyPickPosDone(Picker pickerNum, int fovNum, int feederNum, bool waitMotionDone = true)
+        {
+            if (!ZuZhuang.Current.GetStandbyPickPosition((int)pickerNum, fovNum, feederNum, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.IsMoveFoamXYDone(point.X, point.Y))
+            {
                 return false;
             }
             return true;
@@ -878,7 +985,7 @@ namespace AkribisFAM.DeviceClass
             }
             return ZUp(pickerNum);
         }
-        public bool PickFoam(Picker pickerNum, int fovNum)
+        public bool PickFoam(Picker pickerNum, int fovNum, bool isDryrun = false)
         {
             if (IsBypass(pickerNum))
             {
@@ -889,10 +996,133 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!MovePickPos(pickerNum, fovNum))
+            if (!TZero(pickerNum))
             {
                 return false;
             }
+            if (!MovePickPos(pickerNum, fovNum, false))
+            {
+                return false;
+            }
+            if (!TCompensatePick(pickerNum))
+            {
+                return false;
+            }
+            //Wait
+            if (!WaitMovePickPosDone(pickerNum, fovNum))
+            {
+                return false;
+            }
+
+            if (!ZPickDownPosition(pickerNum))
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+
+            if (!VacOn(pickerNum))
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+            if (!TRotate(pickerNum, 90, false))
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+            //if (!ZUp(pickerNum))
+            //{
+            //    return false;
+            //}
+            if (!ZCamPos(pickerNum))
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+            if (!WaitPickerTDone(pickerNum, 90))
+            {
+                return false;
+            }
+            return true;
+
+        }
+        public bool RejectFoam(Picker pickerNum)
+        {
+            if (IsBypass(pickerNum))
+            {
+                return true;
+            }
+
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MoveRejectPos())
+            {
+                return false;
+            }
+
+            if (!Purge(pickerNum))
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool RejectAllFoam()
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MoveRejectPos())
+            {
+                return false;
+            }
+
+            if (!Purge(Picker.Picker1) & Purge(Picker.Picker2) & Purge(Picker.Picker3) & Purge(Picker.Picker4))
+            {
+                return false;
+            }
+            return true;
+        }
+        public bool RejectFailedFoam()
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MoveRejectPos())
+            {
+                return false;
+            }
+            var productDatas = App.productTracker.GantryPickerFoams.PartArray;
+            bool result = true;
+            for (int i = 0; i < productDatas.Count(); i++)
+            {
+                if (productDatas[i].present && productDatas[i].failed)
+                {
+                    result &= Purge((Picker)i + 1);
+                }
+            }
+            return result;
+        }
+        public bool PickFoamDryRun(Picker pickerNum, int fovNum, int feederNum)
+        {
+            if (IsBypass(pickerNum))
+            {
+                return true;
+            }
+
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum))
+            {
+                return false;
+            }
+
             if (!TRotate(pickerNum, 0))
             {
                 return false;
@@ -972,9 +1202,9 @@ namespace AkribisFAM.DeviceClass
 
         public bool TRotateAll(double angle)
         {
-            return TRotate(Picker.Picker1, angle) && TRotate(Picker.Picker2, angle) && TRotate(Picker.Picker3, angle) && TRotate(Picker.Picker4, angle);
+            return TRotate(Picker.Picker1, angle) & TRotate(Picker.Picker2, angle) & TRotate(Picker.Picker3, angle) & TRotate(Picker.Picker4, angle);
         }
-        public bool TRotate(Picker picker, double angle)
+        public bool TRotate(Picker picker, double angle, bool waitMotionDone = true)
         {
             if (IsBypass(picker))
             {
@@ -984,20 +1214,23 @@ namespace AkribisFAM.DeviceClass
             switch (picker)
             {
                 case Picker.Picker1:
-                    return AkrAction.Current.MoveFoamT1(angle) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT1(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-                    return AkrAction.Current.MoveFoamT2(angle) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT2(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-                    return AkrAction.Current.MoveFoamT3(angle) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT3(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-                    return AkrAction.Current.MoveFoamT4(angle) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT4(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
         }
-        public bool TZeroAll()
+        public bool TZeroAll(bool waitMotionDone = true)
         {
-            return TZero(Picker.Picker1) && TZero(Picker.Picker2) && TZero(Picker.Picker3) && TZero(Picker.Picker4);
+            return TZero(Picker.Picker1, waitMotionDone)
+                & TZero(Picker.Picker2, waitMotionDone)
+                & TZero(Picker.Picker3, waitMotionDone)
+                & TZero(Picker.Picker4, waitMotionDone);
         }
         public bool TCompensatePickAll()
         {
@@ -1007,9 +1240,12 @@ namespace AkribisFAM.DeviceClass
         }
         public bool TCompensatePlaceAll()
         {
-            return TCompensatePlace(Picker.Picker1) && TCompensatePlace(Picker.Picker2) && TCompensatePlace(Picker.Picker3) && TCompensatePlace(Picker.Picker4);
+            return TCompensatePlace(Picker.Picker1)
+                & TCompensatePlace(Picker.Picker2)
+                & TCompensatePlace(Picker.Picker3)
+                & TCompensatePlace(Picker.Picker4);
         }
-        public bool TCompensatePick(Picker picker)
+        public bool TCompensatePick(Picker picker, bool watiMotionDone = true)
         {
             if (ZuZhuang.Current.PickPositions[((int)picker - 1)] == null)
                 return true;
@@ -1019,7 +1255,7 @@ namespace AkribisFAM.DeviceClass
                 return true;
             }
 
-            return TRotate(picker, ZuZhuang.Current.PickPositions[(int)picker].R);
+            return TRotate(picker, ZuZhuang.Current.PickPositions[(int)picker].point.R, watiMotionDone);
         }
 
         public bool TCompensatePlace(Picker picker)
@@ -1033,13 +1269,13 @@ namespace AkribisFAM.DeviceClass
             }
 
 
-            return TRotate(picker, ZuZhuang.Current.PlacePositions[(int)picker].R);
+            return TRotate(picker, ZuZhuang.Current.PlacePositions[(int)picker].point.R);
         }
         public bool VacOnAll()
         {
             return VacOn(Picker.Picker1) && VacOn(Picker.Picker2) && VacOn(Picker.Picker3) && VacOn(Picker.Picker4);
         }
-        public bool TZero(Picker picker)
+        public bool TZero(Picker picker, bool waitMotionDone = true)
         {
             if (IsBypass(picker))
             {
@@ -1049,13 +1285,13 @@ namespace AkribisFAM.DeviceClass
             switch (picker)
             {
                 case Picker.Picker1:
-                    return AkrAction.Current.MoveFoamT1(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT1(0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-                    return AkrAction.Current.MoveFoamT2(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT2(0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-                    return AkrAction.Current.MoveFoamT3(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT3(0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-                    return AkrAction.Current.MoveFoamT4(0) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT4(0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }

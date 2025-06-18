@@ -1453,7 +1453,7 @@ namespace AkribisFAM
             {
                 var sourcePart = source.PartArray[i];
                 var targetPart = target.PartArray[i];
-                targetPart.Transfer(sourcePart);
+                targetPart.Copy(sourcePart);
 
                 //targetPart = new ProductData(sourcePart);
                 //App.productTracker.GantryPickerFoams.PartArray[i].present = App.productTracker.Feeder1Foams.PartArray[i].present;
@@ -1464,6 +1464,16 @@ namespace AkribisFAM
             source.Reset();
             //targetPart.Reset();
 
+        }
+
+        private void btnDebug9_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var source = App.productTracker.GantryPickerFoams.PartArray[i];
+                var target = App.productTracker.FoamAssemblyStationTray.PartArray[i];
+                target.Consume(source);
+            }
         }
     }
 

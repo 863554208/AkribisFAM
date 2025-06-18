@@ -119,7 +119,16 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-
+        public bool GetPalletStandbyPosition(Recipe recipe,out SinglePoint point)
+        {
+            point = new SinglePoint();
+            if (!GetPalletXYPoints(recipe,out var discard, out var paths))
+            {
+                return false;
+            }
+            point = paths[0].StartingPoint;
+            return true;
+        }
         public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths)
         {
             partPoints = new List<SinglePoint>();
@@ -355,6 +364,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
+            _feederVisionResult = TLM_returns;
             return true;
         }
 
@@ -419,11 +429,18 @@ namespace AkribisFAM.DeviceClass
 
 
 
-        public bool VisionOnTheFlyFoam(FeederNum feeder, out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages)
+        public bool VisionOnTheFlyFoam(FeederNum feeder, out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages, bool waitResult = true)
         {
             OnTheFlyXDirection direction = OnTheFlyXDirection.Positive;
             messages = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+
             _feederVisionResult.Clear();
+
+            for (int i = 0; i < ZuZhuang.Current.PickPositions.Count(); i++)
+            {
+                ZuZhuang.Current.PickPositions[i].Reset();
+            }
+
             if (!MoveToFoamVisionStandbyPos(feeder, direction))
             {
                 return false;
@@ -451,17 +468,19 @@ namespace AkribisFAM.DeviceClass
             }
 
             SetAgitoXOnTheFlyModeOff();
-            if (!GetTLMResult(out messages))
+            if (waitResult)
             {
-                return false;
+                if (!GetTLMResult(out messages))
+                {
+                    return false;
+                }
             }
-            _feederVisionResult = messages;
 
             Logger.WriteLog("feedar飞拍接收到的消息为:" + _feederVisionResult[0].Errcode1);
             return true;
         }
 
-        public bool Vision1OnTheFlyPalletTrigger(Recipe recipe)
+        public bool Vision1OnTheFlyPalletTrigger(Recipe recipe, bool waitResult = true)
         {
             if (!App.assemblyGantryControl.ZUpAll())
             {
@@ -481,18 +500,21 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (!GetTLTResult(out List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> messages))
+            if (waitResult)
             {
-                return false;
+                if (!GetTLTResult(out List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> messages))
+                {
+                    return false;
+                }
+                _trayVisionResult = messages;
             }
-
-            _trayVisionResult = messages;
 
             return true;
         }
 
-        public bool Vision2OnTheFlyTrigger()
+        public bool Vision2OnTheFlyTrigger(out List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> messages, bool waitResult = true)
         {
+            messages = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
             OnTheFlyXDirection direction = OnTheFlyXDirection.Negative;
             Logger.WriteLog("CCD2准备移动到拍照位置");
             if (!MoveToBottomVisionStandbyPos(direction))
@@ -523,24 +545,29 @@ namespace AkribisFAM.DeviceClass
 
             if (!MoveToBottomVisionEndingPos(direction))
             {
+                App.assemblyGantryControl.ZUpAll();
                 return false;
             }
 
             Logger.WriteLog("结束CCD2运动1");
             SetAgitoXOnTheFlyModeOff();
 
+
             //接受Cognex信息
-            if (!GetTLNResult(out List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> messages))
+            if (waitResult)
             {
-                return false;
+                if (!GetTLNResult(out messages))
+                {
+                    App.assemblyGantryControl.ZUpAll();
+                    return false;
+                }
+                _bottomVisionResult = messages;
             }
-            _bottomVisionResult = messages;
 
             if (!App.assemblyGantryControl.ZUpAll())
             {
                 return false;
             }
-
             return true;
         }
 
@@ -589,23 +616,23 @@ namespace AkribisFAM.DeviceClass
             var isAllFeederVisionOK = _feederVisionResult.Count == 4 && _feederVisionResult.All(x => x.Errcode1 == "1");
             return isAllFeederVisionOK;
         }
-        public bool GetFailedFoamResult(out string failedMessage)
+        public string GetFailedFoamResult()
         {
-            failedMessage = "";
+            string failedMessage = "";
             var failedResults = _feederVisionResult.Where(x => x.Errcode1 != "1");
             if (failedResults.Count() < 1)
             {
-                return false;
+                return "";
             }
             foreach (var failedResult in failedResults)
             {
                 failedMessage += $"Foam {failedResult.FOV1} failed";
             }
-            return true;
+            return failedMessage;
         }
         public bool IsAllTrayVisionOK()
         {
-            var isAllTrayVisionOK =  _trayVisionResult.All(x => x.Errcode == "1");
+            var isAllTrayVisionOK = _trayVisionResult.All(x => x.Errcode == "1");
             return isAllTrayVisionOK;
         }
 

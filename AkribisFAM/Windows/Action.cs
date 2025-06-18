@@ -7,6 +7,7 @@ using System.Threading;
 using System.Xml.Serialization;
 using AAMotion;
 using AkribisFAM.Util;
+using LiveCharts.Wpf;
 using static AAMotion.AAMotionAPI;
 using static AkribisFAM.GlobalManager;
 
@@ -426,7 +427,6 @@ namespace AkribisFAM.WorkStation
         //    AAmotionFAM.AGM800.Current.controller[agmIndex].GetAxis(GlobalManager.Current.GetAxisRefFromInteger(axisRefNum)).MoveAbs(ToPulse(axisName, position), ToPulse(axisName, speed), ToPulse(axisName, accel), ToPulse(axisName, decel));
         //    return 0;
         //}
-
 
         //public int WaitAxis(GlobalManager.AxisName axisName)
         /// <summary>
@@ -903,7 +903,132 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
+        public int WaitFoamXYMotionDone(double xpos, double ypos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.FSX, xpos) != 0 || WaitMotionDone(AxisName.FSY, ypos) != 0)
+                    return (int)ACTTION_ERR.ERR;
 
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamZ1MotionDone(double zpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK1_Z, zpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamZ2MotionDone(double zpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK2_Z, zpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamZ3MotionDone(double zpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK3_Z, zpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamZ4MotionDone(double zpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK4_Z, zpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamT1MotionDone(double tpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK1_T, tpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamT2MotionDone(double tpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK2_T, tpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamT3MotionDone(double tpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK3_T, tpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
+        public int WaitFoamT4MotionDone(double tpos)
+        {
+            try
+            {
+                if (WaitMotionDone(AxisName.PICK4_T, tpos) != 0)
+                    return (int)ACTTION_ERR.ERR;
+
+                return (int)ACTTION_ERR.NONE;
+            }
+            catch (Exception ex)
+            {
+                return (int)ACTTION_ERR.ERR;
+            }
+        }
         /// <summary>
         /// Move Foam Gantry XY move
         /// </summary>
@@ -981,7 +1106,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="z3pos"></param>
         /// <param name="z4pos"></param>
         /// <returns></returns>
-        public int MoveFoamZ1Z2Z3Z4(double z1pos, double z2pos, double z3pos, double z4pos)
+        public int MoveFoamZ1Z2Z3Z4(double z1pos, double z2pos, double z3pos, double z4pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1000,9 +1125,12 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4Z motion done
-                if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 /*||*/
-                    /* WaitMotionDone(z3, z3pos) != 0|| WaitMotionDone(z4, z4pos) != 0*/)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(z1, z1pos) != 0 || WaitMotionDone(z2, z2pos) != 0 /*||*/
+                        /* WaitMotionDone(z3, z3pos) != 0|| WaitMotionDone(z4, z4pos) != 0*/)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -1022,7 +1150,7 @@ namespace AkribisFAM.WorkStation
             return IsMotorInPos(axisName, zpos);
         }
 
-        public int MoveFoamZ1(double z1pos)
+        public int MoveFoamZ1(double z1pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1031,7 +1159,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z1 - to consider vector move
-                if (MoveAbs(z1, z1pos, z1speed, true) != 0)
+                if (MoveAbs(z1, z1pos, z1speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1041,7 +1169,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamZ2(double z2pos)
+        public int MoveFoamZ2(double z2pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1050,7 +1178,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z2 - to consider vector move
-                if (MoveAbs(z2, z2pos, z2speed, true) != 0)
+                if (MoveAbs(z2, z2pos, z2speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1060,7 +1188,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamZ3(double z3pos)
+        public int MoveFoamZ3(double z3pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1069,7 +1197,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z3 - to consider vector move
-                if (MoveAbs(z3, z3pos, z3speed, true) != 0)
+                if (MoveAbs(z3, z3pos, z3speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1079,7 +1207,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamZ4(double z4pos)
+        public int MoveFoamZ4(double z4pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1088,7 +1216,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move Z4 - to consider vector move
-                if (MoveAbs(z4, z4pos, z4speed, true) != 0)
+                if (MoveAbs(z4, z4pos, z4speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1098,7 +1226,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT1T2T3T4(double t1pos, double t2pos, double t3pos, double t4pos)
+        public int MoveFoamT1T2T3T4(double t1pos, double t2pos, double t3pos, double t4pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1117,9 +1245,12 @@ namespace AkribisFAM.WorkStation
                     return (int)ACTTION_ERR.ERR;
 
                 //wait 4T motion done
-                if (WaitMotionDone(t1, t1pos) != 0 || WaitMotionDone(t2, t2pos) != 0 ||
-                    WaitMotionDone(t3, t3pos) != 0 || WaitMotionDone(t4, t4pos) != 0)
-                    return (int)ACTTION_ERR.ERR;
+                if (waitMotionDone)
+                {
+                    if (WaitMotionDone(t1, t1pos) != 0 || WaitMotionDone(t2, t2pos) != 0 ||
+                        WaitMotionDone(t3, t3pos) != 0 || WaitMotionDone(t4, t4pos) != 0)
+                        return (int)ACTTION_ERR.ERR;
+                }
 
                 return (int)ACTTION_ERR.NONE;
             }
@@ -1128,7 +1259,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT1(double t1pos)
+        public int MoveFoamT1(double t1pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1137,7 +1268,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t1 - to consider vector move
-                if (MoveAbs(t1, t1pos, t1speed, true) != 0)
+                if (MoveAbs(t1, t1pos, t1speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1147,7 +1278,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT2(double t2pos)
+        public int MoveFoamT2(double t2pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1156,7 +1287,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t2 - to consider vector move
-                if (MoveAbs(t2, t2pos, t2speed, true) != 0)
+                if (MoveAbs(t2, t2pos, t2speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1166,7 +1297,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT3(double t3pos)
+        public int MoveFoamT3(double t3pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1175,7 +1306,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t3 - to consider vector move
-                if (MoveAbs(t3, t3pos, t3speed, true) != 0)
+                if (MoveAbs(t3, t3pos, t3speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;
@@ -1185,7 +1316,7 @@ namespace AkribisFAM.WorkStation
                 return (int)ACTTION_ERR.ERR;
             }
         }
-        public int MoveFoamT4(double t4pos)
+        public int MoveFoamT4(double t4pos, bool waitMotionDone = true)
         {
             try
             {
@@ -1194,7 +1325,7 @@ namespace AkribisFAM.WorkStation
 
 
                 //start move t4 - to consider vector move
-                if (MoveAbs(t4, t4pos, t4speed, true) != 0)
+                if (MoveAbs(t4, t4pos, t4speed, waitMotionDone) != 0)
                     return (int)ACTTION_ERR.ERR;
 
                 return (int)ACTTION_ERR.NONE;

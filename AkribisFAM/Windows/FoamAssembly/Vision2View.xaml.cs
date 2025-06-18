@@ -68,7 +68,7 @@ namespace AkribisFAM.Windows
 
         private void btnVis2OTF_Click(object sender, RoutedEventArgs e)
         {
-            if (!App.visionControl.Vision2OnTheFlyTrigger())
+            if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
             {
                 MessageBox.Show("Fail to move vision 2 ending position");
             }

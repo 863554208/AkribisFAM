@@ -68,8 +68,10 @@ namespace AkribisFAM.Manager
 
         OnTheFlyFoamFailed = 0x0025,
         OnTheFlyBottomVisionFailed = 0x0026,
-        OnTheFlyTrayFailed = 0x0027
+        OnTheFlyTrayFailed = 0x0027,
 
+        FoamPickFailed = 0x0028,
+        FoamPlaceFailed = 0x0029
     }
 
     public class ErrorInfo

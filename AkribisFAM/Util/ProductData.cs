@@ -310,7 +310,7 @@ namespace AkribisFAM.Util
             HeightMeasurements = pd.HeightMeasurements;
             VisionMeasurements = pd.VisionMeasurements;
         }
-        public void Transfer(ProductData pd)
+        public void Copy(ProductData pd)
         {
             Index = pd.Index;
             present = pd.present;
@@ -326,7 +326,22 @@ namespace AkribisFAM.Util
             TrayId = pd.TrayId;
             HeightMeasurements = pd.HeightMeasurements;
             VisionMeasurements = pd.VisionMeasurements;
-
+        }
+        public void Consume(ProductData pd)
+        {
+            Copy(pd);
+            pd.Reset();
+        }
+        public void SetFail(FailReason failreason)
+        {
+            present = true;
+            failed = false;
+            FailReason = failreason;
+        }
+        public void SetPass()
+        {
+            present = true;
+            failed = true;
         }
         public object Clone()
         {
@@ -424,7 +439,7 @@ namespace AkribisFAM.Util
         /// <returns>Can proceed with insert if True</returns>
         public bool CanPick()
         {
-            return present;
+            return present && !failed;
         }
 
 
