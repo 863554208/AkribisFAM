@@ -671,10 +671,9 @@ namespace AkribisFAM.DeviceClass
             return true;
         }
 
-        public bool Vision2OnTheFlyTrigger(out List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> messages, bool waitResult = true)
+        public bool Vision2OnTheFlyTrigger(OnTheFlyXDirection direction, out List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> messages, bool waitResult = true)
         {
             messages = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
-            OnTheFlyXDirection direction = OnTheFlyXDirection.Negative;
             Logger.WriteLog("CCD2准备移动到拍照位置");
             if (!MoveToBottomVisionStandbyPos(direction))
             {
@@ -893,7 +892,7 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-        private bool GetBottomVisionStandbyPos(OnTheFlyXDirection direction, out SinglePoint point)
+        public bool GetBottomVisionStandbyPos(OnTheFlyXDirection direction, out SinglePoint point)
         {
             point = new SinglePoint();
             var gap_X = App.paramLocal.LiveParam.FoamXOffset;

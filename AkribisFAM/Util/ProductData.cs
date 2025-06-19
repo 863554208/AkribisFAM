@@ -73,6 +73,13 @@ namespace AkribisFAM.Util
             get { return _totalSize; }
             set { _totalSize = value; OnPropertyChanged(); }
         }
+
+        private bool _isFoamPlaced = false;
+        public bool IsFoamPlaced
+        {
+            get { return _isFoamPlaced; }
+            set { _isFoamPlaced = value; OnPropertyChanged(); }
+        }
         public ProductTracker() { }
 
         public ProductTracker(string trackerName, TrackerType type, int row, int col)
@@ -193,7 +200,6 @@ namespace AkribisFAM.Util
             get { return _present; }
             set { _present = value; OnPropertyChanged(); }
         }
-        //public bool present { get; private set; }
         /// <summary>
         /// True if failed part/product
         /// </summary>
@@ -202,6 +208,15 @@ namespace AkribisFAM.Util
         {
             get { return _failed; }
             set { _failed = value; OnPropertyChanged(); }
+        }
+        /// <summary>
+        /// True if foam process has been executed for this product
+        /// </summary>
+        private bool _isFoamPlaced;
+        public bool IsFoamPlaced
+        {
+            get { return _isFoamPlaced; }
+            set { _isFoamPlaced = value; OnPropertyChanged(); }
         }
         /// <summary>
         /// Reason for failed part/product
@@ -408,6 +423,7 @@ namespace AkribisFAM.Util
             SerialNumber = string.Empty;
             present = false;
             failed = false;
+            IsFoamPlaced = false;
             FailReason = FailReason.None;
             FailStation = StationType.Default;
             Station = StationType.Default;
@@ -418,8 +434,6 @@ namespace AkribisFAM.Util
             UUID = Guid.NewGuid().ToString().ToUpper();
             HeightMeasurements.Clear();
             VisionMeasurements.Clear();
-            //heightMeasurements = new ObservableCollection<LaserMeasurement>();
-            //visionMeasurements = new ObservableCollection<RecheckVisionMeasurement>();
 
         }
 
@@ -441,7 +455,14 @@ namespace AkribisFAM.Util
         {
             return present && !failed;
         }
-
+        /// <summary>
+        /// Call to check if able to perform action on the part
+        /// </summary>
+        /// <returns>Can proceed with run process if True</returns>
+        public bool IsNormal()
+        {
+            return present && !failed;
+        }
 
         /// <summary>
         /// Check if APC is holding part
@@ -462,7 +483,7 @@ namespace AkribisFAM.Util
         public bool CanTrayPlacePart()
         {
 
-            return present && !failed && TrayId != string.Empty; ;
+            return present && !failed && TrayId != string.Empty && !IsFoamPlaced ;
         }
         //public bool CanIndex(StationType stationType)
         //{

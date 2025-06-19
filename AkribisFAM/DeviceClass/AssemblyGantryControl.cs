@@ -2,20 +2,12 @@
 using AkribisFAM.Helper;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
-using LiveCharts;
-using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Markup;
-using YamlDotNet.Serialization.NodeTypeResolvers;
-using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.LoadCellCalibration;
-using static HslCommunication.Profinet.Knx.KnxCode;
 
 namespace AkribisFAM.DeviceClass
 {
@@ -108,7 +100,39 @@ namespace AkribisFAM.DeviceClass
             return (IOManager.Instance.IO_ControlStatus(vacSupply, 1) &&
             IOManager.Instance.IO_ControlStatus(vacRelease, 0));
         }
+        public bool IsVacOn(Picker picker)
+        {
+            if (IsBypass(picker))
+            {
+                return true;
+            }
+            IO_OutFunction_Table checkBit1;
+            IO_OutFunction_Table checkBit2;
+            switch (picker)
+            {
+                case Picker.Picker1:
+                    checkBit1 = IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply;
+                    checkBit2 = IO_OutFunction_Table.OUT3_1PNP_Gantry_vacuum1_Release;
+                    break;
+                case Picker.Picker2:
+                    checkBit1 = IO_OutFunction_Table.OUT3_2PNP_Gantry_vacuum2_Supply;
+                    checkBit2 = IO_OutFunction_Table.OUT3_3PNP_Gantry_vacuum2_Release;
+                    break;
+                case Picker.Picker3:
 
+                    checkBit1 = IO_OutFunction_Table.OUT3_4PNP_Gantry_vacuum3_Supply;
+                    checkBit2 = IO_OutFunction_Table.OUT3_5PNP_Gantry_vacuum3_Release;
+                    break;
+                case Picker.Picker4:
+                    checkBit1 = IO_OutFunction_Table.OUT3_6PNP_Gantry_vacuum4_Supply;
+                    checkBit2 = IO_OutFunction_Table.OUT3_7PNP_Gantry_vacuum4_Release;
+                    break;
+                default:
+                    return false;
+            }
+            return (IOManager.Instance.GetOutputStatus(checkBit1) &&
+                !IOManager.Instance.GetOutputStatus(checkBit2));
+        }
         public bool Purge(Picker picker)
         {
             if (IsBypass(picker))
@@ -392,6 +416,23 @@ namespace AkribisFAM.DeviceClass
         private bool WaitMovePickPosDone(Picker pickerNum, int fovNum)
         {
             if (!ZuZhuang.Current.GetPickPosition((int)pickerNum, fovNum, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0 && point.R == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.WaitFoamXYMotionDone(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool WaitMoveStandbyPickPosDone(Picker pickerNum, int fovNum, int feederNum)
+        {
+            if (!ZuZhuang.Current.GetStandbyPickPosition((int)pickerNum, fovNum, feederNum, out SinglePoint point))
             {
                 return false;
             }
@@ -932,6 +973,23 @@ namespace AkribisFAM.DeviceClass
             }
             return true;
         }
+        public bool MoveStandbyPlacePos(Picker pickerNum, int fovNum)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            if (!ZuZhuang.Current.GetStandbyPlacePosition((int)pickerNum, fovNum, out SinglePoint point))
+            {
+                return false;
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
         public SinglePoint GetPlacePosition(int Nozzlenum, int Fovnum)
         {
             SinglePoint singlePoint = new SinglePoint();
@@ -947,105 +1005,370 @@ namespace AkribisFAM.DeviceClass
             }
             return singlePoint;
         }
+        private int _step = 0;
+        public bool CanPlaceRetry => _step < 5;
         public bool PlaceFoam(Picker pickerNum, int fovNum)
         {
-            if (IsBypass(pickerNum))
+            _step = 0;
+            if (_step == 0)
             {
-                return true;
+                if (IsBypass(pickerNum)) return true;
+                _step = 1;
             }
-            //var temp = GetPlacePosition((int)pickerNum, fovNum);
-            if (!ZUpAll())
+            if (_step == 1)
             {
-                return false;
-            }
-            if (!MovePlacePos(pickerNum, fovNum))
-            {
-                return false;
-            }
-            if (!TCompensatePlace(pickerNum))
-            {
-                return false;
+                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum)) return false;
+                _step = 2;
             }
 
-            if (!ZPickDownPosition(pickerNum)) // change to force mode
+            if (_step == 2)
+            {
+                if (!ZUpAll()) return false;
+                _step = 3;
+            }
+
+            if (_step == 3)
+            {
+                if (!MovePlacePos(pickerNum, fovNum)) return false;
+                _step = 4;
+            }
+            if (_step == 4)
+            {
+                if (!TCompensatePlace(pickerNum)) return false;
+                _step = 5;
+            }
+
+            if (_step == 5)
+            {
+                //if (!ApplyForce((int)pickerNum,1)) // change to force mode
+                //{
+                //    return false;
+                //}
+                if (!ZPickDownPosition(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 6;
+                }
+            }
+
+            if (_step == 6)
+            {
+                if (!VacOff(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 7;
+                }
+            }
+
+            if (_step == 7)
+            {
+                if (!ZUp(pickerNum))
+                {
+                    return false;
+                }
+            }
+
+            if (_step == -1)
             {
                 ZUp(pickerNum);
                 return false;
             }
 
-            //if (!ApplyForce((int)pickerNum,1)) // change to force mode
-            //{
-            //    ZUp(pickerNum);
-            //    return false;
-            //}
-
-            if (!VacOff(pickerNum))
-            {
-                return false;
-            }
-            return ZUp(pickerNum);
+            _step = 0;
+            return true;
         }
-        public bool PickFoam(Picker pickerNum, int fovNum, bool isDryrun = false)
+
+        public bool PlaceFoamDryrun(Picker pickerNum, int fovNum)
         {
-            if (IsBypass(pickerNum))
+            _step = 0;
+            if (_step == 0)
             {
-                return true;
+                if (IsBypass(pickerNum)) return true;
+                _step = 1;
+            }
+            if (_step == 1)
+            {
+                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum)) return false;
+                _step = 2;
+            }
+            if (_step == 2)
+            {
+                if (!ZUpAll()) return false;
+                _step = 3;
             }
 
-            if (!ZUpAll())
+            if (_step == 3)
             {
-                return false;
+                if (!MoveStandbyPlacePos(pickerNum, fovNum)) return false;
+                _step = 5;
             }
-            if (!TZero(pickerNum))
+
+            if (_step == 5)
             {
-                return false;
+                //if (!ApplyForce((int)pickerNum,1)) // change to force mode
+                //{
+                //    return false;
+                //}
+                if (!ZPickDownPosition(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 6;
+                }
             }
-            if (!MovePickPos(pickerNum, fovNum, false))
+
+            if (_step == 6)
             {
-                return false;
+                if (!VacOff(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 7;
+                }
             }
-            if (!TCompensatePick(pickerNum))
+
+            if (_step == 7)
             {
-                return false;
+                if (!ZUp(pickerNum)) return false;
             }
-            //Wait
-            if (!WaitMovePickPosDone(pickerNum, fovNum))
+
+            if (_step == -1)
             {
+                ZUp(pickerNum);
                 return false;
             }
 
-            if (!ZPickDownPosition(pickerNum))
+            _step = 0;
+            return true;
+        }
+        public bool IsVacOk(Picker pickerNum)
+        {
+            switch (pickerNum)
             {
-                ZUp(pickerNum);
-                return false;
+                case Picker.Picker1:
+                    return IsPicker1VacOk;
+                case Picker.Picker2:
+                    return IsPicker2VacOk;
+                case Picker.Picker3:
+                    return IsPicker3VacOk;
+                case Picker.Picker4:
+                    return IsPicker4VacOk;
+                default:
+                    return false;
+            }
+        }
+
+        public bool CanPickRetry => _step < 7;
+        public bool PickFoam(Picker pickerNum, int fovNum, bool checkPressure = true)
+        {
+            _step = 0;
+            if (_step == 0)
+            {
+                if (IsBypass(pickerNum)) return true;
+                _step = 1;
+            }
+            if (_step == 1)
+            {
+                if (IsVacOn(pickerNum) && IsVacOk(pickerNum)) return false;
+                _step = 2;
+            }
+            if (_step == 2)
+            {
+                if (!ZUpAll()) return false;
+                _step = 3;
+            }
+            if (_step == 3)
+            {
+                if (!TZero(pickerNum)) return false;
+                _step = 4;
+            }
+            if (_step == 4)
+            {
+                if (!MovePickPos(pickerNum, fovNum, false)) return false;
+                _step = 5;
+            }
+            if (_step == 5)
+            {
+                if (!TCompensatePick(pickerNum)) return false;
+                _step = 6;
+            }
+            if (_step == 6)
+            {
+                if (!WaitMovePickPosDone(pickerNum, fovNum)) return false;
+                _step = 7;
+            }
+            if (_step == 7)
+            {
+                if (!ZPickDownPosition(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 8;
+                }
+            }
+            if (_step == 8)
+            {
+                if (!VacOn(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 9;
+                }
+            }
+            if (_step == 9)
+            {
+                if (!ZUp(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 10;
+                }
+            }
+            if (_step == 10)
+            {
+                if (!TRotate(pickerNum, 90))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 11;
+                }
+            }
+            if (_step == 11)
+            {
+                if (checkPressure)
+                {
+                    if (!IsVacOk(pickerNum))
+                    {
+                        return false;
+                    }
+                }
             }
 
-            if (!VacOn(pickerNum))
+            if (_step == -1)
             {
                 ZUp(pickerNum);
-                return false;
-            }
-            if (!TRotate(pickerNum, 90, false))
-            {
-                ZUp(pickerNum);
-                return false;
-            }
-            //if (!ZUp(pickerNum))
-            //{
-            //    return false;
-            //}
-            if (!ZCamPos(pickerNum))
-            {
-                ZUp(pickerNum);
-                return false;
-            }
-            if (!WaitPickerTDone(pickerNum, 90))
-            {
                 return false;
             }
             return true;
 
         }
+        public bool PickFoamDryRun(Picker pickerNum, int fovNum, int feederNum, bool checkPressure = true)
+        {
+            _step = 0;
+            if (_step == 0)
+            {
+                if (IsBypass(pickerNum)) return true;
+                _step = 1;
+            }
+            if (_step == 1)
+            {
+                if (IsVacOn(pickerNum) && IsVacOk(pickerNum)) return false;
+                _step = 2;
+            }
+            if (_step == 2)
+            {
+                if (!ZUpAll()) return false;
+                _step = 3;
+            }
+            if (_step == 3)
+            {
+                if (!TZero(pickerNum)) return false;
+                _step = 4;
+            }
+            if (_step == 4)
+            {
+                if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum, false)) return false;
+                _step = 5;
+            }
+
+            if (_step == 5)
+            {
+                if (!WaitMoveStandbyPickPosDone(pickerNum, fovNum, feederNum)) return false;
+                _step = 7;
+            }
+            if (_step == 7)
+            {
+                if (!ZPickDownPosition(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 8;
+                }
+            }
+
+            if (_step == 8)
+            {
+                if (!VacOn(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 9;
+                }
+            }
+
+            if (_step == 9)
+            {
+                if (!ZUp(pickerNum))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 10;
+                }
+            }
+            if (_step == 10)
+            {
+                if (!TRotate(pickerNum, 90))
+                {
+                    _step = -1;
+                }
+                else
+                {
+                    _step = 11;
+                }
+            }
+            if (_step == 11)
+            {
+                if (checkPressure)
+                {
+                    if (!IsVacOk(pickerNum))
+                    {
+                        return false;
+                    }
+                }
+            }
+            if (_step == -1)
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+            _step = 0;
+            return true;
+        }
+
         public bool RejectFoam(Picker pickerNum)
         {
             if (IsBypass(pickerNum))
@@ -1106,61 +1429,8 @@ namespace AkribisFAM.DeviceClass
             }
             return result;
         }
-        public bool PickFoamDryRun(Picker pickerNum, int fovNum, int feederNum)
-        {
-            if (IsBypass(pickerNum))
-            {
-                return true;
-            }
 
-            if (!ZUpAll())
-            {
-                return false;
-            }
-
-            if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum))
-            {
-                return false;
-            }
-
-            if (!TRotate(pickerNum, 0))
-            {
-                return false;
-            }
-            if (!TCompensatePick(pickerNum))
-            {
-                return false;
-            }
-
-            if (!ZUp(pickerNum))
-            {
-                return false;
-            }
-            if (!ZPickDownPosition(pickerNum))
-            {
-                ZUp(pickerNum);
-                return false;
-            }
-            if (!VacOn(pickerNum))
-            {
-                return false;
-            }
-            if (!ZUp(pickerNum))
-            {
-                return false;
-            }
-            //if (!TCompensatePick(pickerNum))
-            //{
-            //    return false;
-            //}
-            if (!TRotate(pickerNum, 90))
-            {
-                return false;
-            }
-            return true;
-
-        }
-
+      
         public bool PickAllFoam()
         {
             if (!ZUpAll())

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AkribisFAM.Models.Base;
-using System.Diagnostics;
+using AkribisFAM.DeviceClass;
 
 namespace AkribisFAM.Models
 {
@@ -76,6 +76,34 @@ namespace AkribisFAM.Models
                 set { _runMode.Value = (int)value; OnPropertyChanged(); }
             }
 
+            private AKBenum _trayOnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyXDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Tray on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection TrayOnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_trayOnTheFlyXDirection.Value; }
+                set { _trayOnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _trayOnTheFlyYDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Tray on the fly Y direction")]
+            public CognexVisionControl.OnTheFlyXDirection TrayOnTheFlyYDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_trayOnTheFlyYDirection.Value; }
+                set { _trayOnTheFlyYDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _feeder1OnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Feeder 1 on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection Feeder1OnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_feeder1OnTheFlyXDirection.Value; }
+                set { _feeder1OnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _feeder2OnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Feeder 2 on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection Feeder2OnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_feeder2OnTheFlyXDirection.Value; }
+                set { _feeder2OnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
             private AKBint _speedPercentage = new AKBint(30, 5, 100);
             [Browsable(true), ReadOnly(false), Category("Process"), Description("Speed percentage % of the full speed")]
             public int SpeedPercentage
@@ -157,7 +185,13 @@ namespace AkribisFAM.Models
                 get { return _enableTraceLog.Value; }
                 set { _enableTraceLog.Value = value; OnPropertyChanged(); }
             }
-
+            private AKBbool _bypassMES = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Process"), Description("Enable/disable MES data exchange")]
+            public bool EnableMES
+            {
+                get { return _bypassMES.Value; }
+                set { _bypassMES.Value = value; OnPropertyChanged(); }
+            }
             private AKBint _logFileAge = new AKBint(180, 30, 10000);
             [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days that system keep the log file")]
             public int LogFileAge

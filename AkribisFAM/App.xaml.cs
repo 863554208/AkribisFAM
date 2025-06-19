@@ -67,6 +67,10 @@ namespace AkribisFAM
             recipeManager = new RecipeManager();
             lotManager = new LotManager();
             lotManager.Initialize();
+            if (!lotManager.IsCurrLotNull)
+            {
+                ZuZhuang.Current.SetRecipe(lotManager.CurrLot.Recipe);
+            }
             laser = new KeyenceLaserControl();
             visionControl = new CognexVisionControl();
             feeder1 = new FeederControl(1);
@@ -143,11 +147,11 @@ namespace AkribisFAM
             ZuZhuang.Current.SetPickerEnable(3, param.EnablePicker3);
             ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
 
-            LaiLiao.Current.SetTimeOut(param.ProcessTimeout); 
-            ZuZhuang.Current.SetTimeOut(param.ProcessTimeout); 
-            FuJian.Current.SetTimeOut(param.ProcessTimeout); 
-            Feeder.Current.SetTimeOut(param.ProcessTimeout); 
-            Conveyor.Current.SetTimeOut(param.ProcessTimeout); 
+            LaiLiao.Current.SetTimeOut(param.ProcessTimeout);
+            ZuZhuang.Current.SetTimeOut(param.ProcessTimeout);
+            FuJian.Current.SetTimeOut(param.ProcessTimeout);
+            Feeder.Current.SetTimeOut(param.ProcessTimeout);
+            Conveyor.Current.SetTimeOut(param.ProcessTimeout);
 
 
         }
@@ -179,7 +183,7 @@ namespace AkribisFAM
 
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker1"))
             {
-                assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true; 
+                assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true;
                 ZuZhuang.Current.SetPickerEnable(1, param.EnablePicker1);
             }
             if (e.propertyInfos.Any(x => x.Name == "EnablePicker2"))
@@ -196,7 +200,7 @@ namespace AkribisFAM
                 ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
             {
                 assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
-            }   
+            }
             if (e.propertyInfos.Any(x => x.Name == "ProcessTimeout"))
             {
                 LaiLiao.Current.SetTimeOut(param.ProcessTimeout);

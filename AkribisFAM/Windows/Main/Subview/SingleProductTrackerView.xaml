@@ -11,14 +11,13 @@
     <UserControl.Resources>
         <con:PassPresentToBrushConverter x:Key="PassPresentToBrushConverter" />
     </UserControl.Resources>
-    <!--<Border BorderBrush="Black" BorderThickness="1" Width="250" Height="Auto">-->
-    <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp5" Width="250" Height="Auto"
+    <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp5" Height="Auto"
                          BorderThickness="2"
                          BorderBrush="LightGray">
         <Button Style="{Binding}" Background="Transparent">
 
-            <StackPanel Orientation="Vertical" Width="250" Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                <Border BorderBrush="Black" BorderThickness="0 0 0 1" Opacity=".8" Margin="10">
+            <StackPanel Orientation="Vertical"  Height="Auto" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <Border BorderBrush="Black" BorderThickness="0 0 0 1" Opacity=".8" >
                     <StackPanel Orientation="Horizontal">
                         <Label Content="{Binding Name}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="Black"/>
 
@@ -39,7 +38,7 @@
                             <materialDesign:Card Background="Transparent">
                                 <!--<StackPanel Orientation="Horizontal">-->
                                 <!--Background="{Binding failed, Converter={StaticResource BrushColorInvertConverter}}"-->
-                                <Button Content="{Binding Index}" Margin="4" 
+                                <Button Content="{Binding Index}" Margin="3" Width="40" Height="20" Padding="0" 
                                     Opacity="0.99"
                                     Foreground="White" Click="Button_Click">
                                     <Button.Background>

@@ -1,10 +1,9 @@
-﻿using AkribisFAM.Util;
+﻿using AkribisFAM.DeviceClass;
+using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 
 namespace AkribisFAM.Manager
 {
@@ -107,6 +106,102 @@ namespace AkribisFAM.Manager
             FoamTrackers = Trackers.Where(x => x.TrackerType == TrackerType.Foam).ToList();
             PickerTrackers = Trackers.Where(x => x.TrackerType == TrackerType.Pickers).ToList();
 
+        }
+
+        public bool PickerPicked(CognexVisionControl.FeederNum feeder, int foamNumber, int pickerNumber)
+        {
+            ProductTracker trackerSource;
+
+            switch (feeder)
+            {
+                case CognexVisionControl.FeederNum.Feeder1:
+                    trackerSource = Feeder1Foams;
+                    break;
+                case CognexVisionControl.FeederNum.Feeder2:
+                    trackerSource = Feeder2Foams;
+                    break;
+                default:
+                    return false;
+            }
+
+            GantryPickerFoams.PartArray[pickerNumber].Consume(trackerSource.PartArray[foamNumber]);
+            return true;
+        }
+
+        public bool PickerPickFail(CognexVisionControl.FeederNum feeder, int foamNumber)
+        {
+            ProductTracker trackerFeeder;
+
+            switch (feeder)
+            {
+                case CognexVisionControl.FeederNum.Feeder1:
+                    trackerFeeder = App.productTracker.Feeder1Foams;
+                    break;
+                case CognexVisionControl.FeederNum.Feeder2:
+                    trackerFeeder = App.productTracker.Feeder2Foams;
+                    break;
+                default:
+                    return false;
+            }
+
+            trackerFeeder.PartArray[foamNumber].SetFail(FailReason.FailToPick);
+            return true;
+        }
+        public bool IsAllAvailablePartPlaceDone => FoamAssemblyStationTray.PartArray
+            .Where(x => x.IsNormal())
+            .All(x => x.IsFoamPlaced);
+        public bool PickerPlaceFail(AssemblyGantryControl.Picker picker, int trayIndex)
+        {
+            var source = App.productTracker.GantryPickerFoams.PartArray[(int)picker - 1];
+            var target = App.productTracker.FoamAssemblyStationTray.PartArray[trayIndex];
+
+            target.SetFail(FailReason.FailToPlace);
+            //target.SetFail(FailReason.FailToPlace);
+            return true;
+        }
+        public bool PickerPlaced(AssemblyGantryControl.Picker picker, int trayIndex)
+        {
+            var source = App.productTracker.GantryPickerFoams.PartArray[(int)picker - 1];
+            var target = App.productTracker.FoamAssemblyStationTray.PartArray[trayIndex];
+
+            target.Consume(source);
+            return true;
+        }
+
+        public bool PickerCanDoPick(int pickerNumber)
+        {
+            var pd = App.productTracker.GantryPickerFoams.PartArray[pickerNumber - 1];
+            return !pd.present && !pd.failed;
+        }
+        public bool FeederCanBePick(CognexVisionControl.FeederNum feeder, int foamNumber)
+        {
+            ProductTracker trackerFeeder;
+
+            switch (feeder)
+            {
+                case CognexVisionControl.FeederNum.Feeder1:
+                    trackerFeeder = App.productTracker.Feeder1Foams;
+                    break;
+                case CognexVisionControl.FeederNum.Feeder2:
+                    trackerFeeder = App.productTracker.Feeder2Foams;
+                    break;
+                default:
+                    return false;
+            }
+
+            return trackerFeeder.PartArray[foamNumber].CanPick();
+        }
+
+        public bool PickerCanDoPlace(int pickerNumber)
+        {
+            var pd = App.productTracker.GantryPickerFoams.PartArray[pickerNumber - 1];
+            return pd.present && !pd.failed;
+        }
+
+        public bool TrayCanBePlace(int trayIndex)
+        {
+            var pd = App.productTracker.FoamAssemblyStationTray.PartArray[trayIndex];
+            return pd.present && !pd.failed;
         }
     }
 }

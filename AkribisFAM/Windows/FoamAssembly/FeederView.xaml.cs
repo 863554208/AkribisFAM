@@ -599,6 +599,7 @@ namespace AkribisFAM.Windows
 
         private async void btnPickAndPlace1_Click(object sender, RoutedEventArgs e)
         {
+            //var direction = App.paramLocal.LiveParam.TrayOnTheFlyXDirection
             stopAllMotion = false;
             vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
             vm.Progress = 0;
@@ -624,11 +625,11 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
-                {
+                //if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
+                //{
 
-                    return;
-                }
+                //    return;
+                //}
                 vm.Progress += 1;
 
 
@@ -685,11 +686,11 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
-                {
+                //if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
+                //{
 
-                    return;
-                }
+                //    return;
+                //}
                 vm.Progress += 1;
 
 

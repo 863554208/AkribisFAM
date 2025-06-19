@@ -1283,6 +1283,7 @@ namespace AkribisFAM
             //await Task.Run(() =>
             //{
             //Thread.Sleep(500);
+            DateTime dt = DateTime.Now;
             for (int i = 0; i < 12; i++)
             {
                 var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
@@ -1291,7 +1292,7 @@ namespace AkribisFAM
                 {
 
                     targetPart.present = true;
-                    targetPart.SerialNumber = $"{i} _ 123";
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
                     targetPart.HeightMeasurements.Add(new LaserMeasurement()
                     {
                         MeasurementCount = counter,
@@ -1381,6 +1382,7 @@ namespace AkribisFAM
 
         private void btnDebug5_Click(object sender, RoutedEventArgs e)
         {
+            DateTime dt = DateTime.Now;
             for (int i = 0; i < 12; i++)
             {
                 var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
@@ -1388,7 +1390,7 @@ namespace AkribisFAM
                 for (int j = 0; j < 4; j++)
                 {
                     targetPart.present = true;
-                    targetPart.SerialNumber = $"{i} _ 123";
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
                     targetPart.HeightMeasurements.Add(new LaserMeasurement()
                     {
                         MeasurementCount = counter,

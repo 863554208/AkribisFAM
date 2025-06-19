@@ -832,7 +832,7 @@ namespace AkribisFAM.WorkStation
                                     {
                                         if (ConveyorTrays[(int)currentstation].IsFail && ConveyorTrays[(int)currentstation].HasTray)
                                         {
-                                            if (IsTimeOut())
+                                            if (IsTimeOut(currentstation))
                                             {
                                                 return ErrorManager.Current.Insert(ErrorCode.NGOccupied, $"if (!TrayAtRejectStation() && RejectCoverClose())");
                                             }
