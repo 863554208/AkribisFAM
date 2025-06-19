@@ -6,6 +6,7 @@ using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -1474,6 +1475,13 @@ namespace AkribisFAM
                 var target = App.productTracker.FoamAssemblyStationTray.PartArray[i];
                 target.Consume(source);
             }
+        }
+
+        private void btnDebug10_Click(object sender, RoutedEventArgs e)
+        {
+            var list = App.visionControl.GenerateLeftToRightGrid(10, 12, 4, 3, 3, 4);
+            var list2 = App.visionControl.RemapLeftToRightToSnake(list, 3, 4, -1, -1);
+            var list3 = App.visionControl.GenerateSnakeTravelPathsWithDirection(list, 3, 4, -1, -1, 3);
         }
     }
 

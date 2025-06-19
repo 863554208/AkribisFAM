@@ -37,6 +37,11 @@ namespace AkribisFAM.DeviceClass
             Positive,
             Negative,
         }
+        public enum OnTheFlyYDirection
+        {
+            Inward,
+            Outward,
+        }
         public enum TeachPointLocation
         {
             StartingPoint,
@@ -119,23 +124,151 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-        public bool GetPalletStandbyPosition(Recipe recipe,out SinglePoint point)
+        public bool GetPalletStandbyPosition(Recipe recipe, out SinglePoint point)
         {
             point = new SinglePoint();
-            if (!GetPalletXYPoints(recipe,out var discard, out var paths))
+            if (!GetPalletXYPoints(recipe, out var discard, out var paths) && paths.Count() > 0)
             {
                 return false;
             }
             point = paths[0].StartingPoint;
             return true;
         }
+
+
+        public List<SinglePoint> GenerateLeftToRightGrid(
+            double startX,
+            double startY,
+            double gapX,
+            double gapY,
+            int totalRows,
+            int totalColumns)
+        {
+            var points = new List<SinglePoint>();
+
+            for (int row = 0; row < totalRows; row++)
+            {
+                for (int col = 0; col < totalColumns; col++)
+                {
+                    points.Add(new SinglePoint
+                    {
+                        X = startX + col * gapX,
+                        Y = startY + row * gapY
+                    });
+                }
+            }
+
+            return points;
+        }
+        public List<SinglePoint> RemapLeftToRightToSnake(List<SinglePoint> originalList, int totalRows, int totalColumns,
+            int xDir, // +1 = L→R for first row, -1 = R→L for first row
+            int yDir  // +1 = top→bottom, -1 = bottom→top
+            )
+        {
+            var remappedList = new List<SinglePoint>();
+
+            for (int logicalRow = 0; logicalRow < totalRows; logicalRow++)
+            {
+                int actualRow = (yDir == 1) ? logicalRow : (totalRows - 1 - logicalRow);
+
+                bool isEvenRow = logicalRow % 2 == 0;
+                bool leftToRight = (xDir == 1 && isEvenRow) || (xDir == -1 && !isEvenRow);
+
+                for (int logicalCol = 0; logicalCol < totalColumns; logicalCol++)
+                {
+                    int actualCol = leftToRight ? logicalCol : (totalColumns - 1 - logicalCol);
+
+                    int index = actualRow * totalColumns + actualCol;
+                    remappedList.Add(originalList[index]);
+                }
+            }
+
+            return remappedList;
+        }
+
+
+        public List<VisionTravelPath> GenerateSnakeTravelPathsWithDirection(
+       List<SinglePoint> originalFlatList,
+       int totalRows,
+       int totalColumns,
+       int xDir,     // +1: first row is L→R, -1: first row is R→L
+       int yDir,     // +1: top→bottom, -1: bottom→top
+       double xOffset)
+        {
+            var travelPaths = new List<VisionTravelPath>();
+
+            for (int logicalRow = 0; logicalRow < totalRows; logicalRow++)
+            {
+                int actualRow = (yDir == 1) ? logicalRow : (totalRows - 1 - logicalRow);
+                int rowStartIndex = actualRow * totalColumns;
+
+                bool isEvenRow = logicalRow % 2 == 0;
+                bool leftToRight = (xDir == 1 && isEvenRow) || (xDir == -1 && !isEvenRow);
+
+                int firstCol = leftToRight ? 0 : totalColumns - 1;
+                int lastCol = leftToRight ? totalColumns - 1 : 0;
+
+                var firstPoint = originalFlatList[rowStartIndex + firstCol];
+                var lastPoint = originalFlatList[rowStartIndex + lastCol];
+
+                if (logicalRow == 0)
+                {
+                    // First row: true external start to end
+                    travelPaths.Add(new VisionTravelPath
+                    {
+                        StartingPoint = new SinglePoint
+                        {
+                            X = firstPoint.X - xOffset * xDir,
+                            Y = firstPoint.Y,
+                            Z = firstPoint.Z,
+                            R = firstPoint.R
+                        },
+                        EndingPoint = new SinglePoint
+                        {
+                            X = lastPoint.X + xOffset * xDir,
+                            Y = lastPoint.Y,
+                            Z = lastPoint.Z,
+                            R = lastPoint.R
+                        }
+                    });
+                }
+                else
+                {
+                    var previousEnd = travelPaths.Last().EndingPoint;
+
+                    travelPaths.Add(new VisionTravelPath
+                    {
+                        StartingPoint = new SinglePoint
+                        {
+                            X = previousEnd.X,
+                            Y = firstPoint.Y,
+                            Z = firstPoint.Z,
+                            R = firstPoint.R
+                        },
+                        EndingPoint = new SinglePoint
+                        {
+                            X = lastPoint.X + xOffset * (leftToRight ? 1 : -1),
+                            Y = lastPoint.Y,
+                            Z = lastPoint.Z,
+                            R = lastPoint.R
+                        }
+                    });
+                }
+            }
+
+            return travelPaths;
+        }
+
+
+
         public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths)
         {
             partPoints = new List<SinglePoint>();
             visionStartEndPaths = new List<VisionTravelPath>();
-
             if (recipe == null)
+            {
                 return false;
+            }
 
             var teachpoints = GlobalManager.Current.snapPalletePoints;
             double start_pos_X = teachpoints[(int)TeachPointLocation.StartingPoint].X;
@@ -144,63 +277,89 @@ namespace AkribisFAM.DeviceClass
             int totalColumn = recipe.PartColumn;
             double gap_X = recipe.XPitch;
             double gap_Y = recipe.YPitch;
+            int direction_X = -1;
+            int direction_Y = -1;
+            double x_offset = App.paramLocal.LiveParam.FoamXOffset;
 
-            double left_end_X = start_pos_X - (totalColumn - 1) * gap_X;
+            var list = App.visionControl.GenerateLeftToRightGrid(start_pos_X, start_pos_Y, gap_X, gap_Y, totalRow, totalColumn);
+            partPoints = App.visionControl.RemapLeftToRightToSnake(list, totalRow, totalColumn, direction_X, direction_Y); // -x , -y direction
+            visionStartEndPaths = App.visionControl.GenerateSnakeTravelPathsWithDirection(list, totalRow, totalColumn, direction_X, direction_Y, x_offset);
 
-            bool reverse2 = true;
-            RealPalletePointsList.Clear();
-            for (int row = 0; row < totalRow; row++)
-            {
-                if (reverse2)
-                {
-                    for (int column = 0; column < totalColumn; column++)
-                    {
-
-                        RealPalletePointsList.Add(new SinglePoint()
-                        {
-                            X = start_pos_X - column * gap_X,
-                            Y = start_pos_Y - row * gap_Y,
-                        });
-
-                    }
-                    reverse2 = false;
-                }
-                else
-                {
-                    for (int column = 0; column < totalColumn; column++)
-                    {
-                        RealPalletePointsList.Add(new SinglePoint()
-                        {
-                            X = left_end_X + column * gap_X,
-                            Y = start_pos_Y - row * gap_Y,
-                        });
-
-                    }
-                    reverse2 = true;
-                }
-
-
-                double current_start_pos_X = start_pos_X;
-                double current_start_pos_Y = start_pos_Y - row * gap_Y; // 当前行的起点Y坐标
-                double current_end_pos_X = start_pos_X - (totalColumn - 1) * gap_X;
-                double current_end_pos_Y = current_start_pos_Y; // 当前行的终点Y坐标（在同一行）]
-                snapPalleteListv2.Add(new VisionTravelPath()
-                {
-                    StartingPoint = new SinglePoint()
-                    {
-                        X = (row % 2 == 0 ? current_start_pos_X : current_end_pos_X) - gap_X,
-                        Y = row % 2 == 0 ? current_start_pos_Y : current_end_pos_Y,
-                    },
-                    EndingPoint = new SinglePoint()
-                    {
-                        X = (row % 2 == 0 ? current_end_pos_X : current_start_pos_X) + gap_X,
-                        Y = row % 2 == 0 ? current_end_pos_X : current_start_pos_Y,
-                    },
-
-                });
-            }
             return true;
         }
+
+        //public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths)
+        //{
+        //    partPoints = new List<SinglePoint>();
+        //    visionStartEndPaths = new List<VisionTravelPath>();
+
+        //    if (recipe == null)
+        //        return false;
+
+        //    var teachpoints = GlobalManager.Current.snapPalletePoints;
+        //    double start_pos_X = teachpoints[(int)TeachPointLocation.StartingPoint].X;
+        //    double start_pos_Y = teachpoints[(int)TeachPointLocation.StartingPoint].Y;
+        //    int totalRow = recipe.PartRow;
+        //    int totalColumn = recipe.PartColumn;
+        //    double gap_X = recipe.XPitch;
+        //    double gap_Y = recipe.YPitch;
+
+        //    double left_end_X = start_pos_X - (totalColumn - 1) * gap_X;
+
+        //    bool reverse2 = true;
+        //    RealPalletePointsList.Clear();
+        //    for (int row = 0; row < totalRow; row++)
+        //    {
+        //        if (reverse2)
+        //        {
+        //            for (int column = 0; column < totalColumn; column++)
+        //            {
+
+        //                RealPalletePointsList.Add(new SinglePoint()
+        //                {
+        //                    X = start_pos_X - column * gap_X,
+        //                    Y = start_pos_Y - row * gap_Y,
+        //                });
+
+        //            }
+        //            reverse2 = false;
+        //        }
+        //        else
+        //        {
+        //            for (int column = 0; column < totalColumn; column++)
+        //            {
+        //                RealPalletePointsList.Add(new SinglePoint()
+        //                {
+        //                    X = left_end_X + column * gap_X,
+        //                    Y = start_pos_Y - row * gap_Y,
+        //                });
+
+        //            }
+        //            reverse2 = true;
+        //        }
+
+
+        //        double current_start_pos_X = start_pos_X;
+        //        double current_start_pos_Y = start_pos_Y - row * gap_Y; // 当前行的起点Y坐标
+        //        double current_end_pos_X = start_pos_X - (totalColumn - 1) * gap_X;
+        //        double current_end_pos_Y = current_start_pos_Y; // 当前行的终点Y坐标（在同一行）]
+        //        snapPalleteListv2.Add(new VisionTravelPath()
+        //        {
+        //            StartingPoint = new SinglePoint()
+        //            {
+        //                X = (row % 2 == 0 ? current_start_pos_X : current_end_pos_X) - gap_X,
+        //                Y = row % 2 == 0 ? current_start_pos_Y : current_end_pos_Y,
+        //            },
+        //            EndingPoint = new SinglePoint()
+        //            {
+        //                X = (row % 2 == 0 ? current_end_pos_X : current_start_pos_X) + gap_X,
+        //                Y = row % 2 == 0 ? current_end_pos_X : current_start_pos_Y,
+        //            },
+
+        //        });
+        //    }
+        //    return true;
+        //}
 
 
         public bool SendTLMCommands(List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> TLMCommands)
@@ -314,7 +473,7 @@ namespace AkribisFAM.DeviceClass
                     NozzleID = (i + 1).ToString(),
                     RawMaterialName = "Foam",
                     CaveID = "0",
-                    TargetMaterialName1 = "Foam->Moudel",
+                    TargetMaterialName1 = "Foam->Module",
                     Photo_X1 = points[i].X.ToString(),
                     Photo_Y1 = points[i].Y.ToString(),
                     Photo_R1 = "90.0",
@@ -341,7 +500,7 @@ namespace AkribisFAM.DeviceClass
                     NozzleID = "0",
                     MaterialTypeN1 = "Foam",
                     AcupointNumber = $"{i + 1}",
-                    TargetMaterialName1 = "Foam->Moudel",
+                    TargetMaterialName1 = "Foam->Module",
                     Photo_X1 = points[i].X.ToString(),
                     Photo_Y1 = points[i].Y.ToString(),
                     Photo_R1 = "0"
@@ -610,6 +769,24 @@ namespace AkribisFAM.DeviceClass
             return true;
         }
 
+        public bool MoveToPalletVisionStartingPos(Recipe recipe, bool waitMotionDone = true)
+        {
+            if (!App.assemblyGantryControl.ZUpAll())
+            {
+                return false;
+            }
+
+            if (!GetPalletStandbyPosition(recipe, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+                return false;
+            }
+            return true;
+        }
 
         public bool IsAllFeederVisionOK()
         {

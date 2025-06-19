@@ -197,6 +197,7 @@
                 <Button x:Name="btnDebug7" Content="Foam2" Click="btnDebug7_Click"/>
                 <Button x:Name="btnDebug8" Content="PickerPick" Click="btnDebug8_Click"/>
                 <Button x:Name="btnDebug9" Content="PlacePart" Click="btnDebug9_Click"/>
+                <Button x:Name="btnDebug10" Content="testfunc" Click="btnDebug10_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>

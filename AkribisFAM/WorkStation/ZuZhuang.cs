@@ -788,7 +788,7 @@ namespace AkribisFAM.WorkStation
             //        NozzleID = (count + 1).ToString(),
             //        RawMaterialName = "Foam",
             //        CaveID = "0",
-            //        TargetMaterialName1 = "Foam->Moudel",
+            //        TargetMaterialName1 = "Foam->Module",
             //        Photo_X1 = (start_x - i * 16).ToString(),
             //        Photo_Y1 = (start_y).ToString(),
             //        Photo_R1 = "90.0",
@@ -1050,7 +1050,7 @@ namespace AkribisFAM.WorkStation
             //        NozzleID = "0",
             //        MaterialTypeN1 = "Foam",
             //        AcupointNumber = $"{count2 + 1}",
-            //        TargetMaterialName1 = "Foam->Moudel",
+            //        TargetMaterialName1 = "Foam->Module",
             //        Photo_X1 = RealPalletePointsList[count2].X.ToString(),
             //        Photo_Y1 = RealPalletePointsList[count2].Y.ToString(),
             //        Photo_R1 = "0"
@@ -1541,7 +1541,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
-                string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Moudel";
+                string command = "GT,1," + $"{Nozzlenum}" + ",Foam," + $"{Fovnum}," + "Foam->Module";
                 Task_FeedupCameraFunction.PushcommandFunction(command);
                 var GMout = Task_FeedupCameraFunction.TriggFeedUpCamreaGTAcceptData()[0];
                 if (GMout.Subareas_Errcode == "1")
@@ -1969,7 +1969,19 @@ namespace AkribisFAM.WorkStation
             {
                 if (App.assemblyGantryControl.RejectFailedFoam()) // CALL OTF CAPTURE SEQUENCE
                 {
-                    _movestep = 113;
+                    _movestep = 120;
+                }
+                else
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"RejectFailedFoam");
+                }
+            }
+            // Go To pallet on the fly position
+            if (_movestep == 120)
+            {
+                if (App.visionControl.MoveToPalletVisionStartingPos(App.lotManager.CurrLot.Recipe, false)) 
+                {
+                    _movestep = 11;
                 }
                 else
                 {
@@ -1997,7 +2009,9 @@ namespace AkribisFAM.WorkStation
                 {
                     StartProcessing();
                     var _partArray = App.productTracker.FoamAssemblyStationTray.PartArray;
-                    var _traySlots = _partArray.Where(x => x.present && !x.failed).Select(a => new TraySlot()
+                    var _traySlots = _partArray
+                        .Where(x => x.present && !x.failed)
+                        .Select(a => new TraySlot()
                     {
                         SlotIndex = a.Index - 1,
                     }).ToList();
