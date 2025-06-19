@@ -1385,7 +1385,7 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            if (GlobalManager.Current.CurrentMode == ProcessMode.Dryrun)
             {
                 if (!GetPickPositionDryRun(Nozzlenum, Fovnum, feeder, out point))
                 {
@@ -1445,7 +1445,7 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            if (GlobalManager.Current.CurrentMode == RunMode.DryrunMode)
+            if (GlobalManager.Current.CurrentMode == ProcessMode.Dryrun)
             {
                 if (!GetPlacePositionDryRun(Nozzlenum, Fovnum, out point))
                 {

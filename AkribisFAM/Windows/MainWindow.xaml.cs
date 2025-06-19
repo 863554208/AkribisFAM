@@ -116,21 +116,21 @@ namespace AkribisFAM
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
             if (AutorunManager.Current.IsRunning)
-                if (StateManager.Current.State == StateCode.RUNNING)
+            if (StateManager.Current.State == StateCode.RUNNING)
+            {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
+                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                this.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                    StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
-                    this.Dispatcher.BeginInvoke(new Action(() =>
-                    {
 
-                        performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
-                    }));
-                }
-                else
-                {
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
-                }
+                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                }));
+            }
+            else
+            {
+                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+            }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
@@ -527,18 +527,12 @@ namespace AkribisFAM
         }
         private void TestFeiPai_Click(object sender, RoutedEventArgs e)
         {
-            var arr1 = new object[] { AxisName.LSX, 150, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-            var arr2 = new object[] { AxisName.LSY, 150, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-            int moveToPointX = MoveView.MovePTP(arr1, arr2);
-            Thread.Sleep(300);
-            var arr3 = new object[] { AxisName.LSX };
-            var arr4 = new object[] { AxisName.LSY };
-            int b = MoveView.WaitAxisArrived(arr3, arr4);
-
-
-
-
+            //int moveToPointX = MoveView.MovePTP(arr1, arr2);
+            //Thread.Sleep(300);
+            //var arr3 = new object[] { AxisName.LSX };
+            //var arr4 = new object[] { AxisName.LSY };
+            //int b = MoveView.WaitAxisArrived(arr3, arr4);
 
 
 
@@ -644,7 +638,7 @@ namespace AkribisFAM
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
-
+ 
 
             //isResetButtonTriggered = false;
             //resetPressStopwatch.Restart();
@@ -682,6 +676,12 @@ namespace AkribisFAM
 
             var res1 = App.CioManager.IsSSR1Ok;
             var res2 = App.CioManager.IsEmergencyStopOk;
+            if (App.lotManager.IsCurrLotNull)
+            {
+                MessageBox.Show("Please start a new lot first");
+                return false;
+            }      
+            
             if (!App.CioManager.IsEmergencyStopOk)
             {
                 MessageBox.Show("E-Stop triggered!");
@@ -816,7 +816,7 @@ namespace AkribisFAM
             //    return false;
             //}
 
-
+         
             #region Feeder
             if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
             {
@@ -861,7 +861,7 @@ namespace AkribisFAM
                 MessageBox.Show("Please at least lock one feeder and feed in material");
                 return false;
             }
-
+  
             #endregion
             return true;
         }
@@ -961,12 +961,12 @@ namespace AkribisFAM
 
         private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
         {
-            var a = GlobalManager.Current.stationPoints;
-            GlobalManager.Current.IO_test1 = true;
+            //var a = GlobalManager.Current.stationPoints;
+            //GlobalManager.Current.IO_test1 = true;
             //TestBoardIn.IsEnabled = false;
 
-            // 等待 1 秒而不阻塞 UI 线程
-            await Task.Delay(1000);
+            //// 等待 1 秒而不阻塞 UI 线程
+            //await Task.Delay(1000);
 
             //TestBoardIn.IsEnabled = true;
         }
@@ -1038,11 +1038,21 @@ namespace AkribisFAM
             CultureInfo cultureInfo = new CultureInfo(culture);
             Thread.CurrentThread.CurrentUICulture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.Language = XmlLanguage.GetLanguage(cultureInfo.Name);
+            }
         }
 
         private void RefreshUI()
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.InvalidateVisual();
+            }
         }
 
         private async void ExecuteReset()

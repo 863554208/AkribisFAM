@@ -193,6 +193,7 @@
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\ProcessManager.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
     <Compile Include="Helper\ViewModelBase.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
@@ -212,12 +213,17 @@
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\LoadCellCalibration.cs" />
+    <Compile Include="Manager\LotManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\RecipeManager.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="Models\AKBLocalParameter.cs" />
+    <Compile Include="Models\AKBVariable.cs" />
     <Compile Include="Models\AlarmRecord.cs" />
+    <Compile Include="Models\Base\AKBParameterBase.cs" />
+    <Compile Include="Models\LotRecord.cs" />
     <Compile Include="Models\OeeRecord.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
@@ -226,6 +232,7 @@
     <Compile Include="Util\ProductData.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
+    <Compile Include="ViewModel\SettingVM.cs" />
     <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
@@ -315,6 +322,9 @@
     <Compile Include="Windows\HardwareControl.xaml.cs">
       <DependentUpon>HardwareControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Main\LotAndMaterialView.xaml.cs">
+      <DependentUpon>LotAndMaterialView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
@@ -327,6 +337,12 @@
     </Compile>
     <Compile Include="Windows\SelectPointType.xaml.cs">
       <DependentUpon>SelectPointType.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SettingView\PropertyGridView.xaml.cs">
+      <DependentUpon>PropertyGridView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\TeachingWindow.xaml.cs">
       <DependentUpon>TeachingWindow.xaml</DependentUpon>
@@ -477,6 +493,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Main\LotAndMaterialView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\ManualControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -492,6 +512,14 @@
     <Page Include="Windows\SelectPointType.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\SettingView\PropertyGridView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\TeachingWindow.xaml">
       <SubType>Designer</SubType>
