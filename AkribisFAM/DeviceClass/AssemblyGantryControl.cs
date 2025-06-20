@@ -1,11 +1,13 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Helper;
+using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using static AkribisFAM.DeviceClass.AssemblyGantryControl;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.LoadCellCalibration;
 
@@ -203,17 +205,17 @@ namespace AkribisFAM.DeviceClass
 
         public bool VacOffAll()
         {
-            return VacOff(Picker.Picker1) && VacOff(Picker.Picker2) && VacOff(Picker.Picker3) && VacOff(Picker.Picker4);
+            return VacOff(Picker.Picker1) & VacOff(Picker.Picker2) & VacOff(Picker.Picker3) & VacOff(Picker.Picker4);
         }
         public bool ZPickPositionAll()
         {
-            return ZPickDownPosition(Picker.Picker1) && ZPickDownPosition(Picker.Picker2) && ZPickDownPosition(Picker.Picker3) && ZPickDownPosition(Picker.Picker4);
+            return ZPickDownPosition(Picker.Picker1) & ZPickDownPosition(Picker.Picker2) & ZPickDownPosition(Picker.Picker3) & ZPickDownPosition(Picker.Picker4);
         }
         public bool ZPickDownPosition(Picker picker)
         {
             if (IsBypass(picker))
             {
-                return false;
+                return true;
             }
 
             SinglePoint sp = ZuZhuang.Current.GetZPickPosition((int)picker);
@@ -237,7 +239,7 @@ namespace AkribisFAM.DeviceClass
         {
             if (IsBypass(picker))
             {
-                return false;
+                return true;
             }
 
             SinglePoint sp = ZuZhuang.Current.GetLoadCellPosition((int)picker);
@@ -292,7 +294,13 @@ namespace AkribisFAM.DeviceClass
         {
             SinglePoint sp = ZuZhuang.Current.GetZCam2Position((int)Picker.Picker1);
             return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z, waitMotionDone) == (int)AkrAction.ACTTION_ERR.NONE;
+        }
+        public bool GetZCamPos(out SinglePoint point)
+        {
+            point = new SinglePoint();
+            point = ZuZhuang.Current.GetZCam2Position((int)Picker.Picker1);
 
+            return true;
         }
         public bool ZCamPos(Picker picker, bool waitMotionDone = true)
         {
@@ -1007,6 +1015,8 @@ namespace AkribisFAM.DeviceClass
         }
         private int _step = 0;
         public bool CanPlaceRetry => _step < 5;
+        public ErrorCode ProcessErrorCode;
+        public string ProcessErrorMessage;
         public bool PlaceFoam(Picker pickerNum, int fovNum)
         {
             _step = 0;
@@ -1017,24 +1027,44 @@ namespace AkribisFAM.DeviceClass
             }
             if (_step == 1)
             {
-                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum)) return false;
+                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} is not holding any part";
+                    ProcessErrorCode = ErrorCode.VacuumFeedback;
+                    return false;
+                }
                 _step = 2;
             }
 
             if (_step == 2)
             {
-                if (!ZUpAll()) return false;
+                if (!ZUpAll())
+                {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 3;
             }
 
             if (_step == 3)
             {
-                if (!MovePlacePos(pickerNum, fovNum)) return false;
+                if (!MovePlacePos(pickerNum, fovNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move to FOV {fovNum} position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 4;
             }
             if (_step == 4)
             {
-                if (!TCompensatePlace(pickerNum)) return false;
+                if (!TCompensatePlace(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to compensate T";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 5;
             }
 
@@ -1046,6 +1076,8 @@ namespace AkribisFAM.DeviceClass
                 //}
                 if (!ZPickDownPosition(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move Z to pick position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1058,6 +1090,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!VacOff(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to turn off vacuum";
+                    ProcessErrorCode = ErrorCode.IOErr;
                     _step = -1;
                 }
                 else
@@ -1070,6 +1104,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!ZUp(pickerNum))
                 {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     return false;
                 }
             }
@@ -1094,18 +1130,43 @@ namespace AkribisFAM.DeviceClass
             }
             if (_step == 1)
             {
-                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum)) return false;
+                if (!IsVacOn(pickerNum) || !IsVacOk(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} is not holding any part";
+                    ProcessErrorCode = ErrorCode.VacuumFeedback;
+                    return false;
+                }
                 _step = 2;
             }
             if (_step == 2)
             {
-                if (!ZUpAll()) return false;
+                if (!ZUpAll())
+                {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 3;
             }
 
             if (_step == 3)
             {
-                if (!MoveStandbyPlacePos(pickerNum, fovNum)) return false;
+                if (!MoveStandbyPlacePos(pickerNum, fovNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move to FOV {fovNum} position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 4;
+            }
+            if (_step == 4)
+            {
+                if (!TZero(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to rotate T to 0 degree";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 5;
             }
 
@@ -1117,6 +1178,8 @@ namespace AkribisFAM.DeviceClass
                 //}
                 if (!ZPickDownPosition(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move Z to pick position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1129,6 +1192,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!VacOff(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to turn off vacuum";
+                    ProcessErrorCode = ErrorCode.IOErr;
                     _step = -1;
                 }
                 else
@@ -1139,7 +1204,12 @@ namespace AkribisFAM.DeviceClass
 
             if (_step == 7)
             {
-                if (!ZUp(pickerNum)) return false;
+                if (!ZUp(pickerNum))
+                {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
             }
 
             if (_step == -1)
@@ -1169,7 +1239,7 @@ namespace AkribisFAM.DeviceClass
         }
 
         public bool CanPickRetry => _step < 7;
-        public bool PickFoam(Picker pickerNum, int fovNum, bool checkPressure = true)
+        public bool PickFoam(Picker pickerNum, int fovNum, bool waitTRotate90 = true, bool checkPressure = true)
         {
             _step = 0;
             if (_step == 0)
@@ -1179,38 +1249,70 @@ namespace AkribisFAM.DeviceClass
             }
             if (_step == 1)
             {
-                if (IsVacOn(pickerNum) && IsVacOk(pickerNum)) return false;
+                if (IsVacOn(pickerNum) && IsVacOk(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} is holding part";
+                    ProcessErrorCode = ErrorCode.VacuumFeedback;
+                    return false;
+                }
                 _step = 2;
             }
             if (_step == 2)
             {
-                if (!ZUpAll()) return false;
+                if (!ZUpAll())
+                {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 3;
             }
             if (_step == 3)
             {
-                if (!TZero(pickerNum)) return false;
+                if (!TZero(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to rotate T to 0 degree";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 4;
             }
             if (_step == 4)
             {
-                if (!MovePickPos(pickerNum, fovNum, false)) return false;
+                if (!MovePickPos(pickerNum, fovNum, false))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move FOV {fovNum} standby position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 5;
             }
             if (_step == 5)
             {
-                if (!TCompensatePick(pickerNum)) return false;
+                if (!TCompensatePick(pickerNum))
+                {
+                    ProcessErrorMessage = $"Failed to compensate Picker {pickerNum} T angle";
+                    ProcessErrorCode = ErrorCode.motionTimeoutErr;
+                    return false;
+                }
                 _step = 6;
             }
             if (_step == 6)
             {
-                if (!WaitMovePickPosDone(pickerNum, fovNum)) return false;
+                if (!WaitMovePickPosDone(pickerNum, fovNum))
+                {
+                    ProcessErrorMessage = $"Timeout moving Picker {pickerNum} to FOV {fovNum} position";
+                    ProcessErrorCode = ErrorCode.motionTimeoutErr;
+                    return false;
+                }
                 _step = 7;
             }
             if (_step == 7)
             {
                 if (!ZPickDownPosition(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed move Z to pick position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1222,6 +1324,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!VacOn(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to turn on vacuum";
+                    ProcessErrorCode = ErrorCode.IOErr;
                     _step = -1;
                 }
                 else
@@ -1233,6 +1337,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!ZUp(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to Z up to safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1242,8 +1348,10 @@ namespace AkribisFAM.DeviceClass
             }
             if (_step == 10)
             {
-                if (!TRotate(pickerNum, 90))
+                if (!TRotate(pickerNum, 90, waitTRotate90))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move T to 90 degree";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1257,6 +1365,8 @@ namespace AkribisFAM.DeviceClass
                 {
                     if (!IsVacOk(pickerNum))
                     {
+                        ProcessErrorMessage = $"Picker {pickerNum} failed to pick up";
+                        ProcessErrorCode = ErrorCode.VacuumFeedback;
                         return false;
                     }
                 }
@@ -1270,7 +1380,7 @@ namespace AkribisFAM.DeviceClass
             return true;
 
         }
-        public bool PickFoamDryRun(Picker pickerNum, int fovNum, int feederNum, bool checkPressure = true)
+        public bool PickFoamDryRun(Picker pickerNum, int fovNum, int feederNum, bool waitTRotate90 = true, bool checkPressure = true)
         {
             _step = 0;
             if (_step == 0)
@@ -1280,34 +1390,65 @@ namespace AkribisFAM.DeviceClass
             }
             if (_step == 1)
             {
-                if (IsVacOn(pickerNum) && IsVacOk(pickerNum)) return false;
+                if (IsVacOn(pickerNum) && IsVacOk(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} is holding part";
+                    ProcessErrorCode = ErrorCode.VacuumFeedback;
+                    return false;
+                }
                 _step = 2;
             }
             if (_step == 2)
             {
-                if (!ZUpAll()) return false;
+                if (!ZUpAll())
+                {
+                    ProcessErrorMessage = $"Pickers is not in safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 3;
             }
             if (_step == 3)
             {
-                if (!TZero(pickerNum)) return false;
-                _step = 4;
+                if (!TZero(pickerNum))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to rotate T to 0 degree";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step =4;
             }
+
+            
             if (_step == 4)
             {
-                if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum, false)) return false;
+                if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum, false))
+                {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move feeder {feederNum} FOV {fovNum} standby position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
                 _step = 5;
             }
 
-            if (_step == 5)
+            if (_step == 5) { _step = 6; }
+            if (_step == 6)
             {
-                if (!WaitMoveStandbyPickPosDone(pickerNum, fovNum, feederNum)) return false;
+                if (!WaitMoveStandbyPickPosDone(pickerNum, fovNum, feederNum))
+                {
+                    ProcessErrorMessage = $"Timeout moving Picker {pickerNum} to feeder {feederNum} FOV {fovNum} standby position";
+                    ProcessErrorCode = ErrorCode.motionTimeoutErr;
+                    return false;
+                }
                 _step = 7;
             }
+
             if (_step == 7)
             {
                 if (!ZPickDownPosition(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed move Z to pick position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1320,6 +1461,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!VacOn(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to turn on vacuum";
+                    ProcessErrorCode = ErrorCode.IOErr;
                     _step = -1;
                 }
                 else
@@ -1332,6 +1475,8 @@ namespace AkribisFAM.DeviceClass
             {
                 if (!ZUp(pickerNum))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to Z up to safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1339,10 +1484,13 @@ namespace AkribisFAM.DeviceClass
                     _step = 10;
                 }
             }
+
             if (_step == 10)
             {
-                if (!TRotate(pickerNum, 90))
+                if (!TRotate(pickerNum, 90, false))
                 {
+                    ProcessErrorMessage = $"Picker {pickerNum} failed to move T to 90 degree";
+                    ProcessErrorCode = ErrorCode.motionErr;
                     _step = -1;
                 }
                 else
@@ -1356,6 +1504,8 @@ namespace AkribisFAM.DeviceClass
                 {
                     if (!IsVacOk(pickerNum))
                     {
+                        ProcessErrorMessage = $"Picker {pickerNum} failed to pick up";
+                        ProcessErrorCode = ErrorCode.VacuumFeedback;
                         return false;
                     }
                 }
@@ -1365,6 +1515,7 @@ namespace AkribisFAM.DeviceClass
                 ZUp(pickerNum);
                 return false;
             }
+
             _step = 0;
             return true;
         }
@@ -1430,7 +1581,7 @@ namespace AkribisFAM.DeviceClass
             return result;
         }
 
-      
+
         public bool PickAllFoam()
         {
             if (!ZUpAll())
@@ -1469,10 +1620,28 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
-
-        public bool TRotateAll(double angle)
+        public bool IsZAllDone(double zpos)
         {
-            return TRotate(Picker.Picker1, angle) & TRotate(Picker.Picker2, angle) & TRotate(Picker.Picker3, angle) & TRotate(Picker.Picker4, angle);
+            bool state1 = AkrAction.Current.IsMoveFoamZ1Done(zpos);
+            bool state2 = AkrAction.Current.IsMoveFoamZ2Done(zpos);
+            bool state3 = AkrAction.Current.IsMoveFoamZ3Done(zpos);
+            bool state4 = AkrAction.Current.IsMoveFoamZ4Done(zpos);
+            return state1 && state2 && state3 && state4;
+        }
+        public bool IsTAllRotateDone(double angle)
+        {
+            bool state1 = IsBypass(Picker.Picker1) || AkrAction.Current.IsMoveFoamT1Done(angle);
+            bool state2 = IsBypass(Picker.Picker2) || AkrAction.Current.IsMoveFoamT2Done(angle);
+            bool state3 = IsBypass(Picker.Picker3) || AkrAction.Current.IsMoveFoamT3Done(angle);
+            bool state4 = IsBypass(Picker.Picker4) || AkrAction.Current.IsMoveFoamT4Done(angle);
+            return state1 && state2 && state3 && state4;
+        }
+        public bool TRotateAll(double angle, bool waitMotionDone = true)
+        {
+            return TRotate(Picker.Picker1, angle, waitMotionDone) &
+                TRotate(Picker.Picker2, angle, waitMotionDone) &
+                TRotate(Picker.Picker3, angle, waitMotionDone) &
+                TRotate(Picker.Picker4, angle, waitMotionDone);
         }
         public bool TRotate(Picker picker, double angle, bool waitMotionDone = true)
         {

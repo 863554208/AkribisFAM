@@ -71,7 +71,9 @@ namespace AkribisFAM.Manager
         OnTheFlyTrayFailed = 0x0027,
 
         FoamPickFailed = 0x0028,
-        FoamPlaceFailed = 0x0029
+        FoamPlaceFailed = 0x0029,
+
+        VacuumFeedback = 0x0030,
     }
 
     public class ErrorInfo

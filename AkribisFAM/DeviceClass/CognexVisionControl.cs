@@ -261,7 +261,7 @@ namespace AkribisFAM.DeviceClass
 
 
 
-        public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths, OnTheFlyXDirection xdircetion = OnTheFlyXDirection.Positive, OnTheFlyYDirection ydirection= OnTheFlyYDirection.Positive)
+        public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths, OnTheFlyXDirection xdircetion = OnTheFlyXDirection.Positive, OnTheFlyYDirection ydirection = OnTheFlyYDirection.Positive)
         {
             partPoints = new List<SinglePoint>();
             visionStartEndPaths = new List<VisionTravelPath>();
@@ -278,7 +278,7 @@ namespace AkribisFAM.DeviceClass
             double gap_X = recipe.XPitch;
             double gap_Y = recipe.YPitch;
             int direction_X = xdircetion == OnTheFlyXDirection.Positive ? 1 : -1;
-            int direction_Y = ydirection== OnTheFlyYDirection.Positive? 1: -1;
+            int direction_Y = ydirection == OnTheFlyYDirection.Positive ? 1 : -1;
             double x_offset = App.paramLocal.LiveParam.FoamXOffset;
 
             var list = App.visionControl.GenerateLeftToRightGrid(start_pos_X, start_pos_Y, gap_X, gap_Y, totalRow, totalColumn);
@@ -555,10 +555,11 @@ namespace AkribisFAM.DeviceClass
         }
 
 
-        public bool SetAgitoXOnTheFlyModeOn(double startingPoint, double pitch, int eventSelect)
+        public bool SetAgitoXOnTheFlyModeOn(double startingPoint, OnTheFlyXDirection xDirection, double pitch, int eventSelect)
         {
             var numOfPitch = 3;
-            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, startingPoint, pitch, startingPoint + pitch * numOfPitch, eventSelect);
+            int sign = xDirection == OnTheFlyXDirection.Positive ? 1 : -1;
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, startingPoint, pitch, startingPoint + pitch * numOfPitch * sign, eventSelect);
 
             AkrAction.Current.EventEnable(AxisName.FSX);
 
@@ -569,7 +570,8 @@ namespace AkribisFAM.DeviceClass
         }
         public bool SetAgitoXOnTheFlyModeOn(double startingPoint, double endingPoint, double pitch, int eventSelect)
         {
-            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, startingPoint, pitch, endingPoint, eventSelect);
+            int sign = startingPoint < endingPoint ? 1 : -1;
+            AkrAction.Current.SetEventFixedGapPEG(AxisName.FSX, startingPoint, sign * pitch, endingPoint, eventSelect);
 
             AkrAction.Current.EventEnable(AxisName.FSX);
 
@@ -618,7 +620,7 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            SetAgitoXOnTheFlyModeOn(points[(int)TeachPointLocation.StartingPoint].X, App.paramLocal.LiveParam.FoamXOffset, 1);
+            SetAgitoXOnTheFlyModeOn(points[(int)TeachPointLocation.StartingPoint].X, direction, App.paramLocal.LiveParam.FoamXOffset, 1);
 
             //移动到拍照结束点
             if (!MoveToFoamVisionEndingPos(feeder, direction))
@@ -699,7 +701,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            SetAgitoXOnTheFlyModeOn(points[(int)TeachPointLocation.StartingPoint].X, -App.paramLocal.LiveParam.FoamXOffset, 2);
+            SetAgitoXOnTheFlyModeOn(points[(int)TeachPointLocation.StartingPoint].X, direction, App.paramLocal.LiveParam.FoamXOffset, 2);
 
             if (!MoveToBottomVisionEndingPos(direction))
             {

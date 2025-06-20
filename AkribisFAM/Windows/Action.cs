@@ -1035,7 +1035,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveFoamXY(double xpos, double ypos,  bool waitMotionDone = true, bool bypassZcheck = false)
+        public int MoveFoamXY(double xpos, double ypos, bool waitMotionDone = true, bool bypassZcheck = false)
         {
             try
             {
@@ -1145,11 +1145,29 @@ namespace AkribisFAM.WorkStation
         /// <param name="axisName"></param>
         /// <param name="zpos"></param>
         /// <returns></returns>
-        public bool IsMoveFoamZDone(AxisName axisName, double zpos)
+        public bool IsMoveFoamZ1Done(double zpos)
         {
-            return IsMotorInPos(axisName, zpos);
+            return IsMotorInPos(AxisName.PICK1_Z, zpos);
         }
-
+        public bool IsMoveFoamZ2Done(double zpos)
+        {
+            return IsMotorInPos(AxisName.PICK2_Z, zpos);
+        }
+        public bool IsMoveFoamZ3Done(double zpos)
+        {
+            return IsMotorInPos(AxisName.PICK3_Z, zpos);
+        }
+        public bool IsMoveFoamZ4Done(double zpos)
+        {
+            return IsMotorInPos(AxisName.PICK4_Z, zpos);
+        }
+        public bool IsMoveFoamZ1Z2Z3Z4Done(double zpos)
+        {
+            return IsMoveFoamZ1Done(zpos) &&
+                IsMoveFoamZ2Done(zpos) &&
+                IsMoveFoamZ3Done(zpos) &&
+                IsMoveFoamZ4Done(zpos);
+        }
         public int MoveFoamZ1(double z1pos, bool waitMotionDone = true)
         {
             try
@@ -1258,6 +1276,29 @@ namespace AkribisFAM.WorkStation
             {
                 return (int)ACTTION_ERR.ERR;
             }
+        }
+        public bool IsMoveFoamT1T2T3T4Done(double tpos)
+        {
+            return IsMoveFoamT1Done(tpos)
+                 && IsMoveFoamT2Done(tpos)
+                 && IsMoveFoamT3Done(tpos)
+                 && IsMoveFoamT4Done(tpos);
+        }
+        public bool IsMoveFoamT1Done(double tpos)
+        {
+            return IsMotorInPos(AxisName.PICK1_T, tpos);
+        }
+        public bool IsMoveFoamT2Done(double tpos)
+        {
+            return IsMotorInPos(AxisName.PICK2_T, tpos);
+        }
+        public bool IsMoveFoamT3Done(double tpos)
+        {
+            return IsMotorInPos(AxisName.PICK3_T, tpos);
+        }
+        public bool IsMoveFoamT4Done(double tpos)
+        {
+            return IsMotorInPos(AxisName.PICK4_T, tpos);
         }
         public int MoveFoamT1(double t1pos, bool waitMotionDone = true)
         {
