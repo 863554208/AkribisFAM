@@ -13,6 +13,7 @@ using System.Linq;
 using AkribisFAM.DeviceClass;
 using static AkribisFAM.Manager.MaterialManager;
 using static AkribisFAM.DeviceClass.CognexVisionControl;
+using System.Drawing;
 
 namespace AkribisFAM.WorkStation
 {
@@ -40,8 +41,10 @@ namespace AkribisFAM.WorkStation
         private static int _placeInspectMovestep = 0;
         private static int _placePartMovestep = 0;
         private static int _trayPlaceMovestep = 0;
+        private static int _trayCaptureMovestep = 0;
         private static int _currentTrayPlaceIndex = 0;
         private static int _currentPickerIndex = 0;
+        private static int _currentOnTheFlyRowIndex = 0;
         private static int _currentFeederIndex = 0;
         private bool _isProcessOngoing = false;
         private bool _trayInspectDone = false;
@@ -73,6 +76,10 @@ namespace AkribisFAM.WorkStation
             new FeederIndex() { PartIndex = 3, hasPart = false },
             new FeederIndex() { PartIndex = 4, hasPart = false },
         };
+        private List<SinglePoint> _trayOTFProductPosition = new List<SinglePoint>();
+        private List<VisionTravelPath> _trayOTFTravelPaths = new List<VisionTravelPath>();
+        private List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> _TLTcommands = new List<AssUpCamrea.Pushcommand.SendTLTCamreaposition>();
+        private int _TrayOTFRowDone = 0;
         public bool SetPickerEnable(int pickerIndex, bool enable)
         {
             if (pickerIndex < 1 || pickerIndex > 4)
@@ -1499,7 +1506,7 @@ namespace AkribisFAM.WorkStation
         public bool GetStandbyPlacePosition(int Nozzlenum, int Fovnum, out SinglePoint point)
         {
             point = new SinglePoint();
-            if (Nozzlenum < 1 || Nozzlenum > 4 )
+            if (Nozzlenum < 1 || Nozzlenum > 4)
             {
                 return false;
             }
@@ -1910,10 +1917,27 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.visionControl.MoveToPalletVisionStartingPos(App.lotManager.CurrLot.Recipe, false))
                 {
-                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"RejectFailedFoam");
+                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveToPalletVisionStartingPos(App.lotManager.CurrLot.Recipe, false)");
                 }
 
-                _movestep = 16;
+                _movestep = 161;
+                ResetTimeout();
+            }
+            // Go To pallet on the fly position
+            if (_movestep == 161)
+            {
+                if (!IsTimeOut())
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.TimeOut, $"MoveToPalletVisionStartingPos(App.lotManager.CurrLot.Recipe, false)");
+                }
+                if (!App.visionControl.GetPalletStandbyPosition(App.lotManager.CurrLot.Recipe, out SinglePoint point))
+                {
+                    return ErrorManager.Current.Insert(ErrorCode.motionErr, $"GetPalletStandbyPosition");
+                }
+                if (AkrAction.Current.IsMoveFoamXYDone(point.X, point.Y))
+                {
+                    _movestep = 16;
+                }
             }
 
             // CHECK IF TRAY AVAILABILITY
@@ -1945,16 +1969,36 @@ namespace AkribisFAM.WorkStation
             if (_movestep == 18)
             {
                 // If not yet inspected, trigger on the fly vision first
-                if (!_trayInspectDone && !App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
+                if (!_trayInspectDone)
+                {
+                    _trayOTFTravelPaths.Clear();
+                    _TLTcommands.Clear();
+                    _trayOTFProductPosition.Clear();
+                    _TrayOTFRowDone = 0;
+                    _trayCaptureMovestep = 0;
+                    _movestep = 18;
+                }
+                else
+                {
+                    _movestep = 19;
+                }
+            }
+            
+            if (_movestep == 18)
+            {
+                var onTheFlyResult = TrayOnTheFlySequence();
+                if (onTheFlyResult == 1) // ALL PICKERS HAVE BEEN PROCESSED
+                {
+                    _movestep = 19;
+
+                    _currentPickerIndex = 0;
+                    _trayPlaceMovestep = 0;
+                    _trayInspectDone = true;
+                }
+                else if (onTheFlyResult < 0)
                 {
                     return ErrorManager.Current.Insert(ErrorCode.OnTheFlyTrayFailed);
                 }
-
-                _currentPickerIndex = 0;
-                _trayPlaceMovestep = 0;
-                _trayInspectDone = true;
-                _movestep = 19;
-
             }
 
             // TRAY PLACE SEQUENCE
@@ -2054,13 +2098,13 @@ namespace AkribisFAM.WorkStation
                     if (App.assemblyGantryControl.CanPickRetry)
                     {
                         ErrorManager.Current.Insert(ErrorCode.FoamPickFailed, "Failed to pick, reset and retry");
-                        return -1; 
+                        return -1;
                     }
                     else
                     {
                         App.productTracker.PickerPickFail(_activeFeederNum, _selectedFeederIndex);
                         ErrorManager.Current.Insert(ErrorCode.FoamPickFailed, "Failed to pick, please remove");
-                        return -1; 
+                        return -1;
                     }
                 }
 
@@ -2139,6 +2183,136 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
+        private int TrayOnTheFlySequence()
+        {
+            // GET AVAILABLE POINTS
+            if (_trayCaptureMovestep == 0)
+            {
+                if (!App.visionControl.GetPalletXYPoints(_currentRecipe, out List<SinglePoint> points, out List<VisionTravelPath> travelPaths))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"GetPalletXYPoints(_currentRecipe, out List<SinglePoint> points, out List<VisionTravelPath> travelPaths)");
+                    return -1;
+                }
+
+                if (!App.visionControl.XYPointToTLTCommand(points, out List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> commands))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"XYPointToTLTCommand(points, out List<AssUpCamrea.Pushcommand.SendTLTCamreaposition> commands)");
+                    return -1;
+                }
+
+                _trayOTFProductPosition = points;
+                _trayOTFTravelPaths = travelPaths;
+                _TLTcommands = commands;
+                _trayCaptureMovestep = 1;
+            }
+
+
+            if (_trayCaptureMovestep == 1)
+            {
+                if (!App.visionControl.SetAgitoXOnTheFlyModeOff())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.AGM800Err, $"SetAgitoXOnTheFlyModeOff()");
+                    return -1;
+                }
+                _trayCaptureMovestep = 2;
+            }
+
+
+            if (_trayCaptureMovestep == 2)
+            {
+                if (_currentOnTheFlyRowIndex >= _trayOTFTravelPaths.Count)
+                {
+                    _currentOnTheFlyRowIndex = 0;
+                    _trayCaptureMovestep = 0;
+                    return 1; // ALL PICKERS HAVE BEEN PROCESSED
+                }
+                _trayCaptureMovestep = 3;
+            }
+
+            // MOVE TO Starting point
+            if (_trayCaptureMovestep == 3)
+            {
+                var startingPoint = _trayOTFTravelPaths[_currentOnTheFlyRowIndex].StartingPoint;
+                if (AkrAction.Current.MoveFoamXY(startingPoint.X, startingPoint.Y, waitMotionDone: false) != (int)AkrAction.ACTTION_ERR.NONE)
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveFoamXY(startingPoint.X, startingPoint.Y, waitMotionDone: false");
+                    return -1;
+                }
+                _trayCaptureMovestep = 4;
+                ResetTimeout();
+            }
+
+            if (_trayCaptureMovestep == 4)
+            {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.TimeOut, $"MoveFoamXY(startingPoint.X, startingPoint.Y, waitMotionDone: false");
+                    return -1;
+                }
+
+                var startingPoint = _trayOTFTravelPaths[_currentOnTheFlyRowIndex].StartingPoint;
+                if (AkrAction.Current.IsMoveFoamXYDone(startingPoint.X, startingPoint.Y))
+                {
+                    _trayCaptureMovestep = 5;
+                }
+            }
+
+            if (_trayCaptureMovestep == 5)
+            {
+                if (_currentOnTheFlyRowIndex == 0 && !App.visionControl.SendTLTCommands(_TLTcommands))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.CognexErr, $"SendTLTCommands(_TLTcommands)");
+                    return -1;
+                }
+
+                _trayCaptureMovestep = 6;
+            }
+
+            if (_trayCaptureMovestep == 6)
+            {
+                if (!App.visionControl.SetAgitoXOnTheFlyModeOn(_trayOTFProductPosition[_currentOnTheFlyRowIndex * _currentRecipe.PartColumn].X,
+                    _trayOTFProductPosition[_currentOnTheFlyRowIndex * _currentRecipe.PartColumn + _currentRecipe.PartColumn - 1].X,
+                    App.paramLocal.LiveParam.FoamXOffset, 1))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.AGM800Err, $"SetAgitoXOnTheFlyModeOn()");
+                    return -1;
+                }
+
+                _trayCaptureMovestep = 7;
+            }
+            if (_trayCaptureMovestep == 7)
+            {
+                var endingPoint = _trayOTFTravelPaths[_currentOnTheFlyRowIndex].EndingPoint;
+                if (AkrAction.Current.MoveFoamXY(endingPoint.X, endingPoint.Y, waitMotionDone: false) != (int)AkrAction.ACTTION_ERR.NONE)
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveFoamXY(endingPoint.X, endingPoint.Y, waitMotionDone: false");
+                    return -1;
+                }
+
+                _trayCaptureMovestep = 8;
+                ResetTimeout();
+            }
+
+            if (_trayCaptureMovestep == 8)
+            {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.TimeOut, $"MoveFoamXY(endingPoint.X, endingPoint.Y, waitMotionDone: false");
+                    return -1;
+                }
+
+                var endingPoint = _trayOTFTravelPaths[_currentOnTheFlyRowIndex].EndingPoint;
+                if (AkrAction.Current.IsMoveFoamXYDone(endingPoint.X, endingPoint.Y))
+                {
+                    _trayCaptureMovestep = 1;
+                    _currentOnTheFlyRowIndex++;
+                }
+            }
+
+            return 0;
+        }
+
+
         private int TrayPlaceSequence()
         {
             // GET AVAILABLE PICKER
@@ -2214,7 +2388,7 @@ namespace AkribisFAM.WorkStation
             return 0;
         }
 
-  
+
         private class Picker
         {
             public int PickerIndex { get; set; }

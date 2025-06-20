@@ -1035,7 +1035,7 @@ namespace AkribisFAM.WorkStation
         /// <param name="xpos"></param>
         /// <param name="ypos"></param>
         /// <returns></returns>
-        public int MoveFoamXY(double xpos, double ypos, bool bypassZcheck = false, bool waitMotionDone = true)
+        public int MoveFoamXY(double xpos, double ypos,  bool waitMotionDone = true, bool bypassZcheck = false)
         {
             try
             {

@@ -39,8 +39,8 @@ namespace AkribisFAM.DeviceClass
         }
         public enum OnTheFlyYDirection
         {
-            Inward,
-            Outward,
+            Positive,
+            Negative,
         }
         public enum TeachPointLocation
         {
@@ -261,7 +261,7 @@ namespace AkribisFAM.DeviceClass
 
 
 
-        public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths)
+        public bool GetPalletXYPoints(Recipe recipe, out List<SinglePoint> partPoints, out List<VisionTravelPath> visionStartEndPaths, OnTheFlyXDirection xdircetion = OnTheFlyXDirection.Positive, OnTheFlyYDirection ydirection= OnTheFlyYDirection.Positive)
         {
             partPoints = new List<SinglePoint>();
             visionStartEndPaths = new List<VisionTravelPath>();
@@ -277,8 +277,8 @@ namespace AkribisFAM.DeviceClass
             int totalColumn = recipe.PartColumn;
             double gap_X = recipe.XPitch;
             double gap_Y = recipe.YPitch;
-            int direction_X = -1;
-            int direction_Y = -1;
+            int direction_X = xdircetion == OnTheFlyXDirection.Positive ? 1 : -1;
+            int direction_Y = ydirection== OnTheFlyYDirection.Positive? 1: -1;
             double x_offset = App.paramLocal.LiveParam.FoamXOffset;
 
             var list = App.visionControl.GenerateLeftToRightGrid(start_pos_X, start_pos_Y, gap_X, gap_Y, totalRow, totalColumn);
@@ -749,7 +749,7 @@ namespace AkribisFAM.DeviceClass
             }
             return true;
         }
-        public bool MoveToBottomVisionEndingPos(OnTheFlyXDirection direction, bool bypassCheckZ = false, bool waitMotionDone = true)
+        public bool MoveToBottomVisionEndingPos(OnTheFlyXDirection direction, bool waitMotionDone = true, bool bypassCheckZ = false)
         {
             if (!App.assemblyGantryControl.ZUpAll())
             {
@@ -761,7 +761,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, bypassCheckZ, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y, waitMotionDone, bypassCheckZ) != (int)AkrAction.ACTTION_ERR.NONE)
             {
                 return false;
             }
