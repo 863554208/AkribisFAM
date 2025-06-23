@@ -208,6 +208,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Manager\AllProductTracker.cs" />
     <Compile Include="Manager\CriticalIOManager.cs" />
     <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\DirectoryManager.cs" />
@@ -231,6 +232,7 @@
     <Compile Include="Util\Parser.cs" />
     <Compile Include="Util\ProductData.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
+    <Compile Include="ViewModel\LaserStationVM.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
     <Compile Include="ViewModel\SettingVM.cs" />
     <Compile Include="Windows\Action.cs" />
@@ -253,6 +255,9 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Converters\Converters.cs" />
+    <Compile Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml.cs">
+      <DependentUpon>PointXYVisionMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
       <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
     </Compile>
@@ -264,6 +269,9 @@
     </Compile>
     <Compile Include="Windows\Conveyor\ConveyorControlView.xaml.cs">
       <DependentUpon>ConveyorControlView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml.cs">
+      <DependentUpon>PointXYHeightMeasurementView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Laser\SubView\ProductXYPointsView.xaml.cs">
       <DependentUpon>ProductXYPointsView.xaml</DependentUpon>
@@ -319,8 +327,20 @@
     <Compile Include="Windows\HardwareControl.xaml.cs">
       <DependentUpon>HardwareControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Main\RecheckMeasurementView.xaml.cs">
+      <DependentUpon>RecheckMeasurementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\LaserMeasurementView.xaml.cs">
+      <DependentUpon>LaserMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Main\LotAndMaterialView.xaml.cs">
       <DependentUpon>LotAndMaterialView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\ProductTrackerView.xaml.cs">
+      <DependentUpon>ProductTrackerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\Subview\SingleProductTrackerView.xaml.cs">
+      <DependentUpon>SingleProductTrackerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
@@ -348,7 +368,6 @@
     <Compile Include="WorkStation\Conveyor.cs" />
     <Compile Include="WorkStation\Feeder.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
-    <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
@@ -359,6 +378,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Theme\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -377,6 +400,10 @@
     <Page Include="Windows\Conveyor\ConveyorControlView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\Laser\SubView\ProductXYPointsView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -486,7 +513,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Main\RecheckMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Main\LaserMeasurementView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\Main\LotAndMaterialView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\ProductTrackerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\Subview\SingleProductTrackerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

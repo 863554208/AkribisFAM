@@ -98,7 +98,7 @@
         </Grid>
 
         <!-- 第二行，水平 StackPanel -->
-        <Grid Grid.Row="1" Background="#ebe8e8"
+        <Grid Grid.Row="1" Background="White"
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -188,7 +188,16 @@
                     <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
                     </Viewbox>
                 </Button>
-
+                <Button x:Name="btnDebug" Content="Fail" Click="btnDebug_Click"/>
+                <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
+                <Button x:Name="btnDebug3" Content="Can send" Click="btnDebug3_Click"/>
+                <Button x:Name="btnDebug4" Content="Removed" Click="btnDebug4_Click"/>
+                <Button x:Name="btnDebug5" Content="Pass" Click="btnDebug5_Click"/>
+                <Button x:Name="btnDebug6" Content="Foam1" Click="btnDebug6_Click"/>
+                <Button x:Name="btnDebug7" Content="Foam2" Click="btnDebug7_Click"/>
+                <Button x:Name="btnDebug8" Content="PickerPick" Click="btnDebug8_Click"/>
+                <Button x:Name="btnDebug9" Content="PlacePart" Click="btnDebug9_Click"/>
+                <Button x:Name="btnDebug10" Content="testfunc" Click="btnDebug10_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Column="1">
                 <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>

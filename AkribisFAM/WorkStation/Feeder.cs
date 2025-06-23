@@ -43,8 +43,6 @@ namespace AkribisFAM.WorkStation
         FeederSequenceStep currentStep = FeederSequenceStep.Initialize;
         FeederSequenceStep previousStep = FeederSequenceStep.Idle;
 
-        DateTime SeqStartTime = DateTime.Now;
-
         private bool _canPick = false;
 
         public override string Name => throw new NotImplementedException();
@@ -121,7 +119,7 @@ namespace AkribisFAM.WorkStation
                         else
                         {
                             _feeder.Index(); // Start the indexing process
-                            SeqStartTime = DateTime.Now;
+                            ResetTimeout();
                             currentStep = FeederSequenceStep.VerifyPartInPosition;
                         }
                             
@@ -140,7 +138,7 @@ namespace AkribisFAM.WorkStation
                         currentStep = FeederSequenceStep.WaitTillAllPartsPicked;
                         break;
                     }
-                    else if ((DateTime.Now - SeqStartTime).TotalMilliseconds > 3000) // Timeout after 3 seconds
+                    else if (IsTimeOut()) // Timeout after 3 seconds
                     {
                         if (_feeder.IsAlarm) // Feeder empty or has alarm
                         {
@@ -189,7 +187,7 @@ namespace AkribisFAM.WorkStation
 
                 case FeederSequenceStep.SwitchFeeder:
                     SwitchFeeder();
-                    SeqStartTime = DateTime.Now; // Reset the sequence start time
+                    ResetTimeout();
                     currentStep = FeederSequenceStep.VerifySwitchSuccessful;
                     break;
 
@@ -238,9 +236,9 @@ namespace AkribisFAM.WorkStation
             var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_0Initialized_feeder1 : IO_INFunction_Table.IN4_4BInitialized_feeder2;
             return ReadIO(IO);
         }
-        private bool HasPartIn(FeederControl feeder)
+        public bool HasPartIn()
         {
-            var IO = feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2;
+            var IO = _feeder.FeederNumber == 1 ? IO_INFunction_Table.IN4_2Platform_has_label_feeder1 : IO_INFunction_Table.IN4_7Backup_Platform_2_has_label_feeder2;
             return ReadIO(IO);
         }
         public void SetIO(IO_OutFunction_Table index, int value)

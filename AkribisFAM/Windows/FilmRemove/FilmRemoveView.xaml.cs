@@ -124,7 +124,7 @@ namespace AkribisFAM.Windows
                       {
                           return;
                       }
-                      if (!App.vision1.Trigger())
+                      if (!App.visionControl.Trigger(DeviceClass.CognexVisionControl.VisionStation.RecheckVision))
                       {
                           return;
                       }
@@ -248,12 +248,12 @@ namespace AkribisFAM.Windows
                     return;
                 }
 
-                if (!App.vision1.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
+                if (!App.visionControl.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
                 {
                     return;
                 }
 
-                if (!App.vision1.Trigger())
+                if (!App.visionControl.Trigger(DeviceClass.CognexVisionControl.VisionStation.RecheckVision))
                 {
                     return;
                 }

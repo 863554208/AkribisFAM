@@ -9,11 +9,11 @@ using static AkribisFAM.GlobalManager;
 using AkribisFAM.Util;
 using System.Windows;
 using System.Net.Sockets;
+using static AkribisFAM.WorkStation.Conveyor;
 namespace AkribisFAM.WorkStation
 {
     internal class LaiLiao : WorkStationBase
     {
-        private static int _movestep = 0;
         private static int _laserMoveStep = 0;
         private static DateTime startTime = DateTime.Now;
         private bool _isProcessOngoing = false;
@@ -778,6 +778,7 @@ namespace AkribisFAM.WorkStation
             {
                 if (App.scanner.ScanBarcode(out string result) == 0)
                 {
+                    Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].Barcode = result;
                     _movestep = 2;
                 }
                 else
@@ -805,23 +806,10 @@ namespace AkribisFAM.WorkStation
                 }
             }
 
-
-
-            //// GET THE TEACH POINTS
-            //if (_movestep == 0)
-            //{
-            //    if (!GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
-            //    {
-            //        ShowErrorMessage((int)ErrorCode.Laser_Failed);
-            //        return -1; // Failed to get teach points
-            //    }
-            //    _laserMoveStep = 1;
-            //}
-
             // GET LASER TEACH POINTS
             if (_movestep == 3)
             {
-                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _laserPoints))
+                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _laserPoints))
                 {
                     _laserPointData.Clear(); // Clear previous laser point data
                     foreach (var pointList in _laserPoints)
@@ -867,13 +855,21 @@ namespace AkribisFAM.WorkStation
                 ProcessingDone();
 
                 // Temporary, should be conveyor checking the stations status
-                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, true);
+                bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+                Conveyor.Current.ProcessingDone(Conveyor.ConveyorStation.Laser, passCondition);
 
                 _movestep = 0; // Reset for next tray
             }
             return true;
         }
-
+        private bool IsTimeOut()
+        {
+            return (DateTime.Now - startTime).TotalMilliseconds >= App.paramLocal.LiveParam.ProcessTimeout;
+        }
+        private void ResetTimeout()
+        {
+            startTime = DateTime.Now;
+        }
         /// <summary>
         /// Laser measurement sequence logic.
         /// Returns 0 on no error, Returns -1 on error. Returns 1 when the sequence is complete.
@@ -897,32 +893,30 @@ namespace AkribisFAM.WorkStation
                     return -1;
                 }
                 _laserMoveStep = 1; // Move to next step
-                startTime = DateTime.Now;
+                ResetTimeout();
             }
 
             // WAIT FOR POSITION ARRIVAL
             if (_laserMoveStep == 1)
             {
                 var movePt = _laserPointData[_currentLaserPointIndex].Point;
-                if ((startTime - DateTime.Now).TotalMilliseconds < 3000)
-                {
-                    if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
-                    {
-                        _currentLaserPointIndex++;
-                        _laserMoveStep = 2;
-                    }
-                }
-                else
+                if (IsTimeOut())
                 {
                     ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveLaserXYDone({movePt.X},{movePt.Y})");
                     return -1;
+                }
 
+                if (AkrAction.Current.IsMoveLaserXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
+                {
+                    _currentLaserPointIndex++;
+                    _laserMoveStep = 2;
                 }
             }
 
             // DO LASER MEASURE
             if (_laserMoveStep == 2)
             {
+                var movePt = _laserPointData[_currentLaserPointIndex].Point;
                 if (!App.laser.Measure(out double res))
                 {
                     ErrorManager.Current.Insert(ErrorCode.LaserErr, $"App.laser.Measure(out double {res})");
@@ -930,6 +924,24 @@ namespace AkribisFAM.WorkStation
                 }
                 else
                 {
+                    var targetPart = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray[_currentLaserPointIndex];
+                    var measurement = new LaserMeasurement()
+                    {
+                        MeasurementCount = _currentLaserPointIndex,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = movePt.X,
+                        YMeasurePosition = movePt.Y,
+                        HeightMeasurement = res,
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    };
+                    targetPart.HeightMeasurements.Add(measurement);
+                    if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                    {
+                        targetPart.failed = true;
+                        targetPart.FailReason = FailReason.HeightFail;
+                        targetPart.FailStation = StationType.Laser;
+                    }
                     _laserMoveStep = 0;
                 }
             }
@@ -943,7 +955,7 @@ namespace AkribisFAM.WorkStation
 
         public override void ResetAfterPause()
         {
-            startTime = DateTime.Now;
+            ResetTimeout();
             _BarcodeScanRetryCount = 0;
         }
 
