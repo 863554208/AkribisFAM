@@ -1,5 +1,8 @@
 ﻿=========================== CHANGE LOG ===========================
 
+v0.0.0.11 [2025-06-23, Paul Raymond]
+ - Feat: Add T angular check feature
+
 v0.0.0.10 [2025-06-23, Raymond]
  - Feat: Update TCP Client, added light control
  - Fix : Conveyor page digital input status not refresh bug
