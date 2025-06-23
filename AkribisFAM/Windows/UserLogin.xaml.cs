@@ -62,8 +62,8 @@ namespace AkribisFAM.Windows
         {
             Application.Current.MainWindow.Opacity = 1;
         }
-        
-        
+
+
         private void UpdateInfoAndClose()
         {
 
@@ -86,7 +86,8 @@ namespace AkribisFAM.Windows
             DialogResult = false;
             Visibility = Visibility.Hidden;
 
-            Application.Current.MainWindow.Opacity = 1;
+            if (Application.Current.MainWindow != null)
+                Application.Current.MainWindow.Opacity = 1;
             //Close();
         }
 

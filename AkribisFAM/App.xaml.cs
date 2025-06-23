@@ -17,6 +17,7 @@ using AkribisFAM.Models;
 using System.Linq;
 using AkribisFAM.Helper;
 using AkribisFAM.Windows;
+using System.Configuration;
 
 namespace AkribisFAM
 {
@@ -65,15 +66,28 @@ namespace AkribisFAM
             IOManager.Instance.ReadIO_loop();
 
             // Force apply migrations to database on startup
-            var migrator = new DbMigrator(new Migrations.Configuration());
-            migrator.Update(); // Applies all pending migrations
+            try
+            {
+
+                var migrator = new DbMigrator(new Migrations.Configuration());
+                migrator.Update(); // Applies all pending migrations
+            }
+            catch (Exception ex)
+            {
+
+                //throw;
+            }
 
             //MessageBox.Show("123");
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
-            DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite"));
+            
+            var path = Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite");
+            DbManager = new DatabaseManager(path);
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
+            string rawConnStr = ConfigurationManager.ConnectionStrings["Conn"].ConnectionString;
             recipeManager = new RecipeManager();
             lotManager = new LotManager();
             lotManager.Initialize();
