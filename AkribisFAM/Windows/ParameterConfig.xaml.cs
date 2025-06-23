@@ -29,6 +29,7 @@ using System.Security.Cryptography;
 using System.Xml.Linq;
 using AkribisFAM.Helper;
 using System.Windows.Threading;
+using System.Runtime.ConstrainedExecution;
 
 
 namespace AkribisFAM.Windows
@@ -120,9 +121,26 @@ namespace AkribisFAM.Windows
 
             //END ADD
         }
-      
+        private static void Clear()
+        {
+
+            GlobalManager.Current.laserPoints.Clear();
+            GlobalManager.Current.feedar1Points.Clear();
+            GlobalManager.Current.feedar2Points.Clear();
+            GlobalManager.Current.pickFoam1Points.Clear();
+            GlobalManager.Current.pickFoam2Points.Clear();
+            GlobalManager.Current.lowerCCDPoints.Clear();
+            GlobalManager.Current.dropBadFoamPoints.Clear();
+            GlobalManager.Current.snapPalletePoints.Clear();
+            GlobalManager.Current.placeFoamPoints.Clear();
+            GlobalManager.Current.recheckPoints.Clear();
+            GlobalManager.Current.tearingPoints.Clear();
+
+            //GlobalManager.Current.BarcodeQueue.Clear();
+        }
         public static void LoadPoints()
         {
+            Clear();
             List<string> posFilePre = new List<string>();
             List<string> posFileName = new List<string>();
 
@@ -170,7 +188,7 @@ namespace AkribisFAM.Windows
                 }
 
 
-                if (Node.name!=null && Node.name.Equals("Laser Points"))
+                if (Node.name != null && Node.name.Equals("Laser Points"))
                 {
                     foreach (var pointList in Node.childList)
                     {
@@ -188,7 +206,7 @@ namespace AkribisFAM.Windows
 
             foreach (var Node in GlobalManager.Current.stationPoints.ZuZhuangPointList)
             {
-                if(Node.name !=null && Node.name.Equals("NozzleGap_X"))
+                if (Node.name != null && Node.name.Equals("NozzleGap_X"))
                 {
                     GlobalManager.Current.NozzleGap_X = Convert.ToInt32(Node.general);
                 }
@@ -1104,7 +1122,7 @@ namespace AkribisFAM.Windows
             // 添加 Teaching Point 按钮
             var teachBtn = new Button
             {
-                Visibility= Visibility.Collapsed,
+                Visibility = Visibility.Collapsed,
                 ToolTip = "Teaching point",
                 Style = (Style)Application.Current.FindResource("MaterialDesignFloatingActionButton"),
                 Width = 30,

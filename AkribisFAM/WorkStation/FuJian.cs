@@ -1,37 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using AkribisFAM.Manager;
-using LiveCharts.SeriesAlgorithms;
-using YamlDotNet.Core;
-using HslCommunication;
 using static AkribisFAM.GlobalManager;
 using AkribisFAM.CommunicationProtocol;
-using System.Reflection;
-using YamlDotNet.Core.Tokens;
-using System.Xml.Linq;
-using System.Data.SQLite;
-using static System.Windows.Forms.AxHost;
-using System.Windows;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
-using System.Diagnostics;
-using Newtonsoft.Json;
-using static AkribisFAM.WorkStation.Reject;
-using System.IO;
-using AkribisFAM.Helper;
 using AkribisFAM.Util;
 using AkribisFAM.Windows;
-using System.Collections.ObjectModel;
-using System.Data.Entity.Core.Mapping;
+using static AkribisFAM.Manager.MaterialManager;
 
 namespace AkribisFAM.WorkStation
 {
     internal class FuJian : WorkStationBase
     {
-        private static int _movestep = 0;
         private static int _filmRemoveMovestep = 0;
         private static int _inspectMovestep = 0;
         private bool _isProcessOngoing = false;
@@ -59,16 +41,6 @@ namespace AkribisFAM.WorkStation
         }
 
 
-        public override void ReturnZero()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void Initialize()
-        {
-            throw new NotImplementedException();
-        }
-
         public static void Set(string propertyName, object value)
         {
             var propertyInfo = typeof(GlobalManager).GetProperty(propertyName);
@@ -79,10 +51,6 @@ namespace AkribisFAM.WorkStation
             }
         }
 
-        public override bool Ready()
-        {
-            return true;
-        }
 
         public bool ReadIO(IO_INFunction_Table index)
         {
@@ -96,7 +64,7 @@ namespace AkribisFAM.WorkStation
             }
             else
             {
-                ErrorManager.Current.Insert(ErrorCode.IOErr);
+                ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
                 return false;
             }
         }
@@ -162,7 +130,7 @@ namespace AkribisFAM.WorkStation
             {
                 //报错
                 GlobalManager.Current.FuJian_state[GlobalManager.Current.current_FuJian_step] = 1;
-                GlobalManager.Current.IsPause = true;
+                AutorunManager.Current.ToPause = true;
                 ErrorManager.Current.Insert(errorCode);
             }
             GlobalManager.Current.FuJian_CheckState();
@@ -281,10 +249,10 @@ namespace AkribisFAM.WorkStation
                 }
                 //蓝膜收集吸气
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1);
-                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+                SetIO(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
                 Thread.Sleep(500);
                 SetIO(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
-                SetIO(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+                SetIO(IO_OutFunction_Table.OUT4_3Machine_Reset, 0);
                 //夹爪气缸缩回
                 SetIO(IO_OutFunction_Table.OUT4_0Pneumatic_Claw_A, 0);
                 SetIO(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1);
@@ -330,7 +298,7 @@ namespace AkribisFAM.WorkStation
                         k = GlobalManager.Current.TotalColumn - 1 - j + i * GlobalManager.Current.TotalColumn;
                     }
                     k = GlobalManager.Current.TotalRow * GlobalManager.Current.TotalColumn - 1 - k;
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0);
                     //移动到穴位
                     actionret = AkrAction.Current.MoveFoamXY(GlobalManager.Current.recheckPoints[k].X,
                         GlobalManager.Current.recheckPoints[k].Y);
@@ -356,7 +324,7 @@ namespace AkribisFAM.WorkStation
                     {
                         return false;
                     }
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1);
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1);
                     //获取康耐视数据
                     string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
                     int cogres;
@@ -408,7 +376,7 @@ namespace AkribisFAM.WorkStation
             {
                 return false;
             }
-            
+
             //Read teach points named "Laser Points"
             var teachpoints = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
             if (teachpoints == null)
@@ -467,7 +435,7 @@ namespace AkribisFAM.WorkStation
         {
             _isProcessOngoing = true;
         }
-        public override void AutoRun(CancellationToken token)
+        public override bool AutoRun()
         {
             // WAIT FOR TRAY IN POSITION
             if (_movestep == 0)
@@ -482,7 +450,7 @@ namespace AkribisFAM.WorkStation
             // GET TEACH POINTS
             if (_movestep == 1)
             {
-                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints))
+                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
                 {
                     _currentPeelerIndex = 0; // Reset index for move points
                     Logger.WriteLog("retest teach points loaded successfully.");
@@ -491,7 +459,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     Logger.WriteLog("Failed to load retest teach points.");
-                    return; // Exit the process
+                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints)"); // Exit the process
                 }
             }
 
@@ -506,15 +474,15 @@ namespace AkribisFAM.WorkStation
                 }
                 else if (filmRemovalSeqRes == -1)
                 {
-                    // TODO: ERROR HANDLING
-                    return;
+                    //return ErrorManager.Current.Insert(ErrorCode.motionErr, $"FilmRemovalSequence()");
+                    return false;
                 }
             }
 
             // GET VISION TEACH POINTS
             if (_movestep == 3)
             {
-                if (GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints))
+                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
                 {
                     _currentVisionIndex = 0; // Reset index for move points
                     _inspectMovestep = 0;
@@ -524,7 +492,7 @@ namespace AkribisFAM.WorkStation
                 else
                 {
                     Logger.WriteLog("Failed to load retest teach points.");
-                    return; // Exit the process
+                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"(GetTeachPointList({TrayType.PAM_230_144_3X4}, out {_movePoints}))");
                 }
             }
 
@@ -538,8 +506,7 @@ namespace AkribisFAM.WorkStation
                 }
                 else if (inspectRes == -1)
                 {
-                    // TODO: ERROR HANDLING
-                    return;
+                    return false;
                 }
             }
 
@@ -555,15 +522,17 @@ namespace AkribisFAM.WorkStation
             }
 
 
+
+            return true;
         }
         private int FilmRemovalSequence()
         {
             var zPos = 12.0; // TODO: remove temporary hardcode z position
-            DateTime startTime = DateTime.Now;
             int vacuumDelay = 1000;
 
             // MOVE TO POSITION
-            if (_filmRemoveMovestep == 0) {
+            if (_filmRemoveMovestep == 0)
+            {
 
                 if (_currentPeelerIndex >= _movePoints.Count)
                 {
@@ -574,21 +543,29 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
                 {
                     // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X},{movePt.Y}, false)"); // Exit the process
                     return -1;
                 }
+
                 _filmRemoveMovestep = 1; // Move to next step
+                ResetTimeout();
             }
 
             // WAIT XY REACH POSITION  AND OPEN GRIP IF NOT OPEN YET
             if (_filmRemoveMovestep == 1)
             {
                 var movePt = _movePoints[_currentPeelerIndex];
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"IsMoveRecheckXYDone({movePt.X}, {movePt.Y})");
+                    return -1;
+                }
+
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
                     App.filmRemoveGantryControl.ClawOpen();
                     _filmRemoveMovestep = 2;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // Z DOWN
@@ -597,20 +574,25 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
                 {
                     // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({zPos}, false)");
                     return -1;
                 }
-                
+                ResetTimeout();
                 _filmRemoveMovestep = 3; // Move to next step
             }
 
             // WAIT Z TO REACH POSITION
             if (_filmRemoveMovestep == 3)
             {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"IsMoveRecheckZDone({zPos}");
+                    return -1;
+                }
                 if (AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
                 {
                     _filmRemoveMovestep = 7;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // MOVE X DIRECTION
@@ -622,23 +604,27 @@ namespace AkribisFAM.WorkStation
             // GRIP CLOSE
             if (_filmRemoveMovestep == 7)
             {
-                App.filmRemoveGantryControl.ClawClose();
+                if (!App.filmRemoveGantryControl.ClawClose())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawClose()");
+                    return -1;
+                }
                 _filmRemoveMovestep = 8; // Move to next step
+                ResetTimeout();
             }
 
             // WAIT
             if (_filmRemoveMovestep == 8)
             {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.ClawReedSwitchTimeOut, $"IsClawClose()");
+                    return -1;
+                }
                 if (App.filmRemoveGantryControl.IsClawClose())
                 {
                     _filmRemoveMovestep = 13; // Move to next step
                 }
-                else
-                {
-                    // Error: Claw did not close properly
-                    return -1;
-                }
-                // TODO: Add a timeout mechanism here
             }
 
             // ZUP A BIT
@@ -659,47 +645,58 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
                 {
                     // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
                     return -1;
                 }
                 _filmRemoveMovestep = 14; // Move to next step
+                ResetTimeout();
             }
 
             // WAIT
             if (_filmRemoveMovestep == 14)
             {
-                if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.ClawReedSwitchTimeOut, $"IsMoveRecheckZDone(0)");
+                    return -1;
+                }
+
+                if (!AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
                 {
                     _filmRemoveMovestep = 15;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // MOVE TO BIN
             if (_filmRemoveMovestep == 15)
             {
                 var movePt = GlobalManager.Current.RecheckRecylePos;
-                if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) == 0) // if motion stopped/reached position
+                if (AkrAction.Current.MoveRecheckXY(movePt.X, movePt.Y, false) != 0)
                 {
-                    _filmRemoveMovestep = 16;
-                }
-                else
-                {
-                    // Error handling
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({movePt.X}, {movePt.Y}, false)");
                     return -1;
                 }
 
+                _filmRemoveMovestep = 16;
+                ResetTimeout();
             }
 
             // WAIT THEN ON VAC
             if (_filmRemoveMovestep == 16)
             {
                 var movePt = GlobalManager.Current.RecheckRecylePos;
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckXYDone({movePt.X}, {movePt.Y})");
+                    return -1;
+                }
+
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X, movePt.Y)) // if motion stopped/reached position
                 {
+
                     App.filmRemoveGantryControl.VacOn();
                     _filmRemoveMovestep = 17;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // Z DOWN
@@ -708,21 +705,28 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(zPos, false) != 0)
                 {
                     // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckXY({zPos}, false)");
                     return -1;
                 }
                 _filmRemoveMovestep = 18; // Move to next step
+                ResetTimeout();
             }
 
-           
+
 
             // WAIT
             if (_filmRemoveMovestep == 18)
             {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                    return -1;
+                }
+
                 if (AkrAction.Current.IsMoveRecheckZDone(zPos)) // if motion stopped/reached position
                 {
                     _filmRemoveMovestep = 19;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // GRIP OPEN
@@ -730,21 +734,25 @@ namespace AkribisFAM.WorkStation
             {
                 if (!App.filmRemoveGantryControl.ClawOpen())
                 {
-                    // Error handling
+                    ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawOpen()");
                     return -1;
                 }
                 _filmRemoveMovestep = 20; // Move to next step
+                ResetTimeout();
             }
 
             // WAIT GRIPPER OPEN
             if (_filmRemoveMovestep == 20)
             {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone({zPos})");
+                    return -1;
+                }
                 if (App.filmRemoveGantryControl.IsClawOpen())
                 {
-                    startTime = DateTime.Now; // Reset start time for delay
                     _filmRemoveMovestep = 21; // Move to next step
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // WAIT DELAY TO LET FILM RELEASE
@@ -752,9 +760,9 @@ namespace AkribisFAM.WorkStation
             {
                 //if ((DateTime.Now - startTime).TotalMilliseconds >= vacuumDelay)
                 //{
-                    
-                    _filmRemoveMovestep = 22; // Move to next step
-                //}
+                App.filmRemoveGantryControl.VacOff();
+                _filmRemoveMovestep = 22; // Move to next step
+                                          //}
             }
 
             // ZUP FULLY
@@ -763,44 +771,56 @@ namespace AkribisFAM.WorkStation
                 if (AkrAction.Current.MoveRecheckZ(0, false) != 0)
                 {
                     // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
                     return -1;
                 }
                 _filmRemoveMovestep = 23; // Move to next step
+                ResetTimeout();
             }
 
             // WAIT
             if (_filmRemoveMovestep == 23)
             {
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.motionTimeoutErr, $"IsMoveRecheckZDone(0)");
+                    return -1;
+                }
+
                 if (AkrAction.Current.IsMoveRecheckZDone(0)) // if motion stopped/reached position
                 {
-                    
                     _filmRemoveMovestep = 24;
+
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // GRIP CLOSE
             if (_filmRemoveMovestep == 24)
             {
-                App.filmRemoveGantryControl.ClawClose();
+                if (!App.filmRemoveGantryControl.ClawClose())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"ClawClose()");
+                    return -1;
+                }
+                ResetTimeout();
                 _filmRemoveMovestep = 25; // Move to next step
             }
 
             // WAIT
             if (_filmRemoveMovestep == 25)
             {
-                App.filmRemoveGantryControl.VacOff();
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.PneumaticErr, $"IsClawClose()");
+                    return -1;
+                }
+
                 if (App.filmRemoveGantryControl.IsClawClose())
                 {
                     _currentPeelerIndex++;
                     _filmRemoveMovestep = 0; // Move to next step
                 }
-                else
-                {
-                    // Error: Claw did not close properly
-                    return -1;
-                }
-                // TODO: Add a timeout mechanism here
+
             }
             return 0;
         }
@@ -819,9 +839,10 @@ namespace AkribisFAM.WorkStation
                 var movePt = _movePoints[_currentVisionIndex];
                 if (!App.filmRemoveGantryControl.MoveToVisionPos(movePt.X, movePt.Y, true))
                 {
-                    // Error moving to position
+                    ErrorManager.Current.Insert(ErrorCode.motionErr, $"!App.filmRemoveGantryControl.MoveToVisionPos({movePt.X}, {movePt.Y}, true)");
                     return -1;
                 }
+                ResetTimeout() ;
                 _inspectMovestep = 2; // Move to next step
             }
 
@@ -829,28 +850,36 @@ namespace AkribisFAM.WorkStation
             if (_inspectMovestep == 1)
             {
                 var movePt = _movePoints[_currentVisionIndex];
+                if (IsTimeOut())
+                {
+                    ErrorManager.Current.Insert(ErrorCode.IncomingTrayTimeOut, $"IsMoveRecheckXYDone({movePt.X + App.filmRemoveGantryControl.XOffset}, {movePt.Y + (-App.filmRemoveGantryControl.YOffset)})");
+                    return -1;
+                }
+
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X + App.filmRemoveGantryControl.XOffset, movePt.Y + (-App.filmRemoveGantryControl.YOffset))) // if motion stopped/reached position
                 {
                     _inspectMovestep = 2;
                 }
-                // TODO: Add a timeout mechanism here
             }
 
             // INSPECT
             if (_inspectMovestep == 2)
             {
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
                     return -1;
                 }
                 System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 1))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1)");
                     return -1;
                 }
                 System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Reserve, 0))
+                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
                 {
+                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
                     return -1;
                 }
                 _currentVisionIndex++;
@@ -860,6 +889,22 @@ namespace AkribisFAM.WorkStation
             // CHECK RESULT
 
             return 0;
+        }
+
+        public override void Paused()
+        {
+            return;
+        }
+
+
+        public override void Initialize()
+        {
+            return;
+        }
+
+        public override void ResetAfterPause()
+        {
+            ResetTimeout();
         }
     }
 }

@@ -1,12 +1,26 @@
-﻿using System;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
+using AkribisFAM.Util;
+using AkribisFAM.ViewModel;
+using AkribisFAM.Windows;
+using AkribisFAM.WorkStation;
+using MaterialDesignThemes.Wpf;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using AkribisFAM.Windows;
@@ -17,9 +31,13 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.Manager;
 using AkribisFAM.ViewModel;
 using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.CommunicationProtocol;
 using static AkribisFAM.GlobalManager;
+using static AkribisFAM.Manager.StateManager;
+using static AkribisFAM.WorkStation.AkrAction;
+using static AkribisFAM.WorkStation.Conveyor;
 using System.Reflection;
+using System.Windows.Media.Media3D;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -50,6 +68,8 @@ namespace AkribisFAM
         {
             InitializeComponent();
 
+            App.buzzer.EnableBeep = true;
+
             // 创建定时器
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1); // 每秒更新一次
@@ -58,6 +78,8 @@ namespace AkribisFAM
 
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
+
+            App.userManager.UserLoggedIn += UserManager_UserLoggedIn;
 
             ViewModel = new ErrorIconViewModel();
             this.DataContext = ViewModel;
@@ -80,13 +102,53 @@ namespace AkribisFAM
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
             _timer.Start();
-            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
+            lblVersion.Content = $"{App.paramLocal.LiveParam.MachineName} - Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            
+
+        }
+
+        private void UserManager_UserLoggedIn(object sender, EventArgs e)
+        {
+            bool Enable = true;
+            User currentUser = App.userManager.CurrentUser;
+            List<UserRight> userRights = null;
+            if (currentUser == null)
+            {
+                Enable = false;
+            }
+            else
+            {
+                userRights = currentUser.UserLevel.UserRights;
+                var hasRight = userRights.Any(x => x.Name == "CalibrationSet");
+            }
+            // Define a dictionary to map button names to lists of required user rights
+            Dictionary<UIElement, List<string>> buttonRequiredRights = new Dictionary<UIElement, List<string>>
+                {
+                    { btnHome, new List<string> { "Overview" } },
+                    { gridControl, new List<string> { "Overview" } },
+                    { btnStatistics, new List<string> { "StatisticsView" } },
+                    { btnControl, new List<string> { "IOControl", "IOView", "ManualProcess", "DeviceControl", "VisionControl" , "Calibration" } },
+                    { btnLog, new List<string> { "LogView" } },
+                    { btnSetting, new List<string> { "Setting" } },
+                    { btnNetwork, new List<string> { "Setting" } },
+                };
+
+            // Iterate over the dictionary and set IsEnabled property for each button
+            foreach (var kvp in buttonRequiredRights)
+            {
+                kvp.Key.IsEnabled = Enable && kvp.Value.Any(requiredRight => userRights.Any(x => x.Name == requiredRight));
+            }
+
+
+            if (btnHome.IsEnabled)
+            {
+                MainWindowButton_Click(btnHome, null);
+            }
+
         }
 
         private void UpdateIcon()
@@ -109,19 +171,31 @@ namespace AkribisFAM
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
-            if (StateManager.Current.State == StateCode.RUNNING)
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
 
-                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
-                }));
+            if (App.userManager.CurrentUser != null)
+            {
+
+                ViewModel.CurrentUser = App.userManager.CurrentUser.Username;
+                ViewModel.CurrentUserLevel = App.userManager.CurrentUser.UserLevel.Name;
             }
-            else {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+            if (AutorunManager.Current.IsRunning)
+            {
+
+                if (StateManager.Current.State == StateCode.RUNNING)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
+                    StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+
+                        performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                    }));
+                }
+                else
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+                }
             }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
@@ -157,15 +231,18 @@ namespace AkribisFAM
                 //performance.LOADINGLB.Content = 
                 double availability = (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds) / (StateManager.Current.IdleTime.TotalSeconds + StateManager.Current.RunningTime.TotalSeconds + StateManager.Current.MaintenanceTime.TotalSeconds + StateManager.Current.StoppedTime.TotalSeconds);
                 performance.AVAILABILITYLB.Content = availability.ToString("0.000");
-                if (StateManager.Current.RunningTime.TotalSeconds > 0.5) {
+                if (StateManager.Current.RunningTime.TotalSeconds > 0.5)
+                {
                     double perform = StateManager.Current.TotalInput / (StateManager.Current.RunningTime.TotalSeconds / 1200.0);
                     performance.PERFORMANCELB.Content = perform.ToString("0.000");
                 }
-                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0) {
+                if (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG > 0)
+                {
                     double quality = StateManager.Current.TotalOutputOK / (StateManager.Current.TotalOutputOK + StateManager.Current.TotalOutputNG);
                     performance.QUALITYLB.Content = quality.ToString("0.000");
                 }
-                if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600) {
+                if (StateManager.Current.RunningTime.TotalSeconds > 3600 + StateManager.Current.RunningHourCnt * 3600)
+                {
                     StateManager.Current.RunningHourCnt++;
                     int UPH = StateManager.Current.TotalOutputOK - StateManager.Current.currentUPH;
                     StateManager.Current.currentUPH = StateManager.Current.TotalOutputOK;
@@ -185,7 +262,7 @@ namespace AkribisFAM
                     int Yield = 0;
                     if (UPH + NG > 0)
                     {
-                        Yield = (int)UPH*100 / (UPH + NG);
+                        Yield = (int)UPH * 100 / (UPH + NG);
                     }
                     StateManager.Current.currentNG = StateManager.Current.TotalOutputNG;
                     if (performance.Yieldvalues.Count >= 24)
@@ -202,6 +279,69 @@ namespace AkribisFAM
                     }
                 }
                 ConnectState();
+                if (ErrorManager.Current.IsAlarm)
+                {
+                    if (!App.buzzer.BeepStatus && App.buzzer.EnableBeep)
+                    {
+                        App.buzzer.BeepOn();
+                        if (ErrorWindow == null)
+                        {
+                            ErrorWindow = new ErrorWindow();
+                            ErrorWindow.Closed += (s, args) => ErrorWindow = null; //窗口关闭时清空引用
+
+
+                            // 手动设置居中（相对于屏幕）
+                            var screenWidth = SystemParameters.PrimaryScreenWidth;
+                            var screenHeight = SystemParameters.PrimaryScreenHeight;
+                            var windowWidth = ErrorWindow.Width;
+                            var windowHeight = ErrorWindow.Height;
+
+                            ErrorWindow.Left = (screenWidth - windowWidth) / 2;
+                            ErrorWindow.Top = (screenHeight - windowHeight) / 2;
+
+                            ErrorWindow.Show();
+                        }
+                        else
+                        {
+                            if (ErrorWindow.WindowState == WindowState.Minimized)
+                            {
+                                ErrorWindow.WindowState = WindowState.Normal;
+                            }
+                            ErrorWindow.Activate(); // 激活已有窗口
+                        }
+                    }
+                }
+                if (IOManager.Instance.ReadIO(IO_INFunction_Table.IN5_12Reset))
+                {
+                    ErrorManager.Current.Clear();
+                }
+                if (AutorunManager.Current.IsRunning)
+                {
+                    StartAutoRunButton.IsEnabled = false;
+                    PauseAutoRunButton.IsEnabled = true;
+                    StopAutoRunButton.IsEnabled = true;
+                }
+                else
+                {
+                    StartAutoRunButton.IsEnabled = true;
+                    PauseAutoRunButton.IsEnabled = false;
+                    StopAutoRunButton.IsEnabled = false;
+                }
+                if (AutorunManager.Current.IsPause)
+                {
+                    StartAutoRunButton.IsEnabled = true;
+                    PauseAutoRunButton.IsEnabled = false;
+                    StopAutoRunButton.IsEnabled = false;
+                }
+
+                if (ErrorManager.Current.IsAlarm || !App.CioManager.IsSSR1Ok || !App.CioManager.IsSSR2Ok)
+                {
+                    ResetButton.IsEnabled = true;
+                }
+                else
+                {
+                    ResetButton.IsEnabled = false;
+                }
                 //button panel
                 BlinkLightFeeder1();
                 BlinkLightFeeder2();
@@ -209,7 +349,8 @@ namespace AkribisFAM
             }));
         }
 
-        private void ControlButton() {
+        private void ControlButton()
+        {
             if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_8Run] == 0)
             {
                 StartAutoRun_Click(StartAutoRunButton, new RoutedEventArgs());
@@ -222,7 +363,8 @@ namespace AkribisFAM
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 1);
             }
-            else {
+            else
+            {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_12Reset_light, 0);
             }
         }
@@ -232,7 +374,8 @@ namespace AkribisFAM
             if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_12Feeder1_drawer_InPos] == 0 && IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN4_8Feeder1_limit_cylinder_extend_InPos] == 1)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_10Feeder1_light, 1);
-                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0) {
+                if (IOManager.Instance.INIO_status[(int)IO_INFunction_Table.IN5_10Feeder1] == 0)
+                {
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_0Feeder1_limit_cylinder_extend, 1);
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_1Feeder1_limit_cylinder_retract, 0);
                 }
@@ -278,7 +421,8 @@ namespace AkribisFAM
             }
         }
 
-        private void ConnectState() {
+        private void ConnectState()
+        {
             TCPNetworkManage.CheckClients();
             if (TCPNetworkManage.namedClients.ContainsKey(ClientNames.camera1_Feed))  // 检查字典中是否存在这个客户端连接
             {
@@ -437,7 +581,7 @@ namespace AkribisFAM
 
                 Logger.WriteLog("激光测距结果:" + res);
 
-                double height = AkribisFAM.Util.Parser.TryParseTwoValues("="+res);
+                double height = AkribisFAM.Util.Parser.TryParseTwoValues("=" + res);
 
                 return 0;
             }
@@ -449,18 +593,12 @@ namespace AkribisFAM
         }
         private void TestFeiPai_Click(object sender, RoutedEventArgs e)
         {
-            var arr1 = new object[] { AxisName.LSX, 150, (int)AxisSpeed.LSX, (int)AxisAcc.LSX, (int)AxisAcc.LSX };
-            var arr2 = new object[] { AxisName.LSY, 150, (int)AxisSpeed.LSY, (int)AxisAcc.LSY, (int)AxisAcc.LSY };
 
-            int moveToPointX = MoveView.MovePTP(arr1,arr2);
-            Thread.Sleep(300);
-            var arr3 = new object[] { AxisName.LSX };
-            var arr4 = new object[] { AxisName.LSY };
-            int b = MoveView.WaitAxisArrived(arr3,arr4);
-
-
-
-
+            //int moveToPointX = MoveView.MovePTP(arr1, arr2);
+            //Thread.Sleep(300);
+            //var arr3 = new object[] { AxisName.LSX };
+            //var arr4 = new object[] { AxisName.LSY };
+            //int b = MoveView.WaitAxisArrived(arr3, arr4);
 
 
 
@@ -565,24 +703,31 @@ namespace AkribisFAM
         //ResetButton 按住3秒才能触发
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            isResetButtonTriggered = false;
-            resetPressStopwatch.Restart();
 
-            resetTimer = new DispatcherTimer();
-            resetTimer.Interval = TimeSpan.FromSeconds(1);
-            resetTimer.Tick += (s, args) =>
-            {
-                resetTimer.Stop();
-                isResetButtonTriggered = true;
-                ExecuteReset();
-            };
-            resetTimer.Start();
+
+
+            //isResetButtonTriggered = false;
+            //resetPressStopwatch.Restart();
+
+            //resetTimer = new DispatcherTimer();
+            //resetTimer.Interval = TimeSpan.FromSeconds(1);
+            //resetTimer.Tick += (s, args) =>
+            //{
+            //    resetTimer.Stop();
+            //    isResetButtonTriggered = true;
+            //    ExecuteReset();
+            //};
+            //resetTimer.Start();
         }
 
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            App.CioManager.ResetMachine();
+            ErrorManager.Current.Clear();
+            App.buzzer.EnableBeep = true;
+        }
         private void ResetButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            resetTimer?.Stop();
-            resetPressStopwatch.Stop();
 
             // 如果松开太早，提示用户
             if (!isResetButtonTriggered)
@@ -590,12 +735,232 @@ namespace AkribisFAM
                 MessageBox.Show("Please hold down the button for at least 3 seconds to perform a reset!");
             }
         }
+        public bool PreRunCheck()
+        {
 
-        private async void StartAutoRun_Click(object sender, RoutedEventArgs e)
+            var res1 = App.CioManager.IsSSR1Ok;
+            var res2 = App.CioManager.IsEmergencyStopOk;
+            if (App.lotManager.IsCurrLotNull)
+            {
+                MessageBox.Show("Please start a new lot first");
+                return false;
+            }
+
+            if (!App.CioManager.IsEmergencyStopOk)
+            {
+                MessageBox.Show("E-Stop triggered!");
+                return false;
+            }
+
+            if (!App.CioManager.IsSSR1Ok)
+            {
+                MessageBox.Show("E-Stop triggered!");
+                return false;
+            }
+            if (!App.CioManager.IsSSR2Ok)
+            {
+                MessageBox.Show("Door SSR is not reseted");
+                return false;
+            }
+            if (!App.CioManager.IsMainAirOn)
+            {
+                MessageBox.Show("No air supply");
+                return false;
+            }
+            if (!App.door.IsDoor1Locked)
+            {
+                MessageBox.Show("Door 1 is not locked");
+                return false;
+            }
+            if (!App.door.IsDoor2Locked)
+            {
+                MessageBox.Show("Door 2 is not locked");
+                return false;
+            }
+            if (!App.door.IsDoor3Locked)
+            {
+                MessageBox.Show("Door 3 is not locked");
+                return false;
+
+            }
+            if (!App.door.IsDoor4Locked)
+            {
+                MessageBox.Show("Door 4 is not locked");
+                return false;
+            }
+            if (!App.reject.IsAllCoversClosed())
+            {
+                MessageBox.Show("Cover is not closed");
+                return false;
+            }
+
+
+            if (!App.filmRemoveGantryControl.VacOff())
+            {
+                MessageBox.Show("Failed to off air");
+                return false;
+            }
+
+            if (ErrorManager.Current.IsAlarm)
+            {
+                MessageBox.Show("Please acknowledge alarm first");
+                return false;
+            }
+
+            #region Devices connectivity
+
+            if (!AAmotionFAM.AGM800.Current.controller.All(x => x.IsConnected))
+            {
+                for (int i = 0; i < AAmotionFAM.AGM800.Current.controller.Count(); i++)
+                {
+                    MessageBox.Show($"Agito controller number {i} is offline");
+                }
+                return false;
+            }
+            if (!TCPNetworkManage.IsAllConnected)
+            {
+                var clients = TCPNetworkManage.GetDisconnectedClients();
+                foreach (var client in clients)
+                {
+                    MessageBox.Show($"Device {client.Key} failed is offline");
+                }
+                return false;
+            }
+            #endregion
+
+
+            #region motor
+            if (!(AkrAction.Current.CheckAllAxisHomeCompleted(out bool res) == (int)ACTTION_ERR.NONE && res == true))
+            {
+                MessageBox.Show("Please home first before start process");
+                return false;
+            }
+
+            for (int i = (int)DeviceClass.AssemblyGantryControl.Picker.Picker1; i <= (int)DeviceClass.AssemblyGantryControl.Picker.Picker4; i++)
+            {
+                DeviceClass.AssemblyGantryControl.Picker picker = (DeviceClass.AssemblyGantryControl.Picker)i;
+                if (!App.assemblyGantryControl.IsPtpMode(picker))
+                {
+                    MessageBox.Show($"Picker {i} is not in PTP mode");
+                    if (App.assemblyGantryControl.SetPositionMode(picker) && App.assemblyGantryControl.IsPtpMode(picker))
+                    {
+                        MessageBox.Show($"Picker {i} failed to setPTP mode");
+                        return false;
+                    }
+                }
+            }
+            if (AkrAction.Current.EnableAllMotors(true) != (int)ACTTION_ERR.NONE)
+            {
+                MessageBox.Show("Failed to enable motor");
+                return false;
+            }
+
+
+            if (AkrAction.Current.MoveFoamZ1Z2Z3Z4(0, 0, 0, 0) != 0)
+            {
+                MessageBox.Show("Pickers failed to return 0");
+                return false;
+            }
+
+            if (AkrAction.Current.MoveRecheckZ(0) != 0)
+            {
+                MessageBox.Show("Reject failed to return 0");
+                return false;
+            }
+
+            #endregion
+            //if (App.feeder1.IsDrawerInPos && App.feeder1.IsLock)
+            //{
+            //    MessageBox.Show("Feeder 1 is not lock or not in position");
+            //    return false;
+            //}
+            //if (App.feeder2.IsDrawerInPos && App.feeder2.IsLock)
+            //{
+            //    MessageBox.Show("Feeder 2 is not lock or not in position");
+            //    return false;
+            //}
+
+
+            #region Feeder
+            if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
+            {
+                if (!App.feeder1.ClearError())
+                {
+                    MessageBox.Show("Failed to clear feeder 1 alarm ");
+                }
+            }
+            if (!App.feeder2.IsInitialized || !App.feeder2.IsAlarm)
+            {
+                if (!App.feeder2.ClearError())
+                {
+                    MessageBox.Show("Failed to clear feeder 2 alarm");
+                }
+            }
+            if (!(App.feeder1.IsDrawerInPos && App.feeder1.IsLock))
+            {
+                if (App.feeder1.IsDrawerInPos)
+                {
+                    App.feeder1.Lock();
+                    if (!App.feeder1.IsLock)
+                    {
+                        MessageBox.Show("Failed to lock feeder 1");
+                        return false;
+                    }
+                }
+            }
+            if (!(App.feeder2.IsDrawerInPos && App.feeder2.IsLock))
+            {
+                if (App.feeder2.IsDrawerInPos)
+                {
+                    App.feeder2.Lock();
+                    if (!App.feeder2.IsLock)
+                    {
+                        MessageBox.Show("Failed to lock feeder 2");
+                        return false;
+                    }
+                }
+            }
+            if (!(App.feeder1.IsDrawerInPos && App.feeder1.IsLock) && !(App.feeder2.IsDrawerInPos && App.feeder2.IsLock))
+            {
+                MessageBox.Show("Please at least lock one feeder and feed in material");
+                return false;
+            }
+
+            #endregion
+            return true;
+        }
+        public bool PreruncheckComplete()
+        {
+
+            App.buzzer.Warn();
+
+
+            AutorunManager.Current.ToPause = false;
+            AutorunManager.Current.IsError = false;
+            AutorunManager.Current.IsReset = true;
+
+            return true;
+        }
+        private void StartAutoRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Start Button is clicked.");
-            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true) {
+
+
+
+            //if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
+            {
                 Logger.WriteLog("Change from idle to running.");
+
+
+                //if (!PreRunCheck())
+                //{
+                //    return;
+                //}
+                //if (!PreruncheckComplete())
+                //{
+                //    return;
+                //}
+
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
@@ -608,20 +973,12 @@ namespace AkribisFAM
 
                 //测试用
                 GlobalManager.Current.isRun = true;
-                StartAutoRunButton.IsEnabled = false;
+                AutorunManager.Current.ToPause = false;
+                //StartAutoRunButton.IsEnabled = false;
                 Logger.WriteLog("MainWindow.xaml.cs.StartAutoRun_Click() Start Autorun");
                 try
                 {
-                    // 使用 Task.Run 来异步运行 AutoRunMain
-                    
-                    _cancellationTokenSource = new CancellationTokenSource();
-                    CancellationToken token = _cancellationTokenSource.Token;
-
-                    await Task.Run(() => AutorunManager.Current.AutoRunMain(token));
-                    if (AutorunManager.Current.isRunning)
-                    {
-                        //StartAutoRunButton.IsEnabled = false;
-                    }
+                    AutorunManager.Current.StartAutoRunThreads();
                 }
                 catch (Exception ex)
                 {
@@ -634,20 +991,20 @@ namespace AkribisFAM
         private void PauseAutoRun_Click(object sender, RoutedEventArgs e)
         {
             Logger.WriteLog("Pause Button is clicked.");
-            if (StateManager.Current.State == StateCode.RUNNING && GlobalManager.Current.IsPause == false)
+            if (StateManager.Current.State == StateCode.RUNNING && AutorunManager.Current.ToPause == false)
             {
                 Logger.WriteLog("Change from running to idle.");
-                GlobalManager.Current.IsPause = true;
+                AutorunManager.Current.ToPause = true;
                 StateManager.Current.IdleStart = DateTime.Now;
                 StateManager.Current.RunningEnd = DateTime.Now;
                 StateManager.Current.State = StateCode.IDLE;
                 //AutorunManager.Current.PauseAutoRun();  // 异步执行暂停
                 //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Yellow);
             }
-            else if (StateManager.Current.State == StateCode.IDLE && GlobalManager.Current.IsPause == true)
+            else if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.ToPause == true)
             {
                 Logger.WriteLog("Change from idle to running.");
-                GlobalManager.Current.IsPause = false;
+                AutorunManager.Current.ToPause = false;
                 StateManager.Current.IdleEnd = DateTime.Now;
                 StateManager.Current.RunningStart = DateTime.Now;
                 StateManager.Current.State = StateCode.RUNNING;
@@ -660,21 +1017,22 @@ namespace AkribisFAM
                 //AutorunManager.Current.ResumeAutoRun();
                 //PauseAutoRunButton.Background = new SolidColorBrush(Colors.Transparent);
             }
-            else { 
+            else
+            {
 
             }
         }
 
         private async void TestBoardIn_Click(object sender, RoutedEventArgs e)
         {
-            var a = GlobalManager.Current.stationPoints;
-            GlobalManager.Current.IO_test1 = true;
-            TestBoardIn.IsEnabled = false;
+            //var a = GlobalManager.Current.stationPoints;
+            //GlobalManager.Current.IO_test1 = true;
+            //TestBoardIn.IsEnabled = false;
 
-            // 等待 1 秒而不阻塞 UI 线程
-            await Task.Delay(1000);
+            //// 等待 1 秒而不阻塞 UI 线程
+            //await Task.Delay(1000);
 
-            TestBoardIn.IsEnabled = true;
+            //TestBoardIn.IsEnabled = true;
         }
 
         //private void TestBoardIn_Click(object sender, RoutedEventArgs e)
@@ -701,7 +1059,7 @@ namespace AkribisFAM
                 AkrAction.Current.StopAllAxis();
                 AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
-                StartAutoRunButton.IsEnabled = true;
+                //StartAutoRunButton.IsEnabled = true;
             }
             else if (StateManager.Current.State == StateCode.MAINTENANCE)
             {
@@ -714,9 +1072,10 @@ namespace AkribisFAM
                 AkrAction.Current.StopAllAxis();
                 AkrAction.Current.EnableAllMotors(false);
                 AutorunManager.Current.StopAutoRun();
-                StartAutoRunButton.IsEnabled = true;
+                //StartAutoRunButton.IsEnabled = true;
             }
-            else {
+            else
+            {
                 Logger.WriteLog("Change from idle to stopped.");
                 StateManager.Current.StoppedStart = DateTime.Now;
                 StateManager.Current.IdleEnd = DateTime.Now;
@@ -743,11 +1102,21 @@ namespace AkribisFAM
             CultureInfo cultureInfo = new CultureInfo(culture);
             Thread.CurrentThread.CurrentUICulture = cultureInfo;
             Thread.CurrentThread.CurrentCulture = cultureInfo;
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.Language = XmlLanguage.GetLanguage(cultureInfo.Name);
+            }
         }
 
         private void RefreshUI()
         {
             this.Language = XmlLanguage.GetLanguage(Thread.CurrentThread.CurrentUICulture.Name);
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                window.InvalidateVisual();
+            }
         }
 
         private async void ExecuteReset()
@@ -807,6 +1176,10 @@ namespace AkribisFAM
         {
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(container);
             layer.Add(new PromptAdorner(button));
+
+            DoorIcon.Kind = App.door.IsAllLockTriggered ? PackIconKind.LockOutline : PackIconKind.LockOpenVariantOutline;
+            btnLock.Background = App.door.IsAllLockTriggered ? Brushes.Gray : Brushes.Gold;
+
         }
 
 
@@ -922,6 +1295,262 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Read_Coil((int)IO_INFunction_Table.IN1_0Slowdown_Sign1, ref result);
 
             bool result2 = result;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            AutorunManager.CancelToken.Cancel();
+        }
+
+        private void btnLock_Click(object sender, RoutedEventArgs e)
+        {
+            //ErrorManager.Current.Insert(ErrorCode.IOErr, "this is weird");
+            //if (App.door.IsAllDoorLocked)
+            if (App.door.IsAllLockTriggered)
+            {
+                if (!App.door.UnlockAll())
+                {
+                    MessageBox.Show("Failed to unlock");
+                }
+                else
+                {
+                    //btnLock.Content = "Lock door";
+                    DoorIcon.Kind = PackIconKind.LockOpenVariantOutline;
+                    btnLock.Background = Brushes.Gold;
+                }
+            }
+            else
+            {
+                if (!App.door.LockAll())
+                {
+                    MessageBox.Show("Failed to lock");
+                }
+                else
+                {
+                    //btnLock.Content = "Unlock door";
+                    DoorIcon.Kind = PackIconKind.LockOutline;
+                    btnLock.Background = Brushes.Gray;
+                }
+            }
+        }
+        public int counter = 0;
+        Random random = new Random();
+        private async void btnDebug_Click(object sender, RoutedEventArgs e)
+        {
+            //await Task.Run(() =>
+            //{
+            //Thread.Sleep(500);
+            DateTime dt = DateTime.Now;
+            for (int i = 0; i < 12; i++)
+            {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
+                for (int j = 0; j < 4; j++)
+                {
+
+                    targetPart.present = true;
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(100, 103),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+
+                }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
+                }
+            }
+
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
+            //foreach (var item in App.productTracker.LaserStationTray.PartArray)
+            //{
+            //    await Task.Run(() =>
+            //    {
+
+            //        item.failed = true;
+            //        Thread.Sleep(200);
+            //    });
+            //}
+            if (false)
+            {
+
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                });
+                Conveyor.Current.ConveyorTrays[3].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[2]);
+                Conveyor.Current.ConveyorTrays[2].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[1]);
+                Conveyor.Current.ConveyorTrays[1].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[0]);
+                Conveyor.Current.ConveyorTrays[0].Reset();
+
+                if (Conveyor.Current.ConveyorTrays[3].IsFail)
+                {
+                    App.productTracker.RejectOutGoingStationTray.Copy(Conveyor.Current.ConveyorTrays[3]);
+                    Conveyor.Current.ConveyorTrays[3].Reset();
+                }
+            }
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //App.productTracker.LaserStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //var re = App.productTracker.FoamAssemblyStationTray;
+            //App.productTracker.LaserStationTray.Reset();
+            //var re2 = App.productTracker.LaserStationTray;
+            //App.productTracker.LaserStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser];
+            //App.productTracker.FoamAssemblyStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Foam];
+        }
+
+        private void btnDebug2_Click(object sender, RoutedEventArgs e)
+        {
+
+            Conveyor.Current.ConveyorTrays[0].Reset();
+        }
+
+        private void btnDebug3_Click(object sender, RoutedEventArgs e)
+        {
+
+            Conveyor.Current.canSend = true;
+        }
+
+        private void btnDebug4_Click(object sender, RoutedEventArgs e)
+        {
+            Conveyor.Current.removed = true;
+        }
+
+        private void btnDebug5_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime dt = DateTime.Now;
+            for (int i = 0; i < 12; i++)
+            {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
+                for (int j = 0; j < 4; j++)
+                {
+                    targetPart.present = true;
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(100, 100),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+
+                }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
+                }
+
+            }
+
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
+        }
+
+        private void btnDebug6_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = true;
+            }
+        }
+
+        private void btnDebug7_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = false;
+            }
+        }
+
+        private void btnDebug8_Click(object sender, RoutedEventArgs e)
+        {
+            var target = App.productTracker.GantryPickerFoams;
+            var source = App.productTracker.Feeder1Foams;
+            for (int i = 0; i < 4; i++)
+            {
+                var sourcePart = source.PartArray[i];
+                var targetPart = target.PartArray[i];
+                targetPart.Copy(sourcePart);
+
+                //targetPart = new ProductData(sourcePart);
+                //App.productTracker.GantryPickerFoams.PartArray[i].present = App.productTracker.Feeder1Foams.PartArray[i].present;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = true;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = App.productTracker.Feeder1Foams.PartArray[i].failed;
+                //App.productTracker.GantryPickerFoams.PartArray[i] = new ProductData(App.productTracker.Feeder1Foams.PartArray[i]);
+            }
+            source.Reset();
+            //targetPart.Reset();
+
+        }
+
+        private void btnDebug9_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var source = App.productTracker.GantryPickerFoams.PartArray[i];
+                var target = App.productTracker.FoamAssemblyStationTray.PartArray[i];
+                target.Consume(source);
+            }
+        }
+
+        private void btnDebug10_Click(object sender, RoutedEventArgs e)
+        {
+            var list = App.visionControl.GenerateLeftToRightGrid(10, 12, 4, 3, 3, 4);
+            var list2 = App.visionControl.RemapLeftToRightToSnake(list, 3, 4, -1, -1);
+            var list3 = App.visionControl.GenerateSnakeTravelPathsWithDirection(list, 3, 4, -1, -1, 3);
+        }
+        private void btnUser_Click(object sender, RoutedEventArgs e)
+        {
+
+            new UserLogin(App.userManager).ShowDialog();
+        }
+
+        private void Label_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 

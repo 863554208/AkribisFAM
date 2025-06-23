@@ -268,7 +268,7 @@ namespace AkribisFAM.Windows
         {
             if (ModbusTCPWorker.GetInstance().Connect())
             {
-                IOManager.Instance.ReadIO_statusV2();
+                IOManager.Instance.ReadIO_loop();
             }
         }
 

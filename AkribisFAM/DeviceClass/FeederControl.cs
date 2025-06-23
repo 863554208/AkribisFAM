@@ -29,7 +29,7 @@ namespace AkribisFAM.DeviceClass
             }
 
         }
-        public bool hasAlarm //有报警产生低电平，无报警产生高电平, low: alarm, high - ok
+        public bool IsAlarm //有报警产生低电平，无报警产生高电平, low: alarm, high - ok
         {
             get
             {
@@ -231,7 +231,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
             //Check feeder alarm status
-            if (hasAlarm)
+            if (IsAlarm)
             {
                 return false;
             }
@@ -270,7 +270,7 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (hasAlarm)
+            if (IsAlarm)
             {
                 return false;
             }
