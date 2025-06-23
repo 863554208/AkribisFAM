@@ -120,6 +120,8 @@ namespace AkribisFAM
             assemblyGantryControl.XOffset = 16;
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;
+            calib = new LoadCellCalibration();
+            AkrAction.Current.SetSpeedMultiplier(10);
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
 

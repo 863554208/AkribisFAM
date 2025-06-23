@@ -207,10 +207,7 @@ namespace AkribisFAM.DeviceClass
         {
             return VacOff(Picker.Picker1) & VacOff(Picker.Picker2) & VacOff(Picker.Picker3) & VacOff(Picker.Picker4);
         }
-        public bool ZPickPositionAll()
-        {
-            return ZPickDownPosition(Picker.Picker1) & ZPickDownPosition(Picker.Picker2) & ZPickDownPosition(Picker.Picker3) & ZPickDownPosition(Picker.Picker4);
-        }
+
         public bool ZPickDownPosition(Picker picker)
         {
             if (IsBypass(picker))
@@ -234,7 +231,18 @@ namespace AkribisFAM.DeviceClass
                     return false;
             }
         }
-
+        //public bool ZPickPositionAll()
+        //{
+        //    return ZPickDownPosition(Picker.Picker1) & ZPickDownPosition(Picker.Picker2) & ZPickDownPosition(Picker.Picker3) & ZPickDownPosition(Picker.Picker4);
+        //}
+        public bool ZPickPositionAll()
+        {
+            SinglePoint sp = ZuZhuang.Current.GetLoadCellPosition((int)1);
+            sp.Z = 21.5;
+            sp.Z = GlobalManager.Current.CurrentMode == ProcessMode.Dryrun ? sp.Z / 2 : sp.Z;
+            return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z) == 0;
+        }
+        
         public bool ZLoadCellPosition(Picker picker)
         {
             if (IsBypass(picker))
@@ -244,6 +252,7 @@ namespace AkribisFAM.DeviceClass
 
             SinglePoint sp = ZuZhuang.Current.GetLoadCellPosition((int)picker);
             sp.Z = 21.5;
+            sp.Z = GlobalManager.Current.CurrentMode == ProcessMode.Dryrun ? sp.Z / 2 : sp.Z;
             AxisName axis;
             AxisSpeed speed;
             switch (picker)
@@ -1653,13 +1662,13 @@ namespace AkribisFAM.DeviceClass
             switch (picker)
             {
                 case Picker.Picker1:
-                    return AkrAction.Current.MoveFoamT1(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT1(angle) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker2:
-                    return AkrAction.Current.MoveFoamT2(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT2(angle) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker3:
-                    return AkrAction.Current.MoveFoamT3(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT3(angle) == (int)AkrAction.ACTTION_ERR.NONE;
                 case Picker.Picker4:
-                    return AkrAction.Current.MoveFoamT4(angle, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE;
+                    return AkrAction.Current.MoveFoamT4(angle) == (int)AkrAction.ACTTION_ERR.NONE;
                 default:
                     return false;
             }
