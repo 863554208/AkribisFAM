@@ -40,7 +40,7 @@ namespace AkribisFAM.CommunicationProtocol
             //定义飞达取料位置的坐标(定位飞达)
             public class AcceptTLMFeedPosition
             {
-                public string Errcode1;//错误代码，1为成功
+                public string Errcode1;//错误代码，1为成功 //judgement
                 public string FOV1; // 视野编号
                 public string Subareas_count;//子区域个数
                 public string Subareas_Errcode11;//1号穴位错误代码，1为成功

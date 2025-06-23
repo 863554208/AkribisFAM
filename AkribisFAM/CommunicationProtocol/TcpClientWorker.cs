@@ -38,6 +38,26 @@ namespace AkribisFAM.CommunicationProtocol
         {
             return Task.Run(new Action(() =>
             {
+                lock (socketLock)//判断Socket是否有之前的soket连接成功
+                {
+                    if (socket != null)
+                    {
+                        if (socket.Connected) { return; };
+
+                        try
+                        {
+                            socket?.Shutdown(SocketShutdown.Both); // 关闭连接
+                        }
+                        catch { }
+                        try
+                        {
+                            socket?.Close();
+                        }
+                        catch { }  // 关闭socket
+                        socket = null;  // 清空socket
+                    }
+                }
+
                 int retryCount = 0;
                 const int maxRetries = 5;//重新连接最大次数
                 while (true)

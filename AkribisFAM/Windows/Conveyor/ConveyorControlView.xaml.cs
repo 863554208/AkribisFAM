@@ -222,20 +222,12 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            //var stations2 = new ObservableCollection<ConveyorWorkStationControl>(stations);
-            //Dispatcher.Invoke(() =>
-            //{
-            //    try
-            //    {
-            //        itemControlStation.ItemsSource = null;
-            //        itemControlStation.ItemsSource = stations2;
-            //    }
-            //    catch (Exception ex)
-            //    {
-
-            //        throw;
-            //    }
-            //});
+            foreach (var sts in stations)
+            {
+                sts.LifterInList = new ObservableCollection<IO_INFunction_Table>(sts.LifterInList);
+                sts.GateInList = new ObservableCollection<IO_INFunction_Table>(sts.GateInList);
+                sts.ConveyorInList = new ObservableCollection<IO_INFunction_Table>(sts.ConveyorInList);
+            }
         }
         private void btnMove_Click(object sender, System.Windows.RoutedEventArgs e)
         {

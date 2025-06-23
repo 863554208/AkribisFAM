@@ -214,5 +214,49 @@ namespace AkribisFAM.Util
             data = Parser.HexStringToBytes("00 00 00 00 00 0B 01 10 01 2C 00 02 04 00 00 00 00");
             Parser.SendRawModbusTcp(data, TCPNetworkManage.namedClients[ClientNames.Pressure_sensor].host);
         }
+        public static Dictionary<string, object> ToPropertyDictionary(object obj)
+        {
+            return obj.GetType()
+                      .GetProperties()
+                      .ToDictionary(p => p.Name, p => p.GetValue(obj));
+        }
+        public class PropertyDisplayItem
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+        public static List<PropertyDisplayItem> FlattenObject(object obj)
+        {
+            var result = new List<PropertyDisplayItem>();
+
+            if (obj == null) return result;
+
+            var properties = obj.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(obj);
+
+                if (value is IEnumerable<object> list && !(value is string))
+                {
+                    result.Add(new PropertyDisplayItem
+                    {
+                        Name = prop.Name,
+                        Value = list.ToList()
+                    });
+                }
+                else
+                {
+                    result.Add(new PropertyDisplayItem
+                    {
+                        Name = prop.Name,
+                        Value = value
+                    });
+                }
+            }
+
+            return result;
+        }
+
+
     }
 }

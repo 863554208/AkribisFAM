@@ -103,8 +103,8 @@
                 <Label Content="Feeder" Width="150" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <StackPanel Orientation="Horizontal"  HorizontalAlignment="Left" Margin="20 0 ">
                     <Button x:Name="btnIndex" Content="Index" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnIndex_Click"/>
-                    <Button x:Name="btnExtend" Content="Extend" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnExtend_Click"/>
-                    <Button x:Name="btnRetract" Content="Retract" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnRetract_Click"/>
+                    <Button x:Name="btnExtend" Content="Lock" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnExtend_Click"/>
+                    <Button x:Name="btnRetract" Content="Unlock" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnRetract_Click"/>
 
                     <Button x:Name="btnFeederVacOn" Content="Vac On" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnFeederVacOn_Click"/>
                     <!--<Button x:Name="btnFeederPurge" Content="Purge" Width="100" Margin="3"  Style="{StaticResource MaterialDesignPaperButton}" Click="btnFeederPurge_Click"/>-->

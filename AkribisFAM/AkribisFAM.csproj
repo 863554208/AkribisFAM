@@ -24,7 +24,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>C:\Alpha\FAM\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>5</WarningLevel>
@@ -105,12 +105,16 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.119.0\lib\net46\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.EF6, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.EF6.1.0.119.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6.Migrations, Version=1.0.113.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.Migrations.1.0.113\lib\System.Data.SQLite.EF6.Migrations.dll</HintPath>
     </Reference>
     <Reference Include="System.Data.SQLite.Linq, Version=1.0.119.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.119.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
@@ -188,10 +192,12 @@
     <Compile Include="DeviceClass\CognexVisionControl.cs" />
     <Compile Include="DeviceClass\FeederControl.cs" />
     <Compile Include="DeviceClass\KeyenceLaserControl.cs" />
+    <Compile Include="DeviceClass\LEDLightControl.cs" />
     <Compile Include="DeviceClass\RejectControl.cs" />
     <Compile Include="GlobalManager.cs" />
     <Compile Include="Helper\AlgorithmHelper.cs" />
     <Compile Include="Helper\FileHelper.cs" />
+    <Compile Include="Helper\ProcessManager.cs" />
     <Compile Include="Helper\SQLiteHelper.cs" />
     <Compile Include="Helper\ViewModelBase.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
@@ -206,25 +212,43 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UI.zh-CHS.resx</DependentUpon>
     </Compile>
+    <Compile Include="Manager\AllProductTracker.cs" />
     <Compile Include="Manager\CriticalIOManager.cs" />
     <Compile Include="Manager\DatabaseManager.cs" />
     <Compile Include="Manager\DirectoryManager.cs" />
     <Compile Include="Manager\ErrorReportManager.cs" />
     <Compile Include="Manager\LoadCellCalibration.cs" />
+    <Compile Include="Manager\LotManager.cs" />
     <Compile Include="Manager\MaterialManager.cs" />
     <Compile Include="Manager\RecipeManager.cs" />
+    <Compile Include="Manager\MyDBContext.cs" />
     <Compile Include="Manager\StateManager.cs" />
     <Compile Include="Manager\TaskContextManager.cs" />
+    <Compile Include="Manager\UserManager.cs" />
     <Compile Include="Manager\WarningManager.cs" />
+    <Compile Include="Models\AKBLocalParameter.cs" />
+    <Compile Include="Models\AKBVariable.cs" />
+    <Compile Include="Migrations\202505220332515_InitialCreate.cs" />
+    <Compile Include="Migrations\202505220332515_InitialCreate.designer.cs">
+      <DependentUpon>202505220332515_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AlarmRecord.cs" />
+    <Compile Include="Models\Base\AKBParameterBase.cs" />
+    <Compile Include="Models\LotRecord.cs" />
     <Compile Include="Models\OeeRecord.cs" />
     <Compile Include="test.cs" />
     <Compile Include="Util\AxisIntegerToStringDic.cs" />
     <Compile Include="Util\Logger.cs" />
+    <Compile Include="ViewModel\AKBMessageBoxVM.cs" />
     <Compile Include="Util\Parser.cs" />
     <Compile Include="Util\ProductData.cs" />
     <Compile Include="ViewModel\AxisControlViewModel.cs" />
+    <Compile Include="ViewModel\LaserStationVM.cs" />
     <Compile Include="ViewModel\ParameterConfigViewModel.cs" />
+    <Compile Include="ViewModel\UserVM.cs" />
+    <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Compile Include="ViewModel\SettingVM.cs" />
     <Compile Include="Windows\Action.cs" />
     <Compile Include="Windows\AirControl.xaml.cs">
       <DependentUpon>AirControl.xaml</DependentUpon>
@@ -245,6 +269,9 @@
       <DependentUpon>CameraControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\Converters\Converters.cs" />
+    <Compile Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml.cs">
+      <DependentUpon>PointXYVisionMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\FoamAssembly\SubView\PointXYPickerMoveAndPlaceView.xaml.cs">
       <DependentUpon>PointXYPickerMoveAndPlaceView.xaml</DependentUpon>
     </Compile>
@@ -257,6 +284,9 @@
     <Compile Include="Windows\Conveyor\ConveyorControlView.xaml.cs">
       <DependentUpon>ConveyorControlView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml.cs">
+      <DependentUpon>PointXYHeightMeasurementView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Laser\SubView\ProductXYPointsView.xaml.cs">
       <DependentUpon>ProductXYPointsView.xaml</DependentUpon>
     </Compile>
@@ -265,6 +295,9 @@
     </Compile>
     <Compile Include="Windows\Conveyor\SubView\GateControlView.xaml.cs">
       <DependentUpon>GateControlView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\CommonWindow\AKBMessageBox.xaml.cs">
+      <DependentUpon>AKBMessageBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\DebugLog.xaml.cs">
       <DependentUpon>DebugLog.xaml</DependentUpon>
@@ -311,10 +344,28 @@
     <Compile Include="Windows\HardwareControl.xaml.cs">
       <DependentUpon>HardwareControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Main\RecheckMeasurementView.xaml.cs">
+      <DependentUpon>RecheckMeasurementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\LaserMeasurementView.xaml.cs">
+      <DependentUpon>LaserMeasurementView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\LotAndMaterialView.xaml.cs">
+      <DependentUpon>LotAndMaterialView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\ProductTrackerView.xaml.cs">
+      <DependentUpon>ProductTrackerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Main\Subview\SingleProductTrackerView.xaml.cs">
+      <DependentUpon>SingleProductTrackerView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ManualControl.xaml.cs">
       <DependentUpon>ManualControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MoveView.cs" />
+    <Compile Include="Windows\UserLogin.xaml.cs">
+      <DependentUpon>UserLogin.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\ParameterConfig.xaml.cs">
       <DependentUpon>ParameterConfig.xaml</DependentUpon>
     </Compile>
@@ -324,19 +375,21 @@
     <Compile Include="Windows\SelectPointType.xaml.cs">
       <DependentUpon>SelectPointType.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\SettingView\PropertyGridView.xaml.cs">
+      <DependentUpon>PropertyGridView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\TeachingWindow.xaml.cs">
       <DependentUpon>TeachingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Worker.cs" />
     <Compile Include="WorkStation\Conveyor.cs" />
     <Compile Include="WorkStation\Feeder.cs" />
-    <Compile Include="WorkStation\TEST2.cs" />
-    <Compile Include="WorkStation\TEST1.cs" />
     <Compile Include="WorkStation\FuJian.cs" />
-    <Compile Include="WorkStation\Reject.cs" />
     <Compile Include="WorkStation\ZuZhuang.cs" />
     <Compile Include="WorkStation\LaiLiao.cs" />
-    <Compile Include="WorkStation\TestStation1.cs" />
     <Compile Include="WorkStation\WorkStationBase.cs" />
     <Page Include="Dict\AppResource_en_US.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -345,6 +398,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Theme\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FilmRemove\SubView\PointXYVisionMeasurementView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -364,6 +421,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Laser\SubView\PointXYHeightMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\Laser\SubView\ProductXYPointsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -375,6 +436,10 @@
     <Page Include="Windows\Conveyor\SubView\GateControlView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\CommonWindow\AKBMessageBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\ErrorWindow.xaml">
       <SubType>Designer</SubType>
@@ -472,9 +537,33 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Windows\Main\RecheckMeasurementView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Main\LaserMeasurementView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\LotAndMaterialView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\ProductTrackerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Main\Subview\SingleProductTrackerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\ManualControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\UserLogin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\ParameterConfig.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -487,6 +576,14 @@
     <Page Include="Windows\SelectPointType.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\SettingView\PropertyGridView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\TeachingWindow.xaml">
       <SubType>Designer</SubType>
@@ -530,6 +627,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>UI.zh-CHS.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202505220332515_InitialCreate.resx">
+      <DependentUpon>202505220332515_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Windows\641.png" />
@@ -542,6 +642,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Properties\ChangeLog.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DB\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets" Condition="Exists('..\packages\Agito.AAMotion.7.3.4\build\Agito.AAMotion.targets')" />

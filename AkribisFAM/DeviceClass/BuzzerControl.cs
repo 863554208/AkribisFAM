@@ -11,6 +11,7 @@ namespace AkribisFAM.DeviceClass
     public class BuzzerControl
     {
         public bool BeepStatus { get; set; }
+        public bool EnableBeep { get; set; } = true;
 
         public BuzzerControl()
         {
@@ -21,6 +22,7 @@ namespace AkribisFAM.DeviceClass
         }
         public bool Off()
         {
+            BeepStatus = false;
             return IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
         }
 
@@ -34,18 +36,22 @@ namespace AkribisFAM.DeviceClass
 
         public void BeepOn()
         {
-            BeepStatus = true;
-            Task.Run(() =>
+            if (!BeepStatus && EnableBeep)
             {
-                while (BeepStatus)
+                BeepStatus = true;
+                EnableBeep = false;
+                Task.Run(() =>
                 {
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
-                    Thread.Sleep(500);
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
-                    Thread.Sleep(500);
-                }
-            });
+                    while (BeepStatus)
+                    {
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+                        Thread.Sleep(500);
+                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 0);
+                        Thread.Sleep(500);
+                    }
+                });
 
+            }
         }
         public void BeepOff()
         {

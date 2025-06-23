@@ -7,13 +7,15 @@ using AkribisFAM.WorkStation;
 using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Util;
 using AkribisFAM.Windows;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AkribisFAM
 {
     public class AutorunManager
     {
         private static AutorunManager _current;
-        public bool isRunning;
+        //public bool isRunning;
         public bool hasReseted;
         Thread ThreadLaser;
         Thread ThreadFoamAssembly;
@@ -23,10 +25,12 @@ namespace AkribisFAM
         Thread ThreadTest1;
         Thread ThreadTest2;
         public static CancellationTokenSource CancelToken = new CancellationTokenSource(); // Exit thread
-        public bool IsPause { get; set; } = false;
+        public bool ToPause { get; set; } = false;
         public bool IsReset { get; set; } = false;
         public bool IsError { get; set; } = false;
 
+        public bool IsRunning => workstations.Count > 0 ? workstations.Any(x => x.ThreadState == WorkStationBase.ThreadStatus.Running) : false;
+        public bool IsPause => workstations.Count > 0 ? workstations.Any(x => x.ThreadState == WorkStationBase.ThreadStatus.Paused || x.ThreadState == WorkStationBase.ThreadStatus.Pausing) : false;
 
         public static AutorunManager Current
         {
@@ -47,7 +51,7 @@ namespace AkribisFAM
             Initialize();
             hasReseted = false;
         }
-
+        public List<WorkStationBase> workstations = new List<WorkStationBase>();
         public bool Initialize()
         {
             try
@@ -57,6 +61,7 @@ namespace AkribisFAM
                 {
                     ThreadConveyor = new Thread(() => RunAutoStation(Conveyor.Current, CancelToken.Token)) { Name = "Conveyor", Priority = ThreadPriority.Highest };
                     ThreadConveyor.IsBackground = true;
+                    workstations.Add(Conveyor.Current);
                     //ThreadConveyor.Start();
 
                 }
@@ -65,12 +70,14 @@ namespace AkribisFAM
 
                     ThreadLaser = new Thread(() => RunAutoStation(LaiLiao.Current, CancelToken.Token)) { Name = "Laser", Priority = ThreadPriority.Highest };
                     ThreadLaser.IsBackground = true;
+                    workstations.Add(LaiLiao.Current);
                     //ThreadConveyor.Start();
                 }
                 if (ThreadFoamAssembly == null /*|| !ThreadFoamAssembly.IsAlive*/)
                 {
                     ThreadFoamAssembly = new Thread(() => RunAutoStation(ZuZhuang.Current, CancelToken.Token)) { Name = "Foam Assembly", Priority = ThreadPriority.Highest };
                     ThreadFoamAssembly.IsBackground = true;
+                    workstations.Add(ZuZhuang.Current);
                     //ThreadFoamAssembly.Start();
 
                 }
@@ -80,6 +87,7 @@ namespace AkribisFAM
 
                     ThreadRecheck = new Thread(() => RunAutoStation(FuJian.Current, CancelToken.Token)) { Name = "Recheck", Priority = ThreadPriority.Highest };
                     ThreadRecheck.IsBackground = true;
+                    workstations.Add(FuJian.Current);
                     //ThreadRecheck.Start();
                 }
 
@@ -87,25 +95,12 @@ namespace AkribisFAM
                 {
                     ThreadFeeder = new Thread(() => RunAutoStation(Feeder.Current, CancelToken.Token)) { Name = "Feeder", Priority = ThreadPriority.Highest };
                     ThreadFeeder.IsBackground = true;
+                    workstations.Add(Feeder.Current);
                     //ThreadFeeder.Start();
 
                 }
 
-                if (ThreadTest1 == null /*|| !ThreadFeeder.IsAlive*/)
-                {
-                    ThreadTest1 = new Thread(() => RunAutoStation(TEST1.Current, CancelToken.Token)) { Name = "TEST1", Priority = ThreadPriority.Highest };
-                    ThreadTest1.IsBackground = true;
-                    //ThreadFeeder.Start();
-
-                }
-
-                if (ThreadTest2 == null /*|| !ThreadFeeder.IsAlive*/)
-                {
-                    ThreadTest2 = new Thread(() => RunAutoStation(TEST2.Current, CancelToken.Token)) { Name = "TEST2", Priority = ThreadPriority.Highest };
-                    ThreadTest2.IsBackground = true;
-                    //ThreadFeeder.Start();
-
-                }
+               
                 return true;
 
             }
@@ -184,11 +179,11 @@ namespace AkribisFAM
                 Console.WriteLine("Not Ready");
                 return;
             }
-            if (!hasReseted)
-            {
-                MessageBox.Show("Please Reset!");
-                return;
-            }
+            //if (!hasReseted)
+            //{
+            //    MessageBox.Show("Please Reset!");
+            //    return;
+            //}
             if (!Initialize())
             {
                 return;
@@ -201,16 +196,17 @@ namespace AkribisFAM
 
                 if (ThreadConveyor != null && !ThreadConveyor.IsAlive)
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    Conveyor.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
                     ThreadConveyor.Start();
                 }
                 else
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                    Conveyor.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
                 }
+                return;
                 if (ThreadLaser != null && !ThreadLaser.IsAlive)
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
                     ThreadLaser.Start();
                 }
                 else
@@ -219,7 +215,7 @@ namespace AkribisFAM
                 }
                 if (ThreadFoamAssembly != null && !ThreadFoamAssembly.IsAlive)
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    ZuZhuang.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
                     ThreadFoamAssembly.Start();
                 }
                 else
@@ -228,7 +224,7 @@ namespace AkribisFAM
                 }
                 if (ThreadRecheck != null && !ThreadRecheck.IsAlive)
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    FuJian.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
                     ThreadRecheck.Start();
                 }
                 else
@@ -238,7 +234,7 @@ namespace AkribisFAM
 
                 if (ThreadFeeder != null && !ThreadRecheck.IsAlive)
                 {
-                    Reject.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                    Feeder.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
                     ThreadFeeder.Start();
                 }
                 else
@@ -247,26 +243,26 @@ namespace AkribisFAM
                 }
 
 
-                if (ThreadTest1 != null && !ThreadTest1.IsAlive)
-                {
-                    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    ThreadTest1.Start();
-                }
-                else
-                {
-                    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
-                }
+                //if (ThreadTest1 != null && !ThreadTest1.IsAlive)
+                //{
+                //    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                //    ThreadTest1.Start();
+                //}
+                //else
+                //{
+                //    TEST1.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                //}
 
 
-                if (ThreadTest2 != null && !ThreadTest2.IsAlive)
-                {
-                    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
-                    ThreadTest2.Start();
-                }
-                else
-                {
-                    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
-                }
+                //if (ThreadTest2 != null && !ThreadTest2.IsAlive)
+                //{
+                //    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Init;
+                //    ThreadTest2.Start();
+                //}
+                //else
+                //{
+                //    TEST2.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
+                //}
 
 
             }
@@ -299,7 +295,7 @@ namespace AkribisFAM
                         break;
                     case WorkStationBase.ThreadStatus.Running:
                         {
-                            if (IsPause)
+                            if (ToPause)
                             {
                                 station.ThreadState = WorkStationBase.ThreadStatus.Pausing;
                                 break;
@@ -323,7 +319,7 @@ namespace AkribisFAM
                         }
                         break;
                     case WorkStationBase.ThreadStatus.Pausing:
-                        IsPause = true;
+                        ToPause = true;
                         station.Paused();
                         station.ThreadState = WorkStationBase.ThreadStatus.Paused;
                         break;
@@ -340,10 +336,10 @@ namespace AkribisFAM
 
                 }
 
-                Thread.Sleep(1);
+                Thread.Sleep(0);
             }
 
-            AutorunManager.Current.isRunning = false;
+            //AutorunManager.Current.isRunning = false;
         }
 
         // 退出AutoRun
@@ -354,7 +350,7 @@ namespace AkribisFAM
             GlobalManager.Current.Zuzhuang_exit = true;
             GlobalManager.Current.FuJian_exit = true;
             GlobalManager.Current.Reject_exit = true;
-            AutorunManager.Current.isRunning = false;
+            //AutorunManager.Current.isRunning = false;
             hasReseted = false;
             GlobalManager.Current.IO_test1 = false;
             GlobalManager.Current.IO_test2 = false;
@@ -431,7 +427,7 @@ namespace AkribisFAM
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_4light2, 1);
 
             IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0);
-            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
+            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0);
 
             //判断所有气缸缩回
             GlobalManager.Current.WaitIO(IO_INFunction_Table.IN2_1Left_1_lift_cylinder_retract_InPos, 1);
