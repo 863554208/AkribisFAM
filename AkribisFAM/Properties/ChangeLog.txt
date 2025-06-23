@@ -1,5 +1,8 @@
 ﻿=========================== CHANGE LOG ===========================
 
+v0.0.0.13 [2025-06-23, Paul]
+ - Feat: Add System home feature
+
 v0.0.0.12 [2025-06-23, Raymond]
  - Feat: Add Reject process into assembly control
 

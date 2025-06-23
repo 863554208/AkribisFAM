@@ -192,6 +192,16 @@
                     <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
                     </Viewbox>
                 </Button>
+                 <Button x:Name="btnSystemHome"
+                        Background="Gray"
+                        Style="{StaticResource MaterialDesignRaisedLightButton}"
+                        Height="64"
+                        Width="140"
+                        FontWeight="Bold"
+                        Margin="0,0,10,0"
+                        Content="System Home"
+                        Click="btnSystemHome_Click">
+                </Button>
                 <Button x:Name="btnDebug" Content="Fail" Click="btnDebug_Click"/>
                 <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
                 <Button x:Name="btnDebug3" Content="Can send" Click="btnDebug3_Click"/>

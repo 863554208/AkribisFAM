@@ -1552,6 +1552,13 @@ namespace AkribisFAM
         {
 
         }
+        private void btnSystemHome_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to system home?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                AkrAction.Current.StartSystemHome();
+            }
+        }
     }
 
     internal class PromptableButton : Button
