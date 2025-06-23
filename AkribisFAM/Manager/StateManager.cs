@@ -164,26 +164,27 @@ namespace AkribisFAM.Manager
                     {
                         if (ErrorManager.Current.ErrorCnt == 0)
                         {
-                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+                            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Green);
+                            //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_2Tri_color_light_green, 1);
+
                             Thread.Sleep(500);
                         }
                         else
                         {
-                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+                            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Yellow);
                             Thread.Sleep(500);
-                            IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 0);
+                            App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Default);
                             Thread.Sleep(500);
                         }
                     }
                     else if (State == StateCode.MAINTENANCE)
                     {
-                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_1Tri_color_light_yellow, 1);
+                        App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Yellow);
                         Thread.Sleep(500);
                     }
                     else if (State == StateCode.STOPPED)
                     {
-                        IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_0Tri_color_light_red, 1);
-                        //IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_5Buzzer, 1);
+                        App.light.ChangeColor(DeviceClass.LEDLightControl.ColorCode.Red);
                         Thread.Sleep(500);
                     }
                 }

@@ -1,5 +1,9 @@
 ﻿=========================== CHANGE LOG ===========================
 
+v0.0.0.10 [2025-06-23, Raymond]
+ - Feat: Update TCP Client, added light control
+ - Fix : Conveyor page digital input status not refresh bug
+
 v0.0.0.9 [2025-05-31, Raymond]
  - Feat: A1-505 Added user manager and login page
 

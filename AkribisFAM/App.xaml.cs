@@ -44,6 +44,7 @@ namespace AkribisFAM
         public static RejectControl reject;
         public static BuzzerControl buzzer;
         public static DoorControl door;
+        public static LEDLightControl light;
 
         public static AKBLocalParam paramLocal { get; set; } = new AKBLocalParam();
 

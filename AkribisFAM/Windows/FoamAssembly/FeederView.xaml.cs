@@ -39,8 +39,8 @@ namespace AkribisFAM.Windows
                 {
                     IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
                     IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
+                    IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
+                    IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -87,8 +87,8 @@ namespace AkribisFAM.Windows
                 FeederName = "Feeder 2",
                 PickerInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    //IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
+                    IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
+                    IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
                     IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
                     IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
@@ -166,7 +166,11 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            //feeders = feeders;
+            foreach (var sts in feeders)
+            {
+                sts.FeederInList = new ObservableCollection<IO_INFunction_Table>(sts.FeederInList);
+                sts.PickerInList = new ObservableCollection<IO_INFunction_Table>(sts.PickerInList);
+            }
 
         }
         class FeederVM : ViewModelBase
