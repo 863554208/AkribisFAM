@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Xml.Serialization;
 using AAMotion;
 using AkribisFAM.Util;
+using AkribisFAM.Windows;
 using LiveCharts.Wpf;
 using static AAMotion.AAMotionAPI;
 using static AkribisFAM.GlobalManager;
@@ -1761,7 +1765,6 @@ namespace AkribisFAM.WorkStation
                 {
                     Logger.WriteLog("SystemHome: All axes homed successfully.");
                     MessageBox.Show("System homing completed successfully.", "Homing Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
                 }
                 else
                 {
@@ -1820,9 +1823,9 @@ namespace AkribisFAM.WorkStation
                     // WAIT HOMING TO FINISH
                     //if (WaitHomingFinished(AxisName.PICK1_Z, token) != 0) return -1;
                     //if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
-                
+                    //if (WaitHomingFinished(AxisName.PICK3_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z, token) != 0) return -1;
+
                     // HOME XY
                     if (HomeAxis(AxisName.FSX, true, true, false) != 0) return -1;
                     if (HomeAxis(AxisName.FSY, true, true, false) != 0) return -1;
@@ -1846,10 +1849,10 @@ namespace AkribisFAM.WorkStation
                     //if (WaitHomingFinished(AxisName.PICK1_T, token) != 0) return -1;
                     //if (WaitHomingFinished(AxisName.PICK2_Z, token) != 0) return -1;
                     //if (WaitHomingFinished(AxisName.PICK2_T, token) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK3_Z) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK3_T) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK4_Z) != 0) return -1;
-                    //if (WaitHomingFinished(AxisName.PICK4_T) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK3_T, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_Z, token) != 0) return -1;
+                    //if (WaitHomingFinished(AxisName.PICK4_T, token) != 0) return -1;
                     break;
                 case Modules.FuJian:
                     //// MOVE Z HARDSTOP FIRST FOR SAFETY
