@@ -15,11 +15,11 @@ namespace AkribisFAM
         protected System.Timers.Timer _timer;
         Thread tdUpdate;
         [Browsable(false), NotMapped, JsonIgnore]
-        public bool thAlive { get; set; } = true;
+        private bool thAlive { get; set; } = true;
         [Browsable(false), NotMapped, JsonIgnore]
-        public bool thRun { get; set; } = true;
+        private bool thRun { get; set; } = true;
         [Browsable(false), NotMapped, JsonIgnore]
-        public int thSleepTime { get; set; } = 100;
+        private int thSleepTime { get; set; } = 100;
 
         // Get current process
         private Process currentProcess;
@@ -36,9 +36,9 @@ namespace AkribisFAM
         [Browsable(false), NotMapped, JsonIgnore]
         private TimeSpan cpuUsed => finalCpuTime - initialCpuTime;
         [Browsable(false), NotMapped, JsonIgnore]
-        public string MemoryUsed => $"{memoryUsed / 1024.0 / 1024.0:F2} MB";
+        private string MemoryUsed => $"{memoryUsed / 1024.0 / 1024.0:F2} MB";
         [Browsable(false), NotMapped, JsonIgnore]
-        public string CPUTimeUsed => $"{cpuUsed.TotalMilliseconds:F2} ms";
+        private string CPUTimeUsed => $"{cpuUsed.TotalMilliseconds:F2} ms";
 
         public void KillUpdateThread()
         {

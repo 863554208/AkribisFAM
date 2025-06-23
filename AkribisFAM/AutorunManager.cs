@@ -203,6 +203,7 @@ namespace AkribisFAM
                 {
                     Conveyor.Current.ThreadState = WorkStationBase.ThreadStatus.Resuming;
                 }
+                return;
                 if (ThreadLaser != null && !ThreadLaser.IsAlive)
                 {
                     LaiLiao.Current.ThreadState = WorkStationBase.ThreadStatus.Init;

@@ -68,6 +68,14 @@ namespace AkribisFAM.Manager
 
         ClawReedSwitchTimeOut = 0x0024,
 
+        OnTheFlyFoamFailed = 0x0025,
+        OnTheFlyBottomVisionFailed = 0x0026,
+        OnTheFlyTrayFailed = 0x0027,
+
+        FoamPickFailed = 0x0028,
+        FoamPlaceFailed = 0x0029,
+
+        VacuumFeedback = 0x0030,
     }
 
     public class ErrorInfo

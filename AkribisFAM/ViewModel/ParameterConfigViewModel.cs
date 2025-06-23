@@ -39,6 +39,21 @@ namespace AkribisFAM.ViewModel
                 }
             }
         }
+        private string currentUser;
+
+        public string CurrentUser
+        {
+            get { return currentUser; }
+            set { currentUser = value; OnPropertyChanged("CurrentUser"); }
+        }
+        
+        private string currentUserLevel;
+
+        public string CurrentUserLevel
+        {
+            get { return currentUserLevel; }
+            set { currentUserLevel = value; OnPropertyChanged("CurrentUserLevel"); }
+        }
 
         public ErrorIconViewModel()
         {

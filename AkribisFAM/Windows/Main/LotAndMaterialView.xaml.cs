@@ -1,6 +1,7 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Manager;
 using AkribisFAM.Models;
+using AkribisFAM.WorkStation;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -54,7 +55,13 @@ namespace AkribisFAM.Windows
             _selectedRecipe = App.recipeManager.Recipes[cbxRecipe.SelectedIndex];
 
 
-            App.lotManager.StartLot(_selectedRecipe, "User", txtLotID.Text);
+            if (!App.lotManager.StartLot(_selectedRecipe, "User", txtLotID.Text))
+            {
+                MessageBox.Show("Failed to start lot");
+                return;
+            }
+            ZuZhuang.Current.SetRecipe(_selectedRecipe);
+
             App.DbManager.AddLotRecord(new LotRecord()
             {
                 LotID = txtLotID.Text,
