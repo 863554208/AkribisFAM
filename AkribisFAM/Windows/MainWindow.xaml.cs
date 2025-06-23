@@ -6,8 +6,11 @@ using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -20,10 +23,21 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
+using AkribisFAM.Windows;
+using AkribisFAM.Util;
+using System.Globalization;
+using System.Windows.Markup;
+using AkribisFAM.WorkStation;
+using AkribisFAM.Manager;
+using AkribisFAM.ViewModel;
+using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.WorkStation.AkrAction;
 using static AkribisFAM.WorkStation.Conveyor;
+using System.Reflection;
+using System.Windows.Media.Media3D;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -65,6 +79,8 @@ namespace AkribisFAM
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
 
+            App.userManager.UserLoggedIn += UserManager_UserLoggedIn;
+
             ViewModel = new ErrorIconViewModel();
             this.DataContext = ViewModel;
 
@@ -86,12 +102,52 @@ namespace AkribisFAM
             ContentDisplay.Content = mainContent;
             Logger.WriteLog("MainWindow init");
             _timer.Start();
-            lblVersion.Content = $"Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
+            lblVersion.Content = $"{App.paramLocal.LiveParam.MachineName} - Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+
+        }
+
+        private void UserManager_UserLoggedIn(object sender, EventArgs e)
+        {
+            bool Enable = true;
+            User currentUser = App.userManager.CurrentUser;
+            List<UserRight> userRights = null;
+            if (currentUser == null)
+            {
+                Enable = false;
+            }
+            else
+            {
+                userRights = currentUser.UserLevel.UserRights;
+                var hasRight = userRights.Any(x => x.Name == "CalibrationSet");
+            }
+            // Define a dictionary to map button names to lists of required user rights
+            Dictionary<UIElement, List<string>> buttonRequiredRights = new Dictionary<UIElement, List<string>>
+                {
+                    { btnHome, new List<string> { "Overview" } },
+                    { gridControl, new List<string> { "Overview" } },
+                    { btnStatistics, new List<string> { "StatisticsView" } },
+                    { btnControl, new List<string> { "IOControl", "IOView", "ManualProcess", "DeviceControl", "VisionControl" , "Calibration" } },
+                    { btnLog, new List<string> { "LogView" } },
+                    { btnSetting, new List<string> { "Setting" } },
+                    { btnNetwork, new List<string> { "Setting" } },
+                };
+
+            // Iterate over the dictionary and set IsEnabled property for each button
+            foreach (var kvp in buttonRequiredRights)
+            {
+                kvp.Key.IsEnabled = Enable && kvp.Value.Any(requiredRight => userRights.Any(x => x.Name == requiredRight));
+            }
+
+
+            if (btnHome.IsEnabled)
+            {
+                MainWindowButton_Click(btnHome, null);
+            }
 
         }
 
@@ -115,21 +171,31 @@ namespace AkribisFAM
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
-            if (AutorunManager.Current.IsRunning)
-            if (StateManager.Current.State == StateCode.RUNNING)
-            {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
-                StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
-                this.Dispatcher.BeginInvoke(new Action(() =>
-                {
 
-                    performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
-                }));
-            }
-            else
+            if (App.userManager.CurrentUser != null)
             {
-                IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+
+                ViewModel.CurrentUser = App.userManager.CurrentUser.Username;
+                ViewModel.CurrentUserLevel = App.userManager.CurrentUser.UserLevel.Name;
+            }
+            if (AutorunManager.Current.IsRunning)
+            {
+
+                if (StateManager.Current.State == StateCode.RUNNING)
+                {
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
+                    StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
+                    this.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+
+                        performance.RunningTimeLB.Content = StateManager.Current.RunningTime.ToString(@"hh\:mm\:ss");
+                    }));
+                }
+                else
+                {
+                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
+                }
             }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
@@ -638,7 +704,7 @@ namespace AkribisFAM
         private void ResetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
- 
+
 
             //isResetButtonTriggered = false;
             //resetPressStopwatch.Restart();
@@ -656,14 +722,12 @@ namespace AkribisFAM
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-
+            App.CioManager.ResetMachine();
             ErrorManager.Current.Clear();
             App.buzzer.EnableBeep = true;
         }
         private void ResetButton_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            resetTimer?.Stop();
-            resetPressStopwatch.Stop();
 
             // 如果松开太早，提示用户
             if (!isResetButtonTriggered)
@@ -680,8 +744,8 @@ namespace AkribisFAM
             {
                 MessageBox.Show("Please start a new lot first");
                 return false;
-            }      
-            
+            }
+
             if (!App.CioManager.IsEmergencyStopOk)
             {
                 MessageBox.Show("E-Stop triggered!");
@@ -816,7 +880,7 @@ namespace AkribisFAM
             //    return false;
             //}
 
-         
+
             #region Feeder
             if (!App.feeder1.IsInitialized || !App.feeder1.IsAlarm)
             {
@@ -861,7 +925,7 @@ namespace AkribisFAM
                 MessageBox.Show("Please at least lock one feeder and feed in material");
                 return false;
             }
-  
+
             #endregion
             return true;
         }
@@ -883,19 +947,19 @@ namespace AkribisFAM
 
 
 
-            if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
+            //if (StateManager.Current.State == StateCode.IDLE && AutorunManager.Current.hasReseted == true || true)
             {
                 Logger.WriteLog("Change from idle to running.");
 
 
-                if (!PreRunCheck())
-                {
-                    return;
-                }
-                if (!PreruncheckComplete())
-                {
-                    return;
-                }
+                //if (!PreRunCheck())
+                //{
+                //    return;
+                //}
+                //if (!PreruncheckComplete())
+                //{
+                //    return;
+                //}
 
                 StateManager.Current.State = StateCode.RUNNING;
                 StateManager.Current.RunningStart = DateTime.Now;
@@ -1269,7 +1333,225 @@ namespace AkribisFAM
                 }
             }
         }
+        public int counter = 0;
+        Random random = new Random();
+        private async void btnDebug_Click(object sender, RoutedEventArgs e)
+        {
+            //await Task.Run(() =>
+            //{
+            //Thread.Sleep(500);
+            DateTime dt = DateTime.Now;
+            for (int i = 0; i < 12; i++)
+            {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
+                for (int j = 0; j < 4; j++)
+                {
 
+                    targetPart.present = true;
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(100, 103),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+
+                }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
+                }
+            }
+
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
+            //foreach (var item in App.productTracker.LaserStationTray.PartArray)
+            //{
+            //    await Task.Run(() =>
+            //    {
+
+            //        item.failed = true;
+            //        Thread.Sleep(200);
+            //    });
+            //}
+            if (false)
+            {
+
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                });
+                Conveyor.Current.ConveyorTrays[3].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[2]);
+                Conveyor.Current.ConveyorTrays[2].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[1]);
+                Conveyor.Current.ConveyorTrays[1].Copy((Conveyor.TrayData)Conveyor.Current.ConveyorTrays[0]);
+                Conveyor.Current.ConveyorTrays[0].Reset();
+
+                if (Conveyor.Current.ConveyorTrays[3].IsFail)
+                {
+                    App.productTracker.RejectOutGoingStationTray.Copy(Conveyor.Current.ConveyorTrays[3]);
+                    Conveyor.Current.ConveyorTrays[3].Reset();
+                }
+            }
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //App.productTracker.LaserStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray.Reset();
+            //App.productTracker.FoamAssemblyStationTray = (Conveyor.TrayData)App.productTracker.LaserStationTray.Clone();
+            //var re = App.productTracker.FoamAssemblyStationTray;
+            //App.productTracker.LaserStationTray.Reset();
+            //var re2 = App.productTracker.LaserStationTray;
+            //App.productTracker.LaserStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser];
+            //App.productTracker.FoamAssemblyStationTray = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Foam];
+        }
+
+        private void btnDebug2_Click(object sender, RoutedEventArgs e)
+        {
+
+            Conveyor.Current.ConveyorTrays[0].Reset();
+        }
+
+        private void btnDebug3_Click(object sender, RoutedEventArgs e)
+        {
+
+            Conveyor.Current.canSend = true;
+        }
+
+        private void btnDebug4_Click(object sender, RoutedEventArgs e)
+        {
+            Conveyor.Current.removed = true;
+        }
+
+        private void btnDebug5_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime dt = DateTime.Now;
+            for (int i = 0; i < 12; i++)
+            {
+                var targetPart = Conveyor.Current.ConveyorTrays[0].PartArray[i];
+                targetPart.Reset();
+                for (int j = 0; j < 4; j++)
+                {
+                    targetPart.present = true;
+                    targetPart.SerialNumber = $"{i}_{dt.ToString("yyyy-MM-dd_HHmmss")}";
+                    targetPart.HeightMeasurements.Add(new LaserMeasurement()
+                    {
+                        MeasurementCount = counter,
+                        DateTimeMeasure = DateTime.Now,
+                        XMeasurePosition = 123,
+                        YMeasurePosition = 321,
+                        HeightMeasurement = random.Next(100, 100),
+                        Nominal = App.paramLocal.LiveParam.NominalHeight,
+                        Tolerance = App.paramLocal.LiveParam.ToleranceHeight,
+                    });
+
+                }
+                if (targetPart.HeightMeasurements.Any(x => !x.IsPass))
+                {
+                    targetPart.failed = true;
+                    targetPart.FailReason = FailReason.HeightFail;
+                    targetPart.FailStation = StationType.Laser;
+                }
+
+            }
+
+            bool passCondition = Conveyor.Current.ConveyorTrays[(int)ConveyorStation.Laser].PartArray.All(x => !x.failed);
+            Conveyor.Current.ConveyorTrays[0].IsFail = !passCondition;
+            //Thread.Sleep(500);
+            //}); 
+            //App.productTracker.LaserStationTray.PartArray[0].heightMeasurements.Add(new LaserMeasurement()
+            //{
+            //    XMeasurePosition = 123,
+            //    YMeasurePosition = 321,
+            //    HeightMeasurement = 9988,
+            //});
+            var red = App.productTracker.LaserStationTray;
+            Conveyor.Current.ConveyorTrays[0].Barcode = $"new{counter++}";
+        }
+
+        private void btnDebug6_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = true;
+            }
+        }
+
+        private void btnDebug7_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var targetPart = App.productTracker.Feeder1Foams.PartArray[i];
+                targetPart.Reset();
+                targetPart.present = true;
+                targetPart.failed = false;
+            }
+        }
+
+        private void btnDebug8_Click(object sender, RoutedEventArgs e)
+        {
+            var target = App.productTracker.GantryPickerFoams;
+            var source = App.productTracker.Feeder1Foams;
+            for (int i = 0; i < 4; i++)
+            {
+                var sourcePart = source.PartArray[i];
+                var targetPart = target.PartArray[i];
+                targetPart.Copy(sourcePart);
+
+                //targetPart = new ProductData(sourcePart);
+                //App.productTracker.GantryPickerFoams.PartArray[i].present = App.productTracker.Feeder1Foams.PartArray[i].present;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = true;
+                //App.productTracker.GantryPickerFoams.PartArray[i].failed = App.productTracker.Feeder1Foams.PartArray[i].failed;
+                //App.productTracker.GantryPickerFoams.PartArray[i] = new ProductData(App.productTracker.Feeder1Foams.PartArray[i]);
+            }
+            source.Reset();
+            //targetPart.Reset();
+
+        }
+
+        private void btnDebug9_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var source = App.productTracker.GantryPickerFoams.PartArray[i];
+                var target = App.productTracker.FoamAssemblyStationTray.PartArray[i];
+                target.Consume(source);
+            }
+        }
+
+        private void btnDebug10_Click(object sender, RoutedEventArgs e)
+        {
+            var list = App.visionControl.GenerateLeftToRightGrid(10, 12, 4, 3, 3, 4);
+            var list2 = App.visionControl.RemapLeftToRightToSnake(list, 3, 4, -1, -1);
+            var list3 = App.visionControl.GenerateSnakeTravelPathsWithDirection(list, 3, 4, -1, -1, 3);
+        }
+        private void btnUser_Click(object sender, RoutedEventArgs e)
+        {
+
+            new UserLogin(App.userManager).ShowDialog();
+        }
+
+        private void Label_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+        }
         private void btnSystemHome_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to system home?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
@@ -1278,112 +1560,112 @@ namespace AkribisFAM
             }
         }
     }
-        internal class PromptableButton : Button
+
+    internal class PromptableButton : Button
+    {
+
+        public ImageSource CoverImageSource
         {
+            get { return (ImageSource)GetValue(CoverImageSourceProperty); }
+            set { SetValue(CoverImageSourceProperty, value); }
+        }
 
-            public ImageSource CoverImageSource
-            {
-                get { return (ImageSource)GetValue(CoverImageSourceProperty); }
-                set { SetValue(CoverImageSourceProperty, value); }
-            }
-
-            public static readonly DependencyProperty CoverImageSourceProperty =
-                DependencyProperty.Register("CoverImageSource", typeof(ImageSource), typeof(PromptableButton), new UIPropertyMetadata(null));
+        public static readonly DependencyProperty CoverImageSourceProperty =
+            DependencyProperty.Register("CoverImageSource", typeof(ImageSource), typeof(PromptableButton), new UIPropertyMetadata(null));
 
 
-            public int PromptCount
-            {
-                get { return (int)GetValue(PromptCountProperty); }
-                set { SetValue(PromptCountProperty, value); }
-            }
+        public int PromptCount
+        {
+            get { return (int)GetValue(PromptCountProperty); }
+            set { SetValue(PromptCountProperty, value); }
+        }
 
-            public static readonly DependencyProperty PromptCountProperty =
-                DependencyProperty.Register("PromptCount", typeof(int), typeof(PromptableButton),
-                new FrameworkPropertyMetadata(0, new PropertyChangedCallback(PromptCountChangedCallBack), new CoerceValueCallback(CoercePromptCountCallback)));
+        public static readonly DependencyProperty PromptCountProperty =
+            DependencyProperty.Register("PromptCount", typeof(int), typeof(PromptableButton),
+            new FrameworkPropertyMetadata(0, new PropertyChangedCallback(PromptCountChangedCallBack), new CoerceValueCallback(CoercePromptCountCallback)));
 
 
-            public PromptableButton()
-            {
-
-            }
-
-            static PromptableButton()
-            {
-                DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptableButton), new FrameworkPropertyMetadata(typeof(PromptableButton)));
-            }
-
-            private static object CoercePromptCountCallback(DependencyObject d, object value)
-            {
-                int promptCount = (int)value;
-                promptCount = Math.Max(0, promptCount);
-
-                return promptCount;
-            }
-
-            public static void PromptCountChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
-            {
-
-            }
+        public PromptableButton()
+        {
 
         }
 
-        internal class PromptAdorner : Adorner
+        static PromptableButton()
         {
-
-            protected override int VisualChildrenCount
-            {
-                get { return 1; }
-            }
-
-            public PromptAdorner(UIElement adornedElement)
-                : base(adornedElement)
-            {
-
-                _chrome = new PromptChrome();
-                _chrome.DataContext = adornedElement;
-                this.AddVisualChild(_chrome);
-            }
-
-
-            protected override Visual GetVisualChild(int index)
-            {
-                return _chrome;
-            }
-
-            protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
-            {
-                _chrome.Arrange(new Rect(arrangeBounds));
-                return arrangeBounds;
-            }
-
-            PromptChrome _chrome;
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptableButton), new FrameworkPropertyMetadata(typeof(PromptableButton)));
         }
 
-        internal class PromptChrome : Control
+        private static object CoercePromptCountCallback(DependencyObject d, object value)
         {
-            static PromptChrome()
-            {
-                DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptChrome), new FrameworkPropertyMetadata(typeof(PromptChrome)));
-            }
+            int promptCount = (int)value;
+            promptCount = Math.Max(0, promptCount);
 
-            protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
-            {
+            return promptCount;
+        }
 
-                this.Width = 34;
-                this.Height = 34;
-
-                this.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-                this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-
-                TranslateTransform tt = new TranslateTransform();
-                tt.X = 10;
-                tt.Y = -10;
-                this.RenderTransform = tt;
-
-                return base.ArrangeOverride(arrangeBounds);
-            }
-
+        public static void PromptCountChangedCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
 
         }
-    
+
+    }
+
+    internal class PromptAdorner : Adorner
+    {
+
+        protected override int VisualChildrenCount
+        {
+            get { return 1; }
+        }
+
+        public PromptAdorner(UIElement adornedElement)
+            : base(adornedElement)
+        {
+
+            _chrome = new PromptChrome();
+            _chrome.DataContext = adornedElement;
+            this.AddVisualChild(_chrome);
+        }
+
+
+        protected override Visual GetVisualChild(int index)
+        {
+            return _chrome;
+        }
+
+        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+        {
+            _chrome.Arrange(new Rect(arrangeBounds));
+            return arrangeBounds;
+        }
+
+        PromptChrome _chrome;
+    }
+
+    internal class PromptChrome : Control
+    {
+        static PromptChrome()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PromptChrome), new FrameworkPropertyMetadata(typeof(PromptChrome)));
+        }
+
+        protected override System.Windows.Size ArrangeOverride(System.Windows.Size arrangeBounds)
+        {
+
+            this.Width = 34;
+            this.Height = 34;
+
+            this.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+            this.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+
+            TranslateTransform tt = new TranslateTransform();
+            tt.X = 10;
+            tt.Y = -10;
+            this.RenderTransform = tt;
+
+            return base.ArrangeOverride(arrangeBounds);
+        }
+
+
+    }
 }

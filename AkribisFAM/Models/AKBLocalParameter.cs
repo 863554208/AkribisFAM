@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using AkribisFAM.Models.Base;
-using System.Diagnostics;
+using AkribisFAM.DeviceClass;
 
 namespace AkribisFAM.Models
 {
@@ -38,7 +38,7 @@ namespace AkribisFAM.Models
             }
 
 
-            private AKBint _processTimeout = new AKBint(3000, 0, 5000);
+            private AKBint _processTimeout = new AKBint(3000, 0, 20000);
             [Browsable(true), ReadOnly(false), Category("Process"), Description("The wait time for the motion to reach position before raising timeout, in milliseconds")]
             public int ProcessTimeout
             {
@@ -76,8 +76,36 @@ namespace AkribisFAM.Models
                 set { _runMode.Value = (int)value; OnPropertyChanged(); }
             }
 
+            private AKBenum _trayOnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyXDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Tray on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection TrayOnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_trayOnTheFlyXDirection.Value; }
+                set { _trayOnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _trayOnTheFlyYDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Tray on the fly Y direction")]
+            public CognexVisionControl.OnTheFlyXDirection TrayOnTheFlyYDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_trayOnTheFlyYDirection.Value; }
+                set { _trayOnTheFlyYDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _feeder1OnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Feeder 1 on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection Feeder1OnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_feeder1OnTheFlyXDirection.Value; }
+                set { _feeder1OnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
+            private AKBenum _feeder2OnTheFlyXDirection = new AKBenum(typeof(CognexVisionControl.OnTheFlyYDirection), (int)CognexVisionControl.OnTheFlyXDirection.Negative);
+            [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Feeder 2 on the fly X direction")]
+            public CognexVisionControl.OnTheFlyXDirection Feeder2OnTheFlyXDirection
+            {
+                get { return (CognexVisionControl.OnTheFlyXDirection)_feeder2OnTheFlyXDirection.Value; }
+                set { _feeder2OnTheFlyXDirection.Value = (int)value; OnPropertyChanged(); }
+            }
             private AKBint _speedPercentage = new AKBint(30, 5, 100);
-            [Browsable(true), ReadOnly(false), Category("Process"), Description("Percentage of full speed in percentage %")]
+            [Browsable(true), ReadOnly(false), Category("Process"), Description("Speed percentage % of the full speed")]
             public int SpeedPercentage
             {
                 get { return _speedPercentage.Value; }
@@ -104,6 +132,20 @@ namespace AkribisFAM.Models
                 set { _rejectY.Value = value; OnPropertyChanged(); }
             }
 
+            private AKBdouble _nominalHeight = new AKBdouble(100, 0, 100000);
+            [Browsable(true), ReadOnly(false), Category("Laser Station"), Description("Nominal height for laser measurement")]
+            public double NominalHeight
+            {
+                get { return _nominalHeight.Value; }
+                set { _nominalHeight.Value = value; OnPropertyChanged(); }
+            }
+            private AKBdouble _toleranceHeight = new AKBdouble(1, 0, 100000);
+            [Browsable(true), ReadOnly(false), Category("Laser Station"), Description("Tolerance height for laser measurement")]
+            public double ToleranceHeight
+            {
+                get { return _toleranceHeight.Value; }
+                set { _toleranceHeight.Value = value; OnPropertyChanged(); }
+            }
             private AKBbool _enablePicker1 = new AKBbool(true);
             [Browsable(true), ReadOnly(false), Category("Foam Assembly Station"), Description("Enable/disable picker 1")]
             public bool EnablePicker1
@@ -143,9 +185,15 @@ namespace AkribisFAM.Models
                 get { return _enableTraceLog.Value; }
                 set { _enableTraceLog.Value = value; OnPropertyChanged(); }
             }
-
+            private AKBbool _bypassMES = new AKBbool(true);
+            [Browsable(true), ReadOnly(false), Category("Process"), Description("Enable/disable MES data exchange")]
+            public bool EnableMES
+            {
+                get { return _bypassMES.Value; }
+                set { _bypassMES.Value = value; OnPropertyChanged(); }
+            }
             private AKBint _logFileAge = new AKBint(180, 30, 10000);
-            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days system will keep the log file")]
+            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days that system keep the log file")]
             public int LogFileAge
             {
                 get { return _logFileAge.Value; }
@@ -153,7 +201,7 @@ namespace AkribisFAM.Models
             }
 
             private AKBint _alarmAge = new AKBint(720, 180, 10000);
-            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days system will keep the alarm in database")]
+            [Browsable(true), ReadOnly(false), Category("Logging"), Description("Number of days that system keep the alarm in database")]
             public int AlarmAge
             {
                 get { return _alarmAge.Value; }
@@ -182,7 +230,13 @@ namespace AkribisFAM.Models
                 set { _recheckYOffset.Value = value; OnPropertyChanged(); }
             }
 
-
+            private AKBint _foamPerReel = new AKBint(720, 180, 10000);
+            [Browsable(true), ReadOnly(false), Category("Feeder"), Description("Number of foam in one reel")]
+            public int FoamPerReel
+            {
+                get { return _foamPerReel.Value; }
+                set { _foamPerReel.Value = value; OnPropertyChanged(); }
+            }
             #endregion Public Properties
 
             #region Public Methods

@@ -39,8 +39,8 @@ namespace AkribisFAM.Windows
                 {
                     IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
                     IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
+                    IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
+                    IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
                 FeederInList = new ObservableCollection<IO_INFunction_Table>()
                 {
@@ -87,8 +87,8 @@ namespace AkribisFAM.Windows
                 FeederName = "Feeder 2",
                 PickerInList = new ObservableCollection<IO_INFunction_Table>()
                 {
-                    //IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
-                    //IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
+                    IO_INFunction_Table.IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
+                    IO_INFunction_Table.IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
                     IO_INFunction_Table.IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
                     IO_INFunction_Table.IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
                 },
@@ -133,7 +133,7 @@ namespace AkribisFAM.Windows
 
             cbxTrayType.ItemsSource = Enum.GetNames(typeof(TrayType));
             cbxTrayType.SelectedIndex = 0;
-            
+
             _timer = new System.Timers.Timer(200);
             _timer.Elapsed += (s, e) => TickTime();
             _timer.AutoReset = true;
@@ -166,7 +166,11 @@ namespace AkribisFAM.Windows
 
         private void TickTime()
         {
-            //feeders = feeders;
+            foreach (var sts in feeders)
+            {
+                sts.FeederInList = new ObservableCollection<IO_INFunction_Table>(sts.FeederInList);
+                sts.PickerInList = new ObservableCollection<IO_INFunction_Table>(sts.PickerInList);
+            }
 
         }
         class FeederVM : ViewModelBase
@@ -248,7 +252,8 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.vision1.MoveFoamStandbyPos(num))
+            var direction = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Positive;
+            if (!App.visionControl.MoveToFoamVisionStandbyPos(num, direction))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move feeder {num} to standby position");
             }
@@ -260,7 +265,8 @@ namespace AkribisFAM.Windows
             var control = (ManualFeederControlView)sender;
             var station = (FeederControlVM)control.DataContext;
             var num = (DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber;
-            if (!App.vision1.MoveFoamEndingPos(num))
+            var direction = DeviceClass.CognexVisionControl.OnTheFlyXDirection.Positive;
+            if (!App.visionControl.MoveToFoamVisionEndingPos(num, direction))
             {
                 System.Windows.Forms.MessageBox.Show($"Failed to move feeder {num} to ending position");
             }
@@ -274,11 +280,12 @@ namespace AkribisFAM.Windows
             await Task.Run(() =>
             {
 
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber))
+                if (!App.visionControl.VisionOnTheFlyFoam((DeviceClass.CognexVisionControl.FeederNum)station.FeederNumber,
+                   out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
                     return;
                 }
-                
+
                 //if (!App.assemblyGantryControl.PickFoam(Picker.Picker1,1))
                 //{
                 //    return;
@@ -354,76 +361,84 @@ namespace AkribisFAM.Windows
 
         private void ManualFeederControlView_PickerMoveFoam1Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 1))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
-            }
+            MoveManual(sender, 1);
         }
 
         private void ManualFeederControlView_PickerMoveFoam2Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 2))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
-            }
+            MoveManual(sender, 2);
         }
 
         private void ManualFeederControlView_PickerMoveFoam3Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 3))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
-            }
+            MoveManual(sender, 3);
         }
 
         private void ManualFeederControlView_PickerMoveFoam4Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 4))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
-            }
+            MoveManual(sender, 4);
         }
-
-        private void ManualFeederControlView_PickerPickFoam1Pressed(object sender, EventArgs e)
+        private void MoveManual(object sender, int foamNum)
         {
             var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 1))
+            var vm = (FeederControlVM)control.DataContext;
+            var pickerNum = (DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker;
+            var feederNum = vm.FeederNumber;
+            if (GlobalManager.Current.CurrentMode == ProcessMode.Dryrun)
             {
-                System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
+                if (!App.assemblyGantryControl.MoveStandbyPickPos(pickerNum, foamNum, feederNum))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+                }
             }
+            else
+            {
+                if (!App.assemblyGantryControl.MovePickPos((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, foamNum))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to move foam {control.SelectedPicker}'s position");
+                }
+            }
+        }
+        private void PickManual(object sender, int foamNum)
+        {
+            var control = (ManualFeederControlView)sender;
+            var vm = (FeederControlVM)control.DataContext;
+            var pickerNum = (DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker;
+            var feederNum = vm.FeederNumber;
+            if (GlobalManager.Current.CurrentMode == ProcessMode.Dryrun)
+            {
+                if (!App.assemblyGantryControl.PickFoamDryRun(pickerNum, foamNum, feederNum))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}'s position");
+                }
+            }
+            else
+            {
+                if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, foamNum))
+                {
+                    System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}'s position");
+                }
+            }
+        }
+        private void ManualFeederControlView_PickerPickFoam1Pressed(object sender, EventArgs e)
+        {
+            PickManual(sender, 1);
         }
 
         private void ManualFeederControlView_PickerPickFoam2Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 2))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
-            }
+            PickManual(sender, 2);
         }
 
 
         private void ManualFeederControlView_PickerPickFoam3Pressed(object sender, EventArgs e)
         {
-
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 3))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
-            }
+            PickManual(sender, 3);
         }
 
         private void ManualFeederControlView_PickerPickFoam4Pressed(object sender, EventArgs e)
         {
-            var control = (ManualFeederControlView)sender;
-            if (!App.assemblyGantryControl.PickFoam((DeviceClass.AssemblyGantryControl.Picker)control.SelectedPicker, 4))
-            {
-                System.Windows.Forms.MessageBox.Show($"Failed to pick foam {control.SelectedPicker}");
-            }
+            PickManual(sender, 4);
         }
         private void ManualFeederControlView_PickerPickAllPressed(object sender, EventArgs e)
         {
@@ -588,6 +603,7 @@ namespace AkribisFAM.Windows
 
         private async void btnPickAndPlace1_Click(object sender, RoutedEventArgs e)
         {
+            //var direction = App.paramLocal.LiveParam.TrayOnTheFlyXDirection
             stopAllMotion = false;
             vm.TotalProcess = 4 + 4 + 1 + vm.Row * vm.Column + 4;
             vm.Progress = 0;
@@ -597,9 +613,8 @@ namespace AkribisFAM.Windows
             await Task.Run(() =>
             {
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                if (!App.visionControl.VisionOnTheFlyFoam(DeviceClass.CognexVisionControl.FeederNum.Feeder1, out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
-
                     return;
                 }
                 vm.Progress += 4;
@@ -614,16 +629,16 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision2OnTheFlyTrigger())
-                {
+                //if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
+                //{
 
-                    return;
-                }
+                //    return;
+                //}
                 vm.Progress += 1;
 
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                if (!App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
                 {
 
                     return;
@@ -657,7 +672,8 @@ namespace AkribisFAM.Windows
             {
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyFoamTrigger(DeviceClass.CognexVisionControl.FeederNum.Feeder1))
+                if (!App.visionControl.VisionOnTheFlyFoam(DeviceClass.CognexVisionControl.FeederNum.Feeder1,
+                    out List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> messages))
                 {
 
                     return;
@@ -674,16 +690,16 @@ namespace AkribisFAM.Windows
                 vm.Progress += 4;
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision2OnTheFlyTrigger())
-                {
+                //if (!App.visionControl.Vision2OnTheFlyTrigger(out var results))
+                //{
 
-                    return;
-                }
+                //    return;
+                //}
                 vm.Progress += 1;
 
 
                 if (stopAllMotion) return;
-                if (!App.vision1.Vision1OnTheFlyPalletTrigger(vm.Row, vm.Column))
+                if (!App.visionControl.Vision1OnTheFlyPalletTrigger(App.lotManager.CurrLot.Recipe))
                 {
 
                     return;

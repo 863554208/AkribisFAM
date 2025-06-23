@@ -236,6 +236,7 @@ namespace AkribisFAM
         public List<SinglePoint> pickerZCam2Points = new List<SinglePoint>();
         public List<SinglePoint> pickerZSafePoints = new List<SinglePoint>();
         public List<SinglePoint> pickerLoadCellPoints = new List<SinglePoint>();
+        public List<SinglePoint> rejectPoints = new List<SinglePoint>();
 
         public List<SinglePoint> feedar1Points = new List<SinglePoint>();
 
@@ -244,6 +245,7 @@ namespace AkribisFAM
         public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
 
         public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
+        public List<SinglePoint> rejectFoamPoints = new List<SinglePoint>();
 
         public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
 
