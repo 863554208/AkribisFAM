@@ -1,4 +1,5 @@
-﻿using AkribisFAM.DeviceClass;
+﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.DeviceClass;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System.Collections.Generic;
@@ -165,6 +166,36 @@ namespace AkribisFAM.Manager
             var target = App.productTracker.FoamAssemblyStationTray.PartArray[trayIndex];
 
             target.Consume(source);
+            return true;
+        }
+        public bool SetRecheckVision(RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend result, int trayIndex)
+        {
+            char delimiter = '_';
+            if (result == null)
+            {
+                return false;
+            }
+
+            var productData = App.productTracker.RecheckStationTray.PartArray[trayIndex];
+            productData.present = true;
+            productData.failed = (result.Errcode != "1");
+
+            if (productData.failed)
+            {
+                productData.Station = StationType.Recheck;
+                productData.FailReason = FailReason.FailToPlace;
+            }
+            string[] measurements = result.Datan.Split(delimiter);
+            for (int i = 0; i < measurements.Length; i++)
+            {
+                RecheckVisionMeasurement measurement = new RecheckVisionMeasurement()
+                {
+                    MeasurementCount = i,
+                    DateTimeMeasure = System.DateTime.Now,
+                    Measurement = double.Parse(measurements[i]),
+                };
+                productData.VisionMeasurements.Add(measurement);
+            }
             return true;
         }
 

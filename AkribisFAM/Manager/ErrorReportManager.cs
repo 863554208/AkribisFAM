@@ -74,6 +74,7 @@ namespace AkribisFAM.Manager
         FoamPlaceFailed = 0x0029,
 
         VacuumFeedback = 0x0030,
+        InspectionFailed = 0x0031,
     }
 
     public class ErrorInfo

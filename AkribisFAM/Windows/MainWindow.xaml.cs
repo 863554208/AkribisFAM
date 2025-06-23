@@ -6,13 +6,10 @@ using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,21 +20,9 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
-using AkribisFAM.Windows;
-using AkribisFAM.Util;
-using System.Globalization;
-using System.Windows.Markup;
-using AkribisFAM.WorkStation;
-using AkribisFAM.Manager;
-using AkribisFAM.ViewModel;
-using static AkribisFAM.Manager.StateManager;
-using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.WorkStation.AkrAction;
 using static AkribisFAM.WorkStation.Conveyor;
-using System.Reflection;
-using System.Windows.Media.Media3D;
-using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {

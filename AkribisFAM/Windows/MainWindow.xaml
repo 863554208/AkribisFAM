@@ -48,12 +48,12 @@
             </Grid.ColumnDefinitions>
 
 			<StackPanel Orientation="Vertical"  Grid.Column="0" Grid.ColumnSpan="2">
-					<local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png" />
-					<Label x:Name="lblVersion"/>
-			</StackPanel>
+                <local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png" />
+            </StackPanel>
 
 			<!-- 用户状态标签 -->
 			<StackPanel Margin="30 0 30 0" Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="2">
+                <Label x:Name="lblVersion" VerticalContentAlignment="Bottom" Margin="10 0"/>
 				<Button x:Name="btnUser" MinWidth="60" Click="btnUser_Click"
                             Content="{materialDesign:PackIcon Account}"
                             ToolTip="User" />

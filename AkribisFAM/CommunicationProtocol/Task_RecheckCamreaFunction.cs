@@ -60,7 +60,8 @@ namespace AkribisFAM.CommunicationProtocol
 
         private static string InstructionHeader;//指令头
 
-        public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand,string SendData) //复检相机拍照与相机交互TFC自动触发流程
+        //public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand,string SendData) //复检相机拍照与相机交互TFC自动触发流程
+        public static bool TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand recheckCamreaProcessCommand, List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> list_positions) //复检相机拍照与相机交互TFC自动触发流程
         {
             try
             {
@@ -70,20 +71,9 @@ namespace AkribisFAM.CommunicationProtocol
 
                 InstructionHeader = $"TFC,CMD_1000,1,";
 
-                ////SN1+穴位编号+物料名称+X +Y+R
-                //List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> sendTFCCamreapositions = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
-                //RecheckCamrea.Pushcommand.SendTFCCamreaposition sendTFCCamreaposition1 = new RecheckCamrea.Pushcommand.SendTFCCamreaposition();
-
-                //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
-                //sendTFCCamreaposition1.CaveID = "1";//穴位编号
-                //sendTFCCamreaposition1.MaterialNamen = "Foam->Module";
-                //sendTFCCamreaposition1.Photo_X1 = "256.890";
-                //sendTFCCamreaposition1.Photo_Y1 = "345.445";
-                //sendTFCCamreaposition1.Photo_R1 = "67.456";
-                //sendTFCCamreapositions.Add(sendTFCCamreaposition1);
-
                 //组合字符串
-                string sendcommandData = $"{InstructionHeader}{SendData}";
+                string sendcommandData = $"{InstructionHeader}{StrClass1.BuildPacket(list_positions.Cast<object>().ToList())}";
+                //string sendcommandData = $"{InstructionHeader}{SendData}";
 
                 //发送字符串到Socket
                 bool sendcommand_status = VisionpositionPushcommand(sendcommandData);

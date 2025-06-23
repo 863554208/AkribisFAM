@@ -1655,6 +1655,7 @@ namespace AkribisFAM.WorkStation
                 tracker.PartArray[foamNum - 1].failed = status ? false : true;
                 if (!status)
                 {
+                    tracker.PartArray[foamNum - 1].Station = StationType.FoamAssembly;
                     tracker.PartArray[foamNum - 1].FailReason = FailReason.FoamOnTheFlyFail;
                 }
             }
@@ -1670,6 +1671,7 @@ namespace AkribisFAM.WorkStation
                 tracker.PartArray[i].failed = status ? false : true;
                 if (!status)
                 {
+                    tracker.PartArray[i].FailStation = StationType.FoamAssembly;
                     tracker.PartArray[i].FailReason = FailReason.BottomOnTheFLyFail;
                 }
             }

@@ -9,6 +9,7 @@ using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using AkribisFAM.Util;
 using AkribisFAM.Windows;
 using static AkribisFAM.Manager.MaterialManager;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace AkribisFAM.WorkStation
 {
@@ -308,7 +309,7 @@ namespace AkribisFAM.WorkStation
                     }
                     //康耐视复检
                     string command = "SN" + "sqcode" + $"+{k}," + $"{k}," + "Foam+Moudel," + "0.000,0.000,0.000";
-                    TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
+                    //TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
 
                     Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
                     int cnt = 0;
@@ -450,17 +451,15 @@ namespace AkribisFAM.WorkStation
             // GET TEACH POINTS
             if (_movestep == 1)
             {
-                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
-                {
-                    _currentPeelerIndex = 0; // Reset index for move points
-                    Logger.WriteLog("retest teach points loaded successfully.");
-                    _movestep = 2;
-                }
-                else
+                if (!GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
                 {
                     Logger.WriteLog("Failed to load retest teach points.");
-                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"GetTeachPointList(TrayType.PAM_230_144_3X4, out _movePoints)"); // Exit the process
+                    return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"GetTeachPointList({App.lotManager.CurrLot.Recipe.TrayType}, out _movePoints)"); // Exit the process
                 }
+
+                _currentPeelerIndex = 0; // Reset index for move points
+                Logger.WriteLog("retest teach points loaded successfully.");
+                _movestep = 2;
             }
 
             // FILM REMOVAL SEQUENCE
@@ -482,18 +481,15 @@ namespace AkribisFAM.WorkStation
             // GET VISION TEACH POINTS
             if (_movestep == 3)
             {
-                if (GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
-                {
-                    _currentVisionIndex = 0; // Reset index for move points
-                    _inspectMovestep = 0;
-                    Logger.WriteLog("retest teach points loaded successfully.");
-                    _movestep = 4;
-                }
-                else
+                if (!GetTeachPointList(App.lotManager.CurrLot.Recipe.TrayType, out _movePoints))
                 {
                     Logger.WriteLog("Failed to load retest teach points.");
                     return ErrorManager.Current.Insert(ErrorCode.TeachpointErr, $"(GetTeachPointList({TrayType.PAM_230_144_3X4}, out {_movePoints}))");
                 }
+                _currentVisionIndex = 0; // Reset index for move points
+                _inspectMovestep = 0;
+                Logger.WriteLog("retest teach points loaded successfully.");
+                _movestep = 4;
             }
 
             // INSPECT SEQUENCE
@@ -772,7 +768,7 @@ namespace AkribisFAM.WorkStation
                 {
                     // Error moving to position
                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"MoveRecheckZ({0}, false)");
-                    return -1;
+                    return -1;                                                                                                                                                                                                             
                 }
                 _filmRemoveMovestep = 23; // Move to next step
                 ResetTimeout();
@@ -842,7 +838,7 @@ namespace AkribisFAM.WorkStation
                     ErrorManager.Current.Insert(ErrorCode.motionErr, $"!App.filmRemoveGantryControl.MoveToVisionPos({movePt.X}, {movePt.Y}, true)");
                     return -1;
                 }
-                ResetTimeout() ;
+                ResetTimeout();
                 _inspectMovestep = 2; // Move to next step
             }
 
@@ -858,35 +854,71 @@ namespace AkribisFAM.WorkStation
 
                 if (AkrAction.Current.IsMoveRecheckXYDone(movePt.X + App.filmRemoveGantryControl.XOffset, movePt.Y + (-App.filmRemoveGantryControl.YOffset))) // if motion stopped/reached position
                 {
-                    _inspectMovestep = 2;
+                    _inspectMovestep = 3;
                 }
             }
 
-            // INSPECT
-            if (_inspectMovestep == 2)
+            // Send command to Cognex
+            if (_inspectMovestep == 3)
             {
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
+                var data = App.productTracker.RecheckStationTray.PartArray[_currentVisionIndex];
+                if (!App.visionControl.ProductDataToTFCCommand(data, out var TFCCommands)) 
                 {
-                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
+                    ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to trigger recheck vision");
                     return -1;
                 }
-                System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1))
+                if (!App.visionControl.SendTFCCommands(TFCCommands))
                 {
-                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 1)");
+                    ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to trigger recheck vision");
                     return -1;
                 }
-                System.Threading.Thread.Sleep(100);
-                if (!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0))
+                _inspectMovestep = 4;
+            }
+
+            // INSPECT
+            if (_inspectMovestep == 4)
+            {
+                if (!App.visionControl.Trigger(DeviceClass.CognexVisionControl.VisionStation.RecheckVision))
                 {
-                    ErrorManager.Current.Insert(ErrorCode.IOErr, $"!IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT5_7Recheck_Camera_Trig, 0)");
+                    ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to trigger recheck vision");
+                    return -1;
+                }
+
+                _inspectMovestep = 5;
+            }
+
+            // GET RESULT and SET RESULT
+            if (_inspectMovestep == 5)
+            {
+                if (!App.visionControl.GetTFCResult(out var result))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to get recheck vision's result");
+                    return -1;
+                }
+                if (!App.productTracker.SetRecheckVision(result[0], _currentVisionIndex))
+                {
+                    ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to set recheck vision's result");
                     return -1;
                 }
                 _currentVisionIndex++;
                 _inspectMovestep = 0;
             }
 
-            // CHECK RESULT
+            //Set result
+            //if (_inspectMovestep == 5)
+            //{
+            //    if (!App.visionControl.GetTFCResult(out var result))
+            //    {
+            //        ErrorManager.Current.Insert(ErrorCode.InspectionFailed, $"Failed to get recheck vision's result");
+            //        return -1;
+            //    }
+            //    if (result[0].Errcode == "1")
+            //    {
+
+            //    }
+            //    _currentVisionIndex++;
+            //    _inspectMovestep = 0;
+            //}
 
             return 0;
         }

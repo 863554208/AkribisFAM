@@ -19,6 +19,7 @@ namespace AkribisFAM.DeviceClass
         List<VisionTravelPath> snapPalleteListv2 = new List<VisionTravelPath>();
         List<SinglePoint> RealPalletePointsList = new List<SinglePoint>();
         private List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition> _feederVisionResult = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
+        private List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend> _recheckVisionResult = new List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend>();
         private List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition> _bottomVisionResult = new List<PrecisionDownCamrea.Acceptcommand.AcceptTLNDownPosition>();
         private List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition> _trayVisionResult = new List<AssUpCamrea.Acceptcommand.AcceptTLTRunnerPosition>();
         public enum FeederNum
@@ -361,7 +362,27 @@ namespace AkribisFAM.DeviceClass
         //    return true;
         //}
 
+        public bool SendTFCCommands(List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> TFCCommands)
+        {
+            //给Cognex发拍照信息
+            if (!Task_RecheckCamreaFunction.TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, TFCCommands))
+            {
+                Logger.WriteLog("Failed to send TFC");
+                return false;
+            }
 
+            DateTime startTime = DateTime.Now;
+
+            while ((DateTime.Now - startTime).TotalMilliseconds <= App.paramLocal.LiveParam.ProcessTimeout)
+            {
+                if (Task_RecheckCamreaFunction.TriggRecheckCamreaready() == "OK")
+                {
+                    return true;
+                }
+            }
+            Logger.WriteLog("TFC return is not 'OK'");
+            return false;
+        }
         public bool SendTLMCommands(List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> TLMCommands)
         {
             //给Cognex发拍照信息
@@ -428,9 +449,24 @@ namespace AkribisFAM.DeviceClass
             return false;
         }
 
+        public bool ProductDataToTFCCommand(ProductData data, out List<RecheckCamrea.Pushcommand.SendTFCCamreaposition> TLCCommands)
+        {
+            TLCCommands = new List<RecheckCamrea.Pushcommand.SendTFCCamreaposition>();
 
+            RecheckCamrea.Pushcommand.SendTFCCamreaposition TLCCommand = new RecheckCamrea.Pushcommand.SendTFCCamreaposition()
+            {
+                SN = $"{data.SerialNumber}",
+                CaveID = $"{data.Index}",//穴位编号
+                MaterialNamen = "Foam+Moudel,",//物料名称 
+                Photo_X1 = "0", // 拍照时的运动坐标X
+                Photo_Y1 = "0", // 拍照时的运动坐标Y
+                Photo_R1 = "0", // 拍照时的运动坐标R，发0,0,0即可
+            };
+            TLCCommands.Add(TLCCommand);
 
+            return true;
 
+        }
         public bool XYPointToTLMCommand(List<SinglePoint> points, out List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition> TLMCommands)
         {
             TLMCommands = new List<FeedUpCamrea.Pushcommand.SendTLMCamreaposition>();
@@ -517,13 +553,27 @@ namespace AkribisFAM.DeviceClass
             ////接受Cognex的信息
             TLM_returns = new List<FeedUpCamrea.Acceptcommand.AcceptTLMFeedPosition>();
             TLM_returns = Task_FeedupCameraFunction.TriggFeedUpCamreaTLMAcceptData(FeedupCameraProcessCommand.TLM);
-
+            string Errcode = TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC)[0].Errcode;
             if (TLM_returns == null || TLM_returns.Count == 0)
             {
                 return false;
             }
 
             _feederVisionResult = TLM_returns;
+            return true;
+        }
+        public bool GetTFCResult(out List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend> TFC_returns)
+        {
+            ////接受Cognex的信息
+            TFC_returns = new List<RecheckCamrea.Acceptcommand.AcceptTFCRecheckAppend>();
+            TFC_returns = Task_RecheckCamreaFunction.TriggRecheckCamreaTFCAcceptData(RecheckCamreaProcessCommand.TFC);
+
+            if (TFC_returns == null || TFC_returns.Count == 0)
+            {
+                return false;
+            }
+
+            _recheckVisionResult = TFC_returns;
             return true;
         }
 
@@ -1064,18 +1114,25 @@ namespace AkribisFAM.DeviceClass
                 default:
                     return false;
             }
-            if (IOManager.Instance.IO_ControlStatus(output, 0) && IOManager.Instance.IO_ControlStatus(output, 1))
+
+            var res1 = IOManager.Instance.IO_ControlStatus(output, 0);
+            Thread.Sleep(100);
+            var res2 = IOManager.Instance.IO_ControlStatus(output, 1);
+            var res3 = IOManager.Instance.IO_ControlStatus(output, 0);
+
+            if (res1 && res2)
             {
                 return false;
             }
             return true;
+
         }
 
         public bool CheckFilm(int index, int totalRow, int totalColumn)
         {
             //return true;
-            var trayIndex = AlgorithmHelper.GetZigzagIndexFromFlat(index, totalRow, totalColumn);
-            string command = "SN" + "sqcode" + $"+{trayIndex}," + $"{trayIndex}," + "Foam+Moudel," + "0.000,0.000,0.000";
+            //var trayIndex = AlgorithmHelper.GetZigzagIndexFromFlat(index, totalRow, totalColumn);
+            //string command = "SN" + "sqcode" + $"+{trayIndex}," + $"{trayIndex}," + "Foam+Moudel," + "0.000,0.000,0.000";
             TriggRecheckCamreaTFCSendData(RecheckCamreaProcessCommand.TFC, command);
 
             Logger.WriteLog("CCD3 开始接受COGNEX的OK信息");
@@ -1088,6 +1145,7 @@ namespace AkribisFAM.DeviceClass
                     return true;
                 }
             }
+            SendTLCCommands
             Logger.WriteLog("CCD3 接受到COGNEX的OK信息");
 
             return true;

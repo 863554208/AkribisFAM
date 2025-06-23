@@ -799,6 +799,8 @@ namespace AkribisFAM.Util
 
     public class RecheckVisionMeasurement // TBC
     {
-
+        public int MeasurementCount { get; set; } = -1;
+        public DateTime DateTimeMeasure { get; set; } = DateTime.MinValue;
+        public double Measurement { get; set; } = -1;
     }
 }

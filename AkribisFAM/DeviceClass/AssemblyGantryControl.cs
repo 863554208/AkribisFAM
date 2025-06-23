@@ -1148,7 +1148,6 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            _step = 0;
             return true;
         }
 
@@ -1250,7 +1249,6 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            _step = 0;
             return true;
         }
         public bool IsVacOk(Picker pickerNum)
@@ -1548,7 +1546,6 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            _step = 0;
             return true;
         }
 

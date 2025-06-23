@@ -1,10 +1,15 @@
 ﻿using AkribisFAM.CommunicationProtocol;
+using AkribisFAM.Manager;
 using AkribisFAM.WorkStation;
 
 namespace AkribisFAM.DeviceClass
 {
     public class FilmRemoveGantryControl
     {
+        private int _step = 0;
+        public bool CanPlaceRetry => _step < 5;
+        public ErrorCode ProcessErrorCode;
+        public string ProcessErrorMessage;
         private double xOffset;
 
         public double XOffset
@@ -112,33 +117,76 @@ namespace AkribisFAM.DeviceClass
         }
         public bool RemoveFilm(double teachpointX, double teachpointY)
         {
-            if (!ZUp())
+            _step = 0;
+            if (_step == 0)
             {
-                return false;
+                if (!ZUp())
+                {
+                    ProcessErrorMessage = $"Peeler failed to move to safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 1;
             }
-            if (!MovePos(teachpointX, teachpointY))
+            if (_step == 1)
             {
-                return false;
+                if (!MovePos(teachpointX, teachpointY))
+                {
+                    ProcessErrorMessage = $"Failed to move to x:{teachpointX}, y:{teachpointY}";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 2;
             }
-            if (!ClawOpen())
+            if (_step == 2)
             {
-                return false;
+                if (!ClawOpen())
+                {
+                    ProcessErrorMessage = $"Failed to open claw";
+                    ProcessErrorCode = ErrorCode.PneumaticErr;
+                    return false;
+                }
+                _step = 3;
             }
-            if (!ZDown())
+            if (_step == 3)
             {
-                return false;
+                if (!ZDown())
+                {
+                    ProcessErrorMessage = $"Failed to Z down";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    _step = -1;
+                }
+                _step = 4;
             }
-            if (!ClawClose())
+            if (_step == 4)
             {
-                return false;
+                if (!ClawClose())
+                {
+                    ProcessErrorMessage = $"Failed to close claw";
+                    ProcessErrorCode = ErrorCode.PneumaticErr;
+                    _step = -1;
+                }
+                _step = 5;
             }
-
             //offset depend on product
-            if (!ZSafe())
+            if (_step == 5)
             {
+                if (!ZSafe())
+                {
+                    ProcessErrorMessage = $"Failed to move Z to safe position";
+                    ProcessErrorCode = ErrorCode.PneumaticErr;
+                    _step = -1;
+                }
+                _step = 6;
+            }
+
+            if (_step == -1)
+            {
+                ZUp();
                 return false;
             }
 
+            _step = 0;
             return true;
         }
 
@@ -152,39 +200,92 @@ namespace AkribisFAM.DeviceClass
         }
         public bool Toss()
         {
-            if (!MoveToBinPos())
+            _step = 0;
+            if (_step == 0)
             {
-                return false;
+                if (!ZUp())
+                {
+                    ProcessErrorMessage = $"Peeler failed to move to safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 1;
+            }
+            if (_step == 1)
+            {
+                if (!MoveToBinPos())
+                {
+                    ProcessErrorMessage = $"Peeler failed to move to bin position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 2;
+            }
+            if (_step == 2)
+            {
+                //if (!ZDown())
+                //{
+                //    ProcessErrorMessage = $"Peeler failed to move to Z down at bin position";
+                //    ProcessErrorCode = ErrorCode.motionErr;
+                //    return false;
+                //}
+                _step = 3;
             }
 
+            if (_step == 3)
+            {
+                if (!VacOn())
+                {
+                    ProcessErrorMessage = $"Fail to turn on vacuum";
+                    ProcessErrorCode = ErrorCode.IOErr;
+                    return false;
+                }
+                _step = 4;
+            }
             //if (!ZDown())
             //{
             //    return false;
             //}
-
-            if (!VacOn())
+            if (_step == 4)
             {
-                return false;
+                if (!ClawOpen())
+                {
+                    ProcessErrorMessage = $"Failed to open claw";
+                    ProcessErrorCode = ErrorCode.PneumaticErr;
+                    return false;
+                }
+                _step = 5;
             }
-            if (!ClawOpen())
+            if (_step == 5)
             {
-                return false;
+                if (!VacOff())
+                {
+                    ProcessErrorMessage = $"Failed to turn off";
+                    ProcessErrorCode = ErrorCode.IOErr;
+                    return false;
+                }
+                _step = 6;
             }
-            if (!VacOff())
+            if (_step == 1)
             {
-                return false;
+                if (!ZUp())
+                {
+                    ProcessErrorMessage = $"Peeler failed to move to safe position";
+                    ProcessErrorCode = ErrorCode.motionErr;
+                    return false;
+                }
+                _step = 2;
             }
-
-            if (!ZUp())
+            if (_step == 1)
             {
-                return false;
+                if (!ClawClose())
+                {
+                    ProcessErrorMessage = $"Failed to close claw";
+                    ProcessErrorCode = ErrorCode.PneumaticErr;
+                    return false;
+                }
+                _step = 2;
             }
-
-            if (!ClawClose())
-            {
-                return false;
-            }
-
             return true;
 
         }
