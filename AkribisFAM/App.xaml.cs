@@ -9,11 +9,15 @@ using AkribisFAM.CommunicationProtocol;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
 using System.IO;
+using System.Data.Entity.Migrations;
+
 using AkribisFAM.DeviceClass;
 using AkribisFAM.WorkStation;
 using AkribisFAM.Models;
 using System.Linq;
 using AkribisFAM.Helper;
+using AkribisFAM.Windows;
+using System.Configuration;
 
 namespace AkribisFAM
 {
@@ -43,6 +47,9 @@ namespace AkribisFAM
 
         public static AKBLocalParam paramLocal { get; set; } = new AKBLocalParam();
 
+        
+        public static UserManager userManager { get; private set; } = new UserManager();
+        public static UserLogin userPage = new UserLogin(userManager);
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -58,12 +65,29 @@ namespace AkribisFAM
             ModbusTCPWorker.GetInstance().Connect();
             IOManager.Instance.ReadIO_loop();
 
+            // Force apply migrations to database on startup
+            try
+            {
 
+                var migrator = new DbMigrator(new Migrations.Configuration());
+                migrator.Update(); // Applies all pending migrations
+            }
+            catch (Exception ex)
+            {
+
+                //throw;
+            }
+
+            //MessageBox.Show("123");
             //调试用
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
-            DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite"));
+            
+            var path = Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite");
+            DbManager = new DatabaseManager(path);
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
+            string rawConnStr = ConfigurationManager.ConnectionStrings["Conn"].ConnectionString;
             recipeManager = new RecipeManager();
             lotManager = new LotManager();
             lotManager.Initialize();
@@ -110,10 +134,12 @@ namespace AkribisFAM
 
             SetLanguage("en-US");
 
-
-            //if (new LoginViewModel().ShowDialog() == true)
+            userManager.Initialize();
+            if (new UserLogin(userManager).ShowDialog() == true)
             {
-                new MainWindow().ShowDialog();
+                MainWindow main = new MainWindow();
+                Application.Current.MainWindow = main;
+                main.ShowDialog();
             }
 
             //关闭与AGM800进行通讯的AACommonServer进程

@@ -9,6 +9,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -21,10 +23,21 @@ using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
+using AkribisFAM.Windows;
+using AkribisFAM.Util;
+using System.Globalization;
+using System.Windows.Markup;
+using AkribisFAM.WorkStation;
+using AkribisFAM.Manager;
+using AkribisFAM.ViewModel;
+using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.GlobalManager;
 using static AkribisFAM.Manager.StateManager;
 using static AkribisFAM.WorkStation.AkrAction;
 using static AkribisFAM.WorkStation.Conveyor;
+using System.Reflection;
+using System.Windows.Media.Media3D;
+using AkribisFAM.CommunicationProtocol;
 
 namespace AkribisFAM
 {
@@ -66,6 +79,8 @@ namespace AkribisFAM
             // 订阅 Loaded 事件
             this.Loaded += MainWindow_Loaded;
 
+            App.userManager.UserLoggedIn += UserManager_UserLoggedIn;
+
             ViewModel = new ErrorIconViewModel();
             this.DataContext = ViewModel;
 
@@ -96,6 +111,46 @@ namespace AkribisFAM
 
         }
 
+        private void UserManager_UserLoggedIn(object sender, EventArgs e)
+        {
+            bool Enable = true;
+            User currentUser = App.userManager.CurrentUser;
+            List<UserRight> userRights = null;
+            if (currentUser == null)
+            {
+                Enable = false;
+            }
+            else
+            {
+                userRights = currentUser.UserLevel.UserRights;
+                var hasRight = userRights.Any(x => x.Name == "CalibrationSet");
+            }
+            // Define a dictionary to map button names to lists of required user rights
+            Dictionary<UIElement, List<string>> buttonRequiredRights = new Dictionary<UIElement, List<string>>
+                {
+                    { btnHome, new List<string> { "Overview" } },
+                    { gridControl, new List<string> { "Overview" } },
+                    { btnStatistics, new List<string> { "StatisticsView" } },
+                    { btnControl, new List<string> { "IOControl", "IOView", "ManualProcess", "DeviceControl", "VisionControl" , "Calibration" } },
+                    { btnLog, new List<string> { "LogView" } },
+                    { btnSetting, new List<string> { "Setting" } },
+                    { btnNetwork, new List<string> { "Setting" } },
+                };
+
+            // Iterate over the dictionary and set IsEnabled property for each button
+            foreach (var kvp in buttonRequiredRights)
+            {
+                kvp.Key.IsEnabled = Enable && kvp.Value.Any(requiredRight => userRights.Any(x => x.Name == requiredRight));
+            }
+
+
+            if (btnHome.IsEnabled)
+            {
+                MainWindowButton_Click(btnHome, null);
+            }
+
+        }
+
         private void UpdateIcon()
         {
             // 使用 Dispatcher 来确保在 UI 线程上更新 UI
@@ -116,11 +171,20 @@ namespace AkribisFAM
             currentTimeTextBlock.Text = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             button.PromptCount = ErrorManager.Current.ErrorCnt;
             NowState.Content = StateManager.Current.StateDict[StateManager.Current.State];
+
+            if (App.userManager.CurrentUser != null)
+            {
+
+                ViewModel.CurrentUser = App.userManager.CurrentUser.Username;
+                ViewModel.CurrentUserLevel = App.userManager.CurrentUser.UserLevel.Name;
+            }
             if (AutorunManager.Current.IsRunning)
+            {
+
                 if (StateManager.Current.State == StateCode.RUNNING)
                 {
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 1);
-                    IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 0);
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_8Run_light] = 0;
+                    IOManager.Instance.OutIO_status[(int)IO_OutFunction_Table.OUT6_9Stop_light] = 1;
                     StateManager.Current.RunningTime = DateTime.Now - StateManager.Current.RunningStart;
                     this.Dispatcher.BeginInvoke(new Action(() =>
                     {
@@ -132,6 +196,7 @@ namespace AkribisFAM
                 {
                     IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_8Run_light, 0);
                 }
+            }
             if (StateManager.Current.State == StateCode.STOPPED)
             {
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT6_9Stop_light, 1);
@@ -1484,6 +1549,16 @@ namespace AkribisFAM
             var list = App.visionControl.GenerateLeftToRightGrid(10, 12, 4, 3, 3, 4);
             var list2 = App.visionControl.RemapLeftToRightToSnake(list, 3, 4, -1, -1);
             var list3 = App.visionControl.GenerateSnakeTravelPathsWithDirection(list, 3, 4, -1, -1, 3);
+        }
+        private void btnUser_Click(object sender, RoutedEventArgs e)
+        {
+
+            new UserLogin(App.userManager).ShowDialog();
+        }
+
+        private void Label_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
         }
     }
 
