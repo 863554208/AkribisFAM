@@ -42,11 +42,11 @@
                 <ColumnDefinition Width="4*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer  Grid.Column="0" Grid.Row="1">
+            <ScrollViewer  Grid.Column="0" Grid.Row="1" HorizontalScrollBarVisibility="Visible">
                 <ItemsControl x:Name="itemControlStation">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="2"/>
+                            <StackPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
