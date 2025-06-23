@@ -519,6 +519,29 @@ namespace AkribisFAM.DeviceClass
             }
             return true;
         }
+        public bool MoveRejectPos(Picker pickerNum)
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+
+            if (!ZuZhuang.Current.GetRejectPosition((int)pickerNum, out SinglePoint point))
+            {
+                return false;
+            }
+
+            if (point.X == 0 && point.Y == 0 && point.Z == 0)
+            {
+                return false;
+            }
+            if (AkrAction.Current.MoveFoamXY(point.X, point.Y) != (int)AkrAction.ACTTION_ERR.NONE)
+            {
+
+                return false;
+            }
+            return true;
+        }
         public bool MoveXYLoadCellPos(Picker pickerNum)
         {
             if (!ZUpAll())
@@ -1626,6 +1649,25 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
+
+            return true;
+        }
+        public bool Reject()
+        {
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MoveRejectPos(Picker.Picker1))
+            {
+                return false;
+            }
+
+            if (!VacOffAll())
+            {
+                return false;
+            }
+
 
             return true;
         }

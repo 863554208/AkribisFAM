@@ -245,6 +245,7 @@ namespace AkribisFAM
         public List<SinglePoint> pickFoam1Points = new List<SinglePoint>();
 
         public List<SinglePoint> pickFoam2Points = new List<SinglePoint>();
+        public List<SinglePoint> rejectFoamPoints = new List<SinglePoint>();
 
         public List<SinglePoint> lowerCCDPoints = new List<SinglePoint>();
 

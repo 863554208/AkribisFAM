@@ -1216,6 +1216,62 @@ namespace AkribisFAM.WorkStation
             return false;
         }
         /// <summary>
+        /// Check if Foam picker T1 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT1Done(double tpos)
+        {
+            var taxis = AxisName.PICK1_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T2 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT2Done(double tpos)
+        {
+            var taxis = AxisName.PICK2_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T3 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT3Done(double tpos)
+        {
+            var taxis = AxisName.PICK3_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// Check if Foam picker T4 move is done and in position (Non blocking)
+        /// </summary>
+        /// <param name="tpos"></param>
+        /// <returns></returns>
+        public bool IsMoveFoamT4Done(double tpos)
+        {
+            var taxis = AxisName.PICK4_T;
+            if (IsMotorInPos(taxis, tpos))
+            {
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
         /// Gang move 4 Z pickers
         /// </summary>
         /// <param name="z1pos"></param>
@@ -1398,22 +1454,7 @@ namespace AkribisFAM.WorkStation
                  && IsMoveFoamT3Done(tpos)
                  && IsMoveFoamT4Done(tpos);
         }
-        public bool IsMoveFoamT1Done(double tpos)
-        {
-            return IsMotorInPos(AxisName.PICK1_T, tpos);
-        }
-        public bool IsMoveFoamT2Done(double tpos)
-        {
-            return IsMotorInPos(AxisName.PICK2_T, tpos);
-        }
-        public bool IsMoveFoamT3Done(double tpos)
-        {
-            return IsMotorInPos(AxisName.PICK3_T, tpos);
-        }
-        public bool IsMoveFoamT4Done(double tpos)
-        {
-            return IsMotorInPos(AxisName.PICK4_T, tpos);
-        }
+     
         public int MoveFoamT1(double t1pos, bool waitMotionDone = true)
         {
             try

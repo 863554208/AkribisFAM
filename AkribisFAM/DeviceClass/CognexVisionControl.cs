@@ -1,6 +1,5 @@
 ﻿using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.Helper;
-using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
 using System;
@@ -11,6 +10,7 @@ using static AkribisFAM.CommunicationProtocol.Task_FeedupCameraFunction;
 using static AkribisFAM.CommunicationProtocol.Task_PrecisionDownCamreaFunction;
 using static AkribisFAM.CommunicationProtocol.Task_RecheckCamreaFunction;
 using static AkribisFAM.GlobalManager;
+using AkribisFAM.Manager;
 
 namespace AkribisFAM.DeviceClass
 {
