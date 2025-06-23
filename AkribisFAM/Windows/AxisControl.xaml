@@ -287,8 +287,8 @@
                 <!-- 第2行内容 -->
                 <StackPanel  Grid.Row="1">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
-                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowAxisEnable}"></TextBlock>
-                        <ToggleButton Margin="20,0,0,0"  Height="50" Width="50" Name="IsAxisEnable"
+                        <TextBlock VerticalAlignment="Center" Text="{DynamicResource TextNowEnableMotor}"></TextBlock>
+                        <ToggleButton Margin="20,0,0,0"  Height="50" Width="50" Name="IsEnableMotor"
                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                       
                       ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background" Click="ToggleButton_Click" >
@@ -302,8 +302,8 @@
                             </materialDesign:ToggleButtonAssist.SwitchTrackOffBackground>
                         </ToggleButton>
 
-                        <TextBlock VerticalAlignment="Center" Margin="30,0,0,0"  Text="{DynamicResource TextAllAxisEnable}"></TextBlock>
-                        <ToggleButton Margin="20,0,0,0" Name="IsAllAxisEnable" Height="45" Width="45"
+                        <TextBlock VerticalAlignment="Center" Margin="30,0,0,0"  Text="{DynamicResource TextAllEnableMotor}"></TextBlock>
+                        <ToggleButton Margin="20,0,0,0" Name="IsAllEnableMotor" Height="45" Width="45"
                       Style="{StaticResource MaterialDesignSwitchToggleButton}"
                       ToolTip="MaterialDesignSwitchToggleButton with Custom Track Background" Click="ToggleAllButton_Click" >
                             <materialDesign:ToggleButtonAssist.SwitchTrackOnBackground>

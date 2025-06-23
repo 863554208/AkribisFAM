@@ -1,21 +1,16 @@
-﻿using System;
+﻿using AkribisFAM.Manager;
+using AkribisFAM.Util;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using AkribisFAM.Manager;
-using HslCommunication.ModBus;
-using Newtonsoft.Json.Linq;
-using AkribisFAM.Util;
 
 namespace AkribisFAM.CommunicationProtocol
 {
-   public enum IO_OutFunction_Table
+    public enum IO_OutFunction_Table
     {
         OUT1_0Left_1_lift_cylinder_extend = 0,
         OUT1_1Left_1_lift_cylinder_retract,
@@ -49,7 +44,7 @@ namespace AkribisFAM.CommunicationProtocol
         OUT2_12Reserve,
         OUT2_13Reserve,
         OUT2_14Reserve,
-        OUT2_15FFU,
+        OUT2_15FFU, //Fan
 
         OUT3_0PNP_Gantry_vacuum1_Supply,
         OUT3_1PNP_Gantry_vacuum1_Release,
@@ -59,19 +54,19 @@ namespace AkribisFAM.CommunicationProtocol
         OUT3_5PNP_Gantry_vacuum3_Release,
         OUT3_6PNP_Gantry_vacuum4_Supply,
         OUT3_7PNP_Gantry_vacuum4_Release,
-        OUT3_8solenoid_valve1_A,
-        OUT3_9solenoid_valve1_B,
-        OUT3_10solenoid_valve2_A,
-        OUT3_11solenoid_valve2_B,
-        OUT3_12solenoid_valve3_A,
-        OUT3_13solenoid_valve3_B,
-        OUT3_14solenoid_valve4_A,
-        OUT3_15solenoid_valve4_B,
+        OUT3_8Reserve, //?
+        OUT3_9Reserve,
+        OUT3_10Reserve,
+        OUT3_11Reserve,
+        OUT3_12Reserve,
+        OUT3_13Reserve,
+        OUT3_14Reserve,
+        OUT3_15Reserve,
 
         OUT4_0Pneumatic_Claw_A,
         OUT4_1Pneumatic_Claw_B,
         OUT4_2Peeling_Recheck_vacuum1_Supply,
-        OUT4_3Peeling_Recheck_vacuum1_Release,
+        OUT4_3Machine_Reset,
         OUT4_4Reserve,
         OUT4_5Reserve,
         OUT4_6Reserve,
@@ -90,9 +85,9 @@ namespace AkribisFAM.CommunicationProtocol
         OUT5_2Feeder2_limit_cylinder_extend,
         OUT5_3Feeder2_limit_cylinder_retract,
         OUT5_4Backup,
-        OUT5_5Reserve,
-        OUT5_6Reserve,
-        OUT5_7Reserve,//rename to camera trigger
+        OUT5_5PnP_Gantry_Camera_Trig,
+        OUT5_6Feeder_Camera_Trig,
+        OUT5_7Recheck_Camera_Trig,//rename to camera trigger
         OUT5_8Feeder_vacuum1_Supply,
         OUT5_9Feeder_vacuum1_Release,
         OUT5_10Feeder_vacuum2_Supply,
@@ -103,11 +98,11 @@ namespace AkribisFAM.CommunicationProtocol
         OUT5_15Feeder_vacuum4_Release,
 
 
-        OUT6_0Tri_color_light_red,
+        OUT6_0Tri_color_light_red, // machine tower light bar
         OUT6_1Tri_color_light_yellow,
         OUT6_2Tri_color_light_green,
-        OUT6_3light1,
-        OUT6_4light2,
+        OUT6_3light1, //machine front
+        OUT6_4light2, //machine back
         OUT6_5Buzzer,
         OUT6_6Reserve,
         OUT6_7Reserve,
@@ -186,21 +181,21 @@ namespace AkribisFAM.CommunicationProtocol
         IN3_8Reserve,
         IN3_9Claw_extend_in_position,
         IN3_10Claw_retract_in_position,
-        IN3_11Peeling_Recheck_vacuum1_Pressure_feedback,
+        IN3_11Reserve,//****
         IN3_12PNP_Gantry_vacuum1_Pressure_feedback,
         IN3_13PNP_Gantry_vacuum2_Pressure_feedback,
         IN3_14PNP_Gantry_vacuum3_Pressure_feedback,
         IN3_15PNP_Gantry_vacuum4_Pressure_feedback,
 
-        IN4_0Backup_Platform_2_has_label_feeder1,
-        IN4_1Platform_has_label_feeder1,
-        IN4_2Alarm_feeder1,
-        IN4_3Initialized_feeder1,
+        IN4_0Initialized_feeder1,
+        IN4_1Alarm_feeder1,
+        IN4_2Platform_has_label_feeder1,
+        IN4_3Backup_Platform_2_has_label_feeder1,
 
-        IN4_4Backup_Platform_2_has_label_feeder2,
-        IN4_5Platform_has_label_feeder2,
-        IN4_6Alarm_feeder2,
-        IN4_7Initialized_feeder2,
+        IN4_4BInitialized_feeder2,
+        IN4_51Alarm_feeder2,
+        IN4_6Platform_has_label_feeder2,
+        IN4_7Backup_Platform_2_has_label_feeder2,
 
         IN4_8Feeder1_limit_cylinder_extend_InPos,
         IN4_9Feeder1_limit_cylinder_retract_InPos,
@@ -209,19 +204,19 @@ namespace AkribisFAM.CommunicationProtocol
         IN4_12Feeder1_drawer_InPos,
         IN4_13Feeder2_drawer_InPos,
         IN4_14Reserve,
-        IN4_15Reserve,
+        IN4_15Compressed_Air_Pressure, // Compressed Air Present
 
         IN5_0Feeder_vacuum1_Pressure_feedback,
         IN5_1Feeder_vacuum2_Pressure_feedback,
         IN5_2Feeder_vacuum3_Pressure_feedback,
         IN5_3Feeder_vacuum4_Pressure_feedback,
-        IN5_4Door_closed_lock1,
-        IN5_5Door_closed_lock2,
-        IN5_6Door_closed_lock3,
-        IN5_7Door_closed_lock4,
+        IN5_4Door_opened_lock1, // Only indicate door is closed, not locked
+        IN5_5Door_opened_lock2,
+        IN5_6Door_opened_lock3,
+        IN5_7Door_opened_lock4,
         IN5_8Run,
         IN5_9Stop,
-        IN5_10Feeder1,
+        IN5_10Feeder1, //physical button input
         IN5_11Feeder2,
         IN5_12Reset,
         IN5_13emergency_stop,
@@ -229,8 +224,8 @@ namespace AkribisFAM.CommunicationProtocol
         IN5_15SSR2_OK_LOCK,
 
 
-        IN6_0NG_plate_1_in_position,
-        IN6_1plate_type1,
+        IN6_0NG_plate_1_in_position, // NG tray present
+        IN6_1plate_type1, //Differentiate type Block high
         IN6_2plate_type2,
         IN6_3plate_type3,
         IN6_4plate_type4,
@@ -247,7 +242,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN6_15Reserve,
 
 
-        IN7_0BOARD_AVAILABLE,
+        IN7_0BOARD_AVAILABLE, // SMEMA
         IN7_1FAILED_BOARD_AVAILABLE_OPTIONAL,
         IN7_2MACHINE_READY_TO_RECEIVE,
         IN7_3Reserve,
@@ -259,7 +254,7 @@ namespace AkribisFAM.CommunicationProtocol
         IN7_9Reserve,
         IN7_10Reserve,
         IN7_11Reserve,
-        IN7_12Reset,
+        IN7_12Reserve,
         IN7_13Reserve,
         IN7_14Reserve,
         IN7_15Reserve
@@ -283,7 +278,7 @@ namespace AkribisFAM.CommunicationProtocol
                 INIO_status[i] = -1;
             }
         }
-
+        private static readonly object _lock = new object();
         public static IOManager Instance
         {
             get
@@ -327,113 +322,194 @@ namespace AkribisFAM.CommunicationProtocol
                 }
             }
         }
+        private static readonly object _instanceLock = new object();
+        private static readonly object _instanceLock2 = new object();
+        //public void ReadIO_status()
+        //{
+        //    //循环读取输出IO
+        //    Task.Run(new Action(() =>
+        //    {
+        //        Thread.CurrentThread.Name = "OutIO_statusThread";
 
-        public void ReadIO_status()
+        //        while (true)
+        //        {
+
+        //            Parallel.ForEach(IO_OutFunctionnames, IOname =>
+        //            {
+        //                var IOnamekey = IOname.Key;
+        //                var IOnamevalue = IOname.Value;
+        //                bool IOstatus = false;
+        //                lock (_instanceLock2)
+        //                {
+        //                    bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
+        //                    if (ret == false)
+        //                    {
+        //                        OutIO_status[(int)IOnamekey] = -1;
+        //                        //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:-1");
+        //                    }
+        //                    else
+        //                    {
+        //                        if (IOstatus)
+        //                        {
+        //                            OutIO_status[(int)IOnamekey] = 0;
+        //                            //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:0");
+        //                        }
+        //                        else
+        //                        {
+        //                            OutIO_status[(int)IOnamekey] = 1;
+        //                            //Logger.WriteLog($"{IOnamekey.ToString()}-{ret.ToString()}:1");
+        //                        }
+        //                    }
+        //                }
+        //                Thread.Sleep(1000);
+        //            });
+        //            //Thread.Sleep(1);
+        //        }
+        //    }));
+        //    //循环读取输入IO
+        //    Task.Run(new Action(() =>
+        //    {
+        //        while (true)
+        //        {
+        //            Parallel.ForEach(IO_INFunctionnames, IOname =>
+        //           {
+        //               var IOnamekey = IOname.Key;
+        //               var IOnamevalue = IOname.Value;
+        //               bool IOstatus = false;
+        //               lock (_instanceLock)
+        //               {
+        //                   bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
+        //                   if (ret == false)
+        //                   {
+        //                       INIO_status[(int)IOnamekey] = -1;
+        //                    }
+        //                   else
+        //                   {
+        //                       if (IOstatus)
+        //                       {
+        //                           INIO_status[(int)IOnamekey] = 0;
+        //                       }
+        //                       else
+        //                       {
+        //                           INIO_status[(int)IOnamekey] = 1;
+        //                        }
+
+        //                   }
+        //               }
+        //               Thread.Sleep(5);
+
+
+        //           });
+        //            //Thread.Sleep(1000);
+        //        }
+        //    }));
+
+        //}
+
+        public void ReadIO_loop()
         {
             //循环读取输出IO
             Task.Run(new Action(() =>
             {
                 Thread.CurrentThread.Name = "OutIO_statusThread";
 
-                while (true)
+                var first = (int)IO_INFunctionnames.First().Key;
+                var length = (ushort)IO_OutFunctionnames.Count;
+                bool[] IOstatusOut = new bool[length];
+                //while (true)
                 {
-                    Parallel.ForEach(IO_OutFunctionnames, IOname =>
-                    {
-                        var IOnamekey = IOname.Key;
-                        var IOnamevalue = IOname.Value;
-                        bool IOstatus = false;
-                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
-                        if (ret == false)
-                        {
-                            OutIO_status[(int)IOnamekey] = -1;
-                        }
-                        else
-                        {
-                            if (IOstatus)
-                            {
-                                OutIO_status[(int)IOnamekey] = 0;
-                            }
-                            else
-                            {
-                                OutIO_status[(int)IOnamekey] = 1;
-                            }
-                        }
-                    });
-                    Thread.Sleep(1);
+                    bool ret = ModbusTCPWorker.GetInstance().Read_Coil_Array(first, length, ref IOstatusOut);
+                    int[] outputs = IOstatusOut.Select(x => x ? 0 : 1).ToArray();  //set true  to 0, false to 1
+                    OutIO_status = ret ? outputs : Enumerable.Repeat(-1, length).ToArray();
+
+                    Thread.Sleep(5);
                 }
             }));
             //循环读取输入IO
             Task.Run(new Action(() =>
             {
+                Thread.CurrentThread.Name = "INIO_statusThread";
+
+                var first = (int)IO_INFunctionnames.First().Key;
+                var length = (ushort)IO_INFunctionnames.Count;
+                bool[] IOstatusIn = new bool[length];
                 while (true)
                 {
-                    Parallel.ForEach(IO_INFunctionnames, IOname =>
-                    {
-                        var IOnamekey = IOname.Key;
-                        var IOnamevalue = IOname.Value;
-                        bool IOstatus = false;
-                        bool ret = ModbusTCPWorker.GetInstance().Read_Coil(IOname.Value, ref IOstatus);
-                        if (ret == false)
-                        {
-                            INIO_status[(int)IOnamekey] = -1;
-                        }
-                        else
-                        {
-                            if (IOstatus)
-                            {
-                                INIO_status[(int)IOnamekey] = 0;
-                            }
-                            else
-                            {
-                                INIO_status[(int)IOnamekey] = 1;
-                            }
-                        }
-                    });
+                    bool ret = ModbusTCPWorker.GetInstance().Read_Coil_Array(first, length, ref IOstatusIn);
+                    int[] inputs = IOstatusIn.Select(x => x ? 0 : 1).ToArray();  //set true  to 0, false to 1
+                    INIO_status = ret ? inputs : Enumerable.Repeat(-1, length).ToArray();
+
                     Thread.Sleep(1);
                 }
             }));
-        }
 
+        }
+        //public bool ReadOutput(IO_OutFunction_Table output)
+        //{
+        //    bool IOstatusOut = false;
+        //    bool ret = ModbusTCPWorker.GetInstance().Read_Coil((int)output, ref IOstatusOut);
+        //    return ret? IOstatusOut : false;
+        //}
+        public bool GetOutputStatus(IO_OutFunction_Table output)
+        {
+            return OutIO_status[(int)output] == 0? true : false;
+        }
         public bool IO_ControlStatus(IO_OutFunction_Table iO_OutFunction_Table, int writestatus)
         {
+
             if (writestatus == 1)
             {
-                if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
+                //if (!(OutIO_status[(int)iO_OutFunction_Table] == 0))//写IO状态为True
+                //{
+                //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                //Logger.WriteLog(err);
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, true);
+                if (!Sucessstatus)
                 {
-                    //string err = string.Format("IO表里的值是true, 第{0}个线圈的值为true ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    //Logger.WriteLog(err);
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], true);
-                    if (!Sucessstatus)
-                    {
-                        return false;
-                    }
-
-                    OutIO_status[(int)iO_OutFunction_Table] = 0;
-                    return true;
+                    return false;
                 }
+
+                OutIO_status[(int)iO_OutFunction_Table] = 0;
+                return true;
+                //}
                 return true;
             }
 
             if (writestatus == 0)
             {
-                if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
-                {
-                    //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
-                    //Logger.WriteLog(err);
+                //if (OutIO_status[(int)iO_OutFunction_Table] == 0)//写IO状态为False
+                //{
+                //string err = string.Format("IO表里的值是false , 写第{0}个线圈的值为false ", iO_OutFunction_Table.ToString(), writestatus.ToString());
+                //Logger.WriteLog(err);
 
-                    bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil(IO_OutFunctionnames[iO_OutFunction_Table], false);
-                    if (!Sucessstatus)
-                    {
-                        return false;
-                    }
-                    OutIO_status[(int)iO_OutFunction_Table] = 1;
-                    return true;
+                bool Sucessstatus = ModbusTCPWorker.GetInstance().Write_Coil((int)iO_OutFunction_Table, false);
+                if (!Sucessstatus)
+                {
+                    return false;
                 }
+                OutIO_status[(int)iO_OutFunction_Table] = 1;
                 return true;
+                //}
+                //return true;
             }
             return false;
         }
-
+        public bool ReadIO(IO_INFunction_Table index)
+        {
+            if (INIO_status[(int)index] == 0)
+            {
+                return true;
+            }
+            else if (INIO_status[(int)index] == 1)
+            {
+                return false;
+            }
+            else
+            {
+                //ErrorManager.Current.Insert(ErrorCode.IOErr, $"Failed to read {index.ToString()}");
+                return false;
+            }
+        }
 
         //public bool WriteIO_Truestatus(IO_OutFunction_Table iO_OutFunction_Table)//写IO状态为True
         //{

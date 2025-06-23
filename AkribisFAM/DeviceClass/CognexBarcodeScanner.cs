@@ -29,17 +29,17 @@ namespace AkribisFAM.DeviceClass
             readout = barcode;
             Logger.WriteLog($"Readout scanner : {barcode} ");
 
-            GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
+            //GlobalManager.Current.BarcodeQueue.Enqueue(barcode ?? "NULL");
 
-            //global switch for using mes system
-            if (GlobalManager.Current.IsUseMES)
-            {
-                // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
-            }
-            else
-            {
-                GlobalManager.Current.IsByPass = false;
-            }
+            ////global switch for using mes system
+            //if (GlobalManager.Current.IsUseMES)
+            //{
+            //    // TODO:Upload barcode to Bali MES Sytem , then judge bypass 
+            //}
+            //else
+            //{
+            //    GlobalManager.Current.IsByPass = false;
+            //}
 
             return (int)ErrorCode.NoError;
         }

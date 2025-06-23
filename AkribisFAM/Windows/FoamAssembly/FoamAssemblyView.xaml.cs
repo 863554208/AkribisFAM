@@ -119,7 +119,7 @@ namespace AkribisFAM.Windows
             var dc = (PointXYPickerMoveAndPlaceView)sender;
 
             SinglePointExt point = (SinglePointExt)dc.DataContext;
-            App.assemblyGantryControl.MovePickPos((AssemblyGantryControl.Picker)dc.SelectedPicker, point.TeachPointIndex);
+            App.assemblyGantryControl.MovePlacePos((AssemblyGantryControl.Picker)dc.SelectedPicker, point.TeachPointIndex);
         }
 
         private void PointXYPickerMoveAndPlaceView_PickerPlacePressed(object sender, EventArgs e)
@@ -135,7 +135,8 @@ namespace AkribisFAM.Windows
         private void btnVis3OTF_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var recipe = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex);
-            if (!App.vision1.Vision1OnTheFlyPalletTrigger(recipe.PartRow, recipe.PartColumn))
+            
+            if (!App.visionControl.Vision1OnTheFlyPalletTrigger(recipe))
             {
                 MessageBox.Show("Fail to perform on the fly for pallet");
             }

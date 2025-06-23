@@ -1,43 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using AAMotion;
-using AkribisFAM.CommunicationProtocol;
 using AkribisFAM.CommunicationProtocol.CamerCalibProcess;
 using AkribisFAM.Helper;
-using AkribisFAM.Manager;
-using AkribisFAM.WorkStation;
 using MaterialDesignThemes.Wpf;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using static AkribisFAM.GlobalManager;
-using static AkribisFAM.WorkStation.Reject;
 
 namespace AkribisFAM.Windows
 {
     /// <summary>
     /// CameraControl.xaml 的交互逻辑
     /// function
-    /// 1.load image
-    /// 2.camera calibration
+    /// 1.camera calibration
     ///     11 points for nozzle2,3,4
     ///     9 points for feeder and conveyor(pallet)
-    ///     nozzle train for nozzle1,2,3,4
     ///     joint calibration calibrates motion from pallet to feeder on nozzle1
+    ///     nozzle train for nozzle1,2,3,4 if change the foam
+    ///     cam3 calibration
+    ///     universal calibration after all calibration
     /// </summary>
     public partial class CameraControl : UserControl
     {
@@ -64,7 +49,7 @@ namespace AkribisFAM.Windows
             posFilePre.Add("Camera_points1.json");//11 points calibration points, 1-11 for nozzle2, 12-22 for nozzle3, 23-33 for nozzle4
             posFilePre.Add("Camera_points2.json");//9 points calibration points, 1-9 for feeder, 10-18 for conveyor
             posFilePre.Add("Camera_points3.json");//nozzle train points, 5 is fly photograph start point, 1-4 is photograph position for nozzle1,2,3,4
-            posFilePre.Add("Camera_points4.json");//joint calibration points, 1-11 for nozzle1 11 points calibration, 12-17 move points in calibration process
+            posFilePre.Add("Camera_points4.json");//joint calibration points, 1-11 for nozzle1 11 points calibration, 12-18 move points in calibration process
             posFilePre.Add("Camera_points5.json");//reserve
 
             for (int z = 0; z < posFilePre.Count; z++)

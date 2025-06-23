@@ -5,15 +5,18 @@ using System.Threading;
 using System.Windows;
 using AAMotion;
 using AkribisFAM.Manager;
-using AkribisFAM.Windows;
 using AkribisFAM.CommunicationProtocol;
 using Newtonsoft.Json.Linq;
 using static AkribisFAM.Manager.StateManager;
-using AkribisFAM.Interfaces;
 using System.IO;
 using System.Data.Entity.Migrations;
 
 using AkribisFAM.DeviceClass;
+using AkribisFAM.WorkStation;
+using AkribisFAM.Models;
+using System.Linq;
+using AkribisFAM.Helper;
+using AkribisFAM.Windows;
 
 namespace AkribisFAM
 {
@@ -22,17 +25,27 @@ namespace AkribisFAM
     /// </summary>
     public partial class App : Application
     {
-        public static IDatabaseManager DbManager { get; private set; }
+        public static DatabaseManager DbManager { get; private set; }
         public static DirectoryManager DirManager;
+        public static CriticalIOManager CioManager;
+        public static LotManager lotManager;
+
         public static RecipeManager recipeManager;
+        public static AllProductTracker productTracker;
         public static KeyenceLaserControl laser;
-        public static CognexVisionControl vision1;
+        public static CognexVisionControl visionControl;
         public static AssemblyGantryControl assemblyGantryControl;
         public static FilmRemoveGantryControl filmRemoveGantryControl;
         public static FeederControl feeder1;
         public static FeederControl feeder2;
         public static CognexBarcodeScanner scanner;
         public static LoadCellCalibration calib;
+        public static RejectControl reject;
+        public static BuzzerControl buzzer;
+        public static DoorControl door;
+
+        public static AKBLocalParam paramLocal { get; set; } = new AKBLocalParam();
+
         
         public static UserManager userManager { get; private set; } = new UserManager();
         public static UserLogin userPage = new UserLogin(userManager);
@@ -49,7 +62,7 @@ namespace AkribisFAM
             StartConnectAGM800();
 
             ModbusTCPWorker.GetInstance().Connect();
-            IOManager.Instance.ReadIO_status();
+            IOManager.Instance.ReadIO_loop();
 
             // Force apply migrations to database on startup
             var migrator = new DbMigrator(new Migrations.Configuration());
@@ -60,46 +73,51 @@ namespace AkribisFAM
             StateManager.Current.State = StateCode.IDLE;
             StateManager.Current.StateLightThread();
             DirManager = new DirectoryManager();
-			DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database),"Alpha_FAM_Database.sqlite"));
-
+            DbManager = new DatabaseManager(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Database), "Alpha_FAM_Database.sqlite"));
             recipeManager = new RecipeManager();
+            lotManager = new LotManager();
+            lotManager.Initialize();
+            if (!lotManager.IsCurrLotNull)
+            {
+                ZuZhuang.Current.SetRecipe(lotManager.CurrLot.Recipe);
+            }
             laser = new KeyenceLaserControl();
-            vision1 = new CognexVisionControl();
+            visionControl = new CognexVisionControl();
             feeder1 = new FeederControl(1);
             feeder2 = new FeederControl(2);
             scanner = new CognexBarcodeScanner();
             assemblyGantryControl = new AssemblyGantryControl();
             filmRemoveGantryControl = new FilmRemoveGantryControl();
+            buzzer = new BuzzerControl();
+            CioManager = new CriticalIOManager();
+            calib = new LoadCellCalibration();
+            door = new DoorControl();
+            reject = new RejectControl();
+            productTracker = new AllProductTracker();
+            AkrAction.Current.SetSpeedMultiplier(10);
+
+            paramLocal.ChangesSaved += ParamLocal_ChangesSaved;
+            paramLocal.SetInitParam(Path.Combine(DirManager.GetDirectoryPath(DirectoryType.Settings)));
+            paramLocal.Initialize();
+            SetSystemParam();
+
+
+            assemblyGantryControl.XOffset = 16;
             filmRemoveGantryControl.XOffset = 25.4;
             filmRemoveGantryControl.YOffset = 56.3;
-            calib = new LoadCellCalibration();
-
             App.assemblyGantryControl.BypassPicker4 = true;
             App.assemblyGantryControl.BypassPicker3 = true;
+
             //TODO
             //try
             //{
             //    // 初始化数据库连接
             //    DatabaseManager.Initialize();
 
-            //    // 插入数据
-            //    DatabaseManager.Insert("MyDatabase.db");
+            //20250530 测试mes的tcp连接 【史彦洋】 Start
 
-            //    Console.WriteLine("数据插入成功！");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"操作失败: {ex.Message}");
-            //}
-            //finally
-            //{
-            //    // 关闭数据库连接
-            //    DatabaseManager.Shutdown();
-            //}
-            //ZuZhuang.Current.test();
+            //20250530 测试mes的tcp连接 【史彦洋】 End
 
-            //加载激光测距点位信息
-            //LoadLaserPoints();
             SetLanguage("en-US");
 
             userManager.Initialize();
@@ -114,6 +132,95 @@ namespace AkribisFAM
             CloseAACommServer();
             //关闭主进程
             Application.Current.Shutdown();
+        }
+        private void SetSystemParam()
+        {
+            var param = paramLocal.LiveParam;
+            GlobalManager.Current.CurrentMode = param.RunMode;
+
+            AkrAction.Current.SetSpeedMultiplier(param.SpeedPercentage);
+
+            filmRemoveGantryControl.XOffset = param.RecheckXOffset;
+
+            filmRemoveGantryControl.YOffset = param.RecheckYOffset;
+
+            assemblyGantryControl.XOffset = param.FoamXOffset;
+
+            assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true;
+
+            assemblyGantryControl.BypassPicker2 = param.EnablePicker2 ? false : true;
+
+            assemblyGantryControl.BypassPicker3 = param.EnablePicker3 ? false : true;
+
+            assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
+
+            ZuZhuang.Current.SetPickerEnable(1, param.EnablePicker1);
+            ZuZhuang.Current.SetPickerEnable(2, param.EnablePicker2);
+            ZuZhuang.Current.SetPickerEnable(3, param.EnablePicker3);
+            ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
+
+            LaiLiao.Current.SetTimeOut(param.ProcessTimeout);
+            ZuZhuang.Current.SetTimeOut(param.ProcessTimeout);
+            FuJian.Current.SetTimeOut(param.ProcessTimeout);
+            Feeder.Current.SetTimeOut(param.ProcessTimeout);
+            Conveyor.Current.SetTimeOut(param.ProcessTimeout);
+
+
+        }
+
+        private void ParamLocal_ChangesSaved(object sender, AKBLocalParam.PropertyEventArgs e)
+        {
+            var param = paramLocal.LiveParam;
+            if (e.propertyInfos.Any(x => x.Name == "RunMode"))
+            {
+                GlobalManager.Current.CurrentMode = param.RunMode;
+            }
+            if (e.propertyInfos.Any(x => x.Name == "SpeedPercentage"))
+            {
+                AkrAction.Current.SetSpeedMultiplier(param.SpeedPercentage);
+
+            }
+            if (e.propertyInfos.Any(x => x.Name == "RecheckXOffset"))
+            {
+                filmRemoveGantryControl.XOffset = param.RecheckXOffset;
+            }
+            if (e.propertyInfos.Any(x => x.Name == "RecheckYOffset"))
+            {
+                filmRemoveGantryControl.YOffset = param.RecheckYOffset;
+            }
+            if (e.propertyInfos.Any(x => x.Name == "FoamXOffset"))
+            {
+                assemblyGantryControl.XOffset = param.FoamXOffset;
+            }
+
+            if (e.propertyInfos.Any(x => x.Name == "EnablePicker1"))
+            {
+                assemblyGantryControl.BypassPicker1 = param.EnablePicker1 ? false : true;
+                ZuZhuang.Current.SetPickerEnable(1, param.EnablePicker1);
+            }
+            if (e.propertyInfos.Any(x => x.Name == "EnablePicker2"))
+            {
+                assemblyGantryControl.BypassPicker2 = param.EnablePicker2 ? false : true;
+                ZuZhuang.Current.SetPickerEnable(2, param.EnablePicker2);
+            }
+            if (e.propertyInfos.Any(x => x.Name == "EnablePicker3"))
+            {
+                assemblyGantryControl.BypassPicker3 = param.EnablePicker3 ? false : true;
+                ZuZhuang.Current.SetPickerEnable(3, param.EnablePicker3);
+            }
+            if (e.propertyInfos.Any(x => x.Name == "EnablePicker4"))
+                ZuZhuang.Current.SetPickerEnable(4, param.EnablePicker4);
+            {
+                assemblyGantryControl.BypassPicker4 = param.EnablePicker4 ? false : true;
+            }
+            if (e.propertyInfos.Any(x => x.Name == "ProcessTimeout"))
+            {
+                LaiLiao.Current.SetTimeOut(param.ProcessTimeout);
+                ZuZhuang.Current.SetTimeOut(param.ProcessTimeout);
+                FuJian.Current.SetTimeOut(param.ProcessTimeout);
+                Feeder.Current.SetTimeOut(param.ProcessTimeout);
+                Conveyor.Current.SetTimeOut(param.ProcessTimeout);
+            }
         }
 
         private static void SetLanguage(string culture)
@@ -154,8 +261,8 @@ namespace AkribisFAM
                 var processes = System.Diagnostics.Process.GetProcessesByName("AACommServer");
                 foreach (var proc in processes)
                 {
-                    proc.Kill();   
-                    proc.WaitForExit(); 
+                    proc.Kill();
+                    proc.WaitForExit();
                 }
             }
             catch (Exception ex)
@@ -198,9 +305,10 @@ namespace AkribisFAM
             catch { }
 
         }
-        
-		protected override void OnExit(ExitEventArgs e)
+
+        protected override void OnExit(ExitEventArgs e)
         {
+            ProcessManager.TerminateBackgroundProcess("AACommServer");
             TCPNetworkManage.StopAllClients();
             // Dispose of resources
             DbManager?.Dispose();

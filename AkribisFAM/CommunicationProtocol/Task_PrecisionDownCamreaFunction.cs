@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Documents;
 
 
 namespace AkribisFAM.CommunicationProtocol
@@ -37,7 +34,7 @@ namespace AkribisFAM.CommunicationProtocol
             public class AcceptTLNDownPosition
             {
                 public string Errcode;//错误代码，1为成功
-                public string PartX1;//吸嘴上物料特征坐标X1
+                public string PartX1;//吸嘴上物料特征坐标X1 
                 public string PartY1;//吸嘴上物料特征坐标Y1
                 public string PartR1;//吸嘴上物料特征坐标R1
                 public string Data1;//视觉收集数据
@@ -94,7 +91,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //sendTLNCamreaposition1.NozzleID= "1";//吸嘴编号
                 //sendTLNCamreaposition1.RawMaterialName = "Foam";
                 //sendTLNCamreaposition1.CaveID = "0";
-                //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition1.TargetMaterialName1 = "Foam->Module";
                 //sendTLNCamreaposition1.Photo_X1 = "256.890";
                 //sendTLNCamreaposition1.Photo_Y1 = "345.445";
                 //sendTLNCamreaposition1.Photo_R1 = "67.456";
@@ -107,7 +104,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //sendTLNCamreaposition2.NozzleID = "2";//吸嘴编号
                 //sendTLNCamreaposition2.RawMaterialName = "Foam";
                 //sendTLNCamreaposition2.CaveID = "0";
-                //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition2.TargetMaterialName1 = "Foam->Module";
                 //sendTLNCamreaposition2.Photo_X1 = "256.890";
                 //sendTLNCamreaposition2.Photo_Y1 = "345.445";
                 //sendTLNCamreaposition2.Photo_R1 = "67.456";
@@ -120,7 +117,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //sendTLNCamreaposition3.NozzleID = "3";//吸嘴编号
                 //sendTLNCamreaposition3.RawMaterialName = "Foam";
                 //sendTLNCamreaposition3.CaveID = "0";
-                //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition3.TargetMaterialName1 = "Foam->Module";
                 //sendTLNCamreaposition3.Photo_X1 = "256.890";
                 //sendTLNCamreaposition3.Photo_Y1 = "345.445";
                 //sendTLNCamreaposition3.Photo_R1 = "67.456";
@@ -133,7 +130,7 @@ namespace AkribisFAM.CommunicationProtocol
                 //sendTLNCamreaposition4.NozzleID = "4";//吸嘴编号
                 //sendTLNCamreaposition4.RawMaterialName = "Foam";
                 //sendTLNCamreaposition4.CaveID = "0";
-                //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Moudel";
+                //sendTLNCamreaposition4.TargetMaterialName1 = "Foam->Module";
                 //sendTLNCamreaposition4.Photo_X1 = "256.890";
                 //sendTLNCamreaposition4.Photo_Y1 = "345.445";
                 //sendTLNCamreaposition4.Photo_R1 = "67.456";

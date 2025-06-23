@@ -10,6 +10,7 @@
         Loaded="Window_Loaded"
         Title="Akribis FAM"
         WindowState="Maximized"
+        Closing="Window_Closing"
         Height="1000" Width="1600">
 	<Window.Resources>
 		<ResourceDictionary>
@@ -30,20 +31,21 @@
 			<RowDefinition Height="1*" />
 		</Grid.RowDefinitions>
 
-		<!-- 第一行，水平 StackPanel -->
-		<Grid Grid.Row="0" Background="WhiteSmoke">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="44"/>
-				<ColumnDefinition Width="173.162"/>
-				<ColumnDefinition Width="5*"/>
-				<!-- 左侧用户状态信息 -->
-				<ColumnDefinition Width="auto"/>
-				<!-- 中间按钮 -->
-				<ColumnDefinition Width="auto"/>
-				<!-- 报警按钮 -->
-				<ColumnDefinition Width="auto"/>
-				<!-- 时间显示 -->
-			</Grid.ColumnDefinitions>
+        <!-- 第一行，水平 StackPanel -->
+        <Grid Grid.Row="0" Background="WhiteSmoke">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="44"/>
+                <ColumnDefinition Width="173.162"/>
+                <ColumnDefinition Width="5*"/>
+                <!-- 左侧用户状态信息 -->
+                <ColumnDefinition Width="auto"/>
+                <!-- 中间按钮 -->
+                <ColumnDefinition Width="auto"/>
+                <!-- 报警按钮 -->
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <!-- 时间显示 -->
+            </Grid.ColumnDefinitions>
 
 			<StackPanel Orientation="Vertical"  Grid.Column="0" Grid.ColumnSpan="2">
 					<local:PromptableButton IsEnabled="False" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/AKB.png" />
@@ -87,11 +89,11 @@
 			<!-- 报警按钮 -->
 			<local:PromptableButton x:Name="button" PromptCount="{Binding promptCount}" CoverImageSource="/Windows/641.png"
                             Click="Alarmbutton_Click" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Height="55" Width="72" Grid.Column="4" />
+                            Height="55" Width="72" Grid.Column="5" />
 
-			<!-- 当前时间 -->
-			<Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="5">
-				<TextBlock Name="currentTimeTextBlock" Text="NowTime---"
+            <!-- 当前时间 -->
+            <Border Margin="10,0,0,0" BorderBrush="Transparent" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="6">
+                <TextBlock Name="currentTimeTextBlock" Text="NowTime---"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    TextWrapping="Wrap" FontSize="20" />
 			</Border>
@@ -181,17 +183,36 @@
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
-			<!-- 按钮组放在右边 -->
-			<StackPanel Orientation="Horizontal" Grid.Column="1">
-				<Button x:Name="StartAutoRunButton" Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click" />
-				<Button x:Name="StopAutoRunButton" Background="Red" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
-				<Button x:Name="PauseAutoRunButton" Background="Yellow" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
-				<Button x:Name="ResetButton" Background="#D2BA29" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
-				<Button x:Name="IdleButton"  Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
-				<Button x:Name="MaintenanceButton" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
-			</StackPanel>
-			<Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
-			<Button Content="testFeipai" HorizontalAlignment="Left" Margin="349,0,0,0" VerticalAlignment="Center" Height="37" Width="80" Click="TestFeiPai_Click"/>
-		</Grid>
-	</Grid>
+            <!-- 按钮组放在右边 -->
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="btnLock" Background="Gray" Style="{StaticResource MaterialDesignRaisedLightButton}" 
+                         Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="btnLock_Click">
+                    <Viewbox>
+                        
+                    <materialDesign:PackIcon x:Name="DoorIcon" Kind="LockOpenVariantOutline" Margin="9"/>
+                    </Viewbox>
+                </Button>
+                <Button x:Name="btnDebug" Content="Fail" Click="btnDebug_Click"/>
+                <Button x:Name="btnDebug2" Content="Debug2" Click="btnDebug2_Click"/>
+                <Button x:Name="btnDebug3" Content="Can send" Click="btnDebug3_Click"/>
+                <Button x:Name="btnDebug4" Content="Removed" Click="btnDebug4_Click"/>
+                <Button x:Name="btnDebug5" Content="Pass" Click="btnDebug5_Click"/>
+                <Button x:Name="btnDebug6" Content="Foam1" Click="btnDebug6_Click"/>
+                <Button x:Name="btnDebug7" Content="Foam2" Click="btnDebug7_Click"/>
+                <Button x:Name="btnDebug8" Content="PickerPick" Click="btnDebug8_Click"/>
+                <Button x:Name="btnDebug9" Content="PlacePart" Click="btnDebug9_Click"/>
+                <Button x:Name="btnDebug10" Content="testfunc" Click="btnDebug10_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <Button x:Name="StartAutoRunButton"  Background="Green" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Start" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StartAutoRun_Click"  IsEnabled="True"/>
+                <Button x:Name="StopAutoRunButton" Background="Red" Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Stop" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="StopAutoRun_Click"/>
+                <Button x:Name="PauseAutoRunButton" Background="Gold" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Pause" Height="64" Width="96" FontWeight="Bold" Margin="0,0,10,0" Click="PauseAutoRun_Click"/>
+                <Button x:Name="ResetButton" Background="DeepSkyBlue" Style="{StaticResource MaterialDesignRaisedLightButton}" Content="Reset" Height="64" Width="96" FontWeight="Bold" Click="ResetButton_Click" Margin="0,0,10,0" PreviewMouseLeftButtonDown="ResetButton_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ResetButton_PreviewMouseLeftButtonUp"/>
+                <Button x:Name="IdleButton" Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedButton}" Content="Idle" Width="96" Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="IdleButton_Click"/>
+                <Button x:Name="MaintenanceButton"  Visibility="Collapsed" Style="{StaticResource MaterialDesignRaisedButton}" Content="Maint." Width="96"  Height="64" FontWeight="Bold" Margin="0,0,10,0" Click="MaintenanceButton_Click"/>
+            </StackPanel>
+            <!--<Button x:Name="TestBoardIn" Content="BoardIn" HorizontalAlignment="Left" Margin="595,0,0,0" VerticalAlignment="Center" Height="36" Width="81" Click="TestBoardIn_Click"/>
+            <Button Content="testFeipai2" HorizontalAlignment="Left" Margin="349,0,0,0" VerticalAlignment="Center" Height="37" Width="80" Click="TestFeiPai_Click"/>-->
+        </Grid>
+    </Grid>
 </Window>

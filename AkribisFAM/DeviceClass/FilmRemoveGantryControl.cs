@@ -1,13 +1,5 @@
 ﻿using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Windows;
 using AkribisFAM.WorkStation;
-using LiveCharts.Wpf;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using YamlDotNet.Core.Tokens;
-using static AkribisFAM.GlobalManager;
 
 namespace AkribisFAM.DeviceClass
 {
@@ -34,17 +26,17 @@ namespace AkribisFAM.DeviceClass
         public bool ZDown()
         {
 
-            return AkrAction.Current.Move(AxisName.PRZ, 12, (int)AxisSpeed.PRZ) == 0;
+            return AkrAction.Current.MoveRecheckZ(12) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool ZUp()
         {
 
-            return AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ) == 0;
+            return AkrAction.Current.MoveRecheckZ(0) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool ZSafe()
         {
 
-            return AkrAction.Current.Move(AxisName.PRZ, 0, (int)AxisSpeed.PRZ) == 0;
+            return AkrAction.Current.MoveRecheckZ(0) == (int)AkrAction.ACTTION_ERR.NONE;
         }
         public bool ClawClose()
         {
@@ -52,8 +44,12 @@ namespace AkribisFAM.DeviceClass
                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 1)))
                 return false;
 
+            return true;
+        }
+        public bool IsClawClose()
+        {
             return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 1) &&
-                GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 0);
+               GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 0);
         }
         public bool ClawOpen()
         {
@@ -61,11 +57,14 @@ namespace AkribisFAM.DeviceClass
               IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_1Pneumatic_Claw_B, 0)))
                 return false;
 
-
-
-            return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 0) &&
-                GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
+            return true;
         }
+        public bool IsClawOpen()
+        {
+            return GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_9Claw_extend_in_position, 0) &&
+               GlobalManager.Current.WaitIO(IO_INFunction_Table.IN3_10Claw_retract_in_position, 1);
+        }
+
         public bool MovePos(double x, double y)
         {
             if (!ZUp())
@@ -76,8 +75,7 @@ namespace AkribisFAM.DeviceClass
             {
                 return false;
             }
-            if (AkrAction.Current.Move(AxisName.PRX, x, (int)AxisSpeed.PRX, (int)AxisAcc.PRX) != 0 ||
-            AkrAction.Current.Move(AxisName.PRY, y, (int)AxisSpeed.PRY, (int)AxisAcc.PRY) != 0)
+            if (AkrAction.Current.MoveRecheckXY(x,y) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
@@ -85,7 +83,7 @@ namespace AkribisFAM.DeviceClass
             return true;
         }
 
-        public bool MoveToVisionPos(double teachpointX, double teachpointY)
+        public bool MoveToVisionPos(double teachpointX, double teachpointY, bool waitMotionDone = true)
         {
             if (!ZUp())
             {
@@ -96,8 +94,7 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (AkrAction.Current.Move(AxisName.PRX, teachpointX + (xOffset) + 0 , (int)AxisSpeed.PRX, (int)AxisAcc.PRX) != 0 ||
-            AkrAction.Current.Move(AxisName.PRY, teachpointY + (-yOffset) + 0, (int)AxisSpeed.PRY, (int)AxisAcc.PRY) != 0)
+            if (AkrAction.Current.MoveRecheckXY(teachpointX + (xOffset) + 0, teachpointY + (-yOffset) + 0, waitMotionDone) != (int)AkrAction.ACTTION_ERR.NONE)
             {
 
                 return false;
@@ -107,13 +104,11 @@ namespace AkribisFAM.DeviceClass
         public bool VacOn()
         {
 
-            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1) &&
-                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0));
+            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 1));
         }
         public bool VacOff()
         {
-            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0) &&
-                 IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_3Peeling_Recheck_vacuum1_Release, 0));
+            return (IOManager.Instance.IO_ControlStatus(IO_OutFunction_Table.OUT4_2Peeling_Recheck_vacuum1_Supply, 0));
         }
         public bool RemoveFilm(double teachpointX, double teachpointY)
         {
@@ -162,26 +157,24 @@ namespace AkribisFAM.DeviceClass
                 return false;
             }
 
-            if (!ZDown())
-            {
-                return false;
-            }
-
-
-            if (!ClawOpen())
-            {
-                return false;
-            }
+            //if (!ZDown())
+            //{
+            //    return false;
+            //}
 
             if (!VacOn())
             {
                 return false;
             }
-            Thread.Sleep(100);
+            if (!ClawOpen())
+            {
+                return false;
+            }
             if (!VacOff())
             {
                 return false;
             }
+
             if (!ZUp())
             {
                 return false;

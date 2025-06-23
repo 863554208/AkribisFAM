@@ -8,6 +8,7 @@ using AkribisFAM.Manager;
 using System.Threading;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using AkribisFAM.WorkStation;
+using System.Windows;
 
 namespace AkribisFAM.Windows
 {
@@ -35,9 +36,9 @@ namespace AkribisFAM.Windows
                 set { progress = value; OnPropertyChanged(); }
             }
 
-            private ObservableCollection<SinglePointExt> points = new ObservableCollection<SinglePointExt>();
+            private List<SinglePointExt> points = new List<SinglePointExt>();
 
-            public ObservableCollection<SinglePointExt> Points
+            public List<SinglePointExt> Points
             {
                 get { return points; }
                 set { points = value; }
@@ -69,31 +70,18 @@ namespace AkribisFAM.Windows
         {
             DataContext = null;
             List<SinglePointExt> lsp = new List<SinglePointExt>();
-            if (cbxTrayType.SelectedIndex < 0) return;
-            if (cbxTrayType.SelectedIndex > 4) return;
-
-            var stationsPoints = App.recipeManager.Get_RecipeStationPoints((TrayType)cbxTrayType.SelectedIndex);
-            if (stationsPoints == null) return;
-
-            //var laser = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
-            var laser = stationsPoints.FuJianPointList.FirstOrDefault(x => x.name != null && x.name.Equals("Tearing Points"));
-            if (laser == null) return;
-
-            lsp = laser.childList.Select((x, index) => new SinglePointExt
+            if (cbxTrayType.SelectedIndex < 0 || cbxTrayType.SelectedIndex > 4)
             {
-                X = x.childPos[0],
-                Y = x.childPos[1],
-                Z = x.childPos[2],
-                R = x.childPos[3],
-                TeachPointIndex = index + 1
-            }).ToList();
-
-            var points = new ObservableCollection<SinglePointExt>(lsp);
-
+                return;
+            }
+            if (!FuJian.Current.GetTeachPointList((TrayType)cbxTrayType.SelectedIndex, out lsp))
+            {
+                System.Windows.Forms.MessageBox.Show("Failed to get tearing's teach points");
+            }
             vm = new FilmRemoveVM()
             {
                 TotalProcess = 0,
-                Points = points,
+                Points = lsp,
                 Row = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartRow,
                 Column = App.recipeManager.GetRecipe((TrayType)cbxTrayType.SelectedIndex).PartColumn,
             };
@@ -136,7 +124,7 @@ namespace AkribisFAM.Windows
                       {
                           return;
                       }
-                      if (!App.vision1.Trigger())
+                      if (!App.visionControl.Trigger(DeviceClass.CognexVisionControl.VisionStation.RecheckVision))
                       {
                           return;
                       }
@@ -260,12 +248,12 @@ namespace AkribisFAM.Windows
                     return;
                 }
 
-                if (!App.vision1.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
+                if (!App.visionControl.CheckFilm(points.TeachPointIndex, vm.Row, vm.Column))
                 {
                     return;
                 }
 
-                if (!App.vision1.Trigger())
+                if (!App.visionControl.Trigger(DeviceClass.CognexVisionControl.VisionStation.RecheckVision))
                 {
                     return;
                 }

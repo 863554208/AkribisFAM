@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <Button Content="DebugLog" HorizontalAlignment="Left" Margin="260,225,0,0" VerticalAlignment="Top" Height="87" Width="97"/>
+        <ListBox x:Name="MessageListView"  />
 
     </Grid>
 </UserControl>

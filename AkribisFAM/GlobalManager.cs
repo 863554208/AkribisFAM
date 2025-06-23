@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using AkribisFAM.AAmotionFAM;
 using System.Timers;
 using AAMotion;
-using AGM800 = AkribisFAM.AAmotionFAM.AGM800;
-using System.Diagnostics;
-using AkribisFAM.Manager;
 using System.Threading;
-using AkribisFAM.ViewModel;
-using LiveCharts;
 using AkribisFAM.CommunicationProtocol;
-using AkribisFAM.Windows;
-using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
-using System.Windows.Forms.Design;
-using System.Windows.Documents;
+using System.Net.Sockets;
+using System.ComponentModel;
 
 namespace AkribisFAM
 {
@@ -56,7 +44,7 @@ namespace AkribisFAM
         public double spacingY { get; set; }
 
         [DataMember]
-        public double offer10{ get; set; }
+        public double offer10 { get; set; }
 
         [DataMember]
         public double offer11 { get; set; }
@@ -126,12 +114,15 @@ namespace AkribisFAM
         private System.Timers.Timer PosTimer;
 
         public Queue<string> BarcodeQueue = new Queue<string>();
+        public Queue<TcpClient> tcpQueue = new Queue<TcpClient>();
         public bool IsUseMES = false;
 
         //delay (etc. 300 means 300 milliseconds) to trigger laser height after the LSX&LSY reaches its destination.
         public int LaserHeightDelay = 50;
 
         public double[][] laser_data;
+
+        public bool isLowerCCD = false;
         //错误队列
         private DispatcherTimer _errorCheckTimer;
 
@@ -169,6 +160,9 @@ namespace AkribisFAM
         public int PalleteGap_Y = 40;
         public int TotalRow = 3;
         public int TotalColumn = 4;
+        public ProcessMode CurrentMode = ProcessMode.Dryrun;
+
+
 
         public SinglePoint RecheckRecylePos = new SinglePoint();
         public SinglePoint SafeZPos = new SinglePoint();
@@ -216,7 +210,7 @@ namespace AkribisFAM
 
         //判断每个吸到的料在经过CCD2复检之后时候合格
         public bool picker1State;
-        public bool picker2State;           
+        public bool picker2State;
         public bool picker3State;
         public bool picker4State;
 
@@ -242,6 +236,7 @@ namespace AkribisFAM
         public List<SinglePoint> pickerZCam2Points = new List<SinglePoint>();
         public List<SinglePoint> pickerZSafePoints = new List<SinglePoint>();
         public List<SinglePoint> pickerLoadCellPoints = new List<SinglePoint>();
+        public List<SinglePoint> rejectPoints = new List<SinglePoint>();
 
         public List<SinglePoint> feedar1Points = new List<SinglePoint>();
 
@@ -283,7 +278,7 @@ namespace AkribisFAM
 
         public bool hive_Result { get; set; }
 
-        public bool IsPause { get; set; }
+
 
         //是否已经拍了pallete拼盘
         public bool palleteSnaped { get; set; }
@@ -477,7 +472,6 @@ namespace AkribisFAM
 
             InitializeLaserData();
 
-            IsPause = false;
 
         }
         //与AGM800的连接状态
@@ -537,7 +531,8 @@ namespace AkribisFAM
         {
             int FeederRetry_Count = 0;
             int val = 0;
-            if (value == 0) {
+            if (value == 0)
+            {
                 val = 1;
             }
             while (IOManager.Instance.INIO_status[(int)pos] == val)
@@ -557,19 +552,19 @@ namespace AkribisFAM
         {
             switch (index)
             {
-                    case 0: return AxisRef.A;
-                    case 1: return AxisRef.B;
-                    case 2: return AxisRef.C;
-                    case 3: return AxisRef.D;
-                    case 4: return AxisRef.E;
-                    case 5: return AxisRef.F;            
-                    case 6: return AxisRef.G;
-                    case 7: return AxisRef.H;
-                    default : return AxisRef.A; 
+                case 0: return AxisRef.A;
+                case 1: return AxisRef.B;
+                case 2: return AxisRef.C;
+                case 3: return AxisRef.D;
+                case 4: return AxisRef.E;
+                case 5: return AxisRef.F;
+                case 6: return AxisRef.G;
+                case 7: return AxisRef.H;
+                default: return AxisRef.A;
 
             }
 
-          
+
         }
 
         public AxisName GetAxisNameFromInteger(int index)
@@ -660,7 +655,7 @@ namespace AkribisFAM
 
         public AxisName GetAxisNameFromString(string line)
         {
-            switch (line) 
+            switch (line)
             {
                 case "LSX":
                     return AxisName.LSX;
@@ -1007,11 +1002,24 @@ namespace AkribisFAM
             PRY = 2000,
             PRZ = 300,
         }
+     
 
         //轴参数
         public AxisParams axisparams = new AxisParams();
 
     }
+}
+public enum ProcessMode
+{
+    Production
+         , [Browsable(false)] Maintenance
+         , [Browsable(false)] Wetrun
+         , Dryrun
+         , GRR
+         , [Browsable(false)] Purge
+         , [Browsable(false)] Init
+         , [Browsable(false)] Manual
+         , [Browsable(false)] Calib
 }
 [DataContract]
 public class SinglePoint

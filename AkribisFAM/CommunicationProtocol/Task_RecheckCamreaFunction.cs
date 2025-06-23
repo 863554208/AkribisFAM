@@ -76,7 +76,7 @@ namespace AkribisFAM.CommunicationProtocol
 
                 //sendTFCCamreaposition1.SN = "TFCTestSN20250418152024 + 2";
                 //sendTFCCamreaposition1.CaveID = "1";//穴位编号
-                //sendTFCCamreaposition1.MaterialNamen = "Foam->Moudel";
+                //sendTFCCamreaposition1.MaterialNamen = "Foam->Module";
                 //sendTFCCamreaposition1.Photo_X1 = "256.890";
                 //sendTFCCamreaposition1.Photo_Y1 = "345.445";
                 //sendTFCCamreaposition1.Photo_R1 = "67.456";

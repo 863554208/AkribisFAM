@@ -1,4 +1,6 @@
-﻿using AkribisFAM.Models;
+﻿using AAMotion;
+using AkribisFAM.Manager;
+using AkribisFAM.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -148,7 +150,7 @@ namespace AkribisFAM.Helper
         public bool AddOeeRecord(OeeRecord oee)
         {
             const string query = @"
-        INSERT INTO Oee_History (
+        INSERT INTO Oee_History (LotId,
             StartDateTime, EndDateTime, GoodProducts,
             GoodVision1, GoodVision2, GoodVision3,
             RejectVision1, RejectVision2, RejectVision3,
@@ -157,7 +159,7 @@ namespace AkribisFAM.Helper
             ProductiveTimeHr, MTBF, MTTR,
             Availability, Performance, Quality, Oee
         )
-        VALUES (
+        VALUES (@lotId,
             @startDateTime, @endDateTime, @goodProducts,
             @goodVision1, @goodVision2, @goodVision3,
             @rejectVision1, @rejectVision2, @rejectVision3,
@@ -174,6 +176,7 @@ namespace AkribisFAM.Helper
                     connection.Open();
                     using (var command = new SQLiteCommand(query, connection))
                     {
+                        command.Parameters.AddWithValue("@lotId", oee.LotID);
                         command.Parameters.AddWithValue("@startDateTime", oee.StartDateTime);
                         command.Parameters.AddWithValue("@endDateTime", oee.EndDateTime);
                         command.Parameters.AddWithValue("@goodProducts", oee.GoodProducts);
@@ -245,7 +248,107 @@ namespace AkribisFAM.Helper
                 return false;
             }
         }
+        /// <summary>
+        /// Adds a new lot record to the database.
+        /// </summary>
+        /// <param name="alarm">The <see cref="LotRecord"/> containing lot details.</param>
+        /// <returns>True if the insert was successful; otherwise, false.</returns>
+        public bool AddLot(LotRecord lot)
+        {
+            const string query = @"
+        INSERT INTO Lot_History (LotId, Creator, StartDateTime, EndDateTime, LotState, Recipe)
+        VALUES (@lotid, @creator, @startdatetime, @enddatetime, @state, @recipe);";
 
+            try
+            {
+                using (var connection = new SQLiteConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var command = new SQLiteCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@lotid", lot.LotID);
+                        command.Parameters.AddWithValue("@creator", lot.Creator);
+                        command.Parameters.AddWithValue("@startdatetime", lot.StartDateTime);
+                        command.Parameters.AddWithValue("@enddatetime", lot.EndDateTime); // corrected here
+                        command.Parameters.AddWithValue("@state", lot.LotState);
+                        command.Parameters.AddWithValue("@recipe", lot.RecipeName);
+
+                        return command.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception as needed
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves a list of lots records from the database.
+        /// </summary>
+        /// <returns>List of LotRecord objects retrieved from the database.</returns>
+        public List<LotRecord> GetLots()
+        {
+            var records = new List<LotRecord>();
+
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM Lot_History";
+                using (var command = new SQLiteCommand(query, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var record = new LotRecord
+                        {
+                            LotID = reader.GetString(reader.GetOrdinal("LotId")),
+                            StartDateTime = reader.GetDateTime(reader.GetOrdinal("StartDateTime")),
+                            EndDateTime = reader.GetDateTime(reader.GetOrdinal("StartDateTime")),
+                            LotState = reader.GetInt32(reader.GetOrdinal("LotState")),
+                            RecipeName = reader.GetString(reader.GetOrdinal("Recipe")),
+                            Creator = reader.GetString(reader.GetOrdinal("Creator"))
+                        };
+
+                        records.Add(record);
+                    }
+                }
+            }
+
+            return records;
+        }
+        public bool UpdateLotHistory(LotRecord lot)
+        {
+            string query = @"
+            UPDATE Lot_History SET
+                Creator = @Creator,
+                StartDateTime = @StartDateTime,
+                EndDateTime = @EndDateTime,
+                LotState = @LotState,
+                Recipe = @Recipe
+            WHERE LotId = @lotId;";
+
+            using (SQLiteConnection conn = new SQLiteConnection(_connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Creator", lot.Creator);
+                    cmd.Parameters.AddWithValue("@StartDateTime", lot.StartDateTime);
+                    cmd.Parameters.AddWithValue("@EndDateTime", lot.EndDateTime); // corrected here
+                    cmd.Parameters.AddWithValue("@Recipe", lot.RecipeName);
+                    cmd.Parameters.AddWithValue("@LotState", (int)Lot.LotState.Completed);
+                    cmd.Parameters.AddWithValue("@lotId", lot.LotID);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"{rowsAffected} record(s) updated.");
+                }
+            }
+            return true;
+        }
         /// <summary>
         /// Retrieves a list of OEE records from the database.
         /// </summary>
@@ -298,7 +401,45 @@ namespace AkribisFAM.Helper
 
             return records;
         }
+         /// <summary>
+        /// Retrieves a running lot record from the database.
+        /// </summary>
+        /// <returns>List of LotRecord objects retrieved from the database.</returns>
+        public LotRecord GetCurrentLotRecord()
+        {
+            var record = new LotRecord();
 
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM Lot_History WHERE LotState = @lotstate;";
+                using (SQLiteCommand cmd = new SQLiteCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@lotstate", (int)Lot.LotState.Running_Lot);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                             record = new LotRecord()
+                            {
+                                LotID = reader.GetString(reader.GetOrdinal("LotId")),
+                                StartDateTime = reader.GetDateTime(reader.GetOrdinal("StartDateTime")),
+                                EndDateTime = reader.GetDateTime(reader.GetOrdinal("EndDateTime")),
+                                Creator = reader.GetString(reader.GetOrdinal("Creator")),
+                                RecipeName = reader.GetString(reader.GetOrdinal("Recipe")),
+                            };
+
+                        }
+                    }
+
+                }
+             }
+
+            return record;
+        }
         /// <summary>
         /// Retrieves a list of alarm records from the database.
         /// </summary>
@@ -324,9 +465,7 @@ namespace AkribisFAM.Helper
                             AlarmMessage = reader.GetString(reader.GetOrdinal("AlarmMessage")),
                             LotID = reader.GetString(reader.GetOrdinal("LotID")),
                             TimeOccurred = reader.GetDateTime(reader.GetOrdinal("TimeOccurred")),
-                            TimeResolved = reader.IsDBNull(reader.GetOrdinal("TimeResolved"))
-                                ? (DateTime?)null
-                                : reader.GetDateTime(reader.GetOrdinal("TimeResolved")),
+                            TimeResolved = reader.IsDBNull(reader.GetOrdinal("TimeResolved")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("TimeResolved")),
                             UserID = reader.GetString(reader.GetOrdinal("UserID"))
                         };
 
