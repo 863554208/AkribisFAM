@@ -154,6 +154,7 @@ namespace AkribisFAM.Manager
         public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
         public static int ModbusErrCntLimit = 10;
+        public string LotID = "1";
 
         public bool Insert(ErrorCode err, string descriptions = "")
         {
@@ -163,8 +164,8 @@ namespace AkribisFAM.Manager
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err, descriptions));
-                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, "1", GlobalManager.Current.username, err, descriptions));
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, LotID, GlobalManager.Current.username, err, descriptions));
+                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, LotID, GlobalManager.Current.username, err, descriptions));
             });
             alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count - 1].Level];
             alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;

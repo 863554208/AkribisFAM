@@ -104,7 +104,7 @@ namespace AkribisFAM
             _timer.Start();
             lblVersion.Content = $"{App.paramLocal.LiveParam.MachineName} - Version v {Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
             //END Add
-            ChangeLanguage("zh_CN");
+            //ChangeLanguage("zh_CN");
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
