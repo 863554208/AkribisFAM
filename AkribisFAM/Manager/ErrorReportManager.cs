@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using AkribisFAM.Models;
 
 namespace AkribisFAM.Manager
 {
@@ -81,16 +83,18 @@ namespace AkribisFAM.Manager
         //Modify By YXW
         public string DateTime { get; set; }
         public string User { get; set; }
+        public string Lot { get; set; }
         public string ErrorCode { get; set; }
         public int Level { get; set; }
 
         public string Info { get; set; }
         public string Description { get; set; }
 
-        public ErrorInfo(DateTime dT, string usr, ErrorCode eC, string description = "")
+        public ErrorInfo(DateTime dT, string lot, string usr, ErrorCode eC, string description = "")
         {
             DateTime = dT.ToString();
             User = usr;
+            Lot = lot;
             ErrorCode = "0x" + Convert.ToString((int)eC, 16);
             if ((int)eC > 0x0FFF)
             {
@@ -132,33 +136,60 @@ namespace AkribisFAM.Manager
         public bool IsAlarm => ErrorStack.Count > 0 || ErrorInfos.Count > 0;
 
         private ConcurrentStack<ErrorCode> ErrorStack = new ConcurrentStack<ErrorCode>();
-        //public List<ErrorInfo> ErrorInfos = new List<ErrorInfo>();
+        private ConcurrentStack<ErrorCode> ErrorHistory = new ConcurrentStack<ErrorCode>();
 
         //Modify By YXW
         public ObservableCollection<ErrorInfo> ErrorInfos { get; set; } = new ObservableCollection<ErrorInfo>();
-
+        public ObservableCollection<ErrorInfo> ErrorHistoryInfos { get; set; } = new ObservableCollection<ErrorInfo>();
         //End Modify
 
+        private Dictionary<int, string> ErrorLevel = new Dictionary<int, string>
+        {
+            { 1, "Critical" },
+            { 2, "High" },
+            { 3, "Low" },
+        };
+        private AlarmRecord alarm = new AlarmRecord();
         public int ErrorCnt => ErrorStack.Count;
         public int ModbusErrCnt;
         public event Action UpdateErrorCnt;
         public static int ModbusErrCntLimit = 10;
+        public string LotID = "1";
 
         public bool Insert(ErrorCode err, string descriptions = "")
         {
             ErrorStack.Push(err);
+            ErrorHistory.Push(err);
 
             //Modify By YXW
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorInfos.Add(new ErrorInfo(DateTime.Now, GlobalManager.Current.username, err, descriptions));
+                ErrorInfos.Add(new ErrorInfo(DateTime.Now, LotID, GlobalManager.Current.username, err, descriptions));
+                ErrorHistoryInfos.Add(new ErrorInfo(DateTime.Now, LotID, GlobalManager.Current.username, err, descriptions));
             });
+            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count - 1].Level];
+            alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;
+            alarm.AlarmCode = ErrorInfos[ErrorInfos.Count - 1].ErrorCode;
+            alarm.UserID = ErrorInfos[ErrorInfos.Count - 1].User;
+            alarm.LotID = ErrorInfos[ErrorInfos.Count - 1].Lot;
+            alarm.TimeOccurred = DateTime.Now;
+            bool ret = App.DbManager.AddAlarm(alarm);
             UpdateErrorCnt?.Invoke();
             return false;
         }
         public void Pop()
         {
+            if (ErrorInfos.Count == 0) { 
+                return;
+            }
             ErrorCode result;
+            alarm.AlarmLevel = ErrorLevel[ErrorInfos[ErrorInfos.Count - 1].Level];
+            alarm.AlarmMessage = ErrorInfos[ErrorInfos.Count - 1].Info;
+            alarm.AlarmCode = ErrorInfos[ErrorInfos.Count - 1].ErrorCode;
+            alarm.UserID = ErrorInfos[ErrorInfos.Count - 1].User;
+            alarm.LotID = ErrorInfos[ErrorInfos.Count - 1].Lot;
+            alarm.TimeResolved = DateTime.Now;
+            bool ret = App.DbManager.AddAlarm(alarm);
             if (ErrorStack.TryPop(out result))
             {
                 Console.WriteLine("Removed element: " + result);
