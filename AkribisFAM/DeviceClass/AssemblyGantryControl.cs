@@ -3,6 +3,7 @@ using AkribisFAM.Helper;
 using AkribisFAM.Manager;
 using AkribisFAM.Util;
 using AkribisFAM.WorkStation;
+using LiveCharts.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -242,7 +243,7 @@ namespace AkribisFAM.DeviceClass
             sp.Z = GlobalManager.Current.CurrentMode == ProcessMode.Dryrun ? sp.Z / 2 : sp.Z;
             return AkrAction.Current.MoveFoamZ1Z2Z3Z4(sp.Z, sp.Z, sp.Z, sp.Z) == 0;
         }
-        
+
         public bool ZLoadCellPosition(Picker picker)
         {
             if (IsBypass(picker))
@@ -584,7 +585,7 @@ namespace AkribisFAM.DeviceClass
             }
             return true;
         }
-        public bool TriggerCalib(Picker pickerNum)
+        public bool TriggerCalib(Picker pickerNum, double startCurrent = 0, double stepSize = 20, int stepMultiply = 70)
         {
             if (IsBypass(pickerNum))
             {
@@ -617,11 +618,53 @@ namespace AkribisFAM.DeviceClass
             //    return false;
             //}
 
-            if (!CallCalib(pickerNum))
+            if (!CallCalib(pickerNum, out List<NewtonCurrent> dataList))
             {
                 ZUp(pickerNum);
                 return false;
             }
+
+            return ZUp(pickerNum);
+        }
+
+        public bool TestCurrent(Picker pickerNum, double current)
+        {
+            if (IsBypass(pickerNum))
+            {
+                return true;
+            }
+            if (!VacOffAll())
+            {
+                return false;
+            }
+            if (!ZUpAll())
+            {
+                return false;
+            }
+            if (!MoveXYLoadCellPos(pickerNum))
+            {
+                return false;
+            }
+
+
+            if (!ZLoadCellPosition(pickerNum))
+            {
+                ZUp(pickerNum);
+                return false;
+            }
+
+            if (!ApplyCurrent((int)pickerNum, current))
+            {
+
+                ZUp(pickerNum);
+                return false;
+            }
+
+            //if (!CallCalib(pickerNum))
+            //{
+            //    ZUp(pickerNum);
+            //    return false;
+            //}
 
             return ZUp(pickerNum);
         }
@@ -742,13 +785,15 @@ namespace AkribisFAM.DeviceClass
             return true;
 
         }
-        public bool CallCalib(Picker picker)
+        private bool CallCalib(Picker picker, out List<NewtonCurrent> dataList, 
+            double startCurrent = 0,
+            double stepSize = 20, 
+            int stepMultiply = 70,
+            double threshold = 0.5)
         {
+            dataList = new List<NewtonCurrent>();
             string programNumber = "-1";
             string axis = "";
-            int startCurrent = 0;
-            int stepSize = 20;
-            int stepMultiply = 70;
             switch (picker)
             {
                 case Picker.Picker1:
@@ -793,9 +838,8 @@ namespace AkribisFAM.DeviceClass
 
 
 
-            App.calib.NewtonCurrentList[(int)picker - 1].Clear();
+            App.calib.Models[(int)picker - 1].NewtonCurrentList.Clear();
             NewtonCurrent data = new NewtonCurrent();
-            List<NewtonCurrent> list = new List<NewtonCurrent>();
             for (int i = 0; i < stepMultiply; i++)
             {
                 if (!IsCurrentMode(picker) && !SetCurrMode(picker))
@@ -808,17 +852,25 @@ namespace AkribisFAM.DeviceClass
                     return false;
                 }
                 Thread.Sleep(200);
-                list.Add(data);
+                dataList.Add(data);
+            }
+            dataList = dataList.Where(x => x.Newton > threshold).ToList();
+
+            if (!EndCalibProcess(axis, ((int)picker).ToString()))
+            {
+                return false;
             }
 
-            var usefuldata = list.Where(x => x.Newton > 0.05).ToList();
-            App.calib.NewtonCurrentList[(int)picker - 1] = usefuldata;
+            return true;
+            App.calib.Models[(int)picker - 1].NewtonCurrentList = dataList;
 
-            var (m, c) = CalculateLinearCoefficients(usefuldata.Select(x => x.Newton).ToList(), usefuldata.Select(x => x.Current).ToList());
+            var (m, c) = CalculateLinearCoefficients(dataList.Select(x => x.Newton).ToList(), dataList.Select(x => x.Current).ToList());
             App.calib.Models[(int)picker - 1] = new LoadCellModel()
             {
+                picker = picker,
                 m = m,
                 C = c,
+                NewtonCurrentList = dataList,
             };
 
             FileHelper.Save(App.calib);
@@ -830,12 +882,77 @@ namespace AkribisFAM.DeviceClass
 
             return true;
         }
+        //private bool FilterOutliers(List<NewtonCurrent> dataList)
+        //{
+        //    var usefuldata = dataList.Where(x => x.Newton > 0.05).ToList();
+        //    App.calib.Models[(int)picker - 1].NewtonCurrentList = usefuldata;
+
+        //    var (m, c) = CalculateLinearCoefficients(usefuldata.Select(x => x.Newton).ToList(), usefuldata.Select(x => x.Current).ToList());
+        //    App.calib.Models[(int)picker - 1] = new LoadCellModel()
+        //    {
+        //        picker = picker,
+        //        m = m,
+        //        C = c,
+        //        NewtonCurrentList = usefuldata,
+        //    };
+
+        //    FileHelper.Save(App.calib);
+
+        //    if (!EndCalibProcess(axis, ((int)picker).ToString()))
+        //    {
+        //        return false;
+        //    }
+
+        //}
         public bool ApplyForce(int axis, double newton)
         {
             int timePush = 1000;
             int curret_whole = 2000;
             var current = PredictCurrent(newton, App.calib.Models[axis - 1].m, App.calib.Models[axis - 1].C);
             current = 1500;
+            if (current >= 2500)
+            {
+                return false;
+            }
+            curret_whole = (int)current;
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"AGenData[{axis}01]={curret_whole}", out string response44);
+            Logger.WriteLog("开始发送力控信号");
+            Thread.Sleep(100);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"AGenData[{axis}02]={timePush}", out string response123);
+            Logger.WriteLog("力控信号111");
+            Thread.Sleep(50);
+            AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"AGenData[800]={axis + 1}", out string response4);
+            //double Newton;
+            //double count =0;
+            //while (count < 200)
+            //{
+
+            //     Newton = ReadLoadCell();
+            //    count += 1;
+            //}
+
+            if (!WaitForceDone())
+            {
+                SetPositionMode($"{axis}");
+                return false;
+            }
+
+
+            if (!WaitModeToPositionControl($"{axis}"))
+            {
+                SetPositionMode($"{axis}");
+                return false;
+            }
+
+            return true;
+
+        }
+        public bool ApplyCurrent(int axis, double current)
+        {
+            int timePush = 1000;
+            int curret_whole = 2000;
+            //var current = PredictCurrent(newton, App.calib.Models[axis - 1].m, App.calib.Models[axis - 1].C);
+            //current = 1500;
             if (current >= 2500)
             {
                 return false;
@@ -958,7 +1075,7 @@ namespace AkribisFAM.DeviceClass
             return false;
         }
 
-        public bool EndCalibProcess(string axisCode, string pickerNUm)
+        private bool EndCalibProcess(string axisCode, string pickerNUm)
         {
             AAmotionFAM.AGM800.Current.controller[2].SendCommandString($"{axisCode}GenData[{pickerNUm}11]=1", out string response5); // close agito
 
@@ -1448,10 +1565,10 @@ namespace AkribisFAM.DeviceClass
                     ProcessErrorCode = ErrorCode.motionErr;
                     return false;
                 }
-                _step =4;
+                _step = 4;
             }
 
-            
+
             if (_step == 4)
             {
                 if (!MoveStandbyPickPos(pickerNum, fovNum, feederNum, false))

@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.IOButtonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             xmlns:con="clr-namespace:AkribisFAM.Windows.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="800">
+    <UserControl.Resources>
+        <con:IOBoolToBrushConverter x:Key="IOBoolToBrushConverter" />
+        <con:BrushColorInvertConverter x:Key="BrushColorInvertConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <!--<materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp4" Margin="10">-->
+            <Button Margin="3" Style="{x:Null}" Click="Button_Click" IsEnabled="True"
+                    Padding="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
+                    Background="{Binding Status, Converter={StaticResource IOBoolToBrushConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="2*"/>
+                    </Grid.RowDefinitions>
+                    <Viewbox Grid.Row="0" VerticalAlignment="Top">
+                        <Label Content="{Binding Enum.EENumber}" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" Foreground="White"/>
+                    </Viewbox>
+                    <WrapPanel Grid.Row="1">
+                        <TextBlock Text="{Binding Enum.Description}" TextWrapping="Wrap"  HorizontalAlignment="Center"  Foreground="Black"/>
+                    </WrapPanel>
+                </Grid>
+
+            </Button>
+        <!--</materialDesign:Card>-->
+    </Grid>
+</UserControl>

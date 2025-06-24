@@ -27,9 +27,12 @@
                 <local:CameraControl/>
             </TabItem>
             <TabItem Header="{DynamicResource IODebug}" >
-                <local:IOConfigure/>
+                <!--<local:IOConfigure/>-->
+                <local:IOControlView/>
+                
             </TabItem>
             <TabItem Header="Load Cell Calibration">
+                <local:LoadCellCalibrationView/>
             </TabItem>
             <TabItem Header="{DynamicResource ProcessDebug}" >
                 <local:ManualControl/>

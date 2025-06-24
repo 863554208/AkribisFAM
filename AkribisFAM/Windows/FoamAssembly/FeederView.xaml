@@ -29,12 +29,12 @@
             <Label Content="Tray type" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="30 10" FontSize="20"/>
             <ComboBox x:Name="cbxTrayType" Grid.Column="1" HorizontalAlignment="Left" FontSize="20" Padding="5" SelectionChanged="cbxTrayType_SelectionChanged"/>
             <!--<Button x:Name="btnCheckAllTeachPoint" Grid.Column="2" Content="Scan all" HorizontalAlignment="Right"/>-->
-            <Button x:Name="btnMoveLoadCellPicker1" Content="Picker1Load" Grid.Column="3" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker1_Click"/>
-            <Button x:Name="btnMoveLoadCellPicker2" Content="Picker2Load" Grid.Column="4" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker2_Click"/>
-            <Button x:Name="btnMoveLoadCellPicker3" Content="Picker3Load" Grid.Column="5" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker3_Click"/>
-            <Button x:Name="btnMoveLoadCellPicker4" Content="Picker4Load" Grid.Column="6" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker4_Click"/>
-            <Button x:Name="btnRunPickAndPlaceProcess1" Content="Pick and place f1" Grid.Column="7" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace1_Click"/>
-            <Button x:Name="btnRunPickAndPlaceProcess2" Content="Pick and place f2" Grid.Column="8" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace2_Click"/>
+            <!--<Button x:Name="btnMoveLoadCellPicker1" Content="Picker1Load" Grid.Column="3" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker1_Click"/>-->
+            <!--<Button x:Name="btnMoveLoadCellPicker2" Content="Picker2Load" Grid.Column="4" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker2_Click"/>-->
+            <!--<Button x:Name="btnMoveLoadCellPicker3" Content="Picker3Load" Grid.Column="5" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker3_Click"/>-->
+            <!--<Button x:Name="btnMoveLoadCellPicker4" Content="Picker4Load" Grid.Column="6" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnMoveLoadCellPicker4_Click"/>-->
+            <!--<Button x:Name="btnRunPickAndPlaceProcess1" Content="Pick and place f1" Grid.Column="7" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace1_Click"/>-->
+            <!--<Button x:Name="btnRunPickAndPlaceProcess2" Content="Pick and place f2" Grid.Column="8" Margin="20 0"  Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnPickAndPlace2_Click"/>-->
             <Button x:Name="btnStop" Content="Stop" Grid.Column="9" Margin="20 0" Background="Red" Foreground="White" FontWeight="Bold" HorizontalAlignment="Right" Click="btnStop_Click"/>
         </Grid>
         <Grid x:Name="grpControl" Grid.Row="1">
