@@ -1,0 +1,94 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.IOControlView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Row="0" BorderBrush="Black" BorderThickness="1" Padding="0 5 0 0">
+                <Grid  Margin="2" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!--<Label FontSize="16" Grid.Column="0" Content="Search Key "/>-->
+                    <Border BorderBrush="Black"  Grid.Column="1"  Background="Transparent" >
+                        <TextBox x:Name="txtSearch" materialDesign:HintAssist.Hint="Search"  BorderThickness="1 0 0 0" HorizontalAlignment="Stretch" MouseDoubleClick="txtSearch_MouseDoubleClick" Background="White" FontSize="16" TextChanged="txtSearch_TextChanged"></TextBox>
+                    </Border>
+                    <Button x:Name="btnClear" Grid.Column="2" Background="White" Click="btnClear_Click" IsEnabled="False">
+                        <materialDesign:PackIcon Kind="CloseThick" Foreground="Red"/>
+                    </Button>
+                </Grid>
+            </Border>
+            <Border Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="Black" Grid.Column="1" BorderThickness="1" >
+                <StackPanel  VerticalAlignment="Center">
+                    <Label Content="Module" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="cbxModule"  VerticalAlignment="Center" SelectionChanged="cbxModule_SelectionChanged"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="2" BorderBrush="Black"  BorderThickness="1" >
+                <StackPanel  VerticalAlignment="Center">
+                    <Label Content="Tag Search" FontWeight="Bold"  VerticalAlignment="Center"/>
+                    <ComboBox x:Name="cbxTag"  VerticalAlignment="Center" SelectionChanged="cbxTag_SelectionChanged"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <GroupBox Grid.Row="1" Background="White" Margin="0" FontWeight="Bold" Header="Digital Input"  Style="{StaticResource MaterialDesignGroupBox}" UseLayoutRounding="True">
+            <ScrollViewer >
+                <ItemsControl ItemsSource="{Binding Inputs}">
+                    <ItemsControl.ItemsPanel>
+
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="7" Columns="16"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:IOButtonView  Height="100"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </ScrollViewer>
+        </GroupBox>
+        <GroupBox Grid.Row="2" Background="White" Margin="0" FontWeight="Bold"  Header="Digital Output"  Style="{StaticResource MaterialDesignGroupBox}" UseLayoutRounding="True">
+            <ScrollViewer >
+                <ItemsControl ItemsSource="{Binding Outputs}">
+                    <ItemsControl.ItemsPanel>
+
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="7" Columns="16"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:IOButtonView  Height="100"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </ScrollViewer>
+        </GroupBox>
+    </Grid>
+</UserControl>

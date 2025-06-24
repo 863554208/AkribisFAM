@@ -265,6 +265,12 @@
     <Compile Include="Windows\AxisControl.xaml.cs">
       <DependentUpon>AxisControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\Calibration\IOButtonView.xaml.cs">
+      <DependentUpon>IOButtonView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Calibration\IOControlView.xaml.cs">
+      <DependentUpon>IOControlView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\Calibration\LoadCellCalibrationView.xaml.cs">
       <DependentUpon>LoadCellCalibrationView.xaml</DependentUpon>
     </Compile>
@@ -409,6 +415,14 @@
     <Page Include="Theme\Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\Calibration\IOButtonView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\Calibration\IOControlView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\Calibration\LoadCellCalibrationView.xaml">
       <Generator>MSBuild:Compile</Generator>

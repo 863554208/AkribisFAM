@@ -48,6 +48,26 @@ namespace AkribisFAM.Windows.Converters
             return Binding.DoNothing;
         }
     }
+    public class IOBoolToBrushConverter : IValueConverter
+    {
+        // Convert bool to Brush (used in XAML binding)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool flag)
+            {
+                string hex = flag ? "FF4ECE4E" : "FF919791";
+                //string hex = flag ? "FF919791" : "FF4ECE4E";
+                return (SolidColorBrush)(new BrushConverter().ConvertFrom("#" + hex));
+            }
+            return Brushes.Transparent;
+        }
+
+        // Not needed unless you're doing two-way binding
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class EnumToBrushConverter : IValueConverter
     {
         // Convert integer to SolidColorBrush
