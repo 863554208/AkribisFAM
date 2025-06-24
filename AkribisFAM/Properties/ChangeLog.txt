@@ -1,5 +1,9 @@
 ﻿=========================== CHANGE LOG ===========================
 
+v0.0.0.14 [2025-06-24, Raymond]
+ - Feat: A1-576 Add load cell calibration pages
+ - Feat: A1-600 Optimzie IO page to dynamic, add filter in IO pages
+
 v0.0.0.13 [2025-06-23, Paul]
  - Feat: Add System home feature
 
