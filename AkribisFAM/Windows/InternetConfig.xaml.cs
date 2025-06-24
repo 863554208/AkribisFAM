@@ -319,9 +319,11 @@ namespace AkribisFAM.Windows
                 }
                 else if (device.SelectedIndex == 7)
                 {
-                    //sendMess(ClientNames.Pressure_sensor, Command.Text);
-                    string cmd = HexToString(Command.Text);
-                    sendMess(ClientNames.Pressure_sensor, cmd);
+                    //string cmd1 = HexToString("#CLR01-01");
+                    //sendMess(ClientNames.Pressure_sensor, "#CLR01-01");
+                    sendMess(ClientNames.Pressure_sensor, Command.Text);
+                    //string cmd = HexToString(Command.Text);
+                    //sendMess(ClientNames.Pressure_sensor, cmd);
                 }
             }));
         }

@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="AkribisFAM.Windows.LoadCellCalibrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             Loaded="UserControl_Loaded"
+              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:local="clr-namespace:AkribisFAM.Windows"
+             IsVisibleChanged="UserControl_IsVisibleChanged"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="851" FontSize="16">
+    <TabControl TabStripPlacement="Left" >
+        <TabItem Header="Picker 1">
+            <local:IndividualPickerLoadCellCalibration x:Name="calibPicker1"/>
+        </TabItem>
+        <TabItem Header="Picker 2">
+            <local:IndividualPickerLoadCellCalibration x:Name="calibPicker2"/>
+        </TabItem>
+
+        <TabItem Header="Picker 3">
+            <local:IndividualPickerLoadCellCalibration x:Name="calibPicker3"/>
+        </TabItem>
+
+        <TabItem Header="Picker 4">
+            <local:IndividualPickerLoadCellCalibration x:Name="calibPicker4"/>
+        </TabItem>
+
+
+
+
+    </TabControl>
+
+</UserControl>

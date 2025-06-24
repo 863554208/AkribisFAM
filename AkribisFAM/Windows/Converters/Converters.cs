@@ -35,6 +35,19 @@ namespace AkribisFAM.Windows.Converters
     //        throw new NotImplementedException();
     //    }
     //}
+    public class EnumToStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value?.ToString() ?? string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Not needed for Label
+            return Binding.DoNothing;
+        }
+    }
     public class EnumToBrushConverter : IValueConverter
     {
         // Convert integer to SolidColorBrush
