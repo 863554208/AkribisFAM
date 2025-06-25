@@ -172,10 +172,10 @@ namespace AkribisFAM.Windows
                 btnClear.IsEnabled = true;
                 cbxModule.Text = "";
                 cbxTag.Text = "";
-                var foundInputs = vm.Inputs.Where(x => x.Enum.Value.ToString().Contains(txtSearch.Text)).ToList();
+                var foundInputs = vm.Inputs.Where(x => x.Enum.Value.ToString().ToLowerInvariant().Contains(txtSearch.Text.ToLower())).ToList();
                 vm.Inputs = new ObservableCollection<DigitalInputVM>(foundInputs);
 
-                var foundOutputs = vm.Outputs.Where(x => x.Enum.Value.ToString().Contains(txtSearch.Text)).ToList();
+                var foundOutputs = vm.Outputs.Where(x => x.Enum.Value.ToString().ToLowerInvariant().Contains(txtSearch.Text.ToLower())).ToList();
                 vm.Outputs = new ObservableCollection<DigitalOutputVM>(foundOutputs);
             }
             else
@@ -198,12 +198,12 @@ namespace AkribisFAM.Windows
             cbxTag.Text = "";
             vm.Inputs = new ObservableCollection<DigitalInputVM>(_allinputs);
             vm.Outputs = new ObservableCollection<DigitalOutputVM>(_alloutput);
-            if (cbxModule.Text != "")
+            if (e.AddedItems.Count > 0 && e.AddedItems[0].ToString() != "")
             {
-                var foundInputs = vm.Inputs.Where(x => x.Enum.EEGroup.Contains(cbxModule.Text)).ToList();
+                var foundInputs = vm.Inputs.Where(x => x.Enum.EEGroup.Contains(e.AddedItems[0].ToString())).ToList();
                 vm.Inputs = new ObservableCollection<DigitalInputVM>(foundInputs);
 
-                var foundOutputs = vm.Outputs.Where(x => x.Enum.EEGroup.Contains(cbxModule.Text)).ToList();
+                var foundOutputs = vm.Outputs.Where(x => x.Enum.EEGroup.Contains(e.AddedItems[0].ToString())).ToList();
                 vm.Outputs = new ObservableCollection<DigitalOutputVM>(foundOutputs);
             }
             else
@@ -220,12 +220,12 @@ namespace AkribisFAM.Windows
             cbxModule.Text = "";
             vm.Inputs = new ObservableCollection<DigitalInputVM>(_allinputs);
             vm.Outputs = new ObservableCollection<DigitalOutputVM>(_alloutput);
-            if (cbxTag.Text != "")
+            if (e.AddedItems.Count > 0 && e.AddedItems[0].ToString() != "")
             {
-                var foundInputs = vm.Inputs.Where(x => x.Enum.Tags.Contains(cbxTag.Text)).ToList();
+                var foundInputs = vm.Inputs.Where(x => x.Enum.Tags.Contains(e.AddedItems[0].ToString())).ToList();
                 vm.Inputs = new ObservableCollection<DigitalInputVM>(foundInputs);
 
-                var foundOutputs = vm.Outputs.Where(x => x.Enum.Tags.Contains(cbxTag.Text)).ToList();
+                var foundOutputs = vm.Outputs.Where(x => x.Enum.Tags.Contains(e.AddedItems[0].ToString())).ToList();
                 vm.Outputs = new ObservableCollection<DigitalOutputVM>(foundOutputs);
             }
             else
